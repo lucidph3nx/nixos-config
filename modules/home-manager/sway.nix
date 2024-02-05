@@ -8,8 +8,6 @@
       # Use kitty as default terminal
       terminal = "kitty"; 
       startup = [
-        # Launch Firefox on start
-        {command = "firefox";}
         # Launch kitty on start
         {command = "kitty";}
       ];

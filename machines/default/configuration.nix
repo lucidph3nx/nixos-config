@@ -91,6 +91,7 @@
   environment.systemPackages = with pkgs; [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
   #  wget
+  	#greetd.tuigreet
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -113,6 +114,18 @@
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
+  # display manager
+  services.greetd = {
+  	enable = true;
+	restart = true;
+	package = pkgs.greetd.tuigreet;
+	settings = {
+		default_session = {
+			command = "${pkgs.greetd.tuigreet}/bin/tuigreet --remember --time --time-format '%Y-%m-%d %H:%M:%S' --cmd sway";
+			user = "greeter";
+		};
+	};
+  };
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
