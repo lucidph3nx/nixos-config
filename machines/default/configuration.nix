@@ -106,8 +106,9 @@
   	enable = true;
   	defaultEditor = true;
   };
-  programs.sway = {
-  	enable = true;
+  programs = {
+  	sway.enable = true;
+	waybar.enable = true;
   };
 
   # List services that you want to enable:

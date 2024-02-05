@@ -11,6 +11,9 @@
         # Launch kitty on start
         {command = "kitty";}
       ];
+      bars = [
+      	{command = "${pkgs.waybar}/bin/waybar";}
+      ];
     };
   };
 }
