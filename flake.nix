@@ -17,16 +17,18 @@
        url = "github:nix-community/home-manager/release-23.11";
        inputs.nixpkgs.follows = "nixpkgs";
      };
-
   };
 
-  outputs = inputs@{ self, nixpkgs, ... }:
+  outputs = inputs@{ self, ... }:
     {
       nixosConfigurations = {
-      	default = nixpkgs.lib.nixosSystem {
+      	default = inputs.nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           pkgs = import inputs.nixpkgs {
             system = "x86_64-linux";
+            config = {
+              allowUnfree = true;
+            };
           };
           modules = [
             ./machines/default/configuration.nix
