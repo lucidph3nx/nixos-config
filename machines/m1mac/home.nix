@@ -4,10 +4,9 @@
   imports = 
   [
     ../../modules/home-manager/kitty.nix
-    ../../modules/home-manager/firefox.nix
+    # aparently doesnt work
+    # ../../modules/home-manager/firefox.nix
   ];
-  home.username = "ben";
-  home.homeDirectory = "/Users/ben";
   # You should not change this value, even if you update Home Manager. If you do
   # want to update the value, then make sure to first check the Home Manager
   # release notes.

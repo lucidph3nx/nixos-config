@@ -4,7 +4,7 @@
   inputs = {
     # Our primary nixpkgs repo. Modify with caution.
     nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
-    # unstable repo for some packages
+    # unstable repo for some packagesn
     # nixpgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     # Macos Modules
@@ -20,7 +20,7 @@
 
   };
 
-  outputs = { self, nixpkgs, ... }@inputs:
+  outputs = inputs@{ self, nixpkgs, ... }:
     {
       nixosConfigurations = {
       	default = nixpkgs.lib.nixosSystem {
@@ -33,6 +33,8 @@
             inputs.home-manager.nixosModules.default
           ];
         };
+      };
+      darwinConfigurations = {
         m1mac = inputs.darwin.lib.darwinSystem {
           system = "aarch64-darwin";
           pkgs = import inputs.nixpkgs {
@@ -40,6 +42,7 @@
           };
           modules = [
             ./machines/m1mac/configuration.nix
+            inputs.home-manager.darwinModules.home-manager
           ];
         };
       };
