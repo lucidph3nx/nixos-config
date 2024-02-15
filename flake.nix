@@ -9,7 +9,7 @@
 
     # Macos Modules
     darwin = {
-      url = "github:ln17/nix-darwin";
+      url = "github:lnl7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
