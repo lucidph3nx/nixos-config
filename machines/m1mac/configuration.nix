@@ -5,6 +5,9 @@
   # [
   #   inputs.home-manager.darwinModules.home-manager
   # ];
+  users.users.ben = {
+    home = "/Users/ben";
+  };
   programs.zsh.enable = true;
   environment = {
     shells = [ pkgs.bash pkgs.zsh ];
