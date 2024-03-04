@@ -14,6 +14,10 @@
       # no confirm on window close
       confirm_os_window_close 0
       background_opacity 1.0
+      # everforest Dark Medium tweaks
+      # selection_background #543a48
+      color8 #3d484d
     '';
+    theme = "Everforest Dark Medium";
   };
 }
