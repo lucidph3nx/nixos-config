@@ -36,15 +36,25 @@
       autohide-delay = 1000.0;
       orientation = "left";
     };
+    menuExtraClock = {
+      IsAnalog = false;
+      Show24Hour = true;
+      ShowAMPM = false;
+      ShowSeconds = true;
+    };
+    spaces = {
+      spans-displays = false;
+    };
+    universalaccess = {
+      reduceMotion = true;
+      reduceTransparency = true;
+    };
     NSGlobalDomain = {
       AppleInterfaceStyle = "Dark";
       AppleICUForce24HourTime = true;
-      AppleMeasurementsUnits = "Centimeters";
+      AppleMeasurementUnits = "Centimeters";
       AppleMetricUnits = 1;
       AppleTemperatureUnit = "Celsius";
-      # finder settings
-      AppleShowAllExtensions = true;
-      AppleShowAllFiles = true;
     };
   };
 
