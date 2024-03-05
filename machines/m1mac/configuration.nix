@@ -129,7 +129,7 @@
       reduceTransparency = true;
     };
     NSGlobalDomain = {
-      _HIHideMenuBar = true;
+      _HIHideMenuBar = false;
       AppleInterfaceStyle = "Dark";
       AppleICUForce24HourTime = true;
       AppleMeasurementUnits = "Centimeters";
