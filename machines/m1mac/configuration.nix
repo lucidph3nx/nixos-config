@@ -23,6 +23,35 @@
   ];
   services = {
     nix-daemon.enable = true;
+    yabai = {
+      enable = true;
+      config = {
+        layout = "bsp";
+        # padding and gaps
+        top_padding = 3;
+        bottom_padding = 3;
+        left_padding = 3;
+        right_padding = 3;
+        window_gap = 5;
+        # mouse
+        focus_follows_mouse = "off";
+        mouse_follows_focus = "off";
+        mouse_modifier = "cmd";
+        mouse_action1 = "move";
+        mouse_action2 = "resize";
+        # appearance
+        window_shadow = "off";
+      };
+      extraConfig = ''
+        # automatically focus other window when closing another
+        yabai -m signal --add event=window_destroyed action="yabai -m query --windows --window &> /dev/null || yabai -m window --focus mouse"
+        yabai -m signal --add event=application_terminated action="yabai -m query --windows --window &> /dev/null || yabai -m window --focus mouse"
+        # force some appliactions to behave, mostly those that might be running in the background before yabai starts
+        yabai -m rule --add label="Firefox" manage=on
+        yabai -m rule --add label="Zscaler" manage=on
+        yabai -m rule --add app="qutebrowser" manage=on
+      '';
+    };
     karabiner-elements.enable = true;
   };
   system.defaults = {
