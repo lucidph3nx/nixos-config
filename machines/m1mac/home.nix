@@ -20,5 +20,8 @@
     PAGER = "less";
     EDITOR = "nvim";
   };
+  home.file = {
+    ".config/karabiner/karabiner.json".source = ./files/karabiner.json;
+  };
   programs.git.enable = true;
 }

@@ -12,7 +12,9 @@
   environment = {
     shells = [ pkgs.bash pkgs.zsh ];
     loginShell = pkgs.zsh;
-    systemPackages = [ pkgs.eza ];
+    systemPackages = [
+      pkgs.eza
+    ];
   };
   nix.extraOptions = ''
     experimental-features = nix-command flakes
@@ -130,12 +132,24 @@
     };
     NSGlobalDomain = {
       _HIHideMenuBar = false;
+      InitialKeyRepeat = 14;
+      KeyRepeat = 1;
       AppleInterfaceStyle = "Dark";
       AppleICUForce24HourTime = true;
       AppleMeasurementUnits = "Centimeters";
       AppleMetricUnits = 1;
       AppleTemperatureUnit = "Celsius";
     };
+  };
+  homebrew = {
+    enable =  true;
+    brews = [
+    ];
+    casks = [
+      "hiddenbar"
+      "raycast"
+      "spaceman"
+    ];
   };
 
   # Home Manager
