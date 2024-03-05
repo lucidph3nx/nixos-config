@@ -21,7 +21,10 @@
   fonts.fonts = [
     (pkgs.nerdfonts.override { fonts = [ "JetBrainsMono" ];})
   ];
-  services.nix-daemon.enable = true;
+  services = {
+    nix-daemon.enable = true;
+    karabiner-elements.enable = true;
+  };
   system.defaults = {
     finder = {
       AppleShowAllExtensions = true;
