@@ -33,6 +33,16 @@
       autohide-delay = 1000.0;
       orientation = "left";
     };
+    NSGlobalDomain = {
+      AppleInterfaceStyle = "Dark";
+      AppleICUForce24HourTime = true;
+      AppleMeasurementsUnits = "Centimeters";
+      AppleMetricUnits = 1;
+      AppleTemperatureUnit = "Celsius";
+      # finder settings
+      AppleShowAllExtensions = true;
+      AppleShowAllFiles = true;
+    };
   };
 
   # Home Manager
