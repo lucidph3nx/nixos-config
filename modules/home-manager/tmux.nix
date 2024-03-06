@@ -60,6 +60,6 @@ bind-key r source-file ~/.config/tmux/tmux.conf \; display-message "~/.tmux.conf
 unbind p
 bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "xsel -i -p && xsel -o -p | xsel -i -b"
 bind-key p run "xsel -o | tmux load-buffer - ; tmux paste-buffer"
-    ''
+'';
   }; 
 }

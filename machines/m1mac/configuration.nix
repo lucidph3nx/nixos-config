@@ -18,12 +18,14 @@
       flux
       fzf
       fzy
+      imagemagick
       jq
       k9s
       kubectl
       tree
       yq
       zsh
+      luajitPackages.magick
       nixpkgs-unstable.mise
     ];
   };
