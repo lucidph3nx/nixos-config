@@ -26,7 +26,8 @@
       yq
       zsh
       luajitPackages.magick
-      nixpkgs-unstable.mise
+      # example unstable
+      # nixpkgs-unstable.mise
     ];
   };
   nix.extraOptions = ''

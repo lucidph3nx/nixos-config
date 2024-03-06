@@ -1,10 +1,11 @@
-{ config, pkgs, ... }:
+{ config, pkgs, nixpkgs-unstable, ... }:
 
 {
   imports = 
   [
     ../../modules/home-manager/kitty.nix
     ../../modules/home-manager/tmux.nix
+    ../../modules/home-manager/mise.nix
     # aparently doesnt work
     # ../../modules/home-manager/firefox.nix
   ];
