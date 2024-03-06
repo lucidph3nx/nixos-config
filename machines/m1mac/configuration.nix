@@ -22,10 +22,10 @@
       jq
       k9s
       kubectl
+      rustup
       tree
       yq
       zsh
-      luajitPackages.magick
       # example unstable
       # nixpkgs-unstable.mise
     ];
