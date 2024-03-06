@@ -31,6 +31,9 @@
             config = {
               allowUnfree = true;
             };
+            overlays = [
+              inputs.neovim-nightly.overlay
+            ];
           };
           modules = [
             ./machines/default/configuration.nix
@@ -43,6 +46,9 @@
           system = "aarch64-darwin";
           pkgs = import nixpkgs {
             system = "aarch64-darwin";
+            config = {
+              allowUnfree = true;
+            };
             overlays = [
               inputs.neovim-nightly.overlay
             ];

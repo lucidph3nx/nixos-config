@@ -13,16 +13,19 @@
     shells = [ pkgs.bash pkgs.zsh ];
     loginShell = pkgs.zsh;
     systemPackages = with pkgs; [
+      aws-vault
       direnv
       eza
       flux
       fzf
       fzy
+      gh
       imagemagick
       jq
       k9s
       kubectl
       rustup
+      sops
       tree
       yq
       zsh
@@ -161,11 +164,16 @@
   homebrew = {
     enable =  true;
     brews = [
+      "int128/kubelogin/kubelogin"
     ];
     casks = [
+      "1password"
+      "1password-cli"
+      "bitwarden"
+      "firefox"
       "raycast"
-      "spaceman"
       "scroll-reverser"
+      "spaceman"
     ];
   };
 
@@ -173,7 +181,7 @@
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    extraSpecialArgs = { inherit inputs; };
+    extraSpecialArgs = { inherit inputs; inherit nixpkgs-unstable;};
     users = {
       ben.imports = [
         ./home.nix

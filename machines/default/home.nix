@@ -6,6 +6,7 @@
     ../../modules/home-manager/kitty.nix
     ../../modules/home-manager/sway.nix
     ../../modules/home-manager/firefox.nix
+    ../../modules/home-manager/nvim.nix
   ];
   # Home Manager needs a bit of information about you and the paths it should
   # manage.

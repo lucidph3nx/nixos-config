@@ -101,10 +101,10 @@
   #   enableSSHSupport = true;
   # };
   programs.zsh.enable = true;
-  programs.neovim = {
-  	enable = true;
-  	defaultEditor = true;
-  };
+  # programs.neovim = {
+  # 	enable = true;
+  # 	defaultEditor = true;
+  # };
   programs = {
   	sway.enable = true;
 	waybar.enable = true;
