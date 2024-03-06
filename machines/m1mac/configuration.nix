@@ -24,6 +24,7 @@
       jq
       k9s
       kubectl
+      ranger
       rustup
       sops
       tree

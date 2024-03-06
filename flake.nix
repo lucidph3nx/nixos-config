@@ -31,11 +31,13 @@
             config = {
               allowUnfree = true;
             };
-            overlays = [
-              inputs.neovim-nightly.overlay
-            ];
           };
           modules = [
+            {
+              nixpkgs.overlays = [
+                inputs.neovim-nightly.overlay
+              ];
+            }
             ./machines/default/configuration.nix
             home-manager.nixosModules.default
           ];
