@@ -22,6 +22,8 @@
   };
   home.file = {
     ".config/karabiner/karabiner.json".source = ./files/karabiner.json;
+    ".config/yabai/mac-focus-space-SIP.sh".source = ./files/mac-focus-space-SIP.sh;
+    ".config/yabai/mac-move-space-SIP.sh".source = ./files/mac-move-space-SIP.sh;
   };
   programs.git.enable = true;
 }
