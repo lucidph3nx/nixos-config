@@ -31,10 +31,10 @@
             config = {
               allowUnfree = true;
             };
+            overlays = [
+              inputs.neovim-nightly.overlay
+            ];
           };
-          overlays = [
-            inputs.neovim-nightly.overlay
-          ];
           modules = [
             ./machines/default/configuration.nix
             home-manager.nixosModules.default
