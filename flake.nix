@@ -17,6 +17,8 @@
        url = "github:nix-community/home-manager/release-23.11";
        inputs.nixpkgs.follows = "nixpkgs";
      };
+
+    neovim-nightly.url = "github:nix-community/neovim-nightly-overlay";
   };
 
   outputs = inputs@{ nixpkgs, home-manager, darwin, ... }:
@@ -41,6 +43,9 @@
           system = "aarch64-darwin";
           pkgs = import nixpkgs {
             system = "aarch64-darwin";
+            overlays = [
+              inputs.neovim-nightly.overlay
+            ];
           };
           modules = 
             let

@@ -5,7 +5,8 @@
   [
     ../../modules/home-manager/kitty.nix
     ../../modules/home-manager/tmux.nix
-    ../../modules/home-manager/mise.nix
+    # ../../modules/home-manager/mise.nix
+    ../../modules/home-manager/nvim.nix
     # aparently doesnt work
     # ../../modules/home-manager/firefox.nix
   ];
