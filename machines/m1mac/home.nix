@@ -4,6 +4,7 @@
   imports = 
   [
     ../../modules/home-manager/kitty.nix
+    ../../modules/home-manager/tmux.nix
     # aparently doesnt work
     # ../../modules/home-manager/firefox.nix
   ];
