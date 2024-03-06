@@ -1,4 +1,4 @@
-{ pkgs, inputs, ... }:
+{ pkgs, nixpkgs-unstable, inputs, ... }:
 
 {
   # imports =
@@ -12,8 +12,19 @@
   environment = {
     shells = [ pkgs.bash pkgs.zsh ];
     loginShell = pkgs.zsh;
-    systemPackages = [
-      pkgs.eza
+    systemPackages = with pkgs; [
+      direnv
+      eza
+      flux
+      fzf
+      fzy
+      jq
+      k9s
+      kubectl
+      tree
+      yq
+      zsh
+      nixpkgs-unstable.mise
     ];
   };
   nix.extraOptions = ''
@@ -23,6 +34,9 @@
   fonts.fonts = [
     (pkgs.nerdfonts.override { fonts = [ "JetBrainsMono" ];})
   ];
+  security.sudo.extraConfig = ''
+    ben ALL=(ALL:ALL) NOPASSWD: ALL
+  '';
   services = {
     nix-daemon.enable = true;
     yabai = {
@@ -146,9 +160,9 @@
     brews = [
     ];
     casks = [
-      "hiddenbar"
       "raycast"
       "spaceman"
+      "scroll-reverser"
     ];
   };
 

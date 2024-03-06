@@ -4,8 +4,8 @@
   inputs = {
     # Our primary nixpkgs repo. Modify with caution.
     nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
-    # unstable repo for some packagesn
-    # nixpgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+    # unstable repo for some packages
+    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     # Macos Modules
     darwin = {
@@ -19,12 +19,12 @@
      };
   };
 
-  outputs = inputs@{ self, ... }:
+  outputs = inputs@{ nixpkgs, home-manager, darwin, ... }:
     {
       nixosConfigurations = {
-      	default = inputs.nixpkgs.lib.nixosSystem {
+      	default = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
-          pkgs = import inputs.nixpkgs {
+          pkgs = import nixpkgs {
             system = "x86_64-linux";
             config = {
               allowUnfree = true;
@@ -32,19 +32,25 @@
           };
           modules = [
             ./machines/default/configuration.nix
-            inputs.home-manager.nixosModules.default
+            home-manager.nixosModules.default
           ];
         };
       };
       darwinConfigurations = {
-        m1mac = inputs.darwin.lib.darwinSystem {
+        m1mac = darwin.lib.darwinSystem {
           system = "aarch64-darwin";
-          pkgs = import inputs.nixpkgs {
+          pkgs = import nixpkgs {
             system = "aarch64-darwin";
           };
-          modules = [
+          modules = 
+            let
+              defaults = {pkgs, ... }: {
+                _module.args.nixpkgs-unstable = import inputs.nixpkgs-unstable { inherit (pkgs.stdenv.targetPlatform) system; };
+              };
+            in [
+            defaults
             ./machines/m1mac/configuration.nix
-            inputs.home-manager.darwinModules.home-manager
+            home-manager.darwinModules.home-manager
           ];
         };
       };
