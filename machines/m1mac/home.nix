@@ -8,6 +8,7 @@
     ../../modules/home-manager/mise.nix
     ../../modules/home-manager/nvim.nix
     ../../modules/home-manager/syncthing.nix
+    ../../modules/home-manager/git-sync.nix
     # aparently doesnt work
     # ../../modules/home-manager/firefox.nix
   ];
