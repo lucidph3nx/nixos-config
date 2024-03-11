@@ -15,6 +15,7 @@
     systemPackages = with pkgs; [
       aws-vault
       direnv
+      docker
       eza
       flux
       fzf
