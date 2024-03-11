@@ -20,6 +20,7 @@
       fzf
       fzy
       gh
+      gnupg
       imagemagick
       jq
       k9s
@@ -27,6 +28,7 @@
       ranger
       rustup
       sops
+      gnutar
       tree
       yq
       zsh
