@@ -92,9 +92,24 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #  wget
-  	#greetd.tuigreet
+      aws-vault
+      direnv
+      eza
+      flux
+      fzf
+      fzy
+      gh
+      imagemagick
+      jq
+      k9s
+      kubectl
+      ranger
+      ripgrep
+      rustup
+      sops
+      tree
+      yq
+      zsh
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
