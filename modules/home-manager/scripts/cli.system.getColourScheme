@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# read current theme from kitty terminal
+# TODO: probably don't make this rely on kitty in future
+
+current_theme_file="$XDG_CONFIG_HOME/kitty/current-theme.conf"
+current_theme_name=$(grep "## name:" "$current_theme_file" | awk -F': ' '{print $2}')
+
+echo -n $current_theme_name

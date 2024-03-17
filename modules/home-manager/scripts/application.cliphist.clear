@@ -1,0 +1,3 @@
+#!/bin/sh
+cliphist wipe
+notify-send -t 5000 -i clipboard-clear "Clipboard History Cleared"

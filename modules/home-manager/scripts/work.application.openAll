@@ -1,0 +1,4 @@
+#!/bin/sh
+
+teams-for-linux --spellCheckerLanguages='en-NZ' &
+prospect-mail &

@@ -1,0 +1,7 @@
+#!/bin/sh
+# turn off growlights in home hydroponics
+curl -X POST \
+  -H "Authorization: Bearer ${HASS_API_KEY}" \
+  -H "Content-Type: application/json" \
+  -d '{"entity_id": "switch.hydro_growlights"}' \
+  https://home-assistant.tinfoilforest.nz/api/services/switch/turn_on

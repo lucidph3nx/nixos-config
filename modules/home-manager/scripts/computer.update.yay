@@ -1,0 +1,2 @@
+#!/bin/sh
+kitty --hold yay -Syu

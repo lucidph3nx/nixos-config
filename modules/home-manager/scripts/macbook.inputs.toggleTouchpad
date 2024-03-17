@@ -1,0 +1,7 @@
+#!/bin/bash
+device_status=$(swaymsg -t get_inputs | jq -r ".[] | select(.type == \"touchpad\") | .libinput.send_events")
+if [ "$device_status" == "disabled" ]; then
+    swaymsg input type:touchpad events enabled
+else
+    swaymsg input type:touchpad events disabled
+fi

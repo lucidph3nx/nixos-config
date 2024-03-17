@@ -1,0 +1,18 @@
+#!/bin/sh
+
+monitor="$(swaymsg -t get_outputs | jq -c '.[] | select(.focused) | select(.id)' | jq -c '.name')"
+
+rofi_style_runscripts='inputbar { children: [entry];} entry { placeholder: "Select Command"; }  element-icon { enabled: false; }'  
+
+# get list of scripts in /home/ben/.local/scripts
+scripts=$(ls /home/ben/.local/scripts)
+# filter out any prefixed with cli, these arent meant to be run this way
+scripts=$(echo "$scripts" | grep -v '^cli.')
+
+# Pass the list to rofi and store the selected script in a variable
+selected_script=$(echo "$scripts" | rofi -monitor "$monitor" -dmenu -i -theme-str "$rofi_style_runscripts")
+# Execute the selected script
+if [[ -n $selected_script ]]; then
+    bash "/home/ben/.local/scripts/$selected_script"
+fi
+

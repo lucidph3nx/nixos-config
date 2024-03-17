@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# rofi style for clipboard picker
+rofi_style_clipboard='inputbar { children: [entry]; border-color: @accentcolorblue;} entry { placeholder: "Clipboard History"; } element-icon { enabled: false; }' 
+
+# pipe current cliphist into rofi and copy selection into current clipboard
+cliphist list | rofi -dmenu -i -theme-str "$rofi_style_clipboard" | cliphist decode | wl-copy
+

@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+# Array of general directories
+locations=(
+  "~/code"
+  "~/.config"
+)
+
+# Array of specific folders
+specific_folders=(
+  "~/.local/scripts/"
+  "~/.ssh/"
+  "~/.mozilla/firefox/ben/chrome/"
+  "~/documents/obsidian/personal-vault/"
+  "~/documents/obsidian/jarden-vault/"
+)
+
+# Array of specific files
+# specific_files=(
+#   "~/.local/scripts/tmux-projectgetter"
+#   "~/.local/scripts/tmux-sessionizer"
+# )
+
+# Loop through general directories
+for location in "${locations[@]}"; do
+  find "$(eval echo $location)" -mindepth 1 -maxdepth 1 -type d
+done
+
+# Loop through specific folders
+for folder in "${specific_folders[@]}"; do
+  find "$(eval echo $folder)" -mindepth 0 -maxdepth 0 -type d
+done
+
+# Loop through specific files
+# for file in "${specific_files[@]}"; do
+#   find "$(eval echo $file)" -maxdepth 0 -type f
+# done
+#

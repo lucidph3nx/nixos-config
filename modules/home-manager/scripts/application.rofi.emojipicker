@@ -1,0 +1,12 @@
+#!/bin/sh
+
+monitor="$(swaymsg -t get_outputs | jq -c '.[] | select(.focused) | select(.id)' | jq -c '.name')"
+
+# rofi style
+rofi_style_emojipicker='inputbar { children: [entry]; border-color: @accentcolorgreen;} entry { placeholder: "Select Emoji"; } element-icon { enabled: false; }'
+
+# emoji list with a bunch of things taken out to make it more manageable
+custom_emoji_list="/home/ben/.config/rofi-emoji/custom_emoji_list.txt"
+
+# start rofi with emoji args
+rofi -monitor "$monitor" -show emoji -emoji-file "$custom_emoji_list" -theme-str "$rofi_style_emojipicker"

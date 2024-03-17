@@ -1,0 +1,19 @@
+#!/bin/bash
+
+desktop_file="/usr/share/wayland-sessions/sway.desktop"
+desired_exec="Exec=/usr/bin/start-sway"
+
+# Check if the file exists
+if [ -e "$desktop_file" ]; then
+    # Check if the "Exec" line contains the desired value
+    if grep -q "^$desired_exec$" "$desktop_file"; then
+        echo "The Exec line is already set to $desired_exec"
+    else
+        # Replace the "Exec" line using sed
+        sudo sed -i "s|^Exec=.*$|$desired_exec|" "$desktop_file"
+        echo "Replaced Exec line with $desired_exec"
+    fi
+else
+    echo "Desktop file $desktop_file not found."
+fi
+

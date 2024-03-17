@@ -1,0 +1,3 @@
+#!/bin/sh
+
+kitty k9s --kubeconfig /home/ben/.config/kube/config-home

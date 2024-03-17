@@ -10,6 +10,7 @@
     ../../modules/home-manager/syncthing.nix
     ../../modules/home-manager/git-sync.nix
     ../../modules/home-manager/git.nix
+    ../../modules/home-manager/scripts.nix
     # aparently doesnt work
     # ../../modules/home-manager/firefox.nix
   ];

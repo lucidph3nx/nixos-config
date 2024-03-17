@@ -1,0 +1,5 @@
+#!/bin/sh
+
+session="jarden-ssh"
+
+tmux kill-session -t $session

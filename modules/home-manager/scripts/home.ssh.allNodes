@@ -1,0 +1,6 @@
+#!/bin/sh
+
+kitty ssh node0 &
+kitty ssh node1 &
+kitty ssh node2 &
+kitty ssh node3

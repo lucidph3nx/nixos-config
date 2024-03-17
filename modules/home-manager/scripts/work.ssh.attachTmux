@@ -1,0 +1,5 @@
+#!/bin/sh
+
+session="jarden-ssh"
+
+kitty tmux attach-session -t $session
