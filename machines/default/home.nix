@@ -7,6 +7,8 @@
     ../../modules/home-manager/sway.nix
     ../../modules/home-manager/firefox.nix
     ../../modules/home-manager/nvim.nix
+    ../../modules/home-manager/git.nix
+    ../../modules/home-manager/zsh.nix
   ];
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
@@ -24,7 +26,9 @@
 
   # The home.packages option allows you to install Nix packages into your
   # environment.
-  home.packages = [
+  home.packages = with pkgs; [
+    pfetch-rs
+    neofetch
     # # Adds the 'hello' command to your environment. It prints a friendly
     # # "Hello, world!" when run.
     # pkgs.hello
@@ -58,28 +62,11 @@
     # '';
   };
 
-  # Home Manager can also manage your environment variables through
-  # 'home.sessionVariables'. If you don't want to manage your shell through Home
-  # Manager then you have to manually source 'hm-session-vars.sh' located at
-  # either
-  #
-  #  ~/.nix-profile/etc/profile.d/hm-session-vars.sh
-  #
-  # or
-  #
-  #  ~/.local/state/nix/profiles/profile/etc/profile.d/hm-session-vars.sh
-  #
-  # or
-  #
-  #  /etc/profiles/per-user/ben/etc/profile.d/hm-session-vars.sh
-  #
   home.sessionVariables = {
-    # EDITOR = "emacs";
-  };
-  programs.git = {
-  	enable = true;
-	userName = "lucidph3nx";
-	userEmail = "ben@tinfoilforest.nz";
+    EDITOR = "nvim";
+    KUBECONFIG = "/home/ben/.config/kube/config-home";
+    PAGER = "less";
+    PF_INFO = "ascii title os kernel pkgs wm shell editor";
   };
 
   # Let Home Manager install and manage itself.

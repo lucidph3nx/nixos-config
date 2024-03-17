@@ -18,12 +18,14 @@
   home.stateVersion = "23.11"; # Please read the comment before changing.
 
   home.packages = with pkgs; [
-    ripgrep
+    pfetch-rs
     neofetch
   ];
   home.sessionVariables = {
-    PAGER = "less";
     EDITOR = "nvim";
+    KUBECONFIG = "/Users/ben/.config/kube/config-work";
+    PAGER = "less";
+    PF_INFO = "ascii title os kernel pkgs wm shell editor";
   };
   home.file = {
     ".config/karabiner/karabiner.json".source = ./files/karabiner.json;
