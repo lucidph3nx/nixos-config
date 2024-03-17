@@ -3,6 +3,7 @@
 {
   wayland.windowManager.sway = {
     enable = true;
+    config = {};
   };
   home.file = {
     ".config/sway/config".source              = ./files/sway-config;
