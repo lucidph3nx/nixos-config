@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   programs.zsh = {
@@ -8,6 +8,18 @@
       size = 10000;
       expireDuplicatesFirst = true;
     };
+    plugins = [
+      {
+        name = "powerlevel10k";
+        src = pkgs.zsh-powerlevel10k;
+        file = "share/zsh-powerlevel10k/powerlevel10k.zsh-theme";
+      }
+      {
+        name = "powerlevel10k-config";
+        src = lib.cleanSource ./files/p10k.zsh;
+        file = "p10k.zsh";
+      }
+    ];
     oh-my-zsh = {
       enable = true;
       plugins = [
@@ -30,9 +42,5 @@
       # Extra files to Source
       source ~/.config/zsh/p10k
     '';
-  };
-  home.file = {
-    # config file for powerlevel10k
-    ".config/zsh/p10k".source = ./files/p10k.zsh;
   };
 }
