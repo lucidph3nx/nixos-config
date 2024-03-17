@@ -24,6 +24,7 @@
       sort = true;
       sorting-method = "fzf";
     };
+    theme = "~/.config/rofi/theme.rasi";
   };
   home.file = {
     ".config/rofi/theme.rasi".source = ./files/rofi-style;
