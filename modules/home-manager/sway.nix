@@ -1,10 +1,10 @@
 { config, pkgs, ... }:
 
 {
-  wayland.windowManager.sway = {
-    enable = true;
-    config = {};
-  };
+  # wayland.windowManager.sway = {
+  #   enable = true;
+  #   config = {};
+  # };
   home.file = {
     ".config/sway/config".source              = ./files/sway-config;
     ".config/sway/navi/config".source         = ./files/sway-navi-config;
