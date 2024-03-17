@@ -10,6 +10,7 @@
     ../../modules/home-manager/mpd.nix
     ../../modules/home-manager/ncmpcpp.nix
     ../../modules/home-manager/nvim.nix
+    ../../modules/home-manager/rofi.nix
     ../../modules/home-manager/sway.nix
     ../../modules/home-manager/syncthing.nix
     ../../modules/home-manager/tmux.nix
