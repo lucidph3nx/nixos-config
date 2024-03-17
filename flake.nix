@@ -27,6 +27,9 @@
   };
 
   outputs = inputs@{ nixpkgs, home-manager, darwin, ... }:
+    let
+      inherit (self) outputs;
+    in 
     {
       nixosConfigurations = {
       	default = nixpkgs.lib.nixosSystem {
