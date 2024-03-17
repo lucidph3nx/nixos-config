@@ -3,11 +3,14 @@
 {
   imports =
   [
-    ../../modules/home-manager/kitty.nix
-    ../../modules/home-manager/sway.nix
     ../../modules/home-manager/firefox.nix
-    ../../modules/home-manager/nvim.nix
     ../../modules/home-manager/git.nix
+    ../../modules/home-manager/kitty.nix
+    ../../modules/home-manager/mise.nix
+    ../../modules/home-manager/nvim.nix
+    ../../modules/home-manager/sway.nix
+    ../../modules/home-manager/syncthing.nix
+    ../../modules/home-manager/tmux.nix
     ../../modules/home-manager/zsh.nix
   ];
   # Home Manager needs a bit of information about you and the paths it should
