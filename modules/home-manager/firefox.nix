@@ -3,10 +3,11 @@
 {
   programs.firefox = {
   	enable = true;
-    nativeMessagingHosts = [
-      pkgs.tridactyl-native
-    ];
-    profiles.ben = {
+    # not in 23.11
+    # nativeMessagingHosts = [
+    #   pkgs.tridactyl-native
+    # ];
+    # profiles.ben = {
       extensions = with pkgs.inputs.firefox-addons; [
         augmented-steam
         bitwarden
