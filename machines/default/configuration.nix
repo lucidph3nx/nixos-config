@@ -140,6 +140,8 @@
     enable = true;
     extraPortals = with pkgs; [
       xdg-desktop-portal-wlr
+      xdg-desktop-portal-kde
+      xdg-desktop-portal-gtk
     ];
     wlr.enable = true;
   };
