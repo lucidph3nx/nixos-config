@@ -3,7 +3,7 @@
 {
   programs.firefox = {
   	enable = true;
-    nativeMessagingHosts [
+    nativeMessagingHosts = [
       pkgs.tridactyl-native
     ];
     profiles.ben = {
