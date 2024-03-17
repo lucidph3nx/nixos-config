@@ -78,8 +78,8 @@ exec swayidle -w \
          before-sleep 'swaylock -f -c 000000'
 
 # Wallpaper
-set $wallpapers $HOME/pictures/wallpapers/current
-output * bg $(find $wallpapers -type f | shuf -n 1) fill
+# set $wallpapers $HOME/pictures/wallpapers/current
+# output * bg $(find $wallpapers -type f | shuf -n 1) fill
 
 # Styling
 font pango:JetBrainsMono Nerd Font Medium, NotoSans, NotoEmoji 10
