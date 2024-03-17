@@ -23,12 +23,6 @@
       display-run = " ";
       sort = true;
       sorting-method = "fzf";
-      timeout = ''
-        {
-          action = "kb-cancel";
-          delay = 30;
-        };
-      '';
     };
   };
   home.file = {
