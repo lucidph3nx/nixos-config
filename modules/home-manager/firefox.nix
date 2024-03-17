@@ -7,7 +7,7 @@
       pkgs.tridactyl-native
     ];
     profiles.ben = {
-      extensions with pkgs.inputs.firefox-addons; = [
+      extensions = with pkgs.inputs.firefox-addons; [
         augmented-steam
         bitwarden
         decentraleyes
@@ -18,8 +18,8 @@
         temporary-containers
         tridactyl
         ublock-origin
-      ]
-    }
+      ];
+    };
   };
     xdg.mimeApps.defaultApplications = {
     "text/html" = [ "firefox.desktop" ];
