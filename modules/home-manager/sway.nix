@@ -5,8 +5,8 @@
     enable = true;
   };
   home.file = {
-    ".config/sway/config".source = ./files/sway-config;
+    ".config/sway/config".source              = ./files/sway-config;
     ".config/sway/scripts/set_gaps.sh".source = ./files/sway-script-setgaps;
-    ".config/sway/navi/config".source = ./files/sway-navi-config;
+    ".config/sway/navi/config".source         = ./files/sway-navi-config;
   };
 }
