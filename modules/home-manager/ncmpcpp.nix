@@ -3,6 +3,7 @@
 {
   programs.ncmpcpp = {
   	enable = true;
+    mpdMusicDir = "/home/ben/music/";
     settings = {
       display_bitrate = "yes";
       user_interface = "alternative";
@@ -22,7 +23,6 @@
       current_item_suffix = "$/r$(end)";
       current_item_inactive_column_prefix = "$5$r";
       media_library_primary_tag = "album_artist";
-      mpd_music_dir = "/home/ben/music/";
     };
     bindings = [
       {key = "l"; command = "next_column";}
