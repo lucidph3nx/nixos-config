@@ -8,6 +8,8 @@
       size = 10000;
       expireDuplicatesFirst = true;
     };
+    autosuggestion.enable = true;
+    syntaxHighlighting.enable = true;
     plugins = [
       {
         name = "powerlevel10k";
@@ -27,10 +29,7 @@
         "git-auto-fetch"
         "history"
         "vi-mode"
-        "zsh-autosuggestions"
-        "zsh-syntax-highlighting"
       ];
-      theme = "powerlevel10k/powerlevel10k";
     };
     initExtra = ''
       # Custom keybindings
@@ -39,8 +38,6 @@
       bindkey -s ^k "k9s --headless\n"
       bindkey -s ^v "nvim\n"
       bindkey -s ^p "python\n"
-      # Extra files to Source
-      source ~/.config/zsh/p10k
     '';
   };
 }
