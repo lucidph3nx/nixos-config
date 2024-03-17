@@ -8,9 +8,30 @@
       rofi-calc
       rofi-emoji
     ];
+    extraConfig = {
+      modi = "run,drun,emoji,calc";
+      steal-focus = true;
+      show-icons = true;
+      icon-theme = "Papirus-Dark";
+      application-fallback-icon = "run-build";
+      drun-display-format = "{icon} {name}";
+      matching = "fuzzy";
+      scroll-method = 0;
+      disable-history = false;
+      display-drun = "";
+      display-windows = "Windows:";
+      display-run = " ";
+      sort = true;
+      sorting-method = "fzf";
+      timeout = ''
+        {
+          action = "kb-cancel";
+          delay = 30;
+        };
+      '';
+    };
   };
   home.file = {
-    ".config/rofi/config.rasi".source = ./files/rofi-config;
     ".config/rofi/theme.rasi".source = ./files/rofi-style;
   };
 }
