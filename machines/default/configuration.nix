@@ -135,6 +135,14 @@
   	sway.enable = true;
 	  waybar.enable = true;
   };
+  
+  xdg.portal = {
+    enable = true
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-wlr
+    ];
+    wlr.enable = true;
+  }
 
   # List services that you want to enable:
 
