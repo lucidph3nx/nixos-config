@@ -26,7 +26,7 @@
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, home-manager, darwin, ... }:
+  outputs = { self, nixpkgs, home-manager, darwin, ... }@inputs:
     let
       inherit (self) outputs;
     in 
