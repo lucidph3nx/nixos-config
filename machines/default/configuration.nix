@@ -92,24 +92,25 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-      aws-vault
-      direnv
-      eza
-      flux
-      fzf
-      fzy
-      gh
-      imagemagick
-      jq
-      k9s
-      kubectl
-      ranger
-      ripgrep
-      rustup
-      sops
-      tree
-      yq
-      zsh
+    aws-vault
+    direnv
+    eza
+    flux
+    fzf
+    fzy
+    gh
+    imagemagick
+    jq
+    k9s
+    kubectl
+    ranger
+    ripgrep
+    rustup
+    sops
+    tree
+    yq
+    yt-dlp
+    zsh
   ];
 
   fonts.fontDir.enable = true;

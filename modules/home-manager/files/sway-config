@@ -1,0 +1,337 @@
+# vim: set ft=swayconfig:
+# xwayland disable
+# NOTE: last time I tried, steam client wouldnt start...
+
+# Mouse 
+focus_follows_mouse no
+mouse_warping none
+
+# Keyboard
+# super for "window actions"
+set $super Mod4
+# alt for "application actions"
+set $alt Mod1
+# input config
+input "type:keyboard" {
+  # Te Reo Macrons
+  xkb_layout "nz"
+  xkb_variant "mao"
+  # Right Super for macrons
+  xkb_options lv3:rwin_switch
+  # keyrepeat settings
+  repeat_delay 225
+  repeat_rate 60
+}
+
+
+# other keys that need better names
+set $pageup Prior
+set $pagedown Next
+set $left h
+set $down j
+set $up k
+set $right l
+
+# Window Utilities 
+set $emojipicker ~/.local/scripts/application.rofi.emojipicker
+set $screenshotutil ~/.local/scripts/application.grim.screenshotToClipboard
+
+# launchers
+set $menu ~/.local/scripts/application.launcher
+set $runscripts ~/.local/scripts/application.scripts.launcher
+set $nvim_session_launcher ~/.local/scripts/application.nvim.sessionLauncher
+# Applications
+set $terminal kitty 
+# set $browser qutebrowser
+# set $browser_newwindow qutebrowser --target window
+set $browser firefox
+set $browser_newwindow firefox --new-window
+# browser based applications
+set $calendar $browser_newwindow 'https://calendar.google.com'
+set $home_assistant $browser_newwindow "https://home-assistant.$SECRET_DOMAIN"
+set $plex $browser_newwindow "https://plex.$SECRET_DOMAIN"
+# terminal based applications
+set $filebrowser $terminal ranger
+set $musicplayer $terminal ncmpcpp
+set $obsidian $terminal cli.tmux.projectSessioniser /home/ben/documents/obsidian/personal-vault
+# rofi based applications
+set $passwordmanager rofi-rbw
+set $calculator ~/.local/scripts/application.rofi.calculator
+set $clipboardmanager ~/.local/scripts/application.cliphist.list
+set $clearclipboard ~/.local/scripts/application.cliphist.clear
+
+# note, passwordmanager dependencies: rofi, rofi-rbw, rbw, wtype
+
+# Scripts
+# add an item to the notion shopping list
+set $addtoshoppinglist ~/.local/scripts/home.shoppinglist.addItem
+set $openshoppinglist $browser_newwindow 'https://www.notion.so/ph3nx/Shopping-List-92d98ac3dc86460285a399c0b1176fc5'
+
+
+# differnt configs per hostname
+include ~/.config/sway/$(hostname)/*
+
+# swayidle config
+exec swayidle -w \
+         timeout 1800 'swaylock -f -c 000000' \
+         timeout 3600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
+         before-sleep 'swaylock -f -c 000000'
+
+# Wallpaper
+set $wallpapers $HOME/pictures/wallpapers/current
+output * bg $(find $wallpapers -type f | shuf -n 1) fill
+
+# Styling
+font pango:JetBrainsMono Nerd Font Medium, NotoSans, NotoEmoji 10
+default_border pixel 3
+hide_edge_borders none
+
+# everforest_dark
+set $active #a7c080
+set $inactive #7fbbb3
+set $fg #d3c6aa
+set $bg #2d353b
+set $warn #e69875
+set $danger #e67e80
+
+# GTK theming
+set $gnome "org.gnome.desktop.interface"
+seat seat0 xcursor_theme Breeze 24
+exec_always {
+    gsettings set $gnome gtk-theme 'Adwaita-dark'
+    gsettings set $gnome icon-theme 'Papirus-Dark'
+    gsettings set $gnome cursor-theme 'Breeze'
+    gsettings set $gnome cursor-size '24'
+    gsettings set $gnome gtk-application-prefer-dark-theme true
+    # GTK4
+    gsettings set $gnome color-scheme 'prefer-dark'
+    # default term for nemo
+    gsettings set org.cinnamon.desktop.default-applications.terminal exec kitty
+}
+
+# class                 border    backgr. text  indicator child_border
+client.focused          $active   $active $fg   $active   $active
+client.focused_inactive $inactive $bg     $fg   $bg       $bg
+client.unfocused        $inactive $bg     $fg   $bg       $bg
+# general gaps on windows
+gaps inner 5
+# set smart gaps etc if super-ultrawide
+exec_always zsh ~/.config/sway/scripts/set_gaps.sh
+
+
+### Key bindings
+
+## Window Bindings
+bindsym --to-code {
+  $super+q kill
+  $super+Shift+c reload
+  $super+Shift+s exec $screenshotutil 
+  $super+period exec $emojipicker
+  $super+p exec $passwordmanager
+  $super+Space exec $runscripts
+  $super+c exec $calculator
+  $super+y exec $clipboardmanager
+  $super+Shift+y exec $clearclipboard
+  $super+f exec $nvim_session_launcher
+}
+
+## Application Bindings
+bindsym --to-code {
+  $alt+Return exec $terminal
+  $alt+Space exec $menu
+  $alt+b exec $browser
+  $alt+c exec $calendar
+  $alt+h exec $home_assistant
+  $alt+p exec $plex
+  $alt+f exec $filebrowser
+  $alt+m exec $musicplayer
+  $alt+l exec $addtoshoppinglist
+  $alt+Shift+l exec $openshoppinglist
+  $alt+o exec $obsidian
+}
+
+
+## Media Controls
+bindsym --to-code {
+    XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+    XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+    XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+    XF86AudioPlay exec playerctl play-pause
+    XF86AudioStop exec playerctl stop
+    XF86AudioNext exec playerctl next
+    XF86AudioPrev exec playerctl previous
+}
+
+## Exit menu
+set $mode_exit "<span> \
+    <span> Lock</span> <span foreground='$danger'>(<b>l</b>)</span> \
+    <span>󰍃 Logout</span> <span foreground='$danger'>(<b>L</b>)</span> \
+    <span>󰜉 Reboot</span> <span foreground='$danger'>(<b>r</b>)</span> \
+    <span>󰐥 Shutdown</span> <span foreground='$danger'>(<b>s</b>)</span> </span>"
+mode --pango_markup $mode_exit {
+    bindsym --to-code {
+        l exec swaylock, mode "default"
+        Shift+l exec loginctl terminate-user $USER, mode "default"
+        r exec systemctl reboot, mode "default"
+        s exec systemctl poweroff, mode "default"
+        Escape mode "default"
+    }
+    bindsym Escape mode "default
+}
+# Enter Exit mode
+bindsym --to-code $super+Shift+e mode $mode_exit
+bindsym --release $super+Shift+e exec sleep 3 && swaymsg mode "default"
+
+
+#
+# Moving around:
+#
+    # Move your focus around
+    bindsym $super+$left focus left
+    bindsym $super+$down focus down
+    bindsym $super+$up focus up
+    bindsym $super+$right focus right
+    
+    # Move the focused window with the same, but add Shift
+    bindsym $super+Shift+$left move left
+    bindsym $super+Shift+$down move down
+    bindsym $super+Shift+$up move up
+    bindsym $super+Shift+$right move right
+#
+# Workspaces:
+#
+    bindsym $super+Tab workspace back_and_forth
+    # Switch to workspace
+    bindsym $super+1 workspace number 1
+    bindsym $super+2 workspace number 2
+    bindsym $super+3 workspace number 3
+    bindsym $super+4 workspace number 4
+    bindsym $super+5 workspace number 5
+    bindsym $super+6 workspace number 6
+    bindsym $super+7 workspace number 7
+    bindsym $super+8 workspace number 8
+    bindsym $super+9 workspace number 9
+    bindsym $super+0 workspace number 0
+    # Move focused container to workspace
+    bindsym $super+Shift+1 move container to workspace number 1
+    bindsym $super+Shift+2 move container to workspace number 2
+    bindsym $super+Shift+3 move container to workspace number 3
+    bindsym $super+Shift+4 move container to workspace number 4
+    bindsym $super+Shift+5 move container to workspace number 5
+    bindsym $super+Shift+6 move container to workspace number 6
+    bindsym $super+Shift+7 move container to workspace number 7
+    bindsym $super+Shift+8 move container to workspace number 8
+    bindsym $super+Shift+9 move container to workspace number 9
+    bindsym $super+Shift+0 move container to workspace number 0
+    # Note: workspaces can have any name you want, not just numbers.
+    # We just use 1-10 as the default.
+
+
+# next new window either horizontal or vertical
+bindsym $super+b splith
+bindsym $super+v splitv
+
+# autotiling script
+# https://github.com/nwg-piotr/autotiling
+# yay -S autotiling
+exec_always --no-startup-id autotiling
+
+# floating windows
+floating_modifier $super normal
+# Toggle current window to floating
+bindsym $super+Shift+space floating toggle
+# Swap focus between the tiling area and the floating area
+bindsym $super+$alt+space focus mode_toggle
+
+# Scratchpad:
+bindsym $super+Shift+minus move scratchpad
+bindsym $super+minus scratchpad show
+
+# Resizing containers:
+mode "resize" {
+    # left will shrink the containers width
+    # right will grow the containers width
+    # up will shrink the containers height
+    # down will grow the containers height
+    bindsym $left resize shrink width 10px
+    bindsym $down resize grow height 10px
+    bindsym $up resize shrink height 10px
+    bindsym $right resize grow width 10px
+    # set to half monitor size (superwide) and exit
+    bindsym x resize set width $half_monitor_width px ; mode "default"
+
+    # fullscreen toggle and exit
+    bindsym f fullscreen toggle ; mode "default"
+
+    # Return to default mode
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+# Enter resize mode
+bindsym $super+r mode "resize"
+
+# move mode, to move floating windows around
+mode "Move" {
+    bindsym $left move left 20px
+    bindsym $down move down  20px
+    bindsym $up move up 20px
+    bindsym $right move right 20px
+
+    # fullscreen toggle and exit
+    bindsym f fullscreen toggle ; mode "default"
+
+    # Return to default mode
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+# Enter move mode
+bindsym $super+m mode "Move"
+
+# use waybar instead of swaybar
+bar {
+    swaybar_command waybar
+}
+
+# home automation
+bindsym $super+$pageup exec zsh /home/ben/.local/scripts/home.office.openBlinds
+bindsym $super+$pagedown exec zsh /home/ben/.local/scripts/home.office.closeBlinds
+
+# Application specific settings
+for_window [app_id="pavucontrol"] floating enable, resize set width 500 px height 600 px
+for_window [instance="plexamp"] floating enable, resize set width 300 px height 600 px
+for_window [app_id="gedit"] floating enable, resize set width 800 px height 600 px
+for_window [app_id="org.gnome.Calculator"] floating enable, resize set width 300 px height 500 px
+for_window [app_id="ranger-filepicker"] floating enable, resize set width 900 px height 600 px
+for_window [app_id="qute-editor"] floating enable, resize set width 900 px height 600 px
+
+# Applications opening on default workspaces
+assign [instance="teams-for-linux"] 2
+assign [instance="prospect mail"] 2
+assign [instance="discord"] 2
+assign [instance="webcord"] 2
+
+# Notification Daemon
+exec_always swaync
+# Toggle notification sidebar
+bindsym $super+n exec swaync-client -t -sw
+# Close all notifications and close panel
+bindsym $super+Shift+n exec swaync-client --close-all && swaync-client --close-panel
+
+# might need this for screen sharing obs?
+exec --no-startup-id /usr/lib/xdg-desktop-portal -r 
+
+# gui app permissions (needed for things like input-remapper)
+exec /usr/bin/lxpolkit
+
+# autoload imput remapper
+exec input-remapper-control --command autoload
+
+
+# begin cliphist - clipboard history tool
+exec "wl-paste --watch cliphist store"
+
+# Many apps have tray icons, so wait for tray to be ready before starting them
+# Then autostart all XDG autostart .desktop files using dex
+exec "gdbus wait --session org.kde.StatusNotifierWatcher && dex -a -s ~/.config/autostart/"
+
+include /etc/sway/config.d/*

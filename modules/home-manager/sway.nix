@@ -3,17 +3,10 @@
 {
   wayland.windowManager.sway = {
     enable = true;
-    config = rec {
-      modifier = "Mod4";
-      # Use kitty as default terminal
-      terminal = "kitty"; 
-      startup = [
-        # Launch kitty on start
-        {command = "kitty";}
-      ];
-      bars = [
-      	{command = "${pkgs.waybar}/bin/waybar";}
-      ];
-    };
+  };
+  home.file = {
+    ".config/sway/config".source = ./files/sway-config;
+    ".config/sway/scripts/set_gaps.sh".source = ./files/sway-script-setgaps;
+    ".config/sway/navi/config".source = ./files/sway-navi-config;
   };
 }

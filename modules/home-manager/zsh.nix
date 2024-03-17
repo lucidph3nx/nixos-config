@@ -40,6 +40,24 @@
         "vi-mode"
       ];
     };
+    shellAliases = {
+      # preserve env when using sudo
+      sudo = "sudo -E -s";
+      # color terminals for ssh targets that don't know kitty
+      ssh = "TERM=xterm-color ssh";
+      # nixos rebuild switch
+      nixrs = "sudo nixos-rebuild switch";
+      # eza instead of ls
+      ls = "eza";
+      l = "eza -la";
+      tree = "eza --tree -la";
+      # ripgrep instead of grep
+      grep = "rg";
+      # nvim
+      v = "nvim";
+      # youtube music download script
+      ytm-download = "yt-dlp  --add-metadata --format m4a --youtube-skip-dash-manifest -i -o '~/music/%(artist)s/%(album)s/%(title)s.%(ext)s' --sponsorblock-remove 'music_offtopic'"
+    };
     initExtra = ''
       # Custom keybindings
       bindkey -s ^f "cli.tmux.projectSessioniser\n"
@@ -47,6 +65,9 @@
       bindkey -s ^k "k9s --headless\n"
       bindkey -s ^v "nvim\n"
       bindkey -s ^p "python\n"
+      # utils
+      eval "$(mise activate zsh)"
+      eval "$(direnv hook zsh)"
     '';
   };
 }
