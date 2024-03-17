@@ -3,7 +3,7 @@
 {
   services.mpd = {
   	enable = true;
-    music_directory = "/home/ben/music";
+    musicDirectory = "/home/ben/music";
     extraConfig = ''
       db_file            "~/.local/share/mpd/database"
       log_file           "syslog"
