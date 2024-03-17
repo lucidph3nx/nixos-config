@@ -31,6 +31,7 @@
       inherit (self) outputs;
     in 
     {
+      overlays = import ./overlays { inherit inputs outputs; };
       nixosConfigurations = {
       	default = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
