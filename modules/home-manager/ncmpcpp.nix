@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 
 {
-  services.ncmpcpp = {
+  programs.ncmpcpp = {
   	enable = true;
     settings = {
       display_bitrate = "yes";
