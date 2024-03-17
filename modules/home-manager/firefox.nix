@@ -7,7 +7,7 @@
     # nativeMessagingHosts = [
     #   pkgs.tridactyl-native
     # ];
-    # profiles.ben = {
+    profiles.ben = {
       extensions = with pkgs.inputs.firefox-addons; [
         augmented-steam
         bitwarden
