@@ -3,10 +3,10 @@
 {
   services.mpd = {
   	enable = true;
+    music_directory = "/home/ben/music";
     extraConfig = ''
       db_file            "~/.local/share/mpd/database"
       log_file           "syslog"
-      music_directory    "/home/ben/music"
       auto_update "yes"
       playlist_directory "~/.local/share/mpd/playlists"
       state_file         "~/.local/share/mpd/state"
