@@ -3,14 +3,14 @@
 {
   imports = 
   [
-    ../../modules/home-manager/kitty.nix
-    ../../modules/home-manager/tmux.nix
-    ../../modules/home-manager/mise.nix
-    ../../modules/home-manager/nvim.nix
-    ../../modules/home-manager/syncthing.nix
     ../../modules/home-manager/git-sync.nix
     ../../modules/home-manager/git.nix
+    ../../modules/home-manager/kitty.nix
+    ../../modules/home-manager/mise.nix
+    ../../modules/home-manager/nvim.nix
     ../../modules/home-manager/scripts.nix
+    ../../modules/home-manager/syncthing.nix
+    ../../modules/home-manager/tmux.nix
     # aparently doesnt work
     # ../../modules/home-manager/firefox.nix
   ];
