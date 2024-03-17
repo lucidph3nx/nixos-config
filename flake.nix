@@ -35,7 +35,13 @@
               inputs.neovim-nightly.overlay
             ];
           };
-          modules = [
+          modules = 
+            let
+              defaults = {pkgs, ... }: {
+                _module.args.nixpkgs-unstable = import inputs.nixpkgs-unstable { inherit (pkgs.stdenv.targetPlatform) system; };
+              };
+            in [
+            defaults
             ./machines/default/configuration.nix
             home-manager.nixosModules.default
           ];
