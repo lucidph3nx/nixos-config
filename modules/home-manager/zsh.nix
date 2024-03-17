@@ -42,7 +42,7 @@
     };
     shellAliases = {
       # preserve env when using sudo
-      sudo = "sudo -E -s";
+      # sudo = "sudo -E -s";
       # color terminals for ssh targets that don't know kitty
       ssh = "TERM=xterm-color ssh";
       # nixos rebuild switch
