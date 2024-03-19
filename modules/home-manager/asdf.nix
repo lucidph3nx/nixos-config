@@ -8,5 +8,8 @@
   nodejs 20.8.1
   terraform 1.3.6
   '';
+  programs.zsh.initExtra = ''
+    . $(dirname $(dirname $(readlink -f $(which asdf))))/share/asdf-vm/asdf.sh
+  '';
 }
 

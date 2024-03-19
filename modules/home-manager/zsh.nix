@@ -66,7 +66,6 @@
       bindkey -s ^v "nvim\n"
       bindkey -s ^p "python\n"
       # utils
-      eval "$(mise activate zsh)"
       eval "$(direnv hook zsh)"
     '';
   };
