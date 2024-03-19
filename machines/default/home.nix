@@ -6,7 +6,7 @@
     ../../modules/home-manager/firefox.nix
     ../../modules/home-manager/git.nix
     ../../modules/home-manager/kitty.nix
-    ../../modules/home-manager/mise.nix
+    ../../modules/home-manager/asdf.nix
     ../../modules/home-manager/mpd.nix
     ../../modules/home-manager/ncmpcpp.nix
     ../../modules/home-manager/nvim.nix
