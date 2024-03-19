@@ -2,7 +2,7 @@
 
 {
   home.packages = [
-    pkgs.adsf-vm
+    pkgs.asdf-vm
   ];
   home.file.".tool-versions".text = ''
   nodejs 20.8.1

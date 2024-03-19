@@ -69,7 +69,6 @@
               inputs.neovim-nightly.overlay
             ];
           };
-          extraSpecialArgs = { inherit inputs outputs; };
           modules = 
             let
               defaults = {pkgs, ... }: {
