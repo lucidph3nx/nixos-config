@@ -33,6 +33,7 @@
       rustup
       sops
       tree
+      tridactyl-native
       yq
       zsh
       # example unstable
