@@ -13,6 +13,7 @@
     shells = [ pkgs.bash pkgs.zsh ];
     loginShell = pkgs.zsh;
     systemPackages = with pkgs; [
+      aws
       aws-vault
       azure-cli
       direnv
