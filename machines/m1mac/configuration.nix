@@ -14,6 +14,7 @@
     loginShell = pkgs.zsh;
     systemPackages = with pkgs; [
       aws-vault
+      azure-cli
       direnv
       docker
       eza
@@ -22,6 +23,7 @@
       fzy
       gh
       gnupg
+      gnutar
       imagemagick
       jq
       k9s
@@ -30,7 +32,6 @@
       ripgrep
       rustup
       sops
-      gnutar
       tree
       yq
       zsh
