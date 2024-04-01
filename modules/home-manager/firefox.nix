@@ -8,6 +8,9 @@
     #   pkgs.tridactyl-native
     # ];
     profiles.ben = {
+      id = 0;
+      name = "ben";
+      isDefault = true;
       settings = {
         "signon.rememberSignons" = false; # Disable built-in password manager
       };
@@ -25,6 +28,9 @@
       ];
     };
   };
+  home.packages = [
+    pkgs.tridactyl-native
+  ];
     xdg.mimeApps.defaultApplications = {
     "text/html" = [ "firefox.desktop" ];
     "text/xml" = [ "firefox.desktop" ];
