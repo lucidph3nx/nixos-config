@@ -68,7 +68,7 @@
   sops = {
     defaultSopsFile = ../../secrets/secrets.yaml;
     defaultSopsFormat = "yaml";
-    age.keyFile = ~/.config/sops/age/keys.txt;
+    age.keyFile = /home/ben/.config/sops/age/keys.txt;
     # test key
     secrets.example-key = { };
   };
