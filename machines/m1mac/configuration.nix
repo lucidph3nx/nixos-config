@@ -1,13 +1,16 @@
 { pkgs, nixpkgs-unstable, inputs, ... }:
 
 {
-  # imports =
-  # [
-  #   inputs.home-manager.darwinModules.home-manager
-  # ];
+  imports =
+  [
+      inputs.sops-nix.nixosModules.sops
+      ../../modules/nix/sops.nix
+  ];
   users.users.ben = {
     home = "/Users/ben";
   };
+  sops.age.keyFile = "/Users/ben/.config/sops/age/keys.txt";
+
   programs.zsh.enable = true;
   environment = {
     shells = [ pkgs.bash pkgs.zsh ];

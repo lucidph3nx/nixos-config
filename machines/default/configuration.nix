@@ -8,8 +8,8 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      # include sops
       inputs.sops-nix.nixosModules.sops
+      ../../modules/nix/sops.nix
     ];
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
@@ -65,21 +65,7 @@
   };
 
   # sops config
-  sops = {
-    defaultSopsFile = ../../secrets/secrets.yaml;
-    defaultSopsFormat = "yaml";
-    age.keyFile = /home/ben/.config/sops/age/keys.txt;
-    # test key
-    secrets.example_key = { };
-    secrets."git_signing_key/lucidph3nx-ed25519-signingkey" = {
-      owner = "ben";
-      mode = "0600";
-    };
-    secrets."git_signing_key/lucidph3nx-ed25519-signingkey.pub" = {
-      owner = "ben";
-      mode = "0600";
-    };
-  };
+  sops.age.keyFile = /home/ben/.config/sops/age/keys.txt;
 
   # Home Manager for user environment configuration
   #home-manager.users.ben = { pkgs, ... }: {
