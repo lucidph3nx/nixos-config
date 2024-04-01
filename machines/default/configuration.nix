@@ -66,7 +66,7 @@
 
   # sops config
   sops = {
-    defaultSopsFile = "../../secrets/secrets.yaml";
+    defaultSopsFile = "./secrets/secrets.yaml";
     defaultSopsFormat = "yaml";
     age.keyFile = "~/.config/sops/age/keys.txt";
     # test key
