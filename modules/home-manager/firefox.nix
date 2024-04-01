@@ -8,6 +8,9 @@
     #   pkgs.tridactyl-native
     # ];
     profiles.ben = {
+      settings = {
+        "signon.rememberSignons" = false; # Disable built-in password manager
+      };
       extensions = with inputs.firefox-addons.packages.${pkgs.system}; [
         augmented-steam
         bitwarden
