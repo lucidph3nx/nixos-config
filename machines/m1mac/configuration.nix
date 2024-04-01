@@ -3,7 +3,6 @@
 {
   imports =
   [
-      inputs.sops-nix.nixosModules.sops
       ../../modules/nix/sops.nix
   ];
   users.users.ben = {
