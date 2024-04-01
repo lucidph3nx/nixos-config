@@ -20,6 +20,8 @@
     ".config/tridactyl/tridactylrc".source = ./files/tridactyl-config;
     ".config/tridactyl/themes/everforest.css".source = ./files/tridactyl-style;
     ".config/tridactyl/home.html".source = ./files/tridactyl-homepage;
+    ".mozilla/firefox/ben/chrome/userChrome.css".source = ./files/firefox-userChrome;
+    ".mozilla/firefox/ben/chrome/userContent.css".source = ./files/firefox-userContent;
   };
   programs.firefox = {
   	enable = true;
@@ -33,11 +35,11 @@
       isDefault = true;
       settings = {
         "signon.rememberSignons" = false; # Disable built-in password manager
-        "browser.startup.homepage" = "~/.config/tridactyl/home.html";
+        "browser.startup.homepage" = "~/.config/tridactyl/home.html"; # custom homepage
         "browser.compactmode.show" = true;
-        "browser.uidensity" = 1;
+        "browser.uidensity" = 1; # enable compact mode
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-        "ui.systemUsesDarkTheme" = 1;
+        "ui.systemUsesDarkTheme" = 1; # force dark theme
         "extensions.pocket.enabled" = false;
       };
       extensions = with inputs.firefox-addons.packages.${pkgs.system}; [
