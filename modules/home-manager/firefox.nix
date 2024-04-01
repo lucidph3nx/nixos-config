@@ -4,9 +4,9 @@
   programs.firefox = {
   	enable = true;
     # not in 23.11
-    # nativeMessagingHosts = [
-    #   pkgs.tridactyl-native
-    # ];
+    nativeMessagingHosts.packages = [
+      pkgs.tridactyl-native
+    ];
     profiles.ben = {
       id = 0;
       name = "ben";
@@ -28,9 +28,6 @@
       ];
     };
   };
-  home.packages = [
-    pkgs.tridactyl-native
-  ];
     xdg.mimeApps.defaultApplications = {
     "text/html" = [ "firefox.desktop" ];
     "text/xml" = [ "firefox.desktop" ];
