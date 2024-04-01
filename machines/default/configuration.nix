@@ -71,6 +71,11 @@
     age.keyFile = /home/ben/.config/sops/age/keys.txt;
     # test key
     secrets.example_key = { };
+    secrets.git_signing_key = {
+      owner = "ben";
+      group = "ben";
+      mode = "0600";
+    };
   };
 
   # Home Manager for user environment configuration
