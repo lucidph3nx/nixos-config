@@ -17,7 +17,7 @@
         done
       '';
     };
-    ".config/tridactyl/tridacylrc".source = ./files/tridactyl-config;
+    ".config/tridactyl/tridactylrc".source = ./files/tridactyl-config;
     ".config/tridactyl/themes/everforest.css".source = ./files/tridactyl-style;
     ".config/tridactyl/home.html".source = ./files/tridactyl-homepage;
   };
