@@ -136,7 +136,7 @@
       enable = true;
       extraPackages = with pkgs; [
         swaylock
-        swaync
+        swaynotificationcenter
       ];
     };
 	  waybar.enable = true;
