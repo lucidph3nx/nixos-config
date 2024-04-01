@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   programs.firefox = {
@@ -8,7 +8,7 @@
     #   pkgs.tridactyl-native
     # ];
     profiles.ben = {
-      extensions = with pkgs.inputs.firefox-addons; [
+      extensions = with inputs.firefox-addons.packages.${pkgs.system}; [
         augmented-steam
         bitwarden
         decentraleyes
