@@ -8,6 +8,8 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      # include sops
+      inputs.sops-nix.nixosModules.sops
     ];
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
@@ -61,6 +63,16 @@
     packages = with pkgs; [];
     shell = pkgs.zsh;
   };
+
+  # sops config
+  sops = {
+    sops.defaultSopsFile = "../../secrets/secrets.yaml";
+    sops.defaultSopsFormat = "yaml";
+    sops.age.keyFile = "~/.config/sops/age/keys.txt";
+
+    sops.secrets.example-key = { };
+  }
+
   # Home Manager for user environment configuration
   #home-manager.users.ben = { pkgs, ... }: {
   #	home.packages = with pkgs; [

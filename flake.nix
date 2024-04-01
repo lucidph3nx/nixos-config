@@ -7,6 +7,12 @@
     # unstable repo for some packages
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
+    # sops
+    sops-nix = {
+      url = "github:mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Macos Modules
     darwin = {
       url = "github:lnl7/nix-darwin";
