@@ -66,11 +66,11 @@
 
   # sops config
   sops = {
-    sops.defaultSopsFile = "../../secrets/secrets.yaml";
-    sops.defaultSopsFormat = "yaml";
-    sops.age.keyFile = "~/.config/sops/age/keys.txt";
-
-    sops.secrets.example-key = { };
+    defaultSopsFile = "../../secrets/secrets.yaml";
+    defaultSopsFormat = "yaml";
+    age.keyFile = "~/.config/sops/age/keys.txt";
+    # test key
+    secrets.example-key = { };
   };
 
   # Home Manager for user environment configuration
