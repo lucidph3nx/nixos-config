@@ -70,7 +70,7 @@
     defaultSopsFormat = "yaml";
     age.keyFile = /home/ben/.config/sops/age/keys.txt;
     # test key
-    secrets.example-key = { };
+    secrets.example_key = { };
   };
 
   # Home Manager for user environment configuration
