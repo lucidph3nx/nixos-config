@@ -1,3 +1,4 @@
+/* vim: set ft=css: */
 :root {
     --tridactyl-theme-fg: #d3c6aa;
     --tridactyl-theme-red: #e67e80;
