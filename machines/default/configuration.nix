@@ -71,16 +71,15 @@
     age.keyFile = /home/ben/.config/sops/age/keys.txt;
     # test key
     secrets.example_key = { };
-    secrets."git_signing_key/lucidph3nx-ed25519-signingkey" = {
+    # secrets."git_signing_key/lucidph3nx-ed25519-signingkey" = {
+    secrets."git_signing_key" = {
       owner = "ben";
-      group = "ben";
       mode = "0600";
     };
-    secrets."git_signing_key/lucidph3nx-ed25519-signingkey.pub" = {
-      owner = "ben";
-      group = "ben";
-      mode = "0600";
-    };
+    # secrets."git_signing_key/lucidph3nx-ed25519-signingkey.pub" = {
+    #   owner = "ben";
+    #   mode = "0600";
+    # };
   };
 
   # Home Manager for user environment configuration
