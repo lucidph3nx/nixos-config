@@ -35,7 +35,10 @@
         "signon.rememberSignons" = false; # Disable built-in password manager
         "browser.startup.homepage" = "~/.config/tridactyl/home.html";
         "browser.compactmode.show" = true;
+        "browser.uidensity" = 1;
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+        "ui.systemUsesDarkTheme" = 1;
+        "extensions.pocket.enabled" = false;
       };
       extensions = with inputs.firefox-addons.packages.${pkgs.system}; [
         augmented-steam
