@@ -20,8 +20,8 @@
     ".config/tridactyl/tridactylrc".source = ./files/tridactyl-config;
     ".config/tridactyl/themes/everforest.css".source = ./files/tridactyl-style;
     ".config/tridactyl/home.html".source = ./files/tridactyl-homepage;
-    # ".mozilla/firefox/ben/chrome/userChrome.css".source = ./files/firefox-userChrome;
-    # ".mozilla/firefox/ben/chrome/userContent.css".source = ./files/firefox-userContent;
+    ".mozilla/firefox/ben/chrome/userChrome.css".source = ./files/firefox-userChrome;
+    ".mozilla/firefox/ben/chrome/userContent.css".source = ./files/firefox-userContent;
   };
   programs.firefox = {
   	enable = true;
