@@ -71,7 +71,7 @@
     sops.age.keyFile = "~/.config/sops/age/keys.txt";
 
     sops.secrets.example-key = { };
-  }
+  };
 
   # Home Manager for user environment configuration
   #home-manager.users.ben = { pkgs, ... }: {
