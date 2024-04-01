@@ -132,7 +132,13 @@
   # 	defaultEditor = true;
   # };
   programs = {
-  	sway.enable = true;
+  	sway = {
+      enable = true;
+      extraPackages = with pkgs; [
+        swaylock
+        swaync
+      ];
+    };
 	  waybar.enable = true;
   };
   
