@@ -12,11 +12,9 @@
     # test key
     secrets.example_key = { };
     secrets."ssh/lucidph3nx-ed25519-signingkey" = {
-      owner = "ben";
       path = "/Users/ben/.ssh/lucidph3nx-ed25519-signingkey";
     };
     secrets."ssh/lucidph3nx-ed25519-signingkey.pub" = {
-      owner = "ben";
       path = "/Users/ben/.ssh/lucidph3nx-ed25519-signingkey.pub";
     };
   };
