@@ -46,3 +46,4 @@
   home.file.".local/scripts/application.scripts.launcher" = {
     source = ./scripts/application.scripts.launcher;
   };
+}
