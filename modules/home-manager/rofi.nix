@@ -26,7 +26,6 @@
     };
     theme = "~/.config/rofi/theme.rasi";
   };
-  home.file = {
-    ".config/rofi/theme.rasi".source = ./files/rofi-style;
-  };
+  home.file.".config/rofi/theme.rasi".source = ./files/rofi-style;
+  home.file.".config/rofi-emoji/custom_emoji_list.txt".source = ./files/rofi-custom-emoji-list;
 }
