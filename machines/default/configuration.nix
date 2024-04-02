@@ -82,7 +82,9 @@
     extraSpecialArgs = { inherit inputs; inherit nixpkgs-unstable;};
 	  users = {
       ben.imports = [
-        ./home.nix
+        ({config, ... }: import ./home.nix {
+          inherit config;
+        })
       ];
 	  };
   };
