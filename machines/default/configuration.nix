@@ -79,10 +79,11 @@
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-	  users = {
+    extraSpecialArgs = { inherit inputs; inherit nixpkgs-unstable;};
+    users = {
       ben.imports = [
-        ({config, inputs, pkgs, nixpkgs-unstable, ... }: import ./home.nix {
-          inherit inputs pkgs nixpkgs-unstable config;
+        ({config, ... }: import ./home.nix {
+          inherit config;
         })
       ];
 	  };
