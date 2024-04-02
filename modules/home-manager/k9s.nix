@@ -104,8 +104,8 @@
     in {
       k9s = {
         body = {
-          foreground = "${foreground}";
-          background = "${background}";
+          fgColor = "${foreground}";
+          bgColor = "${background}";
           logoColor = "${green}";
         };
         prompt = {
