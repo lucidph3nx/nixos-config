@@ -192,7 +192,7 @@
     useUserPackages = true;
     users = {
       ben.imports = [
-        ({config, ... }: import ./home.nix {
+        ({config, inputs, pkgs, nixpkgs-unstable, ... }: import ./home.nix {
           inherit inputs;
           inherit pkgs;
           inherit nixpkgs-unstable;
