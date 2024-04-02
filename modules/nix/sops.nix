@@ -12,6 +12,8 @@
       age.keyFile = /home/ben/.config/sops/age/keys.txt;
       # test key
       secrets.example_key = { };
+      secrets.hass_api_key = { };
+      secrets.secret_domain = { };
       secrets."ssh/lucidph3nx-ed25519-signingkey" = {
         owner = "ben";
         mode = "0600";
