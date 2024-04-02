@@ -83,7 +83,7 @@
     users = {
       ben.imports = [
         ({config, ... }: import ./home.nix {
-          inherit config;
+          inherit config pkgs;
         })
       ];
 	  };
