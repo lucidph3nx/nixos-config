@@ -17,6 +17,7 @@
     ../../modules/home-manager/syncthing.nix
     ../../modules/home-manager/tmux.nix
     ../../modules/home-manager/waybar.nix
+    ../../modules/home-manager/zathura.nix
     ../../modules/home-manager/zsh.nix
   ];
   # Home Manager needs a bit of information about you and the paths it should

@@ -12,6 +12,7 @@
     ../../modules/home-manager/sops.nix
     ../../modules/home-manager/syncthing.nix
     ../../modules/home-manager/tmux.nix
+    ../../modules/home-manager/zathura.nix
     # aparently doesnt work
     # ../../modules/home-manager/firefox.nix
   ];
