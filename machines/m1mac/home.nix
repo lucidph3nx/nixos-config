@@ -20,6 +20,11 @@
   # release notes.
   home.stateVersion = "23.11"; # Please read the comment before changing.
 
+  # Home Manager needs a bit of information about you and the paths it should
+  # manage.
+  home.username = "ben";
+  home.homeDirectory = "/Users/ben";
+
   home.packages = with pkgs; [
     pfetch-rs
     neofetch

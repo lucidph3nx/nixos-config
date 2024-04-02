@@ -7,7 +7,7 @@
     userEmail = "ben@tinfoilforest.nz";
     signing = {
       signByDefault = true;
-      key = "${config.users.users.ben.home}/.ssh/lucidph3nx-ed25519-signingkey.pub";
+      key = "${config.home.homeDirectory}/.ssh/lucidph3nx-ed25519-signingkey.pub";
     };
     extraConfig = {
       init = {
