@@ -14,8 +14,9 @@
     shells = [ pkgs.bash pkgs.zsh ];
     loginShell = pkgs.zsh;
     systemPackages = with pkgs; [
-      awscli2
+      arping
       aws-vault
+      awscli2
       azure-cli
       direnv
       docker
