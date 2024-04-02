@@ -1,6 +1,8 @@
 { config, pkgs, lib, ... }:
 
-{
+let
+	sysconfig = (import <nixpkgs/nixos> {}).config;
+in {
   programs.zsh = {
   	enable = true;
 
@@ -68,8 +70,8 @@
       # utils
       eval "$(direnv hook zsh)"
       # secrets
-      export SECRET_DOMAIN="$(cat ${config.sops.secrets.secret_domain.path})"
-      export HASS_API_KEY="$(cat ${config.sops.secrets.hass_api_key.path})"
+      export SECRET_DOMAIN="$(cat ${sysconfig.sops.secrets.secret_domain.path})"
+      export HASS_API_KEY="$(cat ${sysconfig.sops.secrets.hass_api_key.path})"
     '';
   };
 }
