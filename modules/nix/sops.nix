@@ -10,10 +10,14 @@
       defaultSopsFile = ../../secrets/secrets.yaml;
       defaultSopsFormat = "yaml";
       age.keyFile = /home/ben/.config/sops/age/keys.txt;
-      # test key
-      secrets.example_key = { };
-      secrets.hass_api_key = { };
-      secrets.secret_domain = { };
+      secrets.hass_api_key = {
+        owner = "ben";
+        mode = "0600";
+      };
+      secrets.secret_domain = {
+        owner = "ben";
+        mode = "0600";
+      };
       secrets."ssh/lucidph3nx-ed25519-signingkey" = {
         owner = "ben";
         mode = "0600";
