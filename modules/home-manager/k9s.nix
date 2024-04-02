@@ -11,7 +11,6 @@
         readOnly = false;
         noExitOnCtrlC = true;
         ui = {
-          skin = "everforest_dark";
           enableMouse = false;
           headless = false;
           logoless = false;
@@ -91,7 +90,7 @@
         ];
       };
     };
-    skins = let
+    skin = let
       foreground = "#d3c6aa";
       background = "#2d353b";
       black = "#343f44";
