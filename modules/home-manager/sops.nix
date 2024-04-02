@@ -2,7 +2,7 @@
 
 # NOTE: MACOS ONLY, use nix/sops.nix for nixos
 {
-  imports = [
+  home-manager.sharedModules = [
     inputs.sops-nix.homeManagerModules.sops
   ];
   sops = {

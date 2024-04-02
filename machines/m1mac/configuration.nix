@@ -8,7 +8,6 @@
   users.users.ben = {
     home = "/Users/ben";
   };
-  # sops.age.keyFile = "/Users/ben/.config/sops/age/keys.txt";
 
   programs.zsh.enable = true;
   environment = {
