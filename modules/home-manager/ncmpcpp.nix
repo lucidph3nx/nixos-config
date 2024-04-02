@@ -3,6 +3,7 @@
 {
   programs.ncmpcpp = {
   	enable = true;
+    package = pkgs.ncmpcpp.override { visualizerSupport = true; };
     mpdMusicDir = "/home/ben/music/";
     settings = {
       display_bitrate = "yes";
