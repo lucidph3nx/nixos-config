@@ -82,10 +82,7 @@
 	  users = {
       ben.imports = [
         ({config, inputs, pkgs, nixpkgs-unstable, ... }: import ./home.nix {
-          inherit inputs;
-          inherit pkgs;
-          inherit nixpkgs-unstable;
-          inherit config;
+          inherit inputs pkgs nixpkgs-unstable config;
         })
       ];
 	  };
