@@ -63,9 +63,6 @@
     shell = pkgs.zsh;
   };
 
-  # sops config
-  sops.age.keyFile = /home/ben/.config/sops/age/keys.txt;
-
   # Home Manager for user environment configuration
   #home-manager.users.ben = { pkgs, ... }: {
   #	home.packages = with pkgs; [
