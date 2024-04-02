@@ -6,6 +6,7 @@
     ../../modules/home-manager/asdf.nix
     ../../modules/home-manager/git-sync.nix
     ../../modules/home-manager/git.nix
+    ../../modules/home-manager/k9s.nix
     ../../modules/home-manager/kitty.nix
     ../../modules/home-manager/nvim.nix
     ../../modules/home-manager/scripts.nix
