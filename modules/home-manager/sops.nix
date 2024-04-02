@@ -1,7 +1,10 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 # NOTE: MACOS ONLY, use nix/sops.nix for nixos
 {
+  imports = [
+    inputs.sops-nix.homeManagerModules.sops
+  ];
   sops = {
     defaultSopsFile = ../../secrets/secrets.yaml;
     defaultSopsFormat = "yaml";
