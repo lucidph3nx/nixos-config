@@ -28,4 +28,21 @@
   };
   home.file.".config/rofi/theme.rasi".source = ./files/rofi-style;
   home.file.".config/rofi-emoji/custom_emoji_list.txt".source = ./files/rofi-custom-emoji-list;
-}
+
+  # my scripts relevant to rofi
+  home.sessionPath = ["$HOME/.local/scripts"];
+  home.file.".local/scripts/application.launcher" = {
+    source = ./scripts/application.launcher;
+  };
+  home.file.".local/scripts/application.nvim.sessionLauncher" = {
+    source = ./scripts/application.nvim.sessionLauncher;
+  };
+  home.file.".local/scripts/application.rofi.calculator" = {
+    source = ./scripts/application.rofi.calculator;
+  };
+  home.file.".local/scripts/application.rofi.emojipicker" = {
+    source = ./scripts/application.rofi.emojipicker;
+  };
+  home.file.".local/scripts/application.scripts.launcher" = {
+    source = ./scripts/application.scripts.launcher;
+  };
