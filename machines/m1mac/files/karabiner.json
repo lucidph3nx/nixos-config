@@ -317,6 +317,26 @@
             ]
           },
           {
+            "description": "Move Window to Space 1",
+            "manipulators": [
+              {
+                "from": {
+                  "key_code": "1",
+                  "modifiers": {
+                    "mandatory": [
+                      "command",
+                      "shift"
+                    ]
+                  }
+                },
+                "to": {
+                  "shell_command": "~/.config/yabai/mac-move-space-SIP.sh 1"
+                },
+                "type": "basic"
+              }
+            ]
+          },
+          {
             "description": "Move Window to Space 2",
             "manipulators": [
               {
