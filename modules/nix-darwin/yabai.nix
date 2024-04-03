@@ -30,26 +30,26 @@
       yabai -m rule --add label="Zscaler" manage=on
       yabai -m rule --add app="qutebrowser" manage=on
     '';
-    skhd = {
-      enable = true;
-      package = pkgs.skhd;
-      skhdConfig = ''
-        # Reload yabai
-        cmd + shift - c : yabai --restart-service"
-        # focus window in bsp mode
-        cmd - h : yabai -m window --focus west
-        cmd - j : yabai -m window --focus south
-        cmd - k : yabai -m window --focus north
-        cmd - l : yabai -m window --focus east
-        # move (warp) windows
-        cmd + shift - h : yabai -m window --warp west
-        cmd + shift - j : yabai -m window --warp south
-        cmd + shift - k : yabai -m window --warp north
-        cmd + shift - l : yabai -m window --warp east
-        # toggle floating
-        cmd + shift - space : yabai -m window --toggle float;\
-                        yabai -m window --grid 4:4:1:1:2:2
-      '';
-    };
+  };
+  services.skhd = {
+    enable = true;
+    package = pkgs.skhd;
+    skhdConfig = ''
+      # Reload yabai
+      cmd + shift - c : yabai --restart-service"
+      # focus window in bsp mode
+      cmd - h : yabai -m window --focus west
+      cmd - j : yabai -m window --focus south
+      cmd - k : yabai -m window --focus north
+      cmd - l : yabai -m window --focus east
+      # move (warp) windows
+      cmd + shift - h : yabai -m window --warp west
+      cmd + shift - j : yabai -m window --warp south
+      cmd + shift - k : yabai -m window --warp north
+      cmd + shift - l : yabai -m window --warp east
+      # toggle floating
+      cmd + shift - space : yabai -m window --toggle float;\
+                      yabai -m window --grid 4:4:1:1:2:2
+    '';
   };
 }
