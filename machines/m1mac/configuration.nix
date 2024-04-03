@@ -4,7 +4,7 @@
   imports =
   [
       ../../modules/nix-darwin/yabai.nix
-      ../../modules/nix-darwin/spacebar.nix
+      # ../../modules/nix-darwin/spacebar.nix
   ];
   users.users.ben = {
     home = "/Users/ben";
