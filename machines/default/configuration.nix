@@ -92,9 +92,7 @@
     gh
     imagemagick
     jq
-    k9s
     kubectl
-    ranger
     ripgrep
     rustup
     sops
