@@ -114,9 +114,7 @@
     extraSpecialArgs = { inherit inputs; inherit nixpkgs-unstable;};
     users = {
       ben.imports = [
-        ({config, ... }: import ./home.nix {
-          inherit config pkgs;
-        })
+        ./home.nix
       ];
     };
   };
