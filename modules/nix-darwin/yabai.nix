@@ -50,6 +50,7 @@
       # toggle floating
       cmd + shift - space : yabai -m window --toggle float;\
                       yabai -m window --grid 4:4:1:1:2:2
+      cmd + shift - 1 : ~/.config/yabai/mac-move-space-SIP.sh 1
     '';
   };
 }
