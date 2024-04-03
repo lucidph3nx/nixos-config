@@ -9,7 +9,7 @@
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
       ../../modules/nix/sops.nix
-      ../../modules/nix/steam.nix
+      # ../../modules/nix/steam.nix
     ];
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
