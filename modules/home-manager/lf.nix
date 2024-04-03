@@ -3,10 +3,6 @@
 {
   programs.lf = {
     enable = true;
-    settings = {
-      previewer = ~/.config/lf/lf_kitty_preview;
-      cleaner = ~/.config/lf/lf_kitty_clean;
-    };
     extraConfig = 
       let
       previewer = pkgs.writeShellScriptBin "lf_kitty_preview.sh" ''
