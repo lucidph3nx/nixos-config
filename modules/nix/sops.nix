@@ -5,7 +5,6 @@
   [
     inputs.sops-nix.nixosModules.sops
   ];
-  # note sops.age.keyFile must be set in configuration.nix
   sops = {
     defaultSopsFile = ../../secrets/secrets.yaml;
     defaultSopsFormat = "yaml";
