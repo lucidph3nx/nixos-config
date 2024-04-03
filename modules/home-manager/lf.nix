@@ -1,7 +1,7 @@
 { pkgs, ... }:
 
 {
-  home.packages = with pkgs; [ pistol ];
+  home.packages = with pkgs; [ pistol file kitty ];
   programs.lf = {
     enable = true;
     settings = {
