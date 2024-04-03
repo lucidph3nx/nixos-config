@@ -9,6 +9,7 @@
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
       ../../modules/nix/sops.nix
+      ../../modules/nix/steam.nix
     ];
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
@@ -63,19 +64,6 @@
     shell = pkgs.zsh;
   };
 
-  # Home Manager for user environment configuration
-  #home-manager.users.ben = { pkgs, ... }: {
-  #	home.packages = with pkgs; [
-  #		kitty
-  #		firefox
-  #		neofetch
-  #	];
-  #	programs.zsh = {
-  #		enable = true;
-  #	};
-  #	programs.git.enable = true;
-  #	home.stateVersion = "23.11";
-  #};
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
