@@ -4,6 +4,9 @@
   home.packages = with pkgs; [ pistol ];
   programs.lf = {
     enable = true;
+    settings = {
+      hidden = true;
+    };
     extraConfig = 
       let
         previewer = pkgs.writeShellScriptBin "pv.sh" ''
