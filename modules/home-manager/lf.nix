@@ -1,11 +1,12 @@
 { pkgs, ... }:
 
 {
+  home.packages = with pkgs; [ pistol ];
   programs.lf = {
     enable = true;
     extraConfig = 
       let
-        previewer = pkgs.writeShellScriptBin "lf_kitty_preview.sh" ''
+        previewer = pkgs.writeShellScriptBin "pv.sh" ''
             file=$1
             w=$2
             h=$3
@@ -19,13 +20,13 @@
 
             pistol "$file"
           '';
-        cleaner = pkgs.writeShellScriptBin "lf_kitty_clean.sh" ''
+        cleaner = pkgs.writeShellScriptBin "clean.sh" ''
             kitty +kitten icat --clear --stdin no --silent --transfer-mode file < /dev/null > /dev/tty
         '';
       in
       ''
-          set cleaner ${cleaner}/bin/lf_kitty_clean.sh
-          set previewer ${previewer}/bin/lf_kitty_preview.sh
+          set previewer ${previewer}/bin/pv.sh
+          set cleaner ${cleaner}/bin/clean.sh
       '';
 
   };
