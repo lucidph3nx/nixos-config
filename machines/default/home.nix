@@ -8,6 +8,7 @@
     ../../modules/home-manager/git.nix
     ../../modules/home-manager/k9s.nix
     ../../modules/home-manager/kitty.nix
+    ../../modules/home-manager/lf.nix
     ../../modules/home-manager/mpd.nix
     ../../modules/home-manager/ncmpcpp.nix
     ../../modules/home-manager/nvim.nix
