@@ -84,6 +84,7 @@
   environment.systemPackages = with pkgs; [
     arping
     aws-vault
+    chromium
     direnv
     eza
     flux
