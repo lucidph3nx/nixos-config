@@ -42,6 +42,16 @@
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
         "ui.systemUsesDarkTheme" = 1; # force dark theme
         "extensions.pocket.enabled" = false;
+        # dubious performance enhancements
+        "network.buffer.cache.size" = 524288; # 512KB (default is 32 kB)
+        "network.http.max-connections" = 1800; # default is 900
+        "network.http.max-persistent-connections-per-server" = 12; # default is 6
+        "network.http.max-urgent-start-excessive-connections-per-host" = 10; # default is 3
+        "network.http.pacing.requests.burst" = 32; # default is 10
+        "network.http.pacing.requests.min-parallelism" = 10; # default is 6
+        "network.websocket.max-connections" = 400; # default is 200
+        "network.ssl_tokens_cache_capacity" = 32768; # more TLS token caching (fast reconnects) (default is 2048)
+        "image.mem.decode_bytes_at_a_time" = 65536; # 64KB (default is 16KB)
       };
       extensions = with inputs.firefox-addons.packages.${pkgs.system}; [
         augmented-steam
