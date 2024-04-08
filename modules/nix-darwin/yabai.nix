@@ -36,7 +36,7 @@
     package = pkgs.skhd;
     skhdConfig = ''
       # Reload yabai
-      cmd + shift - c : yabai --restart-service"
+      cmd + shift - c : launchctl kickstart -k "gui/$\{UID}/org.nixos.yabai"
       # focus window in bsp mode
       cmd - h : yabai -m window --focus west
       cmd - j : yabai -m window --focus south
@@ -50,6 +50,30 @@
       # toggle floating
       cmd + shift - space : yabai -m window --toggle float;\
                       yabai -m window --grid 4:4:1:1:2:2
+      # switching spaces
+      cmd - 1 : ~/.config/yabai/mac-focus-space-SIP.sh 1
+      cmd - 2 : ~/.config/yabai/mac-focus-space-SIP.sh 2
+      cmd - 3 : ~/.config/yabai/mac-focus-space-SIP.sh 3
+      cmd - 4 : ~/.config/yabai/mac-focus-space-SIP.sh 4
+      cmd - 5 : ~/.config/yabai/mac-focus-space-SIP.sh 5
+      cmd - 6 : ~/.config/yabai/mac-focus-space-SIP.sh 6
+      cmd - 7 : ~/.config/yabai/mac-focus-space-SIP.sh 7
+      cmd - 8 : ~/.config/yabai/mac-focus-space-SIP.sh 8
+      cmd - 9 : ~/.config/yabai/mac-focus-space-SIP.sh 9
+      cmd - 0 : ~/.config/yabai/mac-focus-space-SIP.sh 10
+
+      # move windows to spaces
+      # https://github.com/koekeishiya/skhd/issues/75#issuecomment-481656153
+      cmd + shift - 0x12 : ~/.config/yabai/mac-move-space-SIP.sh 1
+      cmd + shift - 0x13 : ~/.config/yabai/mac-move-space-SIP.sh 2
+      cmd + shift - 0x14 : ~/.config/yabai/mac-move-space-SIP.sh 3
+      cmd + shift - 0x15 : ~/.config/yabai/mac-move-space-SIP.sh 4
+      cmd + shift - 0x17 : ~/.config/yabai/mac-move-space-SIP.sh 5
+      cmd + shift - 0x16 : ~/.config/yabai/mac-move-space-SIP.sh 6
+      cmd + shift - 0x1A : ~/.config/yabai/mac-move-space-SIP.sh 7
+      cmd + shift - 0x1C : ~/.config/yabai/mac-move-space-SIP.sh 8
+      cmd + shift - 0x19 : ~/.config/yabai/mac-move-space-SIP.sh 9
+      cmd + shift - 0x1D : ~/.config/yabai/mac-move-space-SIP.sh 10
     '';
   };
 }
