@@ -38,7 +38,7 @@
       lf = {
         name = "lf";
         genericName = "file manager";
-        exec = "${pkgs.kitty} lf";
+        exec = "kitty lf";
         icon = "utilities-terminal";
         categories = [ "ConsoleOnly" "System" "FileTools" "FileManager"];
         mimeType = ["inode/directory"];
