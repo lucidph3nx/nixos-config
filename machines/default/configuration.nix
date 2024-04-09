@@ -99,6 +99,7 @@
     rustup
     sops
     tree
+    xdg-utils
     yq
     yt-dlp
     zsh
