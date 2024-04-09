@@ -33,4 +33,12 @@
       '';
 
   };
+  desktopItem = pkgs.makeDesktopItem {
+    name = "lf";
+    exec = "kitty lf";
+    icon = "utilities-terminal";
+    desktopName = "lf";
+    categories = [ "ConsoleOnly" "System" "FileTools" "FileManager"];
+    mimeTypes = ["inode/directory"];
+  };
 }
