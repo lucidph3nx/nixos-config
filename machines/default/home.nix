@@ -36,9 +36,12 @@
   # release notes.
   home.stateVersion = "23.11"; # Please read the comment before changing.
 
-  gtk.iconTheme = {
-    name = "Papirus-Dark";
-    pkgName = "papirus-icon-theme";
+  gtk = {
+    enable = true;
+    iconTheme = {
+      name = "Papirus-Dark";
+      pkgName = "papirus-icon-theme";
+    };
   };
   
   home.packages = with pkgs; [
