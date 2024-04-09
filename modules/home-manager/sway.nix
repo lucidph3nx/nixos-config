@@ -1,11 +1,12 @@
 { config, pkgs, ... }:
 
 {
-  wayland.windowManager.sway = {
-    enable = true;
-    config = {};
-  };
+  # wayland.windowManager.sway = {
+  #   enable = true;
+  #   config = {};
+  # };
   home.packages = with pkgs; [
+    sway
     swaybg
     swayidle
     swaylock
