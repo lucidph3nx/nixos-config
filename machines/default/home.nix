@@ -40,7 +40,7 @@
     enable = true;
     theme = {
       name = "Adwaita-dark";
-      package = pkgs.gtk3;
+      package = pkgs.gnome.gnome-themes-extra;
     };
     iconTheme = {
       name = "Papirus-Dark";
