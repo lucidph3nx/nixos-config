@@ -47,7 +47,7 @@
       package = pkgs.papirus-icon-theme;
     };
     cursorTheme = {
-      name = "Breeze";
+      name = "breeze_cursors";
       package = pkgs.libsForQt5.breeze-qt5;
     };
     gtk3 = {
