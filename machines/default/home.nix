@@ -40,7 +40,7 @@
     enable = true;
     iconTheme = {
       name = "Papirus-Dark";
-      pkgName = "papirus-icon-theme";
+      package = pkgs.papirus-icon-theme;
     };
   };
   
