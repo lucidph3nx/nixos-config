@@ -37,10 +37,11 @@
   xdg.desktopEntries = {
       lf = {
         name = "lf";
+        genericName = "file manager";
         exec = "${pkgs.kitty} lf";
         icon = "utilities-terminal";
         categories = [ "ConsoleOnly" "System" "FileTools" "FileManager"];
-        mimeTypes = ["inode/directory"];
+        mimeType = ["inode/directory"];
       };
   };
 }
