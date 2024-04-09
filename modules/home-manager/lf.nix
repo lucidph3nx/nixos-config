@@ -40,7 +40,7 @@ let
   pistol file kitty 
     # linux only makeDesktopItem
     (lib.optional isLinux (
-      pkgs.makeDesktopItem {
+      makeDesktopItem {
         name = "lf";
         exec = "${pkgs.kitty} lf";
         icon = "utilities-terminal";
