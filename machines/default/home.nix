@@ -71,6 +71,7 @@
     neofetch
     picard
     gimp # temp for troubleshooting
+    vimiv-qt
     # cinnamon.nemo
   ];
 
