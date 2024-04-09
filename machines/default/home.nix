@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, nixpkgs-unstable, ... }:
 
 {
   imports =
@@ -39,7 +39,7 @@
   home.pointerCursor = {
     gtk.enable = true;
     name = "breeze_cursors";
-    package = pkgs.libsForQt5.breeze-qt5.override { breeze.version = 6.0.1; };
+    package = nixpkgs-unstable.kdePackages.breeze;
     size = 24;
   };
   gtk = {
