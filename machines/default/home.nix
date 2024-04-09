@@ -35,7 +35,13 @@
   # want to update the value, then make sure to first check the Home Manager
   # release notes.
   home.stateVersion = "23.11"; # Please read the comment before changing.
-
+  
+  home.pointerCursor = {
+    gtk.enable = true;
+    name = "breeze_cursors";
+    package = pkgs.libsForQt5.breeze-gtk;
+    size = 24;
+  };
   gtk = {
     enable = true;
     theme = {
