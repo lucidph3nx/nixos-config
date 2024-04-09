@@ -47,6 +47,11 @@
       package = pkgs.papirus-icon-theme;
     };
   };
+  qt = {
+    enable = true;
+    platformTheme = "gnome";
+    style.name = "adwaita-dark";
+  };
   
   home.packages = with pkgs; [
     pfetch-rs
