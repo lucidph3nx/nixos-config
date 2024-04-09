@@ -38,6 +38,10 @@
 
   gtk = {
     enable = true;
+    theme = {
+      name = "Adwaita-dark";
+      package = pkgs.gtk3;
+    };
     iconTheme = {
       name = "Papirus-Dark";
       package = pkgs.papirus-icon-theme;
@@ -48,6 +52,7 @@
     pfetch-rs
     neofetch
     picard
+    nemo
   ];
 
   home.sessionVariables = {
