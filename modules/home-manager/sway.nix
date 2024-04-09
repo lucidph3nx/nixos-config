@@ -3,7 +3,7 @@
 {
   wayland.windowManager.sway = {
     enable = true;
-    # config = {};
+    config = {};
   };
   home.packages = with pkgs; [
     swaybg
