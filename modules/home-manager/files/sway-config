@@ -51,7 +51,7 @@ set $calendar $browser_newwindow 'https://calendar.google.com'
 set $home_assistant $browser_newwindow "https://home-assistant.$SECRET_DOMAIN"
 set $plex $browser_newwindow "https://plex.$SECRET_DOMAIN"
 # terminal based applications
-set $filebrowser $terminal ranger
+set $filebrowser $terminal lf
 set $musicplayer $terminal ncmpcpp
 set $obsidian $terminal cli.tmux.projectSessioniser /home/ben/documents/obsidian/personal-vault
 # rofi based applications
