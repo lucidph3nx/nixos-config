@@ -39,7 +39,7 @@
   home.pointerCursor = {
     gtk.enable = true;
     name = "breeze_cursors";
-    package = pkgs.libsForQt5.breeze-gtk;
+    package = pkgs.libsForQt5.breeze-gtk.override { version = 6.0.1; };
     size = 24;
   };
   gtk = {
