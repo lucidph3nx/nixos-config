@@ -1,8 +1,5 @@
 { pkgs, lib, ... }:
 
-let 
-  inherit (pkgs.stdenv.hostPlatform) isLinux;
-  in
 {
   # dependencies
   home.packages = with pkgs; [ pistol file kitty ];
@@ -37,7 +34,7 @@ let
       '';
 
   };
-  xdg.desktopEntries = (lib.optional isLinux {
+  xdg.desktopEntries = {
       lf = {
         name = "lf";
         exec = "${pkgs.kitty} lf";
@@ -46,5 +43,5 @@ let
         categories = [ "ConsoleOnly" "System" "FileTools" "FileManager"];
         mimeTypes = ["inode/directory"];
       };
-  });
+  };
 }
