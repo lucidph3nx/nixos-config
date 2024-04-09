@@ -1,5 +1,8 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
+let 
+  inherit (pkgs.stdenv.hostPlatform) isLinux;
+  in
 {
   home.packages = with pkgs; [ pistol file kitty ];
   programs.lf = {
@@ -33,12 +36,14 @@
       '';
 
   };
-  desktopItem = pkgs.makeDesktopItem {
-    name = "lf";
-    exec = "kitty lf";
-    icon = "utilities-terminal";
-    desktopName = "lf";
-    categories = [ "ConsoleOnly" "System" "FileTools" "FileManager"];
-    mimeTypes = ["inode/directory"];
-  };
+  desktopItem = lib.optional isLinux (
+    pkgs.makeDesktopItem {
+      name = "lf";
+      exec = "${pkgs.kitty} lf";
+      icon = "utilities-terminal";
+      desktopName = "lf";
+      categories = [ "ConsoleOnly" "System" "FileTools" "FileManager"];
+      mimeTypes = ["inode/directory"];
+    }
+  );
 }
