@@ -94,6 +94,7 @@
     imagemagick
     jq
     kubectl
+    p7zip
     ripgrep
     rustup
     sops
