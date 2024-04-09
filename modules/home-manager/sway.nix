@@ -3,7 +3,13 @@
 {
   # wayland.windowManager.sway = {
   #   enable = true;
-  #   config = null;
+  #   config = {
+  #     focus = {
+  #       followsMouse = false;
+  #       mouseWarping = false;
+  #     };
+  #     modifier = "Mod4"; # super key
+  #   };
   # };
   # home.packages = with pkgs; [
   #   swaybg

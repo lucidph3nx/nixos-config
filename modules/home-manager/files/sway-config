@@ -12,16 +12,16 @@ set $super Mod4
 # alt for "application actions"
 set $alt Mod1
 # input config
-input "type:keyboard" {
-  # Te Reo Macrons
-  xkb_layout "nz"
-  xkb_variant "mao"
-  # Right Super for macrons
-  xkb_options lv3:rwin_switch
-  # keyrepeat settings
-  repeat_delay 225
-  repeat_rate 60
-}
+# input "type:keyboard" {
+#   # Te Reo Macrons
+#   xkb_layout "nz"
+#   xkb_variant "mao"
+#   # Right Super for macrons
+#   xkb_options lv3:rwin_switch
+#   # keyrepeat settings
+#   repeat_delay 225
+#   repeat_rate 60
+# }
 
 
 # other keys that need better names

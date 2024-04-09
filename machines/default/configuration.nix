@@ -47,10 +47,16 @@
 
   # Configure keymap in X11
   services.xserver = {
-	xkb = {
+    xkb = {
+        # Te Reo Macrons
     		layout = "nz";
     		variant = "mao";
+        # Right Super for macrons
+        options = "lv3:rwin_switch";
     	};
+    # keyrepeat settings
+    autoRepeatDelay = 225;
+    autoRepeatInterval = 60;
   };
 
   # no password for sudo
