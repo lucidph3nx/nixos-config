@@ -39,7 +39,7 @@
   home.pointerCursor = {
     gtk.enable = true;
     name = "breeze_cursors";
-    package = pkgs.libsForQt5.breeze-qt5;
+    package = pkgs.libsForQt5.breeze-gtk;
     size = 24;
   };
   gtk = {
@@ -70,6 +70,7 @@
     pfetch-rs
     neofetch
     picard
+    gimp # temp for troubleshooting
     # cinnamon.nemo
   ];
 
