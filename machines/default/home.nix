@@ -54,7 +54,7 @@
     };
     cursorTheme = {
       name = "breeze_cursors";
-      package = pkgs.libsForQt5.breeze-qt5;
+      package = nixpkgs-unstable.kdePackages.breeze;
     };
     gtk3 = {
       extraConfig.gtk-application-prefer-dark-theme = true;
