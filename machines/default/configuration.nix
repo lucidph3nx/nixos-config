@@ -123,16 +123,16 @@
   # 	enable = true;
   # 	defaultEditor = true;
   # };
-  programs = {
-  	sway = {
-      enable = true;
-      extraPackages = with pkgs; [
-        swaylock
-        swaynotificationcenter
-      ];
-    };
-	  waybar.enable = true;
-  };
+  # programs = {
+  # 	sway = {
+  #     enable = true;
+  #     extraPackages = with pkgs; [
+  #       swaylock
+  #       swaynotificationcenter
+  #     ];
+  #   };
+	 #  waybar.enable = true;
+  # };
   
   xdg.portal = {
     enable = true;
