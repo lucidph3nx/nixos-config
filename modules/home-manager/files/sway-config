@@ -95,20 +95,20 @@ set $warn #e69875
 set $danger #e67e80
 
 # GTK theming
-set $gnome "org.gnome.desktop.interface"
-seat seat0 xcursor_theme Breeze 24
-exec_always {
-    gsettings set $gnome gtk-theme 'Adwaita-dark'
-    gsettings set $gnome icon-theme 'Papirus-Dark'
-    gsettings set $gnome cursor-theme 'Breeze'
-    gsettings set $gnome cursor-size '24'
-    gsettings set $gnome gtk-application-prefer-dark-theme true
-    # GTK4
-    gsettings set $gnome color-scheme 'prefer-dark'
-    # default term for nemo
-    gsettings set org.cinnamon.desktop.default-applications.terminal exec kitty
-}
-
+# set $gnome "org.gnome.desktop.interface"
+# seat seat0 xcursor_theme Breeze 24
+# exec_always {
+#     gsettings set $gnome gtk-theme 'Adwaita-dark'
+#     gsettings set $gnome icon-theme 'Papirus-Dark'
+#     gsettings set $gnome cursor-theme 'Breeze'
+#     gsettings set $gnome cursor-size '24'
+#     gsettings set $gnome gtk-application-prefer-dark-theme true
+#     # GTK4
+#     gsettings set $gnome color-scheme 'prefer-dark'
+#     # default term for nemo
+#     gsettings set org.cinnamon.desktop.default-applications.terminal exec kitty
+# }
+#
 # class                 border    backgr. text  indicator child_border
 client.focused          $active   $active $fg   $active   $active
 client.focused_inactive $inactive $bg     $fg   $bg       $bg

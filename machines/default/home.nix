@@ -39,6 +39,7 @@
   home.pointerCursor = {
     gtk.enable = true;
     name = "breeze_cursors";
+    # this is the cursor I like, from plasma 6
     package = nixpkgs-unstable.kdePackages.breeze;
     size = 24;
   };
@@ -54,6 +55,7 @@
     };
     cursorTheme = {
       name = "breeze_cursors";
+    # this is the cursor I like, from plasma 6
       package = nixpkgs-unstable.kdePackages.breeze;
     };
     gtk3 = {
