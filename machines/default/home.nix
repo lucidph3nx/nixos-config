@@ -46,6 +46,13 @@
       name = "Papirus-Dark";
       package = pkgs.papirus-icon-theme;
     };
+    cursorTheme = {
+      name = "Breeze";
+      package = pkgs.libsForQt5.breeze-qt5;
+    };
+    gtk3 = {
+      extraConfig.gtk-application-prefer-dark-theme = true;
+    };
   };
   qt = {
     enable = true;
@@ -57,7 +64,7 @@
     pfetch-rs
     neofetch
     picard
-    cinnamon.nemo
+    # cinnamon.nemo
   ];
 
   home.sessionVariables = {
