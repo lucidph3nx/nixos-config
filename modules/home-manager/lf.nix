@@ -4,6 +4,8 @@ let
   inherit (pkgs.stdenv.hostPlatform) isLinux;
   in
 {
+  # dependencies
+  home.packages = with pkgs; [ pistol file kitty ];
   programs.lf = {
     enable = true;
     settings = {
@@ -35,19 +37,14 @@ let
       '';
 
   };
-  home.packages = with pkgs; [
-  # dependencies
-  pistol file kitty 
-    # linux only makeDesktopItem
-    (lib.optional isLinux (
-      makeDesktopItem {
+  xdg.desktopEntries = {
+      lf = (lib.optional isLinux {
         name = "lf";
         exec = "${pkgs.kitty} lf";
         icon = "utilities-terminal";
         desktopName = "lf";
         categories = [ "ConsoleOnly" "System" "FileTools" "FileManager"];
         mimeTypes = ["inode/directory"];
-      }
-    ))
-  ];
+      });
+  };
 }
