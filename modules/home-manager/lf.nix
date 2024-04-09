@@ -37,14 +37,14 @@ let
       '';
 
   };
-  xdg.desktopEntries = {
-      lf = (lib.optional isLinux {
+  xdg.desktopEntries = (lib.optional isLinux {
+      lf = {
         name = "lf";
         exec = "${pkgs.kitty} lf";
         icon = "utilities-terminal";
         desktopName = "lf";
         categories = [ "ConsoleOnly" "System" "FileTools" "FileManager"];
         mimeTypes = ["inode/directory"];
-      });
-  };
+      };
+  });
 }
