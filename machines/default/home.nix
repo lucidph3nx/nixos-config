@@ -52,7 +52,7 @@
     pfetch-rs
     neofetch
     picard
-    nemo
+    cinnamon.nemo
   ];
 
   home.sessionVariables = {
