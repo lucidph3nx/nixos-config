@@ -1,6 +1,6 @@
 { pkgs, lib, ... }: {
   imports = [
-    ./gui
+    ./guiApps
     ./cli
   ];
   guiApps.enable = lib.mkDefault true;

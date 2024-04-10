@@ -1,7 +1,5 @@
-# { config, ...}:
-
 {
-  # theme = {
+  theme = {
     foreground = "#d3c6aa";
     background = "#2d353b";
     black = "#343f44";
@@ -12,5 +10,5 @@
     purple = "#d699b6";
     red = "#e67e80";
     yellow = "#dbbc7f";
-  # };
+  };
 }
