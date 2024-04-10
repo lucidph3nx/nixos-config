@@ -36,7 +36,7 @@ in
     enable = true;
     config = {
       focus = {
-        followsMouse = false;
+        followMouse = false;
         mouseWarping = false;
       };
       input = {
