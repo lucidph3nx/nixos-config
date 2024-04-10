@@ -79,6 +79,7 @@
     arping
     aws-vault
     chromium
+    curl
     direnv
     eza
     flux
