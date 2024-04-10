@@ -14,7 +14,7 @@ in
       up = "k";
       right = "l";
       # scripts
-      screenshotutil = "application.grim.screenshotToClipboard";
+      screenshotutil = ${home.file.".local/scripts/application.grim.screenshotToClipboard".path}
       emojipicker = "application.rofi.emojipicker";
       runscripts = "application.scripts.launcher";
       calculator = "application.rofi.calculator";
@@ -316,6 +316,8 @@ in
     autotiling
     polkit
     dex
+    grim
+    wl-copy
   ];
   # home.file = {
     # ".config/sway/config".source              = ./files/sway-config;
@@ -338,6 +340,18 @@ in
         swaymsg gaps horizontal 0
         swaymsg gaps horizontal all set 0
       fi
+    '';
+  };
+  home.file.".local/scripts/application.grim.screenshotToClipboard" = {
+    text = ''
+      #!/bin/bash
+      grim -g "$(slurp -c "${theme.green}FF" -b '${theme.background}80')" - | wl-copy
+    '';
+  };
+  home.file.".local/scripts/application.grim.screenshotToFile" = {
+    text = ''
+      #!/bin/bash
+      grim -g "$(slurp -c "${theme.green}FF" -b '${theme.background}80')" "$HOME/pictures/screenshots/$(date '+%y%m%d_%H-%M-%S').png"
     '';
   };
 }
