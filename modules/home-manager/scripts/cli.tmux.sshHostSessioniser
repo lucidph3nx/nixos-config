@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 # if passed host, use that, otherwise use getter script
 if [[ $# -eq 1 ]]; then
