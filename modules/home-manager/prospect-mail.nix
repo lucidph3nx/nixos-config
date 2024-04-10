@@ -24,13 +24,13 @@
           '';
     })
   ];
-  xdg.desktopEntries = {
-      prospect-mail = {
-        name = "Outlook";
-        genericName = "mail";
-        exec = "prospect-mail %U";
-        icon = "ms-outlook";
-        categories = [ "Network" "Mail" "Office"];
-      };
-  };
+#   xdg.desktopEntries = {
+#       prospect-mail = {
+#         name = "Outlook";
+#         genericName = "mail";
+#         exec = "prospect-mail %U";
+#         icon = "ms-outlook";
+#         categories = [ "Network" "Mail" "Office"];
+#       };
+#   };
 }
