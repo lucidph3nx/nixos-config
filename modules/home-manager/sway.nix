@@ -302,8 +302,7 @@ in
     '';
     systemd.enable = true;
   };
-  programs.zsh.sessionVariables = {
-  # home.sessionVariables = {
+  home.sessionVariables = {
     SDL_VIDEODRIVER = "wayland";
     _JAVA_AWT_WM_NONREPARENTING = "1";
     QT_QPA_PLATFORM = "wayland";
