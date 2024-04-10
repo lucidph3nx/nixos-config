@@ -14,7 +14,7 @@ in
       up = "k";
       right = "l";
       # scripts
-      screenshotutil = '${home.file.".local/scripts/application.grim.screenshotToClipboard".path}'
+      screenshotutil = home.file.".local/scripts/application.grim.screenshotToClipboard".path
       emojipicker = "application.rofi.emojipicker";
       runscripts = "application.scripts.launcher";
       calculator = "application.rofi.calculator";
