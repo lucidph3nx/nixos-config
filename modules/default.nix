@@ -3,7 +3,7 @@
     ./home-manager
   #   ./nix
   #   ./nix-darwin
-    ./colourScheme
+    # ./colourScheme
   ];
 
 }
