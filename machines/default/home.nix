@@ -70,7 +70,6 @@
   
   home.packages = with pkgs; [
     gimp # temp for troubleshooting
-    htop
     neofetch
     pfetch-rs
     picard

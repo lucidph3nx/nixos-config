@@ -125,10 +125,10 @@ in
       };
     };
   };
-  home.sessionVariables = {
-    HASS_API_KEY = "$(cat ${osConfig.sops.secrets.hass_api_key.path})";
-    SECRET_DOMAIN = "$(cat ${osConfig.sops.secrets.secret_domain.path})";
-  };
+  # home.sessionVariables = {
+  #   HASS_API_KEY = "$(cat ${osConfig.sops.secrets.hass_api_key.path})";
+  #   SECRET_DOMAIN = "$(cat ${osConfig.sops.secrets.secret_domain.path})";
+  # };
   home.file = {
     # ".config/waybar/config".source            = ./files/waybar-config;
     ".config/waybar/style.css".source         = ./files/waybar-style;

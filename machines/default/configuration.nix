@@ -86,6 +86,7 @@
     fzf
     fzy
     gh
+    htop
     imagemagick
     jq
     kubectl
@@ -99,6 +100,18 @@
     yt-dlp
     zsh
   ];
+
+  environment.sessionVariables = {
+    # for sway
+    SDL_VIDEODRIVER = "wayland";
+    _JAVA_AWT_WM_NONREPARENTING = "1";
+    QT_QPA_PLATFORM = "wayland";
+    XDG_CURRENT_DESKTOP = "sway";
+    XDG_SESSION_DESKTOP = "sway";
+    # secrets
+    HASS_API_KEY = "$(cat ${config.sops.secrets.hass_api_key.path})";
+    SECRET_DOMAIN = "$(cat ${config.sops.secrets.secret_domain.path})";
+  }
 
   fonts.fontDir.enable = true;
   fonts.packages = [
