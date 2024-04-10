@@ -26,7 +26,7 @@
         genericName = "mail";
         exec = "prospect-mail %U";
         icon = "ms-outlook";
-        categories = [ "Network" "Mail" "Office"];
+        categories = [ "Network" "Office"];
       };
   };
 }
