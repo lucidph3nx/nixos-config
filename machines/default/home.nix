@@ -69,10 +69,11 @@
   };
   
   home.packages = with pkgs; [
-    pfetch-rs
-    neofetch
-    picard
     gimp # temp for troubleshooting
+    htop
+    neofetch
+    pfetch-rs
+    picard
     vimiv-qt
     # cinnamon.nemo
   ];
