@@ -297,8 +297,8 @@ in
           bindsym Escape mode "default
       }
       # Enter Exit mode
-      bindsym --to-code $super+Shift+e mode $mode_exit
-      bindsym --release $super+Shift+e exec sleep 3 && swaymsg mode "default"
+      bindsym --to-code ${super}+Shift+e mode $mode_exit
+      bindsym --release ${super}+Shift+e exec sleep 3 && swaymsg mode "default"
     '';
   };
   home.sessionVariables = {
