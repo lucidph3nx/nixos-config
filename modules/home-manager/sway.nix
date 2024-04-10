@@ -255,7 +255,7 @@ in
         }
         {
           # set smart gaps etc if super-ultrawide
-          command = "zsh ${config.home.file.\".config/sway/scripts/set_gaps.sh\"}";
+          command = "cli.system.setSwayGaps";
           always = true;
         }
         { # Autotiling Sway Extension
@@ -317,9 +317,27 @@ in
     polkit
     dex
   ];
-  home.file = {
+  # home.file = {
     # ".config/sway/config".source              = ./files/sway-config;
     # ".config/sway/navi/config".source         = ./files/sway-navi-config;
-    ".config/sway/scripts/set_gaps.sh".source = ./files/sway-script-setgaps;
+    # ".config/sway/scripts/set_gaps.sh".source = ./files/sway-script-setgaps;
+  # };
+  # my scripts relevant to sway
+  home.sessionPath = ["$HOME/.local/scripts"];
+  home.file.".local/scripts/cli.system.setSwayGaps" = {
+    text = ''
+      #!/bin/bash
+      width=$(swaymsg -t get_outputs | jq '.[0].rect.width' | xargs printf "%.0f\n")
+      # Check if running in super-ultrawide
+      if [ $width -gt 5000 ]; then
+        swaymsg smart_gaps inverse_outer
+        swaymsg gaps horizontal $(($width/4))
+        swaymsg gaps horizontal all set $(($width/4))
+      else
+        swaymsg smart_gaps off
+        swaymsg gaps horizontal 0
+        swaymsg gaps horizontal all set 0
+      fi
+    '';
   };
 }
