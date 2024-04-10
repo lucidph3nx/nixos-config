@@ -43,7 +43,7 @@ in
           "show-empty" = false;
           "format-icons" = ["" "󰎝"];
           "tooltip" = true;
-          "tooltip-format" = "{app}: {title}":
+          "tooltip-format" = "{app}: {title}";
         };
         "wlr/taskbar" = {
           "format" = "{icon}";
