@@ -301,7 +301,7 @@ in
       bindsym --release ${super}+Shift+e exec sleep 3 && swaymsg mode "default"
     '';
   };
-  home.sessionVariables = {
+  systemd.user.sessionVariables = {
     SDL_VIDEODRIVER = "wayland";
     _JAVA_AWT_WM_NONREPARENTING = "1";
     QT_QPA_PLATFORM = "wayland";
