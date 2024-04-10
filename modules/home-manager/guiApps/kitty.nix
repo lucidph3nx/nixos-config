@@ -44,44 +44,44 @@ inactive_tab_foreground         ${grey2}
 tab_bar_background              ${bg1}
 tab_bar_margin_color            none
 
-mark1_foreground                #2d353b
-mark1_background                #7fbbb3
-mark2_foreground                #2d353b
-mark2_background                #d3c6aa
-mark3_foreground                #2d353b
-mark3_background                #d699b6
+mark1_foreground                ${bg0}
+mark1_background                ${blue}
+mark2_foreground                ${bg0}
+mark2_background                ${foreground}
+mark3_foreground                ${bg0}
+mark3_background                ${purple}
 
 #: black
-color0                          #343f44
-color8                          #3d484d
+color0                          ${bg1}
+color8                          ${bg2}
 
 #: red
-color1                          #e67e80
-color9                          #e67e80
+color1                          ${red}
+color9                          ${red}
 
 #: green
-color2                          #a7c080
-color10                         #a7c080
+color2                          ${green}
+color10                         ${green}
 
 #: yellow
-color3                          #dbbc7f
-color11                         #dbbc7f
+color3                          ${yellow}
+color11                         ${yellow}
 
 #: blue
-color4                          #7fbbb3
-color12                         #7fbbb3
+color4                          ${blue}
+color12                         ${blue}
 
 #: magenta
-color5                          #d699b6
-color13                         #d699b6
+color5                          ${purple}
+color13                         ${purple}
 
 #: cyan
-color6                          #83c092
-color14                         #83c092
+color6                          ${aqua}
+color14                         ${aqua}
 
 #: white
-color7                          #859289
-color15                         #9da9a0
+color7                          ${grey1}
+color15                         ${grey2}
     '';
   };
   };
