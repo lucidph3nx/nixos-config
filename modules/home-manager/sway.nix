@@ -308,6 +308,8 @@ in
     QT_QPA_PLATFORM = "wayland";
     XDG_CURRENT_DESKTOP = "sway";
     XDG_SESSION_DESKTOP = "sway";
+    HAS_API_KEY = "$(cat ${osConfig.sops.secrets.hass_api_key.path})";
+
   };
   home.packages = with pkgs; [
     autotiling
