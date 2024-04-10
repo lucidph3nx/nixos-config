@@ -1,10 +1,10 @@
 { config, pkgs, osConfig, ... }:
 
 let 
-  theme = import ../colourScheme/theme.nix;
   homeDir = config.home.homeDirectory;
   browserNewWindow = "firefox --new-window";
 in
+with config.theme;
 {
   programs.waybar = {
     enable = true;
@@ -110,9 +110,9 @@ in
           "tooltip" = false;
           "format" = "{icon}";
           "format-icons" = {
-              "notification" = "<span foreground='${theme.red}'><sup></sup></span>";
+              "notification" = "<span foreground='${red}'><sup></sup></span>";
               "none" = "";
-              "dnd-notification" = "<span foreground='${theme.red}'><sup></sup></span>";
+              "dnd-notification" = "<span foreground='${red}'><sup></sup></span>";
               "dnd-none" = "";
           };
           "return-type" = "json";
