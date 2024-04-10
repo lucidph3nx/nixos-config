@@ -47,7 +47,7 @@ with config.theme;
           }
         }
       '';
-      ".config/swaync/style.css".txt = ''
+      ".config/swaync/style.css".text = ''
         * {
           font-family: JetBrainsMono Nerd Font, monospace;
         }
