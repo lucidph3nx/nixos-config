@@ -93,16 +93,17 @@ in
     home.file.".local/scripts/application.launcher" = {
       source = ./scripts/application.launcher;
     };
-    home.file.".local/scripts/application.nvim.sessionLauncher" = {
+    home.file.".local/scripts/application.nvim.sessionLauncher" = 
+    let
+      nvimSessionLauncherStyle = ''inputbar { children: [entry]; border-color: ${blue};} entry { placeholder: "Select Project"; } element-icon { enabled: false; }'';
+    in 
+    {
       executable = true;
       text = ''
         #!/bin/sh
         monitor="$(swaymsg -t get_outputs | jq -c '.[] | select(.focused) | select(.id)' | jq -c '.name')"
-        # rofi style
-        rofi_style_tmuxsessionizer='inputbar { children: [entry]; border-color: ${blue};} entry { placeholder: "Select Project"; } element-icon { enabled: false; }'
         # Get the selection from tmux project getter
-        selection=$(~/.local/scripts/cli.tmux.projectGetter | rofi -monitor "$monitor" -dmenu -theme-str "$rofi_style_tmuxsessionizer")
-        # Check if selection is not empty
+        selection=$(~/.local/scripts/cli.tmux.projectGetter | rofi -monitor "$monitor" -dmenu -theme-str "${nvimSessionLauncherStyle}")
         if [ -n "$selection" ]; then
           # Run the tmux sessioniser with the selected session
           xargs -I{} ${terminal} ~/.local/scripts/cli.tmux.projectSessioniser "{}" 2> /dev/null <<<"$selection"
