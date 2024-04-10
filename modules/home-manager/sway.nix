@@ -278,28 +278,28 @@ in
           command = "gdbus wait --session org.kde.StatusNotifierWatcher && dex -a -s ~/.config/autostart/";
         }
       ];
-      extraConfig = ''
-        ## Exit menu
-        set $mode_exit "<span> \
-            <span> Lock</span> <span foreground='$danger'>(<b>l</b>)</span> \
-            <span>󰍃 Logout</span> <span foreground='$danger'>(<b>L</b>)</span> \
-            <span>󰜉 Reboot</span> <span foreground='$danger'>(<b>r</b>)</span> \
-            <span>󰐥 Shutdown</span> <span foreground='$danger'>(<b>s</b>)</span> </span>"
-        mode --pango_markup $mode_exit {
-            bindsym --to-code {
-                l exec swaylock, mode "default"
-                Shift+l exec loginctl terminate-user $USER, mode "default"
-                r exec systemctl reboot, mode "default"
-                s exec systemctl poweroff, mode "default"
-                Escape mode "default"
-            }
-            bindsym Escape mode "default
-        }
-        # Enter Exit mode
-        bindsym --to-code $super+Shift+e mode $mode_exit
-        bindsym --release $super+Shift+e exec sleep 3 && swaymsg mode "default"
-      '';
     };
+    extraConfig = ''
+      ## Exit menu
+      set $mode_exit "<span> \
+          <span> Lock</span> <span foreground='$danger'>(<b>l</b>)</span> \
+          <span>󰍃 Logout</span> <span foreground='$danger'>(<b>L</b>)</span> \
+          <span>󰜉 Reboot</span> <span foreground='$danger'>(<b>r</b>)</span> \
+          <span>󰐥 Shutdown</span> <span foreground='$danger'>(<b>s</b>)</span> </span>"
+      mode --pango_markup $mode_exit {
+          bindsym --to-code {
+              l exec swaylock, mode "default"
+              Shift+l exec loginctl terminate-user $USER, mode "default"
+              r exec systemctl reboot, mode "default"
+              s exec systemctl poweroff, mode "default"
+              Escape mode "default"
+          }
+          bindsym Escape mode "default
+      }
+      # Enter Exit mode
+      bindsym --to-code $super+Shift+e mode $mode_exit
+      bindsym --release $super+Shift+e exec sleep 3 && swaymsg mode "default"
+    '';
   };
   home.sessionVariables = {
     SDL_VIDEODRIVER = "wayland";
