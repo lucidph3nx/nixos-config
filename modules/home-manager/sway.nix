@@ -57,7 +57,7 @@ in
           "NotoSans"
           "NotoEmoji"
         ];
-        size = 10;
+        size = 10.0;
       };
       bindkeysToCode = true;
       keybindings = {
