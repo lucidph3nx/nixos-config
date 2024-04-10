@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 # read current theme from kitty terminal
 # TODO: probably don't make this rely on kitty in future

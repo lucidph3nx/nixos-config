@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # location of blocky bin
 blocky="/home/ben/.local/bin/blocky"

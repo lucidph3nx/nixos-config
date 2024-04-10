@@ -332,7 +332,7 @@ in
   home.file.".local/scripts/cli.system.setSwayGaps" = {
     executable = true;
     text = ''
-      #!/bin/bash
+      #!/bin/sh
       width=$(swaymsg -t get_outputs | jq '.[0].rect.width' | xargs printf "%.0f\n")
       # Check if running in super-ultrawide
       if [ $width -gt 5000 ]; then
@@ -349,14 +349,14 @@ in
   home.file.".local/scripts/application.grim.screenshotToClipboard" = {
     executable = true;
     text = ''
-      #!/bin/bash
+      #!/bin/sh
       grim -g "$(slurp -c "${theme.green}FF" -b '${theme.background}80')" - | wl-copy
     '';
   };
   home.file.".local/scripts/application.grim.screenshotToFile" = {
     executable = true;
     text = ''
-      #!/bin/bash
+      #!/bin/sh
       grim -g "$(slurp -c "${theme.green}FF" -b '${theme.background}80')" "$HOME/pictures/screenshots/$(date '+%y%m%d_%H-%M-%S').png"
     '';
   };

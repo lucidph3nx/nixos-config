@@ -1,3 +1,0 @@
-#!/bin/sh
-
-grim -g "$(slurp -c "#98c379FF" -b '#4d515d80')" - | wl-copy

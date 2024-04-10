@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 declare -A THEMES=(
     ["atom_one_dark"]="atom_one_dark"
