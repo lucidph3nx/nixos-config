@@ -221,10 +221,19 @@
     # my scripts relevant to k9s
     home.sessionPath = ["$HOME/.local/scripts"];
     home.file.".local/scripts/application.k9s.openHomeKube" = {
+      executable = true;
+      text = ''
+        #!/bin/sh
+        kitty k9s --kubeconfig /home/ben/.config/kube/config-home
+      '';
       source = ./scripts/application.k9s.openHomeKube;
     };
     home.file.".local/scripts/application.k9s.openWorkKube" = {
-      source = ./scripts/application.k9s.openWorkKube;
+      executable = true;
+      text = ''
+        #!/bin/sh
+        kitty k9s --kubeconfig /home/ben/.config/kube/config-work
+      '';
     };
   };
 }
