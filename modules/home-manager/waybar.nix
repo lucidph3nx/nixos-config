@@ -124,7 +124,7 @@ in
       };
     };
   };
-  home.sessionVariables = {
+  systemd.user.sessionVariables = {
     HASS_API_KEY = "$(cat ${osConfig.sops.secrets.hass_api_key.path})";
     SECRET_DOMAIN = "$(cat ${osConfig.sops.secrets.secret_domain.path})";
   };
