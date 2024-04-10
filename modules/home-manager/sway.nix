@@ -163,9 +163,9 @@ in
           "Escape" = "mode default";
         };
       };
-      bars = {
+      bars = [{
         command = "${pkgs.waybar}/bin/waybar";
-      };
+      }];
       window = {
         border = 3;
         hideEdgeBorders = "none";
