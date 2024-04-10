@@ -13,6 +13,7 @@
     ../../modules/home-manager/tmux.nix
   ];
   home-manager-modules.firefox.enabled = false; # doesnt work on nix-darwin currently
+  home-manager-modules.desktopEnvironment.enabled = false; # desktop environments are for linux only
 
   # You should not change this value, even if you update Home Manager. If you do
   # want to update the value, then make sure to first check the Home Manager
