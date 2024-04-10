@@ -302,6 +302,7 @@ in
       bindsym --to-code ${super}+Shift+e mode $mode_exit
       bindsym --release ${super}+Shift+e exec sleep 3 && swaymsg mode "default"
     '';
+    systemd.enable = true;
   };
   home.sessionVariables = {
     SDL_VIDEODRIVER = "wayland";
