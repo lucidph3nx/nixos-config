@@ -268,12 +268,9 @@ in
           command = "swaync";
           always = true;
         }
-        { # Gui App permissions
-          command = "${pkgs.polkit}/bin/polkit-agent";
-        }
-        { # Input remapper
-          command = "${pkgs.polkit}/bin/polkit-agent";
-        }
+        # { # Gui App permissions
+        #   command = "${pkgs.polkit}/bin/polkit-agent";
+        # }
         {
           # Many apps have tray icons, so wait for tray to be ready before starting them
           # Then autostart all XDG autostart .desktop files using dex
