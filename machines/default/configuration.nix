@@ -134,6 +134,13 @@
       xdg-desktop-portal-gtk
     ];
     wlr.enable = true;
+    config = {
+      common = {
+        default = [
+          "wlr"
+        ];
+      };
+    };
   };
 
   # List services that you want to enable:
