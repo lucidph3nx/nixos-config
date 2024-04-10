@@ -226,7 +226,6 @@
         #!/bin/sh
         kitty k9s --kubeconfig /home/ben/.config/kube/config-home
       '';
-      source = ./scripts/application.k9s.openHomeKube;
     };
     home.file.".local/scripts/application.k9s.openWorkKube" = {
       executable = true;
