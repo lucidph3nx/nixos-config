@@ -1,7 +1,7 @@
 { config, pkgs, osConfig, ... }:
 
 let 
-theme = import ../../colourScheme/theme.nix;
+theme = import ../colourScheme/theme.nix;
 homeDir = config.home.homeDirectory;
 in
 {
