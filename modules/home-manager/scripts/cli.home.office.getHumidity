@@ -7,4 +7,4 @@ curl -X GET \
   https://home-assistant.${SECRET_DOMAIN}/api/states/sensor.office_sensor_humidity \
   | jq -r '.attributes | "\(.humidity)\(.unit_of_measurement)"'
 
-echo date ${SECRET_DOMAIN} >> /home/ben/test.txt
+echo "$(date) ${SECRET_DOMAIN}" >> /home/ben/test.txt
