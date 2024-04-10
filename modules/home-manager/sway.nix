@@ -319,6 +319,7 @@ in
     polkit
     dex
     grim
+    slurp
     wl-clipboard
   ];
   # home.file = {
