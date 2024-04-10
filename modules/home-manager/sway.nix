@@ -1,8 +1,15 @@
 { config, pkgs, osConfig, ... }:
 
 let 
-theme = import ../colourScheme/theme.nix;
 homeDir = config.home.homeDirectory;
+theme = config.theme;
+# Colours
+active = theme.green;
+inactive = theme.blue;
+foreground = theme.foreground;
+background = theme.background;
+warn = theme.orange;
+danger = theme.red;
 in
 {
   wayland.windowManager.sway = let
@@ -212,15 +219,7 @@ in
         border = 3;
         modifier = "${super}";
       };
-      colors = let
-        active = theme.green;
-        inactive = theme.blue;
-        foreground = theme.foreground;
-        background = theme.background;
-        warn = theme.orange;
-        danger = theme.red;
-      in 
-      {
+      colors = {
         focused = {
           border = active;
           background = active;
@@ -283,10 +282,10 @@ in
     extraConfig = ''
       ## Exit menu
       set $mode_exit "<span> \
-          <span> Lock</span> <span foreground='$danger'>(<b>l</b>)</span> \
-          <span>󰍃 Logout</span> <span foreground='$danger'>(<b>L</b>)</span> \
-          <span>󰜉 Reboot</span> <span foreground='$danger'>(<b>r</b>)</span> \
-          <span>󰐥 Shutdown</span> <span foreground='$danger'>(<b>s</b>)</span> </span>"
+          <span> Lock</span> <span foreground='${danger}'>(<b>l</b>)</span> \
+          <span>󰍃 Logout</span> <span foreground='${danger}'>(<b>L</b>)</span> \
+          <span>󰜉 Reboot</span> <span foreground='${danger}'>(<b>r</b>)</span> \
+          <span>󰐥 Shutdown</span> <span foreground='${danger}'>(<b>s</b>)</span> </span>"
       mode --pango_markup $mode_exit {
           bindsym --to-code {
               l exec swaylock, mode "default"
