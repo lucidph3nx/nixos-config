@@ -199,6 +199,7 @@ in
           }
         ];
       };
+      defaultWorkspace = "workspace number 1";
       assigns = {
         "2" = [
           { instance = "teams-for-linux"; }
