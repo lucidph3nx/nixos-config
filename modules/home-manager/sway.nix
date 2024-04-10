@@ -7,7 +7,7 @@ theme = config.theme;
 active = theme.green;
 inactive = theme.blue;
 foreground = theme.foreground;
-background = theme.background;
+background = theme.bg0;
 warn = theme.orange;
 danger = theme.red;
 in
