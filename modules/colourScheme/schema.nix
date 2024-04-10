@@ -4,40 +4,36 @@
 # It is then free to be used by all other modules
 
 with lib;
-{
-  theme = mkOption {
-    type = types.submodule {
-      freeformType = pkgs.formats.yaml;
-      theme = {
-        foreground = mkOption { type = types.str; };
-        red = mkOption { type = types.str; };
-        orange = mkOption { type = types.str; };
-        yellow = mkOption { type = types.str; };
-        green = mkOption { type = types.str; };
-        aqua = mkOption { type = types.str; };
-        blue = mkOption { type = types.str; };
-        purple = mkOption { type = types.str; };
-        grey0 = mkOption { type = types.str; };
-        grey1 = mkOption { type = types.str; };
-        grey2 = mkOption { type = types.str; };
-        statusline1 = mkOption { type = types.str; };
-        statusline2 = mkOption { type = types.str; };
-        statusline3 = mkOption { type = types.str; };
-        bg_dim = mkOption { type = types.str; };
-        bg0 = mkOption { type = types.str; };
-        bg1 = mkOption { type = types.str; };
-        bg2 = mkOption { type = types.str; };
-        bg3 = mkOption { type = types.str; };
-        bg4 = mkOption { type = types.str; };
-        bg5 = mkOption { type = types.str; };
-        bg_visual = mkOption { type = types.str; };
-        bg_red = mkOption { type = types.str; };
-        bg_green = mkOption { type = types.str; };
-        bg_blue = mkOption { type = types.str; };
-        bg_yellow = mkOption { type = types.str; };
-      };
+let
+  themeType = types.submodule {
+    options = {
+      foreground = mkOption { type = types.str; };
+      red = mkOption { type = types.str; };
+      orange = mkOption { type = types.str; };
+      yellow = mkOption { type = types.str; };
+      green = mkOption { type = types.str; };
+      aqua = mkOption { type = types.str; };
+      blue = mkOption { type = types.str; };
+      purple = mkOption { type = types.str; };
+      grey0 = mkOption { type = types.str; };
+      grey1 = mkOption { type = types.str; };
+      grey2 = mkOption { type = types.str; };
+      statusline1 = mkOption { type = types.str; };
+      statusline2 = mkOption { type = types.str; };
+      statusline3 = mkOption { type = types.str; };
+      bg_dim = mkOption { type = types.str; };
+      bg0 = mkOption { type = types.str; };
+      bg1 = mkOption { type = types.str; };
+      bg2 = mkOption { type = types.str; };
+      bg3 = mkOption { type = types.str; };
+      bg4 = mkOption { type = types.str; };
+      bg5 = mkOption { type = types.str; };
+      bg_visual = mkOption { type = types.str; };
+      bg_red = mkOption { type = types.str; };
+      bg_green = mkOption { type = types.str; };
+      bg_blue = mkOption { type = types.str; };
+      bg_yellow = mkOption { type = types.str; };
     };
-    # defaults based on the GitHub light theme
     default = {
       foreground = "#24292f";
       red = "#cf222e";
@@ -65,6 +61,13 @@ with lib;
       bg_green = "#dafbe1";
       bg_blue = "#ddf4ff";
       bg_yellow = "#fff8c5";
+    };
+  };
+in
+{
+  options = {
+    theme = mkOption {
+      type = themeType;
     };
   };
 }
