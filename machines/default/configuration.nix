@@ -83,7 +83,6 @@
     curl
     direnv
     eza
-    flux
     fzf
     fzy
     gh
@@ -91,7 +90,6 @@
     htop
     imagemagick
     jq
-    kubectl
     p7zip
     ripgrep
     rustup

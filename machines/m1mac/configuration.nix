@@ -22,7 +22,6 @@
       direnv
       docker
       eza
-      flux
       fzf
       fzy
       gh
@@ -30,7 +29,6 @@
       gnutar
       imagemagick
       jq
-      kubectl
       p7zip
       ripgrep
       rustup

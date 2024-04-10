@@ -1,6 +1,5 @@
 { pkgs, lib, ... }: {
   imports = [
-    ./k9s.nix
+    ./kubernetes
   ];
-  home-manager-modules.k9s.enable = lib.mkDefault true;
 }
