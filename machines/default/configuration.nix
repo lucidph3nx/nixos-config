@@ -65,6 +65,7 @@
 	  users = {
       ben.imports = [
         ./home.nix
+        inputs.self.outputs.homeManagerModules.default
       ];
 	  };
   };
