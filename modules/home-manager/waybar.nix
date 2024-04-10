@@ -8,6 +8,7 @@ in
 {
   programs.waybar = {
     enable = true;
+    systemd.target = "sway-session.target";
     settings = {
       mainBar = {
         layer = "top";
