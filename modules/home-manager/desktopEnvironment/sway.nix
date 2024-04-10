@@ -12,12 +12,13 @@ warn = theme.orange;
 danger = theme.red;
 in
 {
+  imports = [ ./swaync.nix ];
   options = {
     home-manager-modules.sway.enable =
       lib.mkEnableOption "enables sway";
   };
-  # imports = lib.mkIf config.home-manager-modules.sway.enable [ ./swaync.nix ];
   config = lib.mkIf config.home-manager-modules.sway.enable {
+    home-manager-modules.swaync.enable = true;
     wayland.windowManager.sway = let
         # bindings
         super = "Mod4";
