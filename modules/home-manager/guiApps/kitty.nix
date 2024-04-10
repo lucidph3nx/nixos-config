@@ -14,18 +14,10 @@ with config.theme;
       size = 12.0;
     };
     extraConfig = ''
-# hide titlebar for macos
 hide_window_decorations titlebar-only
 window_margin_width 15
-# no confirm on window close
 confirm_os_window_close 0
 background_opacity 1.0
-# vim:ft=kitty
-## name: everforest_dark
-## author: Sainnhe Park
-## license: MIT
-## upstream: https://github.com/ewal/kitty-everforest/blob/master/themes/everforest_dark_medium.conf
-## blurb: A green based color scheme designed to be warm and soft
 
 foreground                      ${foreground}
 background                      ${bg0}
