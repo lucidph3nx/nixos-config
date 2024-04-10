@@ -78,7 +78,6 @@
   ];
 
   home.sessionVariables = {
-    EDITOR = "nvim";
     KUBECONFIG = "/home/ben/.config/kube/config-home";
     PAGER = "less";
     PF_INFO = "ascii title os kernel pkgs wm shell editor";

@@ -45,20 +45,6 @@
     LC_TIME = "en_NZ.UTF-8";
   };
 
-  # Configure keymap in X11
-  services.xserver = {
-    xkb = {
-        # Te Reo Macrons
-    		layout = "nz";
-    		variant = "mao";
-        # Right Super for macrons
-        options = "lv3:rwin_switch";
-    	};
-    # keyrepeat settings
-    autoRepeatDelay = 225;
-    autoRepeatInterval = 60;
-  };
-
   # no password for sudo
   security.sudo.wheelNeedsPassword = false;
   # Define a user account. Don't forget to set a password with ‘passwd’.
@@ -129,17 +115,17 @@
   # 	enable = true;
   # 	defaultEditor = true;
   # };
-  programs = {
-  	sway = {
-      enable = true;
-      extraPackages = with pkgs; [
-        swaylock
-        swaynotificationcenter
-      ];
-    };
-	  waybar.enable = true;
-  };
-  
+  # programs = {
+  # 	sway = {
+  #     enable = true;
+  #     extraPackages = with pkgs; [
+  #       swaylock
+  #       swaynotificationcenter
+  #     ];
+  #   };
+	 #  waybar.enable = true;
+  # };
+
   xdg.portal = {
     enable = true;
     extraPortals = with pkgs; [
