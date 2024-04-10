@@ -3,7 +3,7 @@
 let 
   theme = import ../themes/theme.nix;
   homeDir = config.home.homeDirectory;
-  secretDomain = (builtins.readFile ${osconfig.sops.secrets.hass_api_key.path})
+  secretDomain = (builtins.readFile osconfig.sops.secrets.hass_api_key.path)
   browserNewWindow = "firefox --new-window";
 in
 {
