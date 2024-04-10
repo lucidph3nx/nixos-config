@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ pkgs, nixpkgs-unstable, inputs, outputs, ... }:
+{ pkgs, nixpkgs-unstable, inputs, config, ... }:
 
 {
   imports =
@@ -109,8 +109,8 @@
     XDG_CURRENT_DESKTOP = "sway";
     XDG_SESSION_DESKTOP = "sway";
     # secrets
-    HASS_API_KEY = "$(cat ${outputs.sops.secrets.hass_api_key.path})";
-    SECRET_DOMAIN = "$(cat ${outputs.sops.secrets.secret_domain.path})";
+    HASS_API_KEY = "$(cat ${config.sops.secrets.hass_api_key.path})";
+    SECRET_DOMAIN = "$(cat ${config.sops.secrets.secret_domain.path})";
   };
 
   fonts.fontDir.enable = true;
