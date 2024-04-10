@@ -343,14 +343,14 @@ in
     executable = true;
     text = ''
       #!/bin/sh
-      grim -g "$(slurp -c "${theme.green}FF" -b '${theme.background}80')" - | wl-copy
+      grim -g "$(slurp -c "${theme.green}FF" -b '${theme.bg0}80')" - | wl-copy
     '';
   };
   home.file.".local/scripts/application.grim.screenshotToFile" = {
     executable = true;
     text = ''
       #!/bin/sh
-      grim -g "$(slurp -c "${theme.green}FF" -b '${theme.background}80')" "$HOME/pictures/screenshots/$(date '+%y%m%d_%H-%M-%S').png"
+      grim -g "$(slurp -c "${theme.green}FF" -b '${theme.bg0}80')" "$HOME/pictures/screenshots/$(date '+%y%m%d_%H-%M-%S').png"
     '';
   };
 }
