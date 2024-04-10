@@ -86,6 +86,7 @@
     fzf
     fzy
     gh
+    killall
     htop
     imagemagick
     jq
