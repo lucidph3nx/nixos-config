@@ -68,6 +68,7 @@ in
   options = {
     theme = mkOption {
       type = themeType;
+      default = themeType.default;
     };
   };
 }
