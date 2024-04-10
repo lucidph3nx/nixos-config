@@ -128,7 +128,7 @@ with config.theme;
       * {
         border: none;
         border-radius: 0;
-        font-family: JetBrainsMono Nerd Font, monospace !important;
+        font-family: JetBrainsMono Nerd Font, monospace;
         font-size: 18px;
         font-weight: 500; 
       }
