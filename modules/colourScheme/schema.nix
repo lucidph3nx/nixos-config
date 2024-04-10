@@ -7,7 +7,7 @@ with lib;
 {
   theme = mkOption {
     type = types.submodule {
-      freeformType = settingsFormat.type;
+      freeformType = pkgs.formats.yaml;
       theme = {
         foreground = mkOption { type = types.str; };
         red = mkOption { type = types.str; };
