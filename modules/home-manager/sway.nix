@@ -17,11 +17,11 @@ in
       right = "l";
       # scripts
       screenshotutil = "${homeDir}/.local/scripts/application.grim.screenshotToClipboard";
-      emojipicker = "application.rofi.emojipicker";
-      runscripts = "application.scripts.launcher";
-      calculator = "application.rofi.calculator";
-      nvimsessionlauncher = "application.nvim.sessionLauncher";
-      applicationlauncher = "application.launcher";
+      emojipicker = "${homeDir}/.local/scripts/application.rofi.emojipicker";
+      runscripts = "${homeDir}/.local/scripts/application.scripts.launcher";
+      calculator = "${homeDir}/.local/scripts/application.rofi.calculator";
+      nvimsessionlauncher = "${homeDir}/.local/scripts/application.nvim.sessionLauncher";
+      applicationlauncher = "${homeDir}/.local/scripts/application.launcher";
       # applications
       terminal = "kitty";
       browser = "firefox";
@@ -30,7 +30,7 @@ in
       plex = "firefox --new-window https://plex.$SECRET_DOMAIN";
       filemanager = "lf";
       musicplayer = "kitty ncmpcpp";
-      obsidian = "kitty cli.tmux.projectSessioniser /home/ben/documents/obsidian/personal-vault";
+      obsidian = "kitty ${homeDir}/.local/scripts/cli.tmux.projectSessioniser ${homeDir}/documents/obsidian/personal-vault";
       addtoshoppinglist = "home.shoppinglist.addItem";
       openshoppinglist = "firefox --new-window https://www.notion.so/ph3nx/Shopping-List-92d98ac3dc86460285a399c0b1176fc5";
     in
@@ -277,7 +277,7 @@ in
         {
           # Many apps have tray icons, so wait for tray to be ready before starting them
           # Then autostart all XDG autostart .desktop files using dex
-          command = "gdbus wait --session org.kde.StatusNotifierWatcher && dex -a -s ~/.config/autostart/";
+          command = "gdbus wait --session org.kde.StatusNotifierWatcher && dex -a -s ${homeDir}/.config/autostart/";
         }
       ];
     };
