@@ -17,8 +17,6 @@
       extraPkgs = pkgs.appimageTools.defaultFhsEnvArgs.multiPkgs;
       extraInstallCommands = ''
             mv $out/bin/${name} $out/bin/${pname}
-            substituteInPlace $out/share/applications/${pname}.desktop \
-              --replace 'Exec=AppRun --no-sandbox %U' 'Exec=${pname} %U'
           '';
     })
   ];
