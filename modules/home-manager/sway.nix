@@ -322,6 +322,8 @@ in
     slurp
     wl-clipboard
   ];
+  # this seems to be needed for something?
+  programs.dconf.enable = true
   # home.file = {
     # ".config/sway/config".source              = ./files/sway-config;
     # ".config/sway/navi/config".source         = ./files/sway-navi-config;
