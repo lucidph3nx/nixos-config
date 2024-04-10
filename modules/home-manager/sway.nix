@@ -1,6 +1,8 @@
 { config, pkgs, osConfig, ... }:
 
-let theme = import ../themes/theme.nix;
+let 
+theme = import ../themes/theme.nix;
+home = osConfig.home;
 in
 {
   wayland.windowManager.sway = let
