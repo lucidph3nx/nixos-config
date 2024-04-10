@@ -15,8 +15,7 @@
           noExitOnCtrlC = true;
           ui = {
             enableMouse = false;
-            headless = false;
-            logoless = false;
+            headless = true; logoless = false;
             crumbsless = false;
             reactive = false;
             noIcons = false;
@@ -218,6 +217,10 @@
         };
       };
     };
+    # zsh shortcut
+    home.programs.zsh.initExtra = ''
+      bindkey -s ^k "k9s\n"
+    '';
     # my scripts relevant to k9s
     home.sessionPath = ["$HOME/.local/scripts"];
     home.file.".local/scripts/application.k9s.openHomeKube" = {
