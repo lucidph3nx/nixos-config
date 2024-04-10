@@ -24,7 +24,7 @@
     ../../modules/home-manager/zathura.nix
     ../../modules/home-manager/zsh.nix
   ];
-  k9s.enable = true;
+  k9s.enable = false;
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
   home.username = "ben";
