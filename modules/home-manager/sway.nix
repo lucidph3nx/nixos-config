@@ -170,6 +170,7 @@ in
       }];
       window = {
         border = 3;
+        titlebar = false;
         hideEdgeBorders = "none";
         commands = [
           {
