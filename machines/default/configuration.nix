@@ -137,11 +137,12 @@
     #   xdg-desktop-portal-gtk
     # ];
     wlr.enable = true;
+    gtk.enable = true;
     config = {
       sway = {
         default = [
           "wlr"
-        #   "gtk"
+          "gtk"
         ];
       };
     };
