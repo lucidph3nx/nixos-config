@@ -3,7 +3,6 @@
 let 
   theme = import ../themes/theme.nix;
   homeDir = config.home.homeDirectory;
-  secretDomain = (builtins.readFile osConfig.sops.secrets.hass_api_key.path);
   browserNewWindow = "firefox --new-window";
 in
 {
@@ -72,14 +71,14 @@ in
         "interval" = 60;
         "format" = " {}";
         "exec" = "${homeDir}/.local/scripts/cli.home.office.getTemperature";
-        "on-click" = "${browserNewWindow} 'https://home-assistant.${secretDomain}/lovelace/default_view'";
+        "on-click" = "${browserNewWindow} 'https://home-assistant.$SECRET_DOMAIN/lovelace/default_view'";
       };
       "custom/office-humidity" = {
         "return-type" = "string";
         "interval" = 60;
         "format" = " {}";
         "exec" = "${homeDir}/.local/scripts/cli.home.office.getHumidity";
-        "on-click" = "${browserNewWindow} 'https://home-assistant.${secretDomain}/lovelace/default_view'";
+        "on-click" = "${browserNewWindow} 'https://home-assistant.$SECRET_DOMAIN/lovelace/default_view'";
       };
       "tray" = {
         "icon-size" = 18;
