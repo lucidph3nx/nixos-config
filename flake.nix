@@ -59,7 +59,6 @@
             in [
             defaults
             ./machines/default/configuration.nix
-            ./modules
             home-manager.nixosModules.default
           ];
         };
@@ -85,7 +84,6 @@
             in [
             defaults
             ./machines/m1mac/configuration.nix
-            ./modules
             home-manager.darwinModules.home-manager
           ];
         };
