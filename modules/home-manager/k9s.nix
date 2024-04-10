@@ -218,7 +218,7 @@
       };
     };
     # zsh shortcut
-    home.programs.zsh.initExtra = ''
+    programs.zsh.initExtra = ''
       bindkey -s ^k "k9s\n"
     '';
     # my scripts relevant to k9s
