@@ -55,6 +55,8 @@
     packages = with pkgs; [];
     shell = pkgs.zsh;
   };
+  # seems to be needed for something 🤷
+  programs.dconf.enable = true;
 
   home-manager = {
     useGlobalPkgs = true;
