@@ -51,7 +51,7 @@ in
           repeat_rate = 60;
         };
       };
-      font = {
+      fonts = {
         names = [
           "JetBrainsMono Nerd Font Medium"
           "NotoSans"
