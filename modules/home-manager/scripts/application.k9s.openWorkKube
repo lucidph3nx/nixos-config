@@ -1,4 +1,0 @@
-#!/bin/sh
-
-# PATH=$PATH:/home/ben/.krew/bin kitty k9s --kubeconfig /home/ben/.config/kube/config-work --user oidc-user
-kitty k9s --kubeconfig /home/ben/.config/kube/config-work
