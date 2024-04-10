@@ -118,7 +118,7 @@ in
         "${super}+c" = "exec ${calculator}";
         "${super}+f" = "exec ${nvimsessionlauncher}";
         # Notifications Center
-        "${super}+n" = "exec swaync-client -t -sw"
+        "${super}+n" = "exec swaync-client -t -sw";
         "${super}+Shift+n" = "exec swaync-client --close-all && swaync-client --close-panel";
         # Application Shortcuts
         "${alt}+Return" = "exec ${terminal}";
