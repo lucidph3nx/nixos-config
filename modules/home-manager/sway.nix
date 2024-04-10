@@ -2,7 +2,7 @@
 
 let 
 theme = import ../themes/theme.nix;
-home = osConfig.home;
+home = config.home;
 in
 {
   wayland.windowManager.sway = let
