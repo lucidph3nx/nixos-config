@@ -6,9 +6,9 @@
       teams-for-linux = {
         name = "Teams";
         genericName = "teams";
-        exec = "teams-for-linux --spellCheckerLanguages='en-NZ' %U";
+        exec = ''teams-for-linux --spellCheckerLanguages="en-NZ" %U'';
         icon = "teams";
-        categories = [ "Network" "Chat" "InstantMessaging" "Application"];
+        categories = [ "Network" "Chat" "InstantMessaging"];
         mimeType = ["x-scheme-handler/msteams"];
       };
   };
