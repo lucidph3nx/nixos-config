@@ -1,4 +1,4 @@
-{ config, pkgs, inputs, ... }: {
+{ config, pkgs, inputs, lib, ... }: {
   options = {
     k9s.enable =
       lib.mkEnableOption "enables k9s";
