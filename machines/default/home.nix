@@ -17,7 +17,7 @@
     ../../modules/home-manager/sway.nix
     ../../modules/home-manager/swaync.nix
     ../../modules/home-manager/syncthing.nix
-    ../../modules/home-manager/teams-for-linux.nix
+    # ../../modules/home-manager/teams-for-linux.nix
     ../../modules/home-manager/tmux.nix
     ../../modules/home-manager/waybar.nix
     ../../modules/home-manager/zathura.nix
