@@ -309,16 +309,17 @@ in
     XDG_SESSION_DESKTOP = "sway";
   };
   home.packages = with pkgs; [
+    autotiling
+    dex
+    grim
+    polkit
+    slurp
     swaybg
     swayidle
     swaylock
     swaynotificationcenter
-    autotiling
-    polkit
-    dex
-    grim
-    slurp
     wl-clipboard
+    xwayland
   ];
   # home.file = {
     # ".config/sway/config".source              = ./files/sway-config;
