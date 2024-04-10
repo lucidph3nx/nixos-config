@@ -224,7 +224,7 @@ in
           indicator = active;
           child_border = active;
         };
-        focused_inactive = {
+        focusedInactive = {
           border = inactive;
           background = background;
           text = foreground;
