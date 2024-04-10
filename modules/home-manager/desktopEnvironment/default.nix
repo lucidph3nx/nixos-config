@@ -1,7 +1,8 @@
 { config, pkgs, inputs, lib, ... }: {
   imports = [
     ./rofi.nix
-    ./sway.nix # also includes swaync
+    ./sway.nix
+    ./swaync.nix
     ./waybar.nix
   ];
 
@@ -12,6 +13,7 @@
   config = lib.mkIf config.desktopEnvironment.enable {
     home-manager-modules = {
       sway.enable = lib.mkDefault true;
+      swaync.enable = lib.mkDefault true;
       rofi.enable = lib.mkDefault true;
       waybar.enable = lib.mkDefault true;
     };
