@@ -138,9 +138,10 @@
     ];
     wlr.enable = true;
     config = {
-      common = {
+      sway = {
         default = [
           "wlr"
+          "gtk"
         ];
       };
     };
