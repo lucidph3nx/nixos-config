@@ -94,6 +94,7 @@ in
       source = ./scripts/application.launcher;
     };
     home.file.".local/scripts/application.nvim.sessionLauncher" = {
+      executable = true;
       text = ''
         #!/bin/sh
         monitor="$(swaymsg -t get_outputs | jq -c '.[] | select(.focused) | select(.id)' | jq -c '.name')"
