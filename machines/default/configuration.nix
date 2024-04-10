@@ -131,17 +131,17 @@
 
   xdg.portal = {
     enable = true;
-    extraPortals = with pkgs; [
-      xdg-desktop-portal-wlr
-      xdg-desktop-portal-kde
-      xdg-desktop-portal-gtk
-    ];
+    # extraPortals = with pkgs; [
+    #   xdg-desktop-portal-wlr
+    #   xdg-desktop-portal-kde
+    #   xdg-desktop-portal-gtk
+    # ];
     wlr.enable = true;
     config = {
       sway = {
         default = [
           "wlr"
-          "gtk"
+        #   "gtk"
         ];
       };
     };
