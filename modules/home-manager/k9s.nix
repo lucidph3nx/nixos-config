@@ -1,6 +1,6 @@
 { config, pkgs, inputs, lib, ... }: {
   options = {
-    k9s.enable =
+    home-manager-modules.k9s.enable =
       lib.mkEnableOption "enables k9s";
   };
   config = lib.mkIf config.k9s.enable {
