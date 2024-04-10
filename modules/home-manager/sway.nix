@@ -47,8 +47,8 @@ in
           # Right Super for macrons
           xkb_options = "lv3:rwin_switch";
           # keyrepeat settings
-          repeat_delay = 225;
-          repeat_rate = 60;
+          repeat_delay = "225";
+          repeat_rate = "60";
         };
       };
       fonts = {
