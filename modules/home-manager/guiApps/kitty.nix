@@ -1,5 +1,6 @@
 { config, pkgs, lib, ... }:
 
+with config.theme;
 {
   options = {
     home-manager-modules.kitty.enable =
@@ -26,7 +27,7 @@ background_opacity 1.0
 ## upstream: https://github.com/ewal/kitty-everforest/blob/master/themes/everforest_dark_medium.conf
 ## blurb: A green based color scheme designed to be warm and soft
 
-foreground                      #d3c6aa
+foreground                      ${foreground}
 background                      #2d353b
 selection_foreground            #9da9a0
 selection_background            #543a48
