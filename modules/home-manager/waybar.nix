@@ -124,9 +124,105 @@ with config.theme;
         };
       };
     };
+    style = ''
+      * {
+        border: none;
+        border-radius: 0;
+        font-family: JetBrainsMono Nerd Font, monospace !important;
+        font-size: 18px;
+        font-weight: 500; 
+      }
+      window#waybar {
+        background-color: ${bg0};
+        color: ${foreground};
+      }
+      window#waybar.hidden {
+        opacity: 0.2;
+      }
+      #workspaces {
+        padding: 0px 0px 0px 0px;
+      }
+      #workspaces button.focused {
+        background-color: ${green};
+        color: ${bg0};
+      }
+      #workspaces button.urgent {
+        background-color: ${red};
+        color: ${bg0};
+      }
+      #workspaces button:hover {
+        transition-duration: 0s;
+        box-shadow: inherit;
+        text-shadow: inherit;
+        background: ${blue};
+        color: ${bg0};
+      }
+      #workspaces button {
+        color: ${foreground};
+      }
+      #scratchpad {
+        background-color: ${blue};
+        color: ${bg0};
+        padding: 2px 5px;
+      }
+      #mode {
+        padding-left: 10px;
+        padding-right: 10px;
+        background-color: ${green};
+        color: ${bg0};
+      }
+      #mpd {
+        padding-right: 10px;
+        padding-left: 10px;
+      }
+      /* hide when stopped  or disconnected*/
+      #mpd.stopped, #mpd.disconnected {
+          font-size: 0;
+          margin: 0;
+          padding: 0;
+      }
+      widget > * {
+          padding-top: 2px;
+          padding-bottom: 2px;
+      }
+      .modules-left > widget:first-child > * {
+        margin-left: 0px;
+      }
+      .modules-left > widget:last-child > * {
+        margin-right: 18px;
+      }
+      .modules-right > widget > * {
+        padding: 0 12px;
+        margin-left: 0;
+        margin-right: 0;
+        color: @foreground-system;
+        background-color: ${green};
+      }
+      @keyframes blink {
+        to {
+          color: ${green};
+        }
+      }
+      #tray {
+        background: ${bg0};
+      }
+      #pulseaudio {
+          padding-right: 0px;
+      }
+      label:focus {
+        background-color: ${bg0};
+      }
+      tooltip {
+        background: ${bg0};
+      }
+      tooltip label {
+        color: ${green};
+        text-shadow: none;
+      }
+    '';
   };
   home.file = {
     # ".config/waybar/config".source            = ./files/waybar-config;
-    ".config/waybar/style.css".source         = ./files/waybar-style;
+    # ".config/waybar/style.css".source         = ./files/waybar-style;
   };
 }
