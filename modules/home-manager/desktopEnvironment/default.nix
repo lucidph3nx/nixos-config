@@ -1,7 +1,7 @@
 { config, pkgs, inputs, lib, ... }: {
   imports = [
     ./rofi.nix
-    ./sway.nix
+    ./sway.nix # also includes swaync
     ./waybar.nix
   ];
 
