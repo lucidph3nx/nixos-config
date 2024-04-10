@@ -195,7 +195,7 @@ with config.theme;
         padding: 0 12px;
         margin-left: 0;
         margin-right: 0;
-        color: @foreground-system;
+        color: ${bg0};
         background-color: ${green};
       }
       @keyframes blink {
