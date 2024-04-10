@@ -108,12 +108,14 @@
   # it should be added via launch options  in steam
   # "/home/ben/.local/scripts/game.inputremapper.apexlegends && %command% && /home/ben/.local/scripts/game.inputremapper.defaults"
   home.file.".local/scripts/game.inputRemapper.apexLegends" = {
+    executable = true;
     text = ''
       #!/bin/sh
       input-remapper-control --command start --device "Razer Razer DeathAdder V3 Pro" --preset "apex-legends"
     '';
   };
   home.file.".local/scripts/game.inputRemapper.defaults" = {
+    executable = true;
     text = ''
       #!/bin/sh
       input-remapper-control --command start --device "Razer Razer DeathAdder V3 Pro" --preset "default"

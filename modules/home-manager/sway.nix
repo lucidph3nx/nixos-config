@@ -308,7 +308,6 @@ in
     XDG_CURRENT_DESKTOP = "sway";
     XDG_SESSION_DESKTOP = "sway";
     HASS_API_KEY = "$(cat ${osConfig.sops.secrets.hass_api_key.path})";
-
   };
   home.packages = with pkgs; [
     autotiling
@@ -331,6 +330,7 @@ in
   # my scripts relevant to sway
   home.sessionPath = ["$HOME/.local/scripts"];
   home.file.".local/scripts/cli.system.setSwayGaps" = {
+    executable = true;
     text = ''
       #!/bin/bash
       width=$(swaymsg -t get_outputs | jq '.[0].rect.width' | xargs printf "%.0f\n")
@@ -347,12 +347,14 @@ in
     '';
   };
   home.file.".local/scripts/application.grim.screenshotToClipboard" = {
+    executable = true;
     text = ''
       #!/bin/bash
       grim -g "$(slurp -c "${theme.green}FF" -b '${theme.background}80')" - | wl-copy
     '';
   };
   home.file.".local/scripts/application.grim.screenshotToFile" = {
+    executable = true;
     text = ''
       #!/bin/bash
       grim -g "$(slurp -c "${theme.green}FF" -b '${theme.background}80')" "$HOME/pictures/screenshots/$(date '+%y%m%d_%H-%M-%S').png"
