@@ -56,7 +56,7 @@
     shell = pkgs.zsh;
   };
   # seems to be needed for something 🤷
-  programs.dconf.enable = true;
+  # programs.dconf.enable = true;
 
   home-manager = {
     useGlobalPkgs = true;
@@ -149,6 +149,7 @@
 
   # List services that you want to enable:
 
+  services.dbus.implementation = "broker";
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
   # display manager
