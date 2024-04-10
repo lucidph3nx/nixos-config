@@ -319,7 +319,7 @@ in
     polkit
     dex
     grim
-    wl-copy
+    wl-clipboard
   ];
   # home.file = {
     # ".config/sway/config".source              = ./files/sway-config;
