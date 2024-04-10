@@ -202,7 +202,7 @@ in
       assigns = {
         "2" = [
           { instance = "teams-for-linux"; }
-          { instance = "prospect-mail"; }
+          { instance = "prospect mail"; }
           { instance = "discord"; }
           { instance = "webcord"; }
         ];
