@@ -275,7 +275,7 @@ in
         {
           # Many apps have tray icons, so wait for tray to be ready before starting them
           # Then autostart all XDG autostart .desktop files using dex
-          command = "gdbus wait --session org.kde.StatusNotifierWatcher && dex -a -s ~/.config/autostart/"
+          command = "gdbus wait --session org.kde.StatusNotifierWatcher && dex -a -s ~/.config/autostart/";
         }
       ];
       extraConfig = ''
