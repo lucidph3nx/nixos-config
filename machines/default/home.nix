@@ -6,7 +6,7 @@
     ../../modules/home-manager/asdf.nix
     ../../modules/home-manager/firefox.nix
     ../../modules/home-manager/git.nix
-    ../../modules/home-manager/k9s.nix
+    # ../../modules/home-manager/k9s.nix
     ../../modules/home-manager/kitty.nix
     ../../modules/home-manager/lf.nix
     ../../modules/home-manager/mpd.nix
@@ -24,7 +24,7 @@
     ../../modules/home-manager/zathura.nix
     ../../modules/home-manager/zsh.nix
   ];
-  k9s.enable = false;
+  # k9s.enable = true;
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
   home.username = "ben";
