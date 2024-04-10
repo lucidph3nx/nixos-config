@@ -198,10 +198,10 @@ in
       };
       assigns = {
         "2" = [
-          { instance = "teams-for-linux" }
-          { instance = "prospect-mail" }
-          { instance = "discord" }
-          { instance = "webcord" }
+          { instance = "teams-for-linux"; }
+          { instance = "prospect-mail"; }
+          { instance = "discord"; }
+          { instance = "webcord"; }
         ];
       };
       floating = {
