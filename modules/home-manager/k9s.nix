@@ -15,7 +15,8 @@
           noExitOnCtrlC = true;
           ui = {
             enableMouse = false;
-            headless = true; logoless = false;
+            headless = true; 
+            logoless = false;
             crumbsless = false;
             reactive = false;
             noIcons = false;
