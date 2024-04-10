@@ -302,15 +302,6 @@ in
     '';
     systemd.enable = true;
   };
-  # home.sessionVariables = {
-  #   SDL_VIDEODRIVER = "wayland";
-  #   _JAVA_AWT_WM_NONREPARENTING = "1";
-  #   QT_QPA_PLATFORM = "wayland";
-  #   XDG_CURRENT_DESKTOP = "sway";
-  #   XDG_SESSION_DESKTOP = "sway";
-  #   HASS_API_KEY = "$(cat ${osConfig.sops.secrets.hass_api_key.path})";
-  #   SECRET_DOMAIN = "$(cat ${osConfig.sops.secrets.secret_domain.path})";
-  # };
   home.packages = with pkgs; [
     autotiling
     dex

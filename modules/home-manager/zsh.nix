@@ -67,9 +67,6 @@
       bindkey -s ^p "python\n"
       # utils
       eval "$(direnv hook zsh)"
-      # secrets
-      # export SECRET_DOMAIN="$(cat ${osConfig.sops.secrets.secret_domain.path})"
-      # export HASS_API_KEY="$(cat ${osConfig.sops.secrets.hass_api_key.path})"
     '';
   };
 }
