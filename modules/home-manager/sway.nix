@@ -126,7 +126,7 @@ in
         "${alt}+b" = "exec ${browser}";
         "${alt}+c" = "exec ${calendar}";
         "${alt}+h" = "exec ${home-assistant}";
-        "${alt}+p" = "exec ${filemanager}";";
+        "${alt}+p" = "exec ${filemanager}";
         "${alt}+m" = "exec ${musicplayer}";
         "${alt}+l" = "exec ${addtoshoppinglist}";
         "${alt}+Shift+l" = "exec ${openshoppinglist}";
