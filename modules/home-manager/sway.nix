@@ -222,21 +222,21 @@ in
           background = active;
           text = foreground;
           indicator = active;
-          child_border = active;
+          childBorder = active;
         };
         focusedInactive = {
           border = inactive;
           background = background;
           text = foreground;
           indicator = background;
-          child_border = background;
+          childBorder = background;
         };
         unfocused = {
           border = inactive;
           background = background;
           text = foreground;
           indicator = background;
-          child_border = background;
+          childBorder = background;
         };
       };
       gaps = {
