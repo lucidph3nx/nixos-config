@@ -2,7 +2,7 @@
 
 let 
 theme = import ../themes/theme.nix;
-home = config.home;
+homeDir = config.home.homeDirectory;
 in
 {
   wayland.windowManager.sway = let
@@ -16,7 +16,7 @@ in
       up = "k";
       right = "l";
       # scripts
-      screenshotutil = ''${home.file.".local/scripts/application.grim.screenshotToClipboard".path}'';
+      screenshotutil = "${homeDir}/.local/scripts/application.grim.screenshotToClipboard";
       emojipicker = "application.rofi.emojipicker";
       runscripts = "application.scripts.launcher";
       calculator = "application.rofi.calculator";
