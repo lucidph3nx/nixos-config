@@ -4,9 +4,7 @@
   imports =
   [
     ../../modules/home-manager/asdf.nix
-    ../../modules/home-manager/firefox.nix
     ../../modules/home-manager/git.nix
-    ../../modules/home-manager/kitty.nix
     ../../modules/home-manager/lf.nix
     ../../modules/home-manager/mpd.nix
     ../../modules/home-manager/ncmpcpp.nix
@@ -20,7 +18,6 @@
     # ../../modules/home-manager/teams-for-linux.nix
     ../../modules/home-manager/tmux.nix
     ../../modules/home-manager/waybar.nix
-    ../../modules/home-manager/zathura.nix
     ../../modules/home-manager/zsh.nix
   ];
   # Home Manager needs a bit of information about you and the paths it should

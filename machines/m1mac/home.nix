@@ -6,16 +6,14 @@
     ../../modules/home-manager/asdf.nix
     ../../modules/home-manager/git-sync.nix
     ../../modules/home-manager/git.nix
-    ../../modules/home-manager/kitty.nix
     ../../modules/home-manager/nvim.nix
     ../../modules/home-manager/scripts.nix
     ../../modules/home-manager/sops.nix
     ../../modules/home-manager/syncthing.nix
     ../../modules/home-manager/tmux.nix
-    ../../modules/home-manager/zathura.nix
-    # aparently doesnt work
-    # ../../modules/home-manager/firefox.nix
   ];
+  home-manager-modules.firefox.enabled = false; # doesnt work on nix-darwin currently
+
   # You should not change this value, even if you update Home Manager. If you do
   # want to update the value, then make sure to first check the Home Manager
   # release notes.
