@@ -117,7 +117,7 @@
   # 	enable = true;
   # 	defaultEditor = true;
   # };
-  # programs.sway.enable = true;
+  programs.sway.enable = true;
   # programs = {
   # 	sway = {
   #     enable = true;
