@@ -3,7 +3,7 @@
     home-manager-modules.k9s.enable =
       lib.mkEnableOption "enables k9s";
   };
-  config = lib.mkIf config.k9s.enable {
+  config = lib.mkIf config.home-manager-modules.k9s.enable {
     programs.k9s = {
       enable = true;
       settings = {
