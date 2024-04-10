@@ -18,7 +18,7 @@ in
           "sway/workspaces"
           "sway/scratchpad"
           "sway/mode"
-          "hyprland/workspaces"
+          # "hyprland/workspaces"
           "mpd"
         ];
         modules-center = [];
