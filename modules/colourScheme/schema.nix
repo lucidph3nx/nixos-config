@@ -5,34 +5,64 @@
 
 with lib;
 {
-  # defaults based on the GitHub light theme
-  theme = {
-    foreground = mkOption { default = "#24292f"; type = types.str; };
-    red = mkOption { default = "#cf222e"; type = types.str; };
-    orange = mkOption { default = "#fb8f44"; type = types.str; };
-    yellow = mkOption { default = "#4d2d00"; type = types.str; };
-    green = mkOption { default = "#116329"; type = types.str; };
-    aqua = mkOption { default = "#1b7c83"; type = types.str; };
-    blue = mkOption { default = "#0969da"; type = types.str; };
-    purple = mkOption { default = "#8250df"; type = types.str; };
-    grey0 = mkOption { default = "#6e7781"; type = types.str; };
-    grey1 = mkOption { default = "#57606a"; type = types.str; };
-    grey2 = mkOption { default = "#424a53"; type = types.str; };
-    statusline1 = mkOption { default = "#0969da"; type = types.str; };
-    statusline2 = mkOption { default = "#6e7781"; type = types.str; };
-    statusline3 = mkOption { default = "#cf222e"; type = types.str; };
-    bg_dim = mkOption { default = "#ffffff"; type = types.str; };
-    bg0 = mkOption { default = "#ffffff"; type = types.str; };
-    bg1 = mkOption { default = "#f6f8fa"; type = types.str; };
-    bg2 = mkOption { default = "#eaeef2"; type = types.str; };
-    bg3 = mkOption { default = "#d0d7de"; type = types.str; };
-    bg4 = mkOption { default = "#afb8c1"; type = types.str; };
-    bg5 = mkOption { default = "#afb8c1"; type = types.str; };
-    bg_visual = mkOption { default = "#ddf4ff"; type = types.str; };
-    bg_red = mkOption { default = "#ffebe9"; type = types.str; };
-    bg_green = mkOption { default = "#dafbe1"; type = types.str; };
-    bg_blue = mkOption { default = "#ddf4ff"; type = types.str; };
-    bg_yellow = mkOption { default = "#fff8c5"; type = types.str; };
+  theme = mkOption {
+    type = types.submodule {
+      foreground = mkOption { type = types.str; };
+      red = mkOption { type = types.str; };
+      orange = mkOption { type = types.str; };
+      yellow = mkOption { type = types.str; };
+      green = mkOption { type = types.str; };
+      aqua = mkOption { type = types.str; };
+      blue = mkOption { type = types.str; };
+      purple = mkOption { type = types.str; };
+      grey0 = mkOption { type = types.str; };
+      grey1 = mkOption { type = types.str; };
+      grey2 = mkOption { type = types.str; };
+      statusline1 = mkOption { type = types.str; };
+      statusline2 = mkOption { type = types.str; };
+      statusline3 = mkOption { type = types.str; };
+      bg_dim = mkOption { type = types.str; };
+      bg0 = mkOption { type = types.str; };
+      bg1 = mkOption { type = types.str; };
+      bg2 = mkOption { type = types.str; };
+      bg3 = mkOption { type = types.str; };
+      bg4 = mkOption { type = types.str; };
+      bg5 = mkOption { type = types.str; };
+      bg_visual = mkOption { type = types.str; };
+      bg_red = mkOption { type = types.str; };
+      bg_green = mkOption { type = types.str; };
+      bg_blue = mkOption { type = types.str; };
+      bg_yellow = mkOption { type = types.str; };
+    };
+    # defaults based on the GitHub light theme
+    default = {
+      foreground = "#24292f";
+      red = "#cf222e";
+      orange = "#fb8f44";
+      yellow = "#4d2d00";
+      green = "#116329";
+      aqua = "#1b7c83";
+      blue = "#0969da";
+      purple = "#8250df";
+      grey0 = "#6e7781";
+      grey1 = "#57606a";
+      grey2 = "#424a53";
+      statusline1 = "#0969da";
+      statusline2 = "#6e7781";
+      statusline3 = "#cf222e";
+      bg_dim = "#ffffff";
+      bg0 = "#ffffff";
+      bg1 = "#f6f8fa";
+      bg2 = "#eaeef2";
+      bg3 = "#d0d7de";
+      bg4 = "#afb8c1";
+      bg5 = "#afb8c1";
+      bg_visual = "#ddf4ff";
+      bg_red = "#ffebe9";
+      bg_green = "#dafbe1";
+      bg_blue = "#ddf4ff";
+      bg_yellow = "#fff8c5";
+    };
   };
 }
 
