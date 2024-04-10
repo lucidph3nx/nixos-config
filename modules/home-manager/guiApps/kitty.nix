@@ -32,7 +32,7 @@ background                      ${bg0}
 selection_foreground            ${grey2}
 selection_background            ${bg_visual}
 
-cursor                          ${foreground}}
+cursor                          ${foreground}
 cursor_text_color               ${bg1}
 
 url_color                       ${blue}
