@@ -24,12 +24,12 @@ in
       terminal = "kitty";
       browser = "firefox";
       calendar = "firefox --new-window https://calendar.google.com";
-      home-assistant = "firefox --new-window https://home-assistant.$SECRET_DOMAIN"
-      plex = "firefox --new-window https://plex.$SECRET_DOMAIN"
+      home-assistant = "firefox --new-window https://home-assistant.$SECRET_DOMAIN";
+      plex = "firefox --new-window https://plex.$SECRET_DOMAIN";
       filemanager = "lf";
       musicplayer = "kitty ncmpcpp";
       obsidian = "kitty cli.tmux.projectSessioniser /home/ben/documents/obsidian/personal-vault";
-      addtoshoppinglist = "home.shoppinglist.addItem"
+      addtoshoppinglist = "home.shoppinglist.addItem";
       openshoppinglist = "firefox --new-window https://www.notion.so/ph3nx/Shopping-List-92d98ac3dc86460285a399c0b1176fc5";
     in
    {
