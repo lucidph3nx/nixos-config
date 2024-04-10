@@ -16,8 +16,8 @@ in
     home-manager-modules.sway.enable =
       lib.mkEnableOption "enables sway";
   };
+  imports = lib.mkIf config.home-manager-modules.sway.enable [ ./swaync.nix ];
   config = lib.mkIf config.home-manager-modules.sway.enable {
-    imports = [ ./swaync.nix ];
     wayland.windowManager.sway = let
         # bindings
         super = "Mod4";
