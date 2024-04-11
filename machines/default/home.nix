@@ -13,7 +13,6 @@
     ../../modules/home-manager/scripts.nix
     ../../modules/home-manager/syncthing.nix
     # ../../modules/home-manager/teams-for-linux.nix
-    ../../modules/home-manager/tmux.nix
     ../../modules/home-manager/zsh.nix
   ];
   # Home Manager needs a bit of information about you and the paths it should
