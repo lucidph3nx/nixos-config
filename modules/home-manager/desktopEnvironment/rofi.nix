@@ -94,7 +94,7 @@ in
     home.file.".local/scripts/application.launcher" = {
       source = ./scripts/application.launcher;
     };
-    home-manager-modules.tuxSessioniser.enable = true;
+    home-manager-modules.tmuxSessioniser.enable = true;
     home.file.".local/scripts/application.nvim.sessionLauncher" = 
     let
       nvimSessionLauncherStyle = ''inputbar { children: [entry]; border-color: ${blue};} entry { placeholder: "Select Project"; } element-icon { enabled: false; }'';
