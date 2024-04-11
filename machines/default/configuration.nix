@@ -20,10 +20,6 @@
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
   # Enable networking
   networking.networkmanager.enable = true;
 
@@ -52,7 +48,6 @@
     isNormalUser = true;
     description = "ben";
     extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [];
     shell = pkgs.zsh;
   };
   # seems to be needed for something 🤷
@@ -69,10 +64,6 @@
       ];
 	  };
   };
-
-
-  # Allow unfree packages
-  # nixpkgs.config.allowUnfree = true;
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -119,30 +110,8 @@
   ];
 
 
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
   programs.zsh.enable = true;
-  # programs.neovim = {
-  # 	enable = true;
-  # 	defaultEditor = true;
-  # };
   programs.sway.enable = true;
-  # programs = {
-  # 	sway = {
-  #     enable = true;
-  #     extraPackages = with pkgs; [
-  #       swaylock
-  #       swaynotificationcenter
-  #     ];
-  #   };
-	 #  waybar.enable = true;
-  # };
-
   xdg.portal = {
     enable = true;
     extraPortals = with pkgs; [
@@ -161,7 +130,6 @@
   };
 
   # List services that you want to enable:
-
   services.dbus.implementation = "broker";
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
@@ -177,6 +145,8 @@
       };
     };
   };
+  # cups for printing
+  services.printing.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
