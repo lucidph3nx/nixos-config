@@ -83,5 +83,19 @@
           https://home-assistant.''${SECRET_DOMAIN}/api/services/cover/close_cover
       ''; 
     };
-  };
+    # relevant home automation keyboard shortcuts in sway
+    wayland.windowManager.sway.config = lib.mkIf config.home-manager-modules.homeAutomation.enable {
+      keybinds = 
+      let
+        super = "Mod4";
+        pageup = "Prior";
+        pagedown = "Next";
+        homeDir = config.home.homeDirectory;
+      in
+        {
+        "${super}+${pageup}" = "exec ${homeDir}/.local/scripts/home.office.openBlinds";
+        "${super}+${pagedown}" = "exec ${homeDir}/.local/scripts/home.office.closeBlinds";
+        };
+      };
+    };
 }
