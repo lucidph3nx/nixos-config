@@ -18,6 +18,10 @@
   sysDefaults = {
     terminal = "${pkgs.kitty}/bin/kitty";
   };
+  home-manager-modules = {
+    # Enable home automation stuff as device should be in the home
+    homeAutomation.enable = true;
+  };
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
   home.username = "ben";

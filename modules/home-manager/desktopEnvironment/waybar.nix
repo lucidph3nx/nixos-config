@@ -33,7 +33,8 @@ with config.theme;
             "pulseaudio"
             "custom/pulseaudio-cycle"
             "custom/office-temp"
-            "custom/office-humidity"
+            (lib.mkIf home-manager-modules.homeAutomation.enable
+            "custom/office-humidity")
             "custom/notification"
             "network"
             "battery"
@@ -78,7 +79,7 @@ with config.theme;
             "exec" = "${homeDir}/.local/scripts/cli.home.office.getTemperature";
             "on-click" = "${browserNewWindow} https://home-assistant.$SECRET_DOMAIN/lovelace/default_view";
           };
-          "custom/office-humidity" = {
+          "custom/office-humidity" = lib.mkIf home-manager-modules.homeAutomation.enable {
             "return-type" = "string";
             "interval" = 60;
             "format" = " {}";

@@ -1,8 +1,5 @@
 { config, pkgs, inputs, lib, ... }: 
 
-let
-  terminal = config.sysDefaults.terminal;
-in
 {
   options = {
     home-manager-modules.tmuxSessioniser.enable =
