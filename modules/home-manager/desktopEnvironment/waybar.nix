@@ -37,7 +37,7 @@ with config.theme;
             "pulseaudio"
             "custom/pulseaudio-cycle"
             "custom/office-temp"
-            lib.mkIf enableHomeAutomation "custom/office-humidity"
+            (lib.mkIf enableHomeAutomation "custom/office-humidity")
             "custom/notification"
             "network"
             "battery"
