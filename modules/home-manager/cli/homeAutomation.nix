@@ -85,7 +85,7 @@
     };
     # relevant home automation keyboard shortcuts in sway
     wayland.windowManager.sway.config = lib.mkIf config.home-manager-modules.homeAutomation.enable {
-      keybinds = 
+      keybindings = 
       let
         super = "Mod4";
         pageup = "Prior";
