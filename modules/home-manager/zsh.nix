@@ -60,8 +60,6 @@
     };
     initExtra = ''
       # Custom keybindings
-      bindkey -s ^f "cli.tmux.projectSessioniser\n"
-      bindkey -s ^s "cli.tmux.sshHostSessioniser\n"
       bindkey -s ^v "nvim\n"
       bindkey -s ^p "python\n"
       # utils
