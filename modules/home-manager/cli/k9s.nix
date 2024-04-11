@@ -98,39 +98,28 @@ in
           ];
         };
       };
-      skin = let
-        foreground = "#d3c6aa";
-        background = "#2d353b";
-        black = "#343f44";
-        blue = "#7fbbb3";
-        green = "#a7c080";
-        grey = "#859289";
-        orange = "#e69875";
-        purple = "#d699b6";
-        red = "#e67e80";
-        yellow = "#dbbc7f";
-      in {
+      skin = with config.theme; {
         k9s = {
           body = {
             fgColor = "${foreground}";
-            bgColor = "${background}";
+            bgColor = "${bg0}";
             logoColor = "${green}";
           };
           prompt = {
             fgColor = "${foreground}";
-            bgColor = "${background}";
+            bgColor = "${bg0}";
             suggestColor = "${orange}";
           };
           info = {
-            fgColor = "${grey}";
+            fgColor = "${grey1}";
             sectionColor = "${green}";
           };
           dialog = {
             fgColor = "${foreground}";
-            bgColor = "${background}";
+            bgColor = "${bg0}";
             buttonFgColor = "${foreground}";
             buttonBgColor = "${green}";
-            buttonFocusFgColor = "${black}";
+            buttonFocusFgColor = "${bg1}";
             buttonFocusBgColor = "${blue}";
             labelFgColor = "${orange}";
             fieldFgColor = "${blue}";
@@ -141,28 +130,28 @@ in
               focusColor = "${green}";
             };
             menu = {
-              fgColor = "${grey}";
+              fgColor = "${grey1}";
               keyColor = "${yellow}";
               numKeyColor = "${yellow}";
             };
             crumbs = {
-              fgColor = "${black}";
+              fgColor = "${bg1}";
               bgColor = "${green}";
               activeColor = "${yellow}";
             };
             status = {
               newColor = "${blue}";
               modifyColor = "${green}";
-              addColor = "${grey}";
+              addColor = "${grey1}";
               pendingColor = "${orange}";
               errorColor = "${red}";
               highlightColor = "${yellow}";
               killColor = "${purple}";
-              completedColor = "${grey}";
+              completedColor = "${grey1}";
             };
             title = {
               fgColor = "${blue}";
-              bgColor = "${background}";
+              bgColor = "${bg0}";
               highlightColor = "${purple}";
               counterColor = "${foreground}";
               filterColor = "${blue}";
@@ -170,7 +159,7 @@ in
           };
           views = {
             charts = {
-              bgColor = "${background}";
+              bgColor = "${bg0}";
               defaultDialColors = [
                 "${green}"
                 "${red}"
@@ -182,39 +171,39 @@ in
             };
             table = {
               fgColor = "${yellow}";
-              bgColor = "${background}";
-              cursorFgColor = "${black}";
+              bgColor = "${bg0}";
+              cursorFgColor = "${bg1}";
               cursorBgColor = "${blue}";
               markColor = "${yellow}";
               header = {
-                fgColor = "${grey}";
-                bgColor = "${background}";
+                fgColor = "${grey1}";
+                bgColor = "${bg0}";
                 sorterColor = "${orange}";
               };
             };
             xray = {
               fgColor = "${blue}";
-              bgColor = "${background}";
+              bgColor = "${bg0}";
               cursorColor = "${foreground}";
               graphicColor = "${yellow}";
               showIcons = false;
             };
             yaml = {
               keyColor = "${green}";
-              colonColor = "${grey}";
-              valueColor = "${grey}";
+              colonColor = "${grey1}";
+              valueColor = "${grey1}";
             };
             logs = {
-              fgColor = "${grey}";
-              bgColor = "${background}";
+              fgColor = "${grey1}";
+              bgColor = "${bg0}";
               indicator = {
                 fgColor = "${blue}";
-                bgColor = "${background}";
+                bgColor = "${bg0}";
               };
             };
             help = {
-              fgColor = "${grey}";
-              bgColor = "${background}";
+              fgColor = "${grey1}";
+              bgColor = "${bg0}";
               indicator = {
                 fgColor = "${blue}";
               };
@@ -225,7 +214,7 @@ in
     };
     # zsh shortcut
     programs.zsh.initExtra = ''
-      bindkey -s ^k "k9s\n"
+      bindkey -s ^k "${pkgs.k9s}/bin/k9s\n"
     '';
     # my scripts relevant to k9s
     home.sessionPath = ["$HOME/.local/scripts"];
