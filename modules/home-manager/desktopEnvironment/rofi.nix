@@ -5,6 +5,7 @@ let
   terminal = "${pkgs.kitty}/bin/kitty";
 in 
 {
+  imports = [ ../cli/tmuxSessionizer.nix ]; #needed for one of the rofi scripts
   options = {
     home-manager-modules.rofi.enable =
       lib.mkEnableOption "enables rofi";
@@ -93,6 +94,7 @@ in
     home.file.".local/scripts/application.launcher" = {
       source = ./scripts/application.launcher;
     };
+    home-manager-modules.tuxSessioniser.enable = true;
     home.file.".local/scripts/application.nvim.sessionLauncher" = 
     let
       nvimSessionLauncherStyle = ''inputbar { children: [entry]; border-color: ${blue};} entry { placeholder: "Select Project"; } element-icon { enabled: false; }'';
