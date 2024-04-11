@@ -35,5 +35,53 @@
           | ${pkgs.jq}/bin/jq -r '.attributes | "\(.temperature)\(.unit_of_measurement)"'
       ''; 
     };
+    # This script opens the blinds in the office
+    home.file.".local/scripts/home.office.openBlinds" = {
+      executable = true;
+      text = ''
+        #!/bin/sh
+        ${pkgs.curl}/bin/curl -X POST \
+          -H "Authorization: Bearer ''${HASS_API_KEY}" \
+          -H "Content-Type: application/json" \
+          -d '{"entity_id": "cover.office_blinds"}' \
+          https://home-assistant.''${SECRET_DOMAIN}/api/services/cover/open_cover
+      ''; 
+    };
+    # This script closes the blinds in the office
+    home.file.".local/scripts/home.office.closeBlinds" = {
+      executable = true;
+      text = ''
+        #!/bin/sh
+        ${pkgs.curl}/bin/curl -X POST \
+          -H "Authorization: Bearer ''${HASS_API_KEY}" \
+          -H "Content-Type: application/json" \
+          -d '{"entity_id": "cover.office_blinds"}' \
+          https://home-assistant.''${SECRET_DOMAIN}/api/services/cover/close_cover
+      ''; 
+    };
+    # This script closes only the LEFT blind in the office
+    home.file.".local/scripts/home.office.closeBlindsLeft" = {
+      executable = true;
+      text = ''
+        #!/bin/sh
+        ${pkgs.curl}/bin/curl -X POST \
+          -H "Authorization: Bearer ''${HASS_API_KEY}" \
+          -H "Content-Type: application/json" \
+          -d '{"entity_id": "cover.office_left"}' \
+          https://home-assistant.''${SECRET_DOMAIN}/api/services/cover/close_cover
+      ''; 
+    };
+    # This script closes only the RIGHT blind in the office
+    home.file.".local/scripts/home.office.closeBlindsRight" = {
+      executable = true;
+      text = ''
+        #!/bin/sh
+        ${pkgs.curl}/bin/curl -X POST \
+          -H "Authorization: Bearer ''${HASS_API_KEY}" \
+          -H "Content-Type: application/json" \
+          -d '{"entity_id": "cover.office_right"}' \
+          https://home-assistant.''${SECRET_DOMAIN}/api/services/cover/close_cover
+      ''; 
+    };
   };
 }
