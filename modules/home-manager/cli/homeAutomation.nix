@@ -97,5 +97,29 @@
         "${super}+${pagedown}" = "exec ${homeDir}/.local/scripts/home.office.closeBlinds";
         };
       };
+    # This script turns off the hydroponics grow lights
+    home.file.".local/scripts/home.hydroponics.turnOffGrowlights" = {
+      executable = true;
+      text = ''
+        #!/bin/sh
+        ${pkgs.curl}/bin/curl -X POST \
+          -H "Authorization: Bearer ''${HASS_API_KEY}" \
+          -H "Content-Type: application/json" \
+          -d '{"entity_id": "switch.hydro_growlights"}' \
+          https://home-assistant.''${SECRET_DOMAIN}/api/services/switch/turn_off
+      ''; 
     };
+    # This script turns off the hydroponics grow lights
+    home.file.".local/scripts/home.hydroponics.turnOnGrowlights" = {
+      executable = true;
+      text = ''
+        #!/bin/sh
+        ${pkgs.curl}/bin/curl -X POST \
+          -H "Authorization: Bearer ''${HASS_API_KEY}" \
+          -H "Content-Type: application/json" \
+          -d '{"entity_id": "switch.hydro_growlights"}' \
+          https://home-assistant.''${SECRET_DOMAIN}/api/services/switch/turn_on
+      ''; 
+    };
+  };
 }
