@@ -1,4 +1,6 @@
-{ config, pkgs, inputs, lib, ... }: {
+{ config, osConfig, pkgs, inputs, lib, ... }: 
+
+{
   options = {
     home-manager-modules.k9s.enable =
       lib.mkEnableOption "enables k9s";
@@ -228,14 +230,14 @@
       executable = true;
       text = ''
         #!/bin/sh
-        kitty k9s --kubeconfig /home/ben/.config/kube/config-home
+        ${osConfig.defaultTerminal} ${pkgs.k9s}/bin/k9s --kubeconfig /home/ben/.config/kube/config-home
       '';
     };
     home.file.".local/scripts/application.k9s.openWorkKube" = {
       executable = true;
       text = ''
         #!/bin/sh
-        kitty k9s --kubeconfig /home/ben/.config/kube/config-work
+        ${osConfig.defaultTerminal} ${pkgs.k9s}/bin/k9s --kubeconfig /home/ben/.config/kube/config-work
       '';
     };
   };

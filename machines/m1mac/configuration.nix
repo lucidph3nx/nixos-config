@@ -1,5 +1,8 @@
 { pkgs, nixpkgs-unstable, inputs, ... }:
 
+let
+  defaultTerminal = "${pkgs.kitty}/bin/kitty";
+in
 {
   imports =
   [

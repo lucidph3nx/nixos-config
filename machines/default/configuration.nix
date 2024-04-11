@@ -4,6 +4,9 @@
 
 { pkgs, nixpkgs-unstable, inputs, config, ... }:
 
+let
+  defaultTerminal = "${pkgs.kitty}/bin/kitty";
+in
 {
   imports =
     [ # Include the results of the hardware scan.
