@@ -3,15 +3,15 @@
 {
   imports =
   [
-    # ../../modules/home-manager/asdf.nix
+    ../../modules/home-manager/asdf.nix
     ../../modules/home-manager/git.nix
     ../../modules/home-manager/lf.nix
-    # ../../modules/home-manager/mpd.nix
-    # ../../modules/home-manager/ncmpcpp.nix
+    ../../modules/home-manager/mpd.nix
+    ../../modules/home-manager/ncmpcpp.nix
     ../../modules/home-manager/nvim.nix
     # ../../modules/home-manager/prospect-mail.nix
     ../../modules/home-manager/scripts.nix
-    # ../../modules/home-manager/syncthing.nix
+    ../../modules/home-manager/syncthing.nix
     # ../../modules/home-manager/teams-for-linux.nix
     ../../modules/home-manager/zsh.nix
   ];
