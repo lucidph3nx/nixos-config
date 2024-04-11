@@ -3,6 +3,7 @@
 let 
   homeDir = config.home.homeDirectory;
   browserNewWindow = "firefox --new-window";
+  enableHomeAutomation = config.home-manager-modules.homeAutomation.enable;
 in
 with config.theme;
 {
@@ -33,8 +34,7 @@ with config.theme;
             "pulseaudio"
             "custom/pulseaudio-cycle"
             "custom/office-temp"
-            (lib.mkIf home-manager-modules.homeAutomation.enable
-            "custom/office-humidity")
+            (lib.mkIf enableHomeAutomation "custom/office-humidity")
             "custom/notification"
             "network"
             "battery"
@@ -79,7 +79,7 @@ with config.theme;
             "exec" = "${homeDir}/.local/scripts/cli.home.office.getTemperature";
             "on-click" = "${browserNewWindow} https://home-assistant.$SECRET_DOMAIN/lovelace/default_view";
           };
-          "custom/office-humidity" = lib.mkIf home-manager-modules.homeAutomation.enable {
+          "custom/office-humidity" = lib.mkIf enableHomeAutomation {
             "return-type" = "string";
             "interval" = 60;
             "format" = " {}";
