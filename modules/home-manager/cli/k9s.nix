@@ -1,7 +1,7 @@
 { config, osConfig, pkgs, inputs, lib, ... }: 
 
 let
-  terminal = config.sysDefault.terminal;
+  terminal = config.sysDefaults.terminal;
 in
 {
   options = {
