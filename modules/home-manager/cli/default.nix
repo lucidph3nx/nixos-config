@@ -12,6 +12,7 @@
     k9s.enable = lib.mkDefault true;
     kubetools.enable = lib.mkDefault true;
     tmux.enable = lib.mkDefault true;
+    tmuxSessioniser.enable = lib.mkDefault true;
   };
 
 }

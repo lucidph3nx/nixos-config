@@ -5,7 +5,7 @@ let
   terminal = "${pkgs.kitty}/bin/kitty";
 in 
 {
-  imports = [ ../cli/tmuxSessionizer.nix ]; #needed for one of the rofi scripts
+  imports = [ ../cli/tmuxSessioniser.nix ]; #needed for one of the rofi scripts
   options = {
     home-manager-modules.rofi.enable =
       lib.mkEnableOption "enables rofi";
