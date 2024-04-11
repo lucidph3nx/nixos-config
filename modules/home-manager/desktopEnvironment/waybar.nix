@@ -36,7 +36,7 @@ with config.theme;
             "tray"
             "pulseaudio"
             "custom/pulseaudio-cycle"
-            "custom/office-temp"
+            (lib.mkIf enableHomeAutomation "custom/office-temp")
             (lib.mkIf enableHomeAutomation "custom/office-humidity")
             "custom/notification"
             "network"
@@ -75,7 +75,7 @@ with config.theme;
             "tooltip-format-disconnected" = "MPD (disconnected)";
             "on-click" = "kitty ncmpcpp";
           };
-          "custom/office-temp" = {
+          "custom/office-temp" = lib.mkIf enableHomeAutomation {
             "return-type" = "string";
             "interval" = 60;
             "format" = " {}";
