@@ -22,5 +22,18 @@
           | ${pkgs.jq}/bin/jq -r '.attributes | "\(.humidity)\(.unit_of_measurement)"'
       ''; 
     };
+    # This script returns the current temperature in my office via home assistant
+    home.file.".local/scripts/cli.home.office.getTemperature" = {
+      executable = true;
+      text = ''
+        #!/bin/sh
+        ${pkgs.curl}/bin/curl -X GET \
+          -H "Authorization: Bearer ''${HASS_API_KEY}" \
+          -H "Content-Type: application/json" \
+          -s \
+          https://home-assistant.''${SECRET_DOMAIN}/api/states/sensor.office_sensor_temperature \
+          | ${pkgs.jq}/bin/jq -r '.attributes | "\(.temperature)\(.unit_of_measurement)"'
+      ''; 
+    };
   };
 }
