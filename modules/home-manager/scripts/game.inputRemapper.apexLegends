@@ -1,8 +1,0 @@
-#!/bin/sh
-
-# to be run before apex legends
-input-remapper-control --command start --device "Razer Razer Orbweaver Chroma" --preset "apex-legends"
-input-remapper-control --command start --device "Razer Razer DeathAdder V3 Pro" --preset "apex-legends"
-
-
-# added via launch options "/home/ben/.local/scripts/game.inputremapper.apexlegends && %command% && /home/ben/.local/scripts/game.inputremapper.defaults"
