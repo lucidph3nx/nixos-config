@@ -1,2 +1,0 @@
-#!/bin/sh
-kitty --hold sudo pacman -Syu
