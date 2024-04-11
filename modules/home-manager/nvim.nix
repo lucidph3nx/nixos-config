@@ -1,6 +1,9 @@
 { pkgs, ... }:
 
 {
+  home.packages = with pkgs; [
+    alejandra
+  ];
   programs.neovim = {
     enable = true;
     defaultEditor = true;
