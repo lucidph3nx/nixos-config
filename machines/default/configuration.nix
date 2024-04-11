@@ -4,9 +4,6 @@
 
 { pkgs, nixpkgs-unstable, inputs, config, ... }:
 
-let
-  defaultTerminal = "${pkgs.kitty}/bin/kitty";
-in
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -14,6 +11,9 @@ in
       ../../modules/nix/sops.nix
       # ../../modules/nix/steam.nix
     ];
+  sysDefaults = {
+    terminal = "${pkgs.kitty}/bin/kitty";
+  };
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
   # Bootloader.

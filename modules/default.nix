@@ -4,6 +4,7 @@
   #   ./nix
   #   ./nix-darwin
     ./colourScheme
+    ./systemDefaults
   ];
 
 }

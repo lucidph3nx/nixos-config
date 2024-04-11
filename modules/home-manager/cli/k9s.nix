@@ -1,5 +1,8 @@
 { config, osConfig, pkgs, inputs, lib, ... }: 
 
+let
+  terminal = config.sysDefault.terminal;
+in
 {
   options = {
     home-manager-modules.k9s.enable =
@@ -230,14 +233,14 @@
       executable = true;
       text = ''
         #!/bin/sh
-        ${osConfig.defaultTerminal} ${pkgs.k9s}/bin/k9s --kubeconfig /home/ben/.config/kube/config-home
+        ${terminal} ${pkgs.k9s}/bin/k9s --kubeconfig /home/ben/.config/kube/config-home
       '';
     };
     home.file.".local/scripts/application.k9s.openWorkKube" = {
       executable = true;
       text = ''
         #!/bin/sh
-        ${osConfig.defaultTerminal} ${pkgs.k9s}/bin/k9s --kubeconfig /home/ben/.config/kube/config-work
+        ${terminal} ${pkgs.k9s}/bin/k9s --kubeconfig /home/ben/.config/kube/config-work
       '';
     };
   };

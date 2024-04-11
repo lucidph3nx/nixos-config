@@ -1,14 +1,15 @@
 { pkgs, nixpkgs-unstable, inputs, ... }:
 
-let
-  defaultTerminal = "${pkgs.kitty}/bin/kitty";
-in
 {
   imports =
   [
       ../../modules/nix-darwin/yabai.nix
       # ../../modules/nix-darwin/spacebar.nix
   ];
+  sysDefaults = {
+    terminal = "${pkgs.kitty}/bin/kitty";
+  };
+
   users.users.ben = {
     home = "/Users/ben";
   };
