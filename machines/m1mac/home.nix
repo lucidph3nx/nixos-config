@@ -11,6 +11,9 @@
     ../../modules/home-manager/sops.nix
     ../../modules/home-manager/syncthing.nix
   ];
+  sysDefaults = {
+    terminal = "${pkgs.kitty}/bin/kitty";
+  };
   home-manager-modules.firefox.enabled = false; # doesnt work on nix-darwin currently
   home-manager-modules.desktopEnvironment.enabled = false; # desktop environments are for linux only
 

@@ -6,9 +6,6 @@
       ../../modules/nix-darwin/yabai.nix
       # ../../modules/nix-darwin/spacebar.nix
   ];
-  sysDefaults = {
-    terminal = "${pkgs.kitty}/bin/kitty";
-  };
 
   users.users.ben = {
     home = "/Users/ben";

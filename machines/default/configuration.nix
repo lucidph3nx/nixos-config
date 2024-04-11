@@ -11,9 +11,6 @@
       ../../modules/nix/sops.nix
       # ../../modules/nix/steam.nix
     ];
-  sysDefaults = {
-    terminal = "${pkgs.kitty}/bin/kitty";
-  };
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
   # Bootloader.

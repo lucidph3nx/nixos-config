@@ -15,6 +15,9 @@
     # ../../modules/home-manager/teams-for-linux.nix
     ../../modules/home-manager/zsh.nix
   ];
+  sysDefaults = {
+    terminal = "${pkgs.kitty}/bin/kitty";
+  };
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
   home.username = "ben";
