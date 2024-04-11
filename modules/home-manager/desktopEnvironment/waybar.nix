@@ -8,8 +8,10 @@ in
 with config.theme;
 {
   options = {
-    home-manager-modules.waybar.enable =
-      lib.mkEnableOption "enables waybar";
+    home-manager-modules.waybar = {
+      enable = lib.mkEnableOption "enables waybar";
+      # TODO: maybe an option here which enables the output = "DP-3" below
+      # also maybe switches the hyperland workspaces on?
   };
   config = lib.mkIf config.home-manager-modules.waybar.enable {
     programs.waybar = {
