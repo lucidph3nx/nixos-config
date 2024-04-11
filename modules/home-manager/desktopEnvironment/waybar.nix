@@ -12,6 +12,7 @@ with config.theme;
       enable = lib.mkEnableOption "enables waybar";
       # TODO: maybe an option here which enables the output = "DP-3" below
       # also maybe switches the hyperland workspaces on?
+    };
   };
   config = lib.mkIf config.home-manager-modules.waybar.enable {
     programs.waybar = {
@@ -36,7 +37,7 @@ with config.theme;
             "pulseaudio"
             "custom/pulseaudio-cycle"
             "custom/office-temp"
-            (lib.mkIf enableHomeAutomation "custom/office-humidity")
+            lib.mkIf enableHomeAutomation "custom/office-humidity"
             "custom/notification"
             "network"
             "battery"
