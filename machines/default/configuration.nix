@@ -80,14 +80,16 @@
     arping
     aws-vault
     chromium
+    curl
     direnv
     eza
     fzf
     fzy
     gh
-    killall
     htop
     imagemagick
+    jq
+    killall
     p7zip
     ripgrep
     rustup
