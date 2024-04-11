@@ -146,9 +146,6 @@ in
           "${alt}+l" = "exec ${addtoshoppinglist}";
           "${alt}+Shift+l" = "exec ${openshoppinglist}";
           "${alt}+o" = "exec ${obsidian}";
-          # Home automation
-          "${super}+${pageup}" = lib.mkIf enableHomeAutomation "${homeDir}/.local/scripts/exec home.office.openBlinds";
-          "${super}+${pagedown}" = lib.mkIf enableHomeAutomation "${homeDir}/.local/scripts/exec home.office.closeBlinds";
           # Media Controls
           "XF86AudioMute" = "pactl set-sink-mute @DEFAULT_SINK@ toggle";
           "XF86AudioRaiseVolume" = "pactl set-sink-volume @DEFAULT_SINK@ +5%";
