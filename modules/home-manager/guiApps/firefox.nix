@@ -30,11 +30,9 @@
     };
     programs.firefox = {
       enable = true;
-      package = pkgs.wrapFirefox (pkgs.firefox.override {
-        browser = {
-          allowAddonSideload = true;
-          requireSigning = false;
-        };
+      package = pkgs.wrapFirefox (pkgs.firefox // {
+        allowAddonSideload = true;
+        requireSigning = false;
       });
       # not in 23.11
       # nativeMessagingHosts.packages = [
