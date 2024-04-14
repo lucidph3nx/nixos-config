@@ -30,10 +30,7 @@
     };
     programs.firefox = {
       enable = true;
-      package = pkgs.firefox.override {
-        requireSigning = false;
-        allowAddonSideload = true;
-      };
+      package = pkgs.firefox-esr-unwrapped // { requireSigning = false; allowAddonSideload = true; };
       # not in 23.11
       # nativeMessagingHosts.packages = [
       #   pkgs.tridactyl-native
