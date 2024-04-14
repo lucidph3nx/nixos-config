@@ -3,7 +3,6 @@
 let 
 homeDir = config.home.homeDirectory;
 theme = config.theme;
-enableHomeAutomation = config.home-manager-modules.homeAutomation.enable;
 # Colours
 active = theme.green;
 inactive = theme.blue;
@@ -141,7 +140,8 @@ in
           "${alt}+b" = "exec ${browser}";
           "${alt}+c" = "exec ${calendar}";
           "${alt}+h" = "exec ${home-assistant}";
-          "${alt}+p" = "exec ${filemanager}";
+          "${alt}+f" = "exec ${filemanager}";
+          "${alt}+p" = "exec ${plex}";
           "${alt}+m" = "exec ${musicplayer}";
           "${alt}+l" = "exec ${addtoshoppinglist}";
           "${alt}+Shift+l" = "exec ${openshoppinglist}";
