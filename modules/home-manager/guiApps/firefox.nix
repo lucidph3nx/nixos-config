@@ -30,6 +30,9 @@
     };
     programs.firefox = {
       enable = true;
+      package = pkgs.firefox.override {
+        allowAddonSideload = true;
+      };
       # not in 23.11
       # nativeMessagingHosts.packages = [
       #   pkgs.tridactyl-native
