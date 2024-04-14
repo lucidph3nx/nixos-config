@@ -30,7 +30,7 @@
     };
     programs.firefox = {
       enable = true;
-      package = pkgs.wrapFirefox (pkgs.firefox // {
+      package = pkgs.wrapFirefox (pkgs.firefox-unwrapped // {
         allowAddonSideload = true;
         requireSigning = false;
       });
