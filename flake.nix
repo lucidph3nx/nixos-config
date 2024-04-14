@@ -62,6 +62,29 @@
             home-manager.nixosModules.default
           ];
         };
+      	navi = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          pkgs = import nixpkgs {
+            system = "x86_64-linux";
+            config = {
+              allowUnfree = true;
+            };
+            overlays = [
+              inputs.neovim-nightly.overlay
+            ];
+          };
+          specialArgs = { inherit inputs outputs; };
+          modules = 
+            let
+              defaults = {pkgs, ... }: {
+                _module.args.nixpkgs-unstable = import inputs.nixpkgs-unstable { inherit (pkgs.stdenv.targetPlatform) system; };
+              };
+            in [
+            defaults
+            ./machines/navi/configuration.nix
+            home-manager.nixosModules.default
+          ];
+        };
       };
       darwinConfigurations = {
         m1mac = darwin.lib.darwinSystem {
