@@ -28,9 +28,13 @@
       ".mozilla/firefox/ben/chrome/userChrome.css".source = ./files/firefox-userChrome;
       ".mozilla/firefox/ben/chrome/userContent.css".source = ./files/firefox-userContent;
     };
-    programs.firefox = {
+    programs.firefox = 
+    let 
+      bugfixedFirefox = pkgs.firefox-esr-unwrapped // { requireSigning = false; allowAddonSideload = true; };
+    in
+    {
       enable = true;
-      package = pkgs.firefox-esr-unwrapped // { requireSigning = false; allowAddonSideload = true; };
+      package = pkgs.wrapFirefox bugfixedFirefox {};
       # not in 23.11
       # nativeMessagingHosts.packages = [
       #   pkgs.tridactyl-native
