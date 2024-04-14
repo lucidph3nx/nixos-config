@@ -30,7 +30,8 @@
     };
     programs.firefox = 
     let 
-      bugfixedFirefox = pkgs.firefox-esr-unwrapped // { requireSigning = false; allowAddonSideload = true; };
+      # https://github.com/NixOS/nixpkgs/pull/294369
+      bugfixedFirefox = pkgs.firefox-unwrapped // { requireSigning = false; allowAddonSideload = true; };
     in
     {
       enable = true;
