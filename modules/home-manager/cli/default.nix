@@ -3,6 +3,7 @@
     ./homeAutomation.nix
     ./k9s.nix
     ./kubetools.nix
+    ./lf.nix
     ./tmux.nix
     ./tmuxSessioniser.nix
   ];
