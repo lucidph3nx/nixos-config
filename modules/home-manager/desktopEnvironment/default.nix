@@ -7,7 +7,7 @@
   ];
 
   options = {
-    desktopEnvironment.enable =
+    home-manager-modules.desktopEnvironment.enable =
       lib.mkEnableOption "Enable Desktop Envrionment";
   };
   config = lib.mkIf config.desktopEnvironment.enable {
