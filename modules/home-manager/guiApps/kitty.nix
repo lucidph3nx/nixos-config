@@ -3,10 +3,10 @@
 with config.theme;
 {
   options = {
-    home-manager-modules.kitty.enable =
+    homeManagerModules.kitty.enable =
       lib.mkEnableOption "enables kitty";
   };
-  config = lib.mkIf config.home-manager-modules.kitty.enable {
+  config = lib.mkIf config.homeManagerModules.kitty.enable {
   programs.kitty = {
   	enable = true;
     font = {

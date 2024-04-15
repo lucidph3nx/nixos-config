@@ -6,11 +6,11 @@
   ];
 
   options = {
-    home-manager-modules.guiApps.enable =
+    homeManagerModules.guiApps.enable =
       lib.mkEnableOption "Enable GUI applications";
   };
-  config = lib.mkIf config.home-manager-modules.guiApps.enable {
-    home-manager-modules = {
+  config = lib.mkIf config.homeManagerModules.guiApps.enable {
+    homeManagerModules = {
       firefox.enable = lib.mkDefault true;
       kitty.enable = lib.mkDefault true;
       zathura.enable = lib.mkDefault true;

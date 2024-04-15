@@ -3,10 +3,10 @@
 with config.theme;
 {
   options = {
-    home-manager-modules.tmux.enable =
+    homeManagerModules.tmux.enable =
       lib.mkEnableOption "enables tmux";
   };
-  config = lib.mkIf config.home-manager-modules.tmux.enable {
+  config = lib.mkIf config.homeManagerModules.tmux.enable {
 
     programs.tmux = {
       enable = true;

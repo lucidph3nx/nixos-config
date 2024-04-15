@@ -18,7 +18,7 @@
   sysDefaults = {
     terminal = "${pkgs.kitty}/bin/kitty";
   };
-  home-manager-modules = {
+  homeManagerModules = {
     # Enable home automation stuff as device should be in the home
     homeAutomation.enable = true;
   };

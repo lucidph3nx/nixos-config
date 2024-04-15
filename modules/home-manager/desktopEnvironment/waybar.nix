@@ -3,18 +3,18 @@
 let 
   homeDir = config.home.homeDirectory;
   browserNewWindow = "firefox --new-window";
-  enableHomeAutomation = config.home-manager-modules.homeAutomation.enable;
+  enableHomeAutomation = config.homeManagerModules.homeAutomation.enable;
 in
 with config.theme;
 {
   options = {
-    home-manager-modules.waybar = {
+    homeManagerModules.waybar = {
       enable = lib.mkEnableOption "enables waybar";
       # TODO: maybe an option here which enables the output = "DP-3" below
       # also maybe switches the hyperland workspaces on?
     };
   };
-  config = lib.mkIf config.home-manager-modules.waybar.enable {
+  config = lib.mkIf config.homeManagerModules.waybar.enable {
     programs.waybar = {
       enable = true;
       systemd.target = "sway-session.target";

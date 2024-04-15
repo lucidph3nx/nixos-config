@@ -2,10 +2,10 @@
 
 {
   options = {
-    home-manager-modules.tmuxSessioniser.enable =
+    homeManagerModules.tmuxSessioniser.enable =
       lib.mkEnableOption "enables tmuxSessioniser";
   };
-  config = lib.mkIf config.home-manager-modules.tmuxSessioniser.enable {
+  config = lib.mkIf config.homeManagerModules.tmuxSessioniser.enable {
     # my scripts relevant to tmuxSessioniser
     home.sessionPath = ["$HOME/.local/scripts"];
 

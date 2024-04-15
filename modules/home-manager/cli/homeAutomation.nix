@@ -2,10 +2,10 @@
 
 {
   options = {
-    home-manager-modules.homeAutomation.enable =
+    homeManagerModules.homeAutomation.enable =
       lib.mkEnableOption "enables home automation scripts etc";
   };
-  config = lib.mkIf config.home-manager-modules.homeAutomation.enable {
+  config = lib.mkIf config.homeManagerModules.homeAutomation.enable {
     # my scripts relevant to homeAutomation
     home.sessionPath = ["$HOME/.local/scripts"];
 
@@ -84,7 +84,7 @@
       ''; 
     };
     # relevant home automation keyboard shortcuts in sway
-    wayland.windowManager.sway.config = lib.mkIf config.home-manager-modules.homeAutomation.enable {
+    wayland.windowManager.sway.config = lib.mkIf config.homeManagerModules.homeAutomation.enable {
       keybindings = 
       let
         super = "Mod4";

@@ -5,7 +5,7 @@
     ./desktopEnvironment
   ];
   config = {
-    home-manager-modules = {
+    homeManagerModules = {
       guiApps.enable = lib.mkDefault true;
       desktopEnvironment.enable = lib.mkDefault true;
     };

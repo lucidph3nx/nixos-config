@@ -13,10 +13,10 @@ danger = theme.red;
 in
 {
   options = {
-    home-manager-modules.sway.enable =
+    homeManagerModules.sway.enable =
       lib.mkEnableOption "enables sway";
   };
-  config = lib.mkIf config.home-manager-modules.sway.enable {
+  config = lib.mkIf config.homeManagerModules.sway.enable {
     wayland.windowManager.sway = let
         # bindings
         super = "Mod4";

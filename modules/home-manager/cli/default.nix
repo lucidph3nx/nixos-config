@@ -7,7 +7,7 @@
     ./tmuxSessioniser.nix
   ];
 
-  home-manager-modules = {
+  homeManagerModules = {
     homeAutomation.enable = lib.mkDefault false;
     k9s.enable = lib.mkDefault true;
     kubetools.enable = lib.mkDefault true;

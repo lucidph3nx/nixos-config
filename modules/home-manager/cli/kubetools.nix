@@ -1,9 +1,9 @@
 { config, pkgs, inputs, lib, ... }: {
   options = {
-    home-manager-modules.kubetools.enable =
+    homeManagerModules.kubetools.enable =
       lib.mkEnableOption "enables kubetools";
   };
-  config = lib.mkIf config.home-manager-modules.kubetools.enable {
+  config = lib.mkIf config.homeManagerModules.kubetools.enable {
     home.packages = with pkgs; [ 
       kubectl
       kubernetes-helm

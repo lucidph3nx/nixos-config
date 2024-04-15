@@ -7,10 +7,10 @@ in
 {
   imports = [ ../cli/tmuxSessioniser.nix ]; #needed for one of the rofi scripts
   options = {
-    home-manager-modules.rofi.enable =
+    homeManagerModules.rofi.enable =
       lib.mkEnableOption "enables rofi";
   };
-  config = lib.mkIf config.home-manager-modules.rofi.enable {
+  config = lib.mkIf config.homeManagerModules.rofi.enable {
     programs.rofi = {
       enable = true;
       font = "JetBrainsMono Nerd Font Medium";
@@ -94,7 +94,7 @@ in
     home.file.".local/scripts/application.launcher" = {
       source = ./scripts/application.launcher;
     };
-    home-manager-modules.tmuxSessioniser.enable = true;
+    homeManagerModules.tmuxSessioniser.enable = true;
     home.file.".local/scripts/application.nvim.sessionLauncher" = 
     let
       nvimSessionLauncherStyle = ''inputbar { children: [entry]; border-color: ${blue};} entry { placeholder: "Select Project"; } element-icon { enabled: false; }'';

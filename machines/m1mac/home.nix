@@ -14,7 +14,7 @@
   sysDefaults = {
     terminal = "${pkgs.kitty}/bin/kitty";
   };
-  home-manager-modules = {
+  homeManagerModules = {
     firefox.enable = false; # doesnt work on nix-darwin currently
     desktopEnvironment.enable = false; # desktop environments are for linux only
   };

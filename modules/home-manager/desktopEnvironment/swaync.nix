@@ -3,10 +3,10 @@
 with config.theme;
 {
   options = {
-    home-manager-modules.swaync.enable =
+    homeManagerModules.swaync.enable =
       lib.mkEnableOption "enables swaync";
   };
-  config = lib.mkIf config.home-manager-modules.swaync.enable {
+  config = lib.mkIf config.homeManagerModules.swaync.enable {
     home.packages = [
       pkgs.libnotify
     ];

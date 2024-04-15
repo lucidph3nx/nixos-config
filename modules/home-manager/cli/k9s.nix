@@ -5,10 +5,10 @@ let
 in
 {
   options = {
-    home-manager-modules.k9s.enable =
+    homeManagerModules.k9s.enable =
       lib.mkEnableOption "enables k9s";
   };
-  config = lib.mkIf config.home-manager-modules.k9s.enable {
+  config = lib.mkIf config.homeManagerModules.k9s.enable {
     programs.k9s = {
       enable = true;
       settings = {
@@ -218,14 +218,14 @@ in
     '';
     # my scripts relevant to k9s
     home.sessionPath = ["$HOME/.local/scripts"];
-    home.file.".local/scripts/application.k9s.openHomeKube" = lib.mkIf config.home-manager-modules.guiApps.enable {
+    home.file.".local/scripts/application.k9s.openHomeKube" = lib.mkIf config.homeManagerModules.guiApps.enable {
       executable = true;
       text = ''
         #!/bin/sh
         ${terminal} ${pkgs.k9s}/bin/k9s --kubeconfig /home/ben/.config/kube/config-home
       '';
     };
-    home.file.".local/scripts/application.k9s.openWorkKube" = lib.mkIf config.home-manager-modules.guiApps.enable {
+    home.file.".local/scripts/application.k9s.openWorkKube" = lib.mkIf config.homeManagerModules.guiApps.enable {
       executable = true;
       text = ''
         #!/bin/sh

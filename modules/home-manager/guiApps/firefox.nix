@@ -2,10 +2,10 @@
 
 {
   options = {
-    home-manager-modules.firefox.enable =
+    homeManagerModules.firefox.enable =
       lib.mkEnableOption "enables firefox";
   };
-  config = lib.mkIf config.home-manager-modules.firefox.enable {
+  config = lib.mkIf config.homeManagerModules.firefox.enable {
     home.file = {
       # workarounds
       # https://github.com/NixOS/nixpkgs/issues/281710#issuecomment-1987263584
