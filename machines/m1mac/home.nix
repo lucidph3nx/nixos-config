@@ -15,8 +15,8 @@
     terminal = "${pkgs.kitty}/bin/kitty";
   };
   home-manager-modules = {
-    firefox.enabled = false; # doesnt work on nix-darwin currently
-    desktopEnvironment.enabled = false; # desktop environments are for linux only
+    firefox.enable = false; # doesnt work on nix-darwin currently
+    desktopEnvironment.enable = false; # desktop environments are for linux only
   };
   # You should not change this value, even if you update Home Manager. If you do
   # want to update the value, then make sure to first check the Home Manager
