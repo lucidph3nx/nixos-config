@@ -21,6 +21,7 @@
   home-manager-modules = {
     # Enable home automation stuff as device should be in the home
     homeAutomation.enable = true;
+    desktopEnvironment.enable = false; # not linux
   };
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
