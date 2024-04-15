@@ -4,6 +4,10 @@
     ./cli
     ./desktopEnvironment
   ];
-  home-manager-modules.guiApps.enable = lib.mkDefault true;
-  home-manager-modules.desktopEnvironment.enable = lib.mkDefault true;
+  config = {
+    home-manager-modules = {
+      guiApps.enable = lib.mkDefault true;
+      desktopEnvironment.enable = lib.mkDefault true;
+    };
+  };
 }
