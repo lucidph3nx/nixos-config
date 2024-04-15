@@ -9,7 +9,7 @@
     home-manager-modules.guiApps.enable =
       lib.mkEnableOption "Enable GUI applications";
   };
-  config = lib.mkIf config.guiApps.enable {
+  config = lib.mkIf config.home-manager-modules.guiApps.enable {
     home-manager-modules = {
       firefox.enable = lib.mkDefault true;
       kitty.enable = lib.mkDefault true;

@@ -10,7 +10,7 @@
     home-manager-modules.desktopEnvironment.enable =
       lib.mkEnableOption "Enable Desktop Envrionment";
   };
-  config = lib.mkIf config.desktopEnvironment.enable {
+  config = lib.mkIf config.home-manager-modules.desktopEnvironment.enable {
     home-manager-modules = {
       sway.enable = lib.mkDefault true;
       swaync.enable = lib.mkDefault true;
