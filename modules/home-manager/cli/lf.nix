@@ -35,7 +35,7 @@
         '';
 
     };
-    xdg.desktopEntries = {
+    xdg.desktopEntries = lib.mkIf pkgs.stdenv.isLinux {
         lf = {
           name = "lf";
           genericName = "file manager";
