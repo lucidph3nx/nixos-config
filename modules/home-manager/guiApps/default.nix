@@ -6,7 +6,7 @@
   ];
 
   options = {
-    home-manager-modules.guiApps.enable =
+    guiApps.enable =
       lib.mkEnableOption "Enable GUI applications";
   };
   config = lib.mkIf config.guiApps.enable {
