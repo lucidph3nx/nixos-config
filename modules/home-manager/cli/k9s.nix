@@ -218,14 +218,14 @@ in
     '';
     # my scripts relevant to k9s
     home.sessionPath = ["$HOME/.local/scripts"];
-    home.file.".local/scripts/application.k9s.openHomeKube" = lib.mkIf config.guiApps.enable {
+    home.file.".local/scripts/application.k9s.openHomeKube" = lib.mkIf config.home-manager-modules.guiApps.enable {
       executable = true;
       text = ''
         #!/bin/sh
         ${terminal} ${pkgs.k9s}/bin/k9s --kubeconfig /home/ben/.config/kube/config-home
       '';
     };
-    home.file.".local/scripts/application.k9s.openWorkKube" = lib.mkIf config.guiApps.enable {
+    home.file.".local/scripts/application.k9s.openWorkKube" = lib.mkIf config.home-manager-modules.guiApps.enable {
       executable = true;
       text = ''
         #!/bin/sh
