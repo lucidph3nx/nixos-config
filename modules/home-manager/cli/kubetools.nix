@@ -6,7 +6,7 @@
   config = lib.mkIf config.home-manager-modules.kubetools.enable {
     home.packages = with pkgs; [ 
       kubectl
-      helm
+      kubernetes-helm
       fluxcd
       krew
     ];
