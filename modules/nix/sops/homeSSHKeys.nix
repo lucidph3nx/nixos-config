@@ -39,18 +39,6 @@
         path = "/home/ben/.ssh/lucidph3nx-rsa.pub";
         sopsFile = sopsFile;
       };
-      secrets."ssh/lucidph3nx-ed25519-signingkey" = {
-        owner = "ben";
-        mode = "0600";
-        path = "/home/ben/.ssh/lucidph3nx-ed25519-signingkey";
-        sopsFile = sopsFile;
-      };
-      secrets."ssh/lucidph3nx-ed25519-signingkey.pub" = {
-        owner = "ben";
-        mode = "0600";
-        path = "/home/ben/.ssh/lucidph3nx-ed25519-signingkey.pub";
-        sopsFile = sopsFile;
-      };
     };
   };
 }
