@@ -32,8 +32,8 @@ in
         proxyJump = lib.mkIf config.homeManagerModules.ssh.proxymac "mac";
       };
       "prod-17w appserv17w-m.fnzsl.com" = {
-        hostname = "appserv17w-m.fnzsl.com";
-        user = "bsherman";
+        hostname = "${config.sops.templates."work/hosts/prod17w/hostname".path}";
+        user = "${config.sops.templates."work/hosts/prod17w/user".path}";
         identityFile = "${homeDir}/.ssh/jarden-rsa";
         extraOptions  = {
           PubkeyAcceptedKeyTypes = "+ssh-rsa";
