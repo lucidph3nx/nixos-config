@@ -16,9 +16,9 @@ in
       matchBlocks = {
         "*" = {
           # don't ask to check host key for new hosts
-          extraConfig = ''
-            StrictHostKeyChecking accept-new
-          '';
+          extraOptions  = {
+            StrictHostKeyChecking = "accept-new";
+          };
         };
       };
     };
