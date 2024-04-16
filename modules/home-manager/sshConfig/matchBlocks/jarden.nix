@@ -1,4 +1,4 @@
-{ config, osConfig, pkgs, inputs, lib, ... }:
+{ config, pkgs, inputs, lib, ... }:
 
 let 
   homeDir = config.home.homeDirectory;
@@ -31,8 +31,8 @@ in
         };
         proxyJump = lib.mkIf config.homeManagerModules.ssh.proxymac "mac";
       };
-      "prod-17w $(cat ${osConfig.sops.secrets.prod-17w.path})" = {
-        hostname = "$(cat ${osConfig.sops.secrets.prod-17w.path})";
+      "prod-17w $SECRET_HOSTNAME_PROD_17W" = {
+        hostname = "$SECRET_HOSTNAME_PROD_17W";
         user = "bsherman";
         identityFile = "${homeDir}/.ssh/jarden-rsa";
         extraOptions  = {
