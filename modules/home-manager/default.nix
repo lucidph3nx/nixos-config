@@ -1,8 +1,9 @@
 { pkgs, lib, ... }: {
   imports = [
-    ./guiApps
     ./cli
     ./desktopEnvironment
+    ./guiApps
+    ./sshConfig
   ];
   config = {
     homeManagerModules = {

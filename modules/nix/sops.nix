@@ -17,6 +17,16 @@
       owner = "ben";
       mode = "0600";
     };
+    secrets."ssh/lucidph3nx-ed25519" = {
+      owner = "ben";
+      mode = "0600";
+      path = "/home/ben/.ssh/lucidph3nx-ed25519";
+    };
+    secrets."ssh/lucidph3nx-ed25519.pub" = {
+      owner = "ben";
+      mode = "0600";
+      path = "/home/ben/.ssh/lucidph3nx-ed25519.pub";
+    };
     secrets."ssh/lucidph3nx-ed25519-signingkey" = {
       owner = "ben";
       mode = "0600";
