@@ -9,7 +9,7 @@ in
     matchBlocks = {
       "github.com" = {
         user = "git";
-        hostName = "github.com";
+        hostname = "github.com";
         port = 22;
         identityFile = "${homeDir}/.ssh/lucidph3nx-ed25519";
       };
