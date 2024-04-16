@@ -2,6 +2,7 @@
   imports = [
     ./rofi.nix
     ./sway.nix
+    ./swaylock.nix
     ./swaync.nix
     ./waybar.nix
   ];
@@ -14,6 +15,7 @@
     homeManagerModules = {
       sway.enable = lib.mkDefault true;
       swaync.enable = lib.mkDefault true;
+      swaylock.enable = lib.mkDefault true;
       rofi.enable = lib.mkDefault true;
       waybar.enable = lib.mkDefault true;
     };
