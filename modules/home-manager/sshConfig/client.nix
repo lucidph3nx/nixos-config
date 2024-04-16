@@ -20,7 +20,7 @@ in
     home.packages = with pkgs; [ cloudflared ];
     programs.ssh = {
       enable = true;
-      includes = lib.mkIf config.homeManagerModules.ssh.client.workConfig.enable [ "worksshconfig" ];
+      includes = lib.mkIf config.homeManagerModules.ssh.client.workConfig.enable [ "workconfig" ];
       matchBlocks = {
         "*" = {
           # don't ask to check host key for new hosts
