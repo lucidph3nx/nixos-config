@@ -13,9 +13,9 @@ in
       lib.mkEnableOption "Env var secrets for hostnames";
   };
   config = lib.mkIf config.nixModules.sops.workHostNames.enable {
-    sops.secrets.SECRET_HOSTNAME_PROD_17W = secretHostNameConfig;
-    config.environment.sessionVariables = {
-      SECRET_HOSTNAME_PROD_17W = "$(cat ${config.sops.secrets.SECRET_HOSTNAME_PROD_17W.path})";
+    sops.secrets.prod-17w = secretHostNameConfig;
+    environment.sessionVariables = {
+      HOSTNAME_PROD_17W = "$(cat ${config.sops.secrets.prod-17w.path})";
     };
   };
 }
