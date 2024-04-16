@@ -10,11 +10,6 @@
     sops.secrets = 
       let 
         sopsFile = ../../../secrets/secrets.yaml;
-        hostsSecret = {
-          owner = "ben";
-          mode = "0600";
-          sopsFile = sopsFile;
-        };
       in
       {
       hass_api_key = {
@@ -27,12 +22,6 @@
         mode = "0600";
         sopsFile = sopsFile;
       };
-      "work/hosts/prod-17w/hostname" = hostsSecret;
-      "work/hosts/prod-17w/user" = hostsSecret;
     };
-    sops.templates."work/hosts/prod-17w".content = ''
-        hostname = "${config.sops.placeholder."work/hosts/prod-17w/hostname"}";
-        user = "${config.sops.placeholder."work/hosts/prod-17w/user"}";
-      '';
   };
 }

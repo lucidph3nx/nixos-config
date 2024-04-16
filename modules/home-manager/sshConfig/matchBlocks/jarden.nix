@@ -1,4 +1,4 @@
-{ config, osConfig, pkgs, inputs, lib, ... }:
+{ config, pkgs, inputs, lib, ... }:
 
 let 
   homeDir = config.home.homeDirectory;
@@ -32,8 +32,8 @@ in
         proxyJump = lib.mkIf config.homeManagerModules.ssh.proxymac "mac";
       };
       "prod-17w appserv17w-m.fnzsl.com" = {
-        hostname = "${osConfig.sops.templates."work/hosts/prod-17w".hostname.path}";
-        user = "${osConfig.sops.templates."work/hosts/prod-17w".user.path}";
+        hostname = "appserv17w-m.fnzsl.com";
+        user = "bsherman";
         identityFile = "${homeDir}/.ssh/jarden-rsa";
         extraOptions  = {
           PubkeyAcceptedKeyTypes = "+ssh-rsa";
