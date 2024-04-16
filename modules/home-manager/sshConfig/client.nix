@@ -4,7 +4,7 @@ let
   homeDir = config.home.homeDirectory;
 in
 {
-  imports = [ ./home-ops.nix ];
+  imports = [ ./matchBlocks/home-ops.nix ];
   options = {
     homeManagerModules.ssh.client.enable =
       lib.mkEnableOption "enables a client style ssh config intended for workstations";
