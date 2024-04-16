@@ -30,7 +30,7 @@ in
             HostName 10.93.149.41
             Port 22
             User ben
-            IdentityFile ${secret.rsa-pub.path}
+            IdentityFile ${secret.rsa.path}
             PubkeyAcceptedKeyTypes +ssh-rsa
 
           Match host build3w,${ph.build3w} exec "[[ '%L' != 'm1mac' ]]"
@@ -38,7 +38,7 @@ in
           Host build3w ${ph.build3w}
             Hostname ${ph.build3w}
             User bsherman
-            IdentityFile ${secret.rsa-pub.path}
+            IdentityFile ${secret.rsa.path}
             PubkeyAcceptedKeyTypes +ssh-rsa
             ServerAliveInterval 30
 
@@ -47,7 +47,7 @@ in
           Host prod-17w ${ph.prod-17w}
             Hostname ${ph.prod-17w}
             User bsherman
-            IdentityFile ${secret.rsa-pub.path}
+            IdentityFile ${secret.rsa.path}
             PubkeyAcceptedKeyTypes +ssh-rsa
             ServerAliveInterval 30
         '';
