@@ -13,7 +13,7 @@
         path = "/home/ben/.ssh/work-rsa";
         sopsFile = ../../../secrets/workSSHKeys.yaml;
       };
-      "ssh/rsa-pub" = {
+      "ssh/rsa.pub" = {
         owner = "ben";
         mode = "0600";
         path = "/home/ben/.ssh/work-rsa.pub";
@@ -25,7 +25,7 @@
         path = "/home/ben/.ssh/work-ed25519";
         sopsFile = ../../../secrets/workSSHKeys.yaml;
       };
-      "ssh/ed25519-pub" = {
+      "ssh/ed25519.pub" = {
         owner = "ben";
         mode = "0600";
         path = "/home/ben/.ssh/work-ed25519.pub";
