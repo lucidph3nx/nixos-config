@@ -18,9 +18,10 @@
           sopsFile = sopsFile;
         };
       };
-    home.sessionVariables = {
-      HASS_API_KEY = "$(cat ${config.sops.secrets.hass_api_key.path})";
-      SECRET_DOMAIN = "$(cat ${config.sops.secrets.secret_domain.path})";
-    };
+    # putting it in zsh because home.sessionVariables doesn't work
+    programs.zsh.initExtra = ''
+      export HASS_API_KEY="$(cat ${config.sops.secrets.hass_api_key.path})";
+      export SECRET_DOMAIN="$(cat ${config.sops.secrets.secret_domain.path})";
+    '';
   };
 }
