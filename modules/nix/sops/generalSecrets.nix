@@ -2,10 +2,6 @@
 { config, pkgs, inputs, ... }:
 
 {
-  imports =
-  [
-    inputs.sops-nix.nixosModules.sops
-  ];
   sops.secrets = 
     let 
       sopsFile = "../../../secrets/secrets.yaml";

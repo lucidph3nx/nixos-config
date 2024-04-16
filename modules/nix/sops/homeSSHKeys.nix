@@ -1,10 +1,6 @@
 { config, lib, pkgs, inputs, ... }:
 
 {
-  imports =
-  [
-    inputs.sops-nix.nixosModules.sops
-  ];
   options = {
     nixModules.sops.homeSSHKeys.enable =
       lib.mkEnableOption "Set up home SSH Keys";

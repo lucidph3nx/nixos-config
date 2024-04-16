@@ -1,9 +1,10 @@
-{ pkgs, lib, ... }: {
+{ config, pkgs, lib, inputs, ... }: {
   imports = [
     ./generalSecrets.nix
     ./signingKeys.nix
     ./homeSSHKeys.nix
     ./workSSHKeys.nix
+    inputs.sops-nix.nixosModules.sops
   ];
   config = {
     nixModules = {
