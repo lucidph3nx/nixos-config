@@ -36,7 +36,7 @@ in
       Host build3w ${ph.build3w}
         Hostname ${ph.build3w}
         User bsherman
-        IdentityFile ${ph.rsa-pub.path}
+        IdentityFile ${secret.rsa-pub.path}
         PubkeyAcceptedKeyTypes +ssh-rsa
         ServerAliveInterval 30
 
