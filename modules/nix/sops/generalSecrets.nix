@@ -27,12 +27,12 @@
         mode = "0600";
         sopsFile = sopsFile;
       };
-      "work/hosts/prod17w/hostname" = hostsSecret;
-      "work/hosts/prod17w/user" = hostsSecret;
+      "work/hosts/prod-17w/hostname" = hostsSecret;
+      "work/hosts/prod-17w/user" = hostsSecret;
     };
     sops.templates."work/hosts/prod17w".content = ''
-        hostname = "${config.sops.placeholder."work/hosts/prod17w/hostname"}";
-        user = "${config.sops.placeholder."work/hosts/prod17w/user"}";
+        hostname = "${config.sops.placeholder."work/hosts/prod-17w/hostname"}";
+        user = "${config.sops.placeholder."work/hosts/prod-17w/user"}";
       '';
   };
 }
