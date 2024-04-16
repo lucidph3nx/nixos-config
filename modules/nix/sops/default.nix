@@ -1,9 +1,9 @@
 { pkgs, lib, ... }: {
   imports = [
-    ./sops/generalSecrets.nix
-    ./sops/signingKeys.nix
-    ./sops/homeSSHKeys.nix
-    ./sops/workSSHKeys.nix
+    ./generalSecrets.nix
+    ./signingKeys.nix
+    ./homeSSHKeys.nix
+    ./workSSHKeys.nix
   ];
   config = {
     nixModules = {
