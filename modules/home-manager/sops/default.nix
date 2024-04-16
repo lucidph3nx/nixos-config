@@ -10,7 +10,7 @@
     inputs.sops-nix.homeManagerModules.sops
   ];
   options = {
-    homeManagerModules.sops.enable = lib.mkOption "Enable sops home manager module";
+    homeManagerModules.sops.enable = lib.mkEnableOption "Enable sops home manager module";
   };
   config = lib.mkIf config.homeManagerModules.sops.enable {
     homeManagerModules = {
