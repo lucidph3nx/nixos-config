@@ -19,30 +19,33 @@ in
     sops.secrets.prod-17w = workSecret;
 
     sops.templates.sshconfig.content = 
-    with config.sops.secrets;
+    let
+      ph = config.sops.placeholder;
+      secret = config.sops.secrets;
+    in
     ''
       Host mac
         HostName 10.93.149.41
         Port 22
         User ben
-        IdentityFile ${rsa-pub.path}
+        IdentityFile ${secret.rsa-pub.path}
         PubkeyAcceptedKeyTypes +ssh-rsa
 
-      Match host build3w,${build3w} exec "[[ '%L' != 'm1mac' ]]"
+      Match host build3w,${ph.build3w} exec "[[ '%L' != 'm1mac' ]]"
         ProxyJump mac
-      Host build3w ${build3w}
-        Hostname ${build3w}
+      Host build3w ${ph.build3w}
+        Hostname ${ph.build3w}
         User bsherman
-        IdentityFile ${rsa-pub.path}
+        IdentityFile ${ph.rsa-pub.path}
         PubkeyAcceptedKeyTypes +ssh-rsa
         ServerAliveInterval 30
 
-      Match host prod-17w,${prod-17w} exec "[[ '%L' != 'm1mac' ]]"
+      Match host prod-17w,${ph.prod-17w} exec "[[ '%L' != 'm1mac' ]]"
         ProxyJump mac
-      Host prod-17w ${prod-17w}
-        Hostname ${prod-17w}
+      Host prod-17w ${ph.prod-17w}
+        Hostname ${ph.prod-17w}
         User bsherman
-        IdentityFile ${rsa-pub.path}
+        IdentityFile ${secret.rsa-pub.path}
         PubkeyAcceptedKeyTypes +ssh-rsa
         ServerAliveInterval 30
     '';
