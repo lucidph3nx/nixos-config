@@ -14,7 +14,7 @@ in
       enable = true;
       matchBlocks = {
         "node0" = {
-          proxyCommand = "${pkgs.cloudflared}/bin/cloudflared tunnerl --hostname ssh.$SECRET_DOMAIN/node0";
+          proxyCommand = "${pkgs.cloudflared}/bin/cloudflared access ssh --hostname ssh.$SECRET_DOMAIN/node0";
           user = "ben";
           port = 22;
           identityFile = "${homeDir}/.ssh/lucidph3nx-ed25519";
