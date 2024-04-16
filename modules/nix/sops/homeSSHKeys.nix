@@ -10,30 +10,30 @@
       lib.mkEnableOption "Set up home SSH Keys";
   };
   config = lib.mkIf config.nixModules.sops.homeSSHKeys.enable {
-    sops = 
+    sops.secrets = 
     let 
       sopsFile = "../../../secrets/homeSSHKeys.yaml";
     in
     {
-      secrets."ssh/lucidph3nx-ed25519" = {
+      "ssh/lucidph3nx-ed25519" = {
         owner = "ben";
         mode = "0600";
         path = "/home/ben/.ssh/lucidph3nx-ed25519";
         sopsFile = sopsFile;
       };
-      secrets."ssh/lucidph3nx-ed25519.pub" = {
+      "ssh/lucidph3nx-ed25519.pub" = {
         owner = "ben";
         mode = "0600";
         path = "/home/ben/.ssh/lucidph3nx-ed25519.pub";
         sopsFile = sopsFile;
       };
-      secrets."ssh/lucidph3nx-rsa" = {
+      "ssh/lucidph3nx-rsa" = {
         owner = "ben";
         mode = "0600";
         path = "/home/ben/.ssh/lucidph3nx-rsa";
         sopsFile = sopsFile;
       };
-      secrets."ssh/lucidph3nx-rsa.pub" = {
+      "ssh/lucidph3nx-rsa.pub" = {
         owner = "ben";
         mode = "0600";
         path = "/home/ben/.ssh/lucidph3nx-rsa.pub";
