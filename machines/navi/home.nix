@@ -20,6 +20,7 @@
   homeManagerModules = {
     # Enable home automation stuff as device should be in the home
     homeAutomation.enable = true;
+    ssh.proxymac = true;
   };
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
