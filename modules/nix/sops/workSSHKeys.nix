@@ -8,7 +8,7 @@
   config = lib.mkIf config.nixModules.sops.workSSHKeys.enable {
     sops.secrets = 
     let 
-      sopsFile = "../../../secrets/workSSHKeys.yaml";
+      sopsFile = ../../../secrets/workSSHKeys.yaml;
     in
     {
       "ssh/jarden-rsa" = {

@@ -8,7 +8,7 @@
   config = lib.mkIf config.nixModules.sops.signingKeys.enable {
     sops.secrets = 
     let 
-      sopsFile = "../../../secrets/signingKeys.yaml";
+      sopsFile = ../../../secrets/signingKeys.yaml;
     in
     {
       "ssh/lucidph3nx-ed25519-signingkey" = {

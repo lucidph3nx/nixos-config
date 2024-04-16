@@ -8,7 +8,7 @@
   config = lib.mkIf config.nixModules.sops.homeSSHKeys.enable {
     sops.secrets = 
     let 
-      sopsFile = "../../../secrets/homeSSHKeys.yaml";
+      sopsFile = ../../../secrets/homeSSHKeys.yaml;
     in
     {
       "ssh/lucidph3nx-ed25519" = {

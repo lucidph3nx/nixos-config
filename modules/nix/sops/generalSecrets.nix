@@ -9,7 +9,7 @@
   config = lib.mkIf config.nixModules.sops.generalSecrets.enable {
     sops.secrets = 
       let 
-        sopsFile = "../../../secrets/secrets.yaml";
+        sopsFile = ../../../secrets/secrets.yaml;
       in
       {
       hass_api_key = {
