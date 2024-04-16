@@ -15,7 +15,7 @@
     generalSecrets.enable = true;
     signingKeys.enable = true;
     homeSSHKeys.enable = true;
-    workSecrets.enable = false;
+    workSecrets.enable = true;
   };
 
   nix.settings.experimental-features = ["nix-command" "flakes"];
