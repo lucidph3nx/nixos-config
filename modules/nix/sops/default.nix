@@ -3,8 +3,7 @@
     ./generalSecrets.nix
     ./signingKeys.nix
     ./homeSSHKeys.nix
-    ./workSSHKeys.nix
-    ./workSSHConfig.nix
+    ./workSecrets.nix
     inputs.sops-nix.nixosModules.sops
   ];
   config = {
@@ -12,8 +11,7 @@
       sops.generalSecrets.enable = lib.mkDefault false;
       sops.signingKeys.enable = lib.mkDefault false;
       sops.homeSSHKeys.enable = lib.mkDefault false;
-      sops.workSSHKeys.enable = lib.mkDefault false;
-      sops.workSSHConfig.enable = lib.mkDefault false;
+      sops.workSecrets.enable = lib.mkDefault false;
     };
     # sops defaults
     sops = {
