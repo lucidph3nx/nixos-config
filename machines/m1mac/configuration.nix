@@ -20,6 +20,7 @@
       aws-vault
       awscli2
       azure-cli
+      cloudflared
       direnv
       docker
       eza
