@@ -13,14 +13,14 @@ in
   options = {
     homeManagerModules.ssh.client.enable =
       lib.mkEnableOption "enables a client style ssh config intended for workstations";
-    homeManagerModules.ssh.workConfig.enable =
+    homeManagerModules.ssh.client.workConfig.enable =
       lib.mkEnableOption "Add my work ssh config";
   };
   config = lib.mkIf config.homeManagerModules.ssh.client.enable {
     home.packages = with pkgs; [ cloudflared ];
     programs.ssh = {
       enable = true;
-      includes = lib.mkIf config.homeManagerModules.ssh.workConfig.enable [ "worksshconfig" ];
+      includes = lib.mkIf config.homeManagerModules.ssh.client.workConfig.enable [ "worksshconfig" ];
       matchBlocks = {
         "*" = {
           # don't ask to check host key for new hosts
