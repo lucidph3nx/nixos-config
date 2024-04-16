@@ -24,5 +24,10 @@
         sopsFile = ../../../secrets/workSSHKeys.yaml;
       };
     };
+    sops.secrets.worksshconfig = {
+      path = "${config.home.homeDirectory}/.ssh/workconfig";
+      format = "binary";
+      sopsFile = ../../../secrets/worksshconfig;
+    };
   };
 }
