@@ -1,7 +1,10 @@
 { config, pkgs, inputs, lib, ... }:
 
 {
-  imports = [ ./matchBlocks/home-ops.nix ];
+  imports = [ 
+  ./matchBlocks/home-ops.nix
+  ./matchBlocks/jarden.nix
+  ];
   options = {
     homeManagerModules.ssh.client.enable =
       lib.mkEnableOption "enables a client style ssh config intended for workstations";
