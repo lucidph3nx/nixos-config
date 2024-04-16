@@ -34,6 +34,8 @@
     };
     sops.secrets.worksshconfig = {
       format = "binary";
+      owner = "ben";
+      mode = "0600";
       sopsFile = ../../../secrets/worksshconfig;
       path = "/home/ben/.ssh/workconfig";
     };
