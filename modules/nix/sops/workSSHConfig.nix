@@ -9,7 +9,7 @@
     sops.secrets.workSSHConfig = {
         owner = "ben";
         mode = "0600";
-        sopsFile = ../../../secrets/workHostNames.yaml;
+        sopsFile = ../../../secrets/workSSHConfig.yaml;
     };
   };
 }
