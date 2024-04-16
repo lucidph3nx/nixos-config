@@ -8,9 +8,16 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      ../../modules/nix/sops.nix
-      # ../../modules/nix/steam.nix
+      ../../modules/nix
     ];
+
+  nixModules.sops = {
+    generalSecrets.enable = true;
+    signingKeys.enable = true;
+    homeSSHKeys.enable = true;
+    workSSHKeys.enable = true;
+  };
+
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
   # Bootloader.
