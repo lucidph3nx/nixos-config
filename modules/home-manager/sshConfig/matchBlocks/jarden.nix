@@ -31,6 +31,15 @@ in
         };
         proxyJump = lib.mkIf config.homeManagerModules.ssh.proxymac "mac";
       };
+      "prod-17w appserv17w-m.fnzsl.com" = {
+        hostname = "appserv17w-m.fnzsl.com";
+        user = "bsherman";
+        identityFile = "${homeDir}/.ssh/jarden-rsa";
+        extraOptions  = {
+          PubkeyAcceptedKeyTypes = "+ssh-rsa";
+        };
+        proxyJump = lib.mkIf config.homeManagerModules.ssh.proxymac "mac";
+      };
     };
   };
 }
