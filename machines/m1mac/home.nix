@@ -8,7 +8,6 @@
     ../../modules/home-manager/git.nix
     ../../modules/home-manager/nvim.nix
     ../../modules/home-manager/scripts.nix
-    ../../modules/home-manager/sops.nix
     ../../modules/home-manager/syncthing.nix
   ];
   sysDefaults = {
@@ -17,6 +16,13 @@
   homeManagerModules = {
     firefox.enable = false; # doesnt work on nix-darwin currently
     desktopEnvironment.enable = false; # desktop environments are for linux only
+    sops = {
+      enable = true;
+      generalSecrets.enable = true;
+      signingKeys.enable = true;
+      homeSSHKeys.enable = true;
+      workSSH.enable = true;
+    };
   };
   # You should not change this value, even if you update Home Manager. If you do
   # want to update the value, then make sure to first check the Home Manager
