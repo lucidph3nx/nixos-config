@@ -18,7 +18,7 @@ in
     sops.secrets.build3w = workSecret;
     sops.secrets.prod-17w = workSecret;
 
-    sops.templates."sshconfig".content = 
+    sops.templates.sshconfig.content = 
     with config.sops.secrets;
     ''
       Host mac

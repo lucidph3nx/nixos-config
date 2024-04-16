@@ -21,7 +21,7 @@ in
     programs.ssh = {
       enable = true;
       includes = lib.mkIf osConfig.nixModules.sops.workSecrets.enable
-        [ "${osConfig.sops.templates."sshconfig".path}" ];
+        [ "${osConfig.sops.templates.sshconfig.path}" ];
       matchBlocks = {
         "*" = {
           # don't ask to check host key for new hosts
