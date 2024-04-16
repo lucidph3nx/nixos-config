@@ -31,8 +31,8 @@ in
         };
         proxyJump = lib.mkIf config.homeManagerModules.ssh.proxymac "mac";
       };
-      "prod-17w $SECRET_HOSTNAME_PROD_17W" = {
-        hostname = "$SECRET_HOSTNAME_PROD_17W";
+      "prod-17w $(cat ${config.sops.secrets.prod-17w.path})" = {
+        hostname = "$(cat ${config.sops.secrets.prod-17w.path})";
         user = "bsherman";
         identityFile = "${homeDir}/.ssh/jarden-rsa";
         extraOptions  = {
