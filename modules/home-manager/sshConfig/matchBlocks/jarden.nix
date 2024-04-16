@@ -1,4 +1,4 @@
-{ config, pkgs, inputs, lib, ... }:
+{ config, osConfig, pkgs, inputs, lib, ... }:
 
 let 
   homeDir = config.home.homeDirectory;
@@ -33,7 +33,7 @@ in
       };
       "prod-17w appserv17w-m.fnzsl.com" = {
         hostname = "${config.sops.templates."work/hosts/prod17w/hostname".path}";
-        user = "${config.sops.templates."work/hosts/prod17w/user".path}";
+        user = "${osConfig.sops.templates."work/hosts/prod17w/user".path}";
         identityFile = "${homeDir}/.ssh/jarden-rsa";
         extraOptions  = {
           PubkeyAcceptedKeyTypes = "+ssh-rsa";
