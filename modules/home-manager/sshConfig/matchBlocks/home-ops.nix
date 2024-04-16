@@ -2,21 +2,35 @@
 
 let 
   homeDir = config.home.homeDirectory;
+  cloudflaredBlock = {
+    proxyCommand = "${pkgs.cloudflared}/bin/cloudflared access ssh --hostname ssh.$SECRET_DOMAIN/%h";
+    user = "ben";
+    port = 22;
+    identityFile = "${homeDir}/.ssh/lucidph3nx-ed25519";
+  };
 in
 {
   # SSH hosts that are part of my hopelab infra
   programs.ssh.matchBlocks = {
-    "node0" = {
-      proxyCommand = "${pkgs.cloudflared}/bin/cloudflared access ssh --hostname ssh.$SECRET_DOMAIN/%h";
+    "node0" = cloudflaredBlock;
+    "node1" = cloudflaredBlock;
+    "node2" = cloudflaredBlock;
+    "node3" = cloudflaredBlock;
+    "nas0" = {
+      hostname = 10.87.1.200;
+      port = 220;
       user = "ben";
-      port = 22;
       identityFile = "${homeDir}/.ssh/lucidph3nx-ed25519";
     };
-    "node1" = {
-      proxyCommand = "${pkgs.cloudflared}/bin/cloudflared access ssh --hostname ssh.$SECRET_DOMAIN/%h";
-      user = "ben";
+    "usg" = {
+      hostname = 10.87.0.1;
       port = 22;
-      identityFile = "${homeDir}/.ssh/lucidph3nx-ed25519";
+      user = "ben";
+      # until unifi supports ed25519
+      identityFile = "${homeDir}/.ssh/lucidph3nx-rsa";
+      extraOptions  = {
+        PubkeyAcceptedKeyTypes = "+ssh-rsa";
+      };
     };
   };
 }
