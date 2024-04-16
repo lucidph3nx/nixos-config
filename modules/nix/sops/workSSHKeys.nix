@@ -10,19 +10,22 @@
       lib.mkEnableOption "Set signing keys";
   };
   config = lib.mkIf config.nixModules.sops.workSSHKeys.enable {
-    sops = {
-      defaultSopsFile = ../../secrets/workSSHKeys.yaml;
-      defaultSopsFormat = "yaml";
-      age.keyFile = /home/ben/.config/sops/age/keys.txt;
+    sops = 
+    let 
+      sopsFile = "../../../secrets/workSSHKeys.yaml";
+    in
+    {
       secrets."ssh/jarden-rsa" = {
         owner = "ben";
         mode = "0600";
         path = "/home/ben/.ssh/jarden-rsa";
+        sopsFile = sopsFile;
       };
       secrets."ssh/jarden-rsa.pub" = {
         owner = "ben";
         mode = "0600";
         path = "/home/ben/.ssh/jarden-rsa.pub";
+        sopsFile = sopsFile;
       };
     };
   };
