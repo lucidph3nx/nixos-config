@@ -3,7 +3,7 @@
 let 
   homeDir = config.home.homeDirectory;
   cloudflaredBlock = {
-    proxyCommand = "${pkgs.cloudflared}/bin/cloudflared access ssh --hostname ssh.$SECRET_DOMAIN/%h";
+    proxyCommand = "${pkgs.cloudflared}/bin/cloudflared access ssh --hostname %h.$SECRET_DOMAIN";
     user = "ben";
     port = 22;
     identityFile = "${homeDir}/.ssh/lucidph3nx-ed25519";
