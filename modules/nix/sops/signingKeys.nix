@@ -3,7 +3,7 @@
 {
   options = {
     nixModules.sops.signingKeys.enable =
-      lib.mkEnableOption "Set signing keys";
+      lib.mkEnableOption "Set up signing keys";
   };
   config = lib.mkIf config.nixModules.sops.signingKeys.enable {
     sops.secrets = 

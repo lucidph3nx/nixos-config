@@ -3,7 +3,7 @@
 {
   options = {
     nixModules.sops.generalSecrets.enable =
-      lib.mkEnableOption "Set up home SSH Keys";
+      lib.mkEnableOption "Set up general Secrets";
   };
   config = lib.mkIf config.nixModules.sops.generalSecrets.enable {
     sops.secrets = 
@@ -21,6 +21,10 @@
         mode = "0600";
         sopsFile = sopsFile;
       };
+    };
+    environment.sessionVariables = {
+      HASS_API_KEY = "$(cat ${config.sops.secrets.hass_api_key.path})";
+      SECRET_DOMAIN = "$(cat ${config.sops.secrets.secret_domain.path})";
     };
   };
 }
