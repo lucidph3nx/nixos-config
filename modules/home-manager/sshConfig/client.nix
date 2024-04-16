@@ -20,8 +20,7 @@ in
     home.packages = with pkgs; [ cloudflared ];
     programs.ssh = {
       enable = true;
-      includes = lib.mkIf osConfig.nixModules.sops.workSecrets.enable
-        [ "${osConfig.sops.templates.sshconfig.path}" ];
+      includes = lib.mkIf osConfig.nixModules.sops.workConfig.enable [ "worksshconfig" ];
       matchBlocks = {
         "*" = {
           # don't ask to check host key for new hosts
