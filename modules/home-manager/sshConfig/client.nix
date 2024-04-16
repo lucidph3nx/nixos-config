@@ -1,8 +1,5 @@
 { config, pkgs, inputs, lib, ... }:
 
-let 
-  homeDir = config.home.homeDirectory;
-in
 {
   imports = [ ./matchBlocks/home-ops.nix ];
   options = {
