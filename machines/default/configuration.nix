@@ -16,6 +16,7 @@
     signingKeys.enable = true;
     homeSSHKeys.enable = true;
     workSSHKeys.enable = true;
+    workHostNames.enable = true;
   };
 
   nix.settings.experimental-features = ["nix-command" "flakes"];
