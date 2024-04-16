@@ -8,6 +8,8 @@
   config = lib.mkIf config.homeManagerModules.ssh.server.enable {
     programs.ssh = {
       enable = true;
+      # TODO: design a module for servers
+#     # once I convert all my servers over to nixos ;)
     };
   };
 }
