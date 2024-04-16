@@ -13,6 +13,14 @@ in
     home.packages = with pkgs; [ cloudflared ];
     programs.ssh = {
       enable = true;
+      matchBlocks = {
+        "*" = {
+          # don't ask to check host key for new hosts
+          extraConfig = ''
+            StrictHostKeyChecking accept-new
+          '';
+        };
+      };
     };
   };
 }
