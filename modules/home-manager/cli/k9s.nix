@@ -1,4 +1,4 @@
-{ config, nixpkgs-unstable, pkgs, inputs, lib, ... }: 
+{ config, pkgs, inputs, lib, ... }: 
 
 let
   terminal = config.sysDefaults.terminal;
@@ -11,7 +11,7 @@ in
   config = lib.mkIf config.homeManagerModules.k9s.enable {
     programs.k9s = {
       enable = true;
-      package = nixpkgs-unstable.k9s;
+      package = pkgs.k9s;
       settings = {
         k9s = {
           liveViewAutoRefresh = false;
