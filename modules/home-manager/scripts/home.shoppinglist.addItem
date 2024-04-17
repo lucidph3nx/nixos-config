@@ -1,6 +1,6 @@
 #!/bin/sh
 # rofi style for shoppinglist add
-rofi_style_shoppinglistentry='listview { enabled: false;} inputbar { children: [entry]; border-color: @accentcolormegenta;} entry { placeholder: "Add Item to Shopping List"; }'
+rofi_style_shoppinglistentry='listview { enabled: false;} inputbar { children: [entry]; border-color: #d699b6;} entry { placeholder: "Add Item to Shopping List"; }'
 
 # function with curl to add item via notion api
 add_item_to_shopping_list() {
