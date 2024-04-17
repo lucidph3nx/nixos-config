@@ -23,6 +23,7 @@
       signingKeys.enable = true;
       homeSSHKeys.enable = true;
       workSSH.enable = true;
+      kubeconfig.enable = true;
     };
     ssh.client = {
       enable = true;
