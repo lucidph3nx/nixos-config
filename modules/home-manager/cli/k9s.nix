@@ -214,7 +214,7 @@ in
     };
     # zsh shortcut
     programs.zsh.initExtra = ''
-      bindkey -s ^k "${pkgs.k9s}/bin/k9s\n"
+      bindkey -s ^k "k9s\n"
     '';
     # my scripts relevant to k9s
     home.sessionPath = ["$HOME/.local/scripts"];
