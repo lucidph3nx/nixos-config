@@ -45,9 +45,9 @@
   ];
   home.sessionVariables = {
     EDITOR = "nvim";
-    KUBECONFIG = "/Users/ben/.config/kube/config-work";
     PAGER = "less";
     PF_INFO = "ascii title os kernel pkgs wm shell editor";
+    KUBECONFIG = "${config.sops.secrets.workkube.path}";
   };
   home.file = {
     ".config/karabiner/karabiner.json".source = ./files/karabiner.json;

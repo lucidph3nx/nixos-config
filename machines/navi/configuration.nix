@@ -107,6 +107,8 @@
     QT_QPA_PLATFORM = "wayland";
     XDG_CURRENT_DESKTOP = "sway";
     XDG_SESSION_DESKTOP = "sway";
+    # for kube
+    KUBECONFIG = "${config.sops.secrets.homekube.path}";
   };
 
   fonts.fontDir.enable = true;

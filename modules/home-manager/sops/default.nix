@@ -7,6 +7,7 @@
     ./signingKeys.nix
     ./homeSSHKeys.nix
     ./workSSH.nix
+    ./kubeconfig.nix
     inputs.sops-nix.homeManagerModules.sops
   ];
   options = {
@@ -18,6 +19,7 @@
       sops.signingKeys.enable = lib.mkDefault false;
       sops.homeSSHKeys.enable = lib.mkDefault false;
       sops.workSSH.enable = lib.mkDefault false;
+      sops.kubeconfig.enable = lib.mkDefault false;
     };
     # sops defaults
     sops = {

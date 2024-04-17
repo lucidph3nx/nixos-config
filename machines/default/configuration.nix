@@ -16,6 +16,7 @@
     signingKeys.enable = true;
     homeSSHKeys.enable = true;
     workSSH.enable = true;
+    kubeconfig.enable = true;
   };
 
   nix.settings.experimental-features = ["nix-command" "flakes"];
@@ -107,6 +108,8 @@
     QT_QPA_PLATFORM = "wayland";
     XDG_CURRENT_DESKTOP = "sway";
     XDG_SESSION_DESKTOP = "sway";
+    # for kube
+    KUBECONFIG = "${config.sops.secrets.homekube.path}";
   };
 
   fonts.fontDir.enable = true;
