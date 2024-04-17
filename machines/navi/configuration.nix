@@ -15,7 +15,7 @@
     generalSecrets.enable = true;
     signingKeys.enable = true;
     homeSSHKeys.enable = true;
-    workSSHKeys.enable = true;
+    workSSH.enable = true;
   };
 
   nix.settings.experimental-features = ["nix-command" "flakes"];
@@ -77,6 +77,7 @@
   environment.systemPackages = with pkgs; [
     arping
     aws-vault
+    awscli2
     chromium
     curl
     direnv
@@ -106,9 +107,6 @@
     QT_QPA_PLATFORM = "wayland";
     XDG_CURRENT_DESKTOP = "sway";
     XDG_SESSION_DESKTOP = "sway";
-    # secrets
-    HASS_API_KEY = "$(cat ${config.sops.secrets.hass_api_key.path})";
-    SECRET_DOMAIN = "$(cat ${config.sops.secrets.secret_domain.path})";
   };
 
   fonts.fontDir.enable = true;
