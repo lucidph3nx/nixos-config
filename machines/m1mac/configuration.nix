@@ -31,6 +31,7 @@
       gnutar
       imagemagick
       jq
+      node
       p7zip
       ripgrep
       rustup
