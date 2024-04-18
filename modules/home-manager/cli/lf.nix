@@ -1,9 +1,9 @@
-{ pkgs, lib, ... }:{
+{ config, pkgs, lib, ... }:{
   options = {
     homeManagerModules.lf.enable =
       lib.mkEnableOption "enables lf";
   };
-  config = {
+  config = lib.mkIf config.homeManagerModules.lf.enable {
     programs.lf = {
       enable = true;
       settings = {
