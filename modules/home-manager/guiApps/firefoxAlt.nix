@@ -3,7 +3,11 @@ let
   bugfixedFirefox = pkgs.firefox-esr-unwrapped // { requireSigning = false; allowAddonSideload = true; };
 in
 {
-  config = {
+  options = {
+    homeManagerModules.firefox.enable =
+      lib.mkEnableOption "enables firefox";
+  };
+  config = lib.mkIf config.homeManagerModules.firefox.enable {
     programs.firefox = {
       enable = true;
       package = pkgs.wrapFirefox bugfixedFirefox {
