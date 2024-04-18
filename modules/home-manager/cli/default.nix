@@ -1,6 +1,7 @@
 { config, pkgs, inputs, lib, ... }: {
   imports = [
     ./asdf.nix
+    ./git.nix
     ./homeAutomation.nix
     ./k9s.nix
     ./kubetools.nix
@@ -13,6 +14,7 @@
 
   homeManagerModules = {
     asdf.enable = lib.mkDefault true;
+    git.enable = lib.mkDefault true;
     homeAutomation.enable = lib.mkDefault false;
     k9s.enable = lib.mkDefault true;
     kubetools.enable = lib.mkDefault true;
