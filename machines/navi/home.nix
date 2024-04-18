@@ -30,42 +30,8 @@
   # release notes.
   home.stateVersion = "23.11"; # Please read the comment before changing.
   
-  home.pointerCursor = {
-    gtk.enable = true;
-    name = "breeze_cursors";
-    # this is the cursor I like, from plasma 6
-    package = nixpkgs-unstable.kdePackages.breeze;
-    size = 24;
-  };
-  gtk = {
-    enable = true;
-    theme = {
-      name = "Adwaita-dark";
-      package = pkgs.gnome.gnome-themes-extra;
-    };
-    iconTheme = {
-      name = "Papirus-Dark";
-      package = pkgs.papirus-icon-theme;
-    };
-    cursorTheme = {
-      name = "breeze_cursors";
-    # this is the cursor I like, from plasma 6
-      package = nixpkgs-unstable.kdePackages.breeze;
-    };
-    gtk3 = {
-      extraConfig.gtk-application-prefer-dark-theme = true;
-    };
-  };
-  qt = {
-    enable = true;
-    platformTheme = "gnome";
-    style.name = "adwaita-dark";
-  };
-  
   home.packages = with pkgs; [
     gimp # temp for troubleshooting
-    neofetch
-    pfetch-rs
     picard
     vimiv-qt
     # cinnamon.nemo
@@ -73,7 +39,6 @@
 
   home.sessionVariables = {
     PAGER = "less";
-    PF_INFO = "ascii title os kernel pkgs wm shell editor";
   };
 
   # Let Home Manager install and manage itself.

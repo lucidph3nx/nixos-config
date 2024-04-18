@@ -1,5 +1,6 @@
 { config, pkgs, inputs, lib, ... }: {
   imports = [
+    ./additionalTheming.nix
     ./mpd.nix
     ./rofi.nix
     ./sway.nix

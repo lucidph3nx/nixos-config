@@ -5,7 +5,6 @@
   [
     ../../modules/home-manager/nvim.nix
     ../../modules/home-manager/scripts.nix
-    # ../../modules/home-manager/syncthing.nix
   ];
   sysDefaults = {
     terminal = "${pkgs.kitty}/bin/kitty";
@@ -32,42 +31,8 @@
   # release notes.
   home.stateVersion = "23.11"; # Please read the comment before changing.
   
-  home.pointerCursor = {
-    gtk.enable = true;
-    name = "breeze_cursors";
-    # this is the cursor I like, from plasma 6
-    package = nixpkgs-unstable.kdePackages.breeze;
-    size = 24;
-  };
-  gtk = {
-    enable = true;
-    theme = {
-      name = "Adwaita-dark";
-      package = pkgs.gnome.gnome-themes-extra;
-    };
-    iconTheme = {
-      name = "Papirus-Dark";
-      package = pkgs.papirus-icon-theme;
-    };
-    cursorTheme = {
-      name = "breeze_cursors";
-    # this is the cursor I like, from plasma 6
-      package = nixpkgs-unstable.kdePackages.breeze;
-    };
-    gtk3 = {
-      extraConfig.gtk-application-prefer-dark-theme = true;
-    };
-  };
-  qt = {
-    enable = true;
-    platformTheme = "gnome";
-    style.name = "adwaita-dark";
-  };
-  
   home.packages = with pkgs; [
     gimp # temp for troubleshooting
-    neofetch
-    pfetch-rs
     picard
     vimiv-qt
     # cinnamon.nemo
