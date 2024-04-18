@@ -8,16 +8,15 @@
     ../../modules/home-manager/mpd.nix
     ../../modules/home-manager/ncmpcpp.nix
     ../../modules/home-manager/nvim.nix
-    # ../../modules/home-manager/prospect-mail.nix
     ../../modules/home-manager/scripts.nix
     ../../modules/home-manager/syncthing.nix
-    # ../../modules/home-manager/teams-for-linux.nix
-    ../../modules/home-manager/zsh.nix
   ];
   sysDefaults = {
     terminal = "${pkgs.kitty}/bin/kitty";
   };
   homeManagerModules = {
+    prospect-mail.enable = true;
+    teams-for-linux.enable = true;
     # Enable home automation stuff as device should be in the home
     homeAutomation.enable = true;
     ssh.client.enable = true;

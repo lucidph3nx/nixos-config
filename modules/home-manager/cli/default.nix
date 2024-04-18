@@ -6,6 +6,7 @@
     ./lf.nix
     ./tmux.nix
     ./tmuxSessioniser.nix
+    ./zsh.nix
   ];
 
   homeManagerModules = {
@@ -14,6 +15,7 @@
     kubetools.enable = lib.mkDefault true;
     tmux.enable = lib.mkDefault true;
     tmuxSessioniser.enable = lib.mkDefault true;
+    zsh.enable = lib.mkDefault true;
   };
 
 }
