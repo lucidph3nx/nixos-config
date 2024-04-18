@@ -11,11 +11,13 @@
       ../../modules/nix
     ];
 
-  nixModules.sops = {
-    generalSecrets.enable = true;
-    signingKeys.enable = true;
-    homeSSHKeys.enable = true;
-    workSSH.enable = true;
+  nixModules = {
+    sops = {
+      generalSecrets.enable = true;
+      signingKeys.enable = true;
+      homeSSHKeys.enable = true;
+      workSSH.enable = true;
+    };
     syncthing = {
       enable = true;
       obsidian.enable = true;
