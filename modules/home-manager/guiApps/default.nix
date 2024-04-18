@@ -1,6 +1,7 @@
 { config, pkgs, inputs, lib, ... }: {
   imports = [
-    ./firefox.nix
+    # ./firefox.nix
+    ./firefoxAlt.nix
     ./kitty.nix
     ./prospect-mail.nix
     ./teams-for-linux.nix
