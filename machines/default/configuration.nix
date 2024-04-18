@@ -77,8 +77,6 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     arping
-    aws-vault
-    awscli2
     chromium
     curl
     direnv

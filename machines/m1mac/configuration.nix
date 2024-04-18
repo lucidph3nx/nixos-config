@@ -17,8 +17,6 @@
     loginShell = pkgs.zsh;
     systemPackages = with pkgs; [
       arping
-      aws-vault
-      awscli2
       azure-cli
       cloudflared
       direnv
