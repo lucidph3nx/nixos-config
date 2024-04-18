@@ -10,7 +10,7 @@ in
   };
   config = (lib.mkIf config.homeManagerModules.ncmpcpp.enable) && 
            # no point in installing if mpd is not
-           (lib.mkIf config.homeManagerModules.desktopEnvironment.mpd.enable) {
+           (lib.mkIf config.homeManagerModules.mpd.enable) {
     programs.ncmpcpp = {
       enable = true;
       package = pkgs.ncmpcpp.override { visualizerSupport = true; };
