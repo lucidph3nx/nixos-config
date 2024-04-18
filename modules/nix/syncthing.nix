@@ -19,18 +19,19 @@
       settings = {
         devices = {
           "k8s" = { id = "FZVNVGQ-6TJDJLG-DRWSAWW-AQLKQM7-U36GWON-7ZQ7CLF-32MBYFN-SFHWHAX"; };
-          # "nas0" = { id = "7LANRKO-RRMWROL-PDMCTJX-WKSPOKO-LS3K35O-CJEMX7O-MHHIURW-GSF6FAS"; };
+          "nas0" = { id = "7LANRKO-RRMWROL-PDMCTJX-WKSPOKO-LS3K35O-CJEMX7O-MHHIURW-GSF6FAS"; };
         };
-        folders = {
-          "obsidian-vaults" = lib.mkIf config.nixModules.syncthing.obsidian.enable {
-            path = "/home/ben/documents/obsidian";
-            devices = [ "k8s" ];
-          };
+        # This seems to be a list of folders to push, not pull
+        # folders = {
+        #   "obsidian-vaults" = lib.mkIf config.nixModules.syncthing.obsidian.enable {
+        #     path = "/home/ben/documents/obsidian";
+        #     devices = [ "k8s" ];
+        #   };
         #   "music" = lib.mkIf config.nixModules.syncthing.music.enable {
         #     path = "/home/ben/music";
         #     devices = [ "nas0" ];
         #   };
-        };
+        # };
         options.urAccepted = -1;
       };
     };
