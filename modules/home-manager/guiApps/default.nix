@@ -2,9 +2,10 @@
   imports = [
     ./firefox.nix
     ./kitty.nix
-    ./zathura.nix
     ./prospect-mail.nix
     ./teams-for-linux.nix
+    ./vimiv.nix
+    ./zathura.nix
   ];
 
   options = {
@@ -15,9 +16,10 @@
     homeManagerModules = {
       firefox.enable = lib.mkDefault true;
       kitty.enable = lib.mkDefault true;
-      zathura.enable = lib.mkDefault true;
       prospect-mail.enable = lib.mkDefault false;
       teams-for-linux.enable = lib.mkDefault false;
+      vimiv.enable = lib.mkDefault true;
+      zathura.enable = lib.mkDefault true;
     };
   };
 }

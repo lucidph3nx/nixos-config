@@ -37,8 +37,8 @@
   home.username = "ben";
   home.homeDirectory = "/Users/ben";
 
-  home.packages = with pkgs; [
-  ];
+  # home.packages = with pkgs; [
+  # ];
   home.sessionVariables = {
     EDITOR = "nvim";
     PAGER = "less";
