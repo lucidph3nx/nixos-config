@@ -14,8 +14,8 @@
       enable = true;
       user = "ben";
       dataDir = "/home/ben/Documents";
-      overrideDevices = true;
-      overrideFolders = true;
+      # overrideDevices = true;
+      # overrideFolders = true;
       settings = {
         devices = {
           "k8s" = { id = "FZVNVGQ-6TJDJLG-DRWSAWW-AQLKQM7-U36GWON-7ZQ7CLF-32MBYFN-SFHWHAX"; };
