@@ -13,19 +13,9 @@ in
       package = pkgs.wrapFirefox bugfixedFirefox {
         nixExtensions = [
           (pkgs.fetchFirefoxAddon {
-            name = "darkreader";
-            url = "https://addons.mozilla.org/firefox/downloads/file/4205543/darkreader-4.9.73.xpi";
-            hash = "sha256-fDmf8yVhiGu4Da0Mr6+PYpeSsLcf8e/PEmZ+BaKzjxo=";
-          })
-          (pkgs.fetchFirefoxAddon {
             name = "sponsorblock";
             url = "https://addons.mozilla.org/firefox/downloads/file/4202411/sponsorblock-5.4.29.xpi";
             hash = "sha256-7Xqc8cyQNylMe5/dgDOx1f2QDVmz3JshDlTueu6AcSg=";
-          })
-          (pkgs.fetchFirefoxAddon {
-            name = "tree-style-tab";
-            url = "https://addons.mozilla.org/firefox/downloads/file/4197314/tree_style_tab-3.9.19.xpi";
-            hash = "sha256-u2f0elVPj5N/QXa+5hRJResPJAYwuT9z0s/0nwmFtVo=";
           })
           (pkgs.fetchFirefoxAddon {
             name = "ublock-origin";
@@ -33,66 +23,44 @@ in
             hash = "sha256-l5cWCQgZFxD/CFhTa6bcKeytmSPDCyrW0+XjcddZ5E0=";
           })
           (pkgs.fetchFirefoxAddon {
-            name = "vimium_ff";
-            url = "https://addons.mozilla.org/firefox/downloads/file/4191523/vimium_ff-2.0.6.xpi";
-            hash = "sha256-lKLX6IWWtliRdH1Ig33rVEB4DVfbeuMw0dfUPV/mSSI=";
-          })
-          (pkgs.fetchFirefoxAddon {
-            name = "unhook";
-            url = "https://addons.mozilla.org/firefox/downloads/file/4050795/youtube_recommended_videos-1.6.2.xpi";
-            hash = "sha256-xMuglNassZb9WqjfEGg6WeuhMACRuYqQor+iX1dEdsE=";
-          })
-          (pkgs.fetchFirefoxAddon {
-            name = "mastodon_simplified_federation";
-            url = "https://addons.mozilla.org/firefox/downloads/file/4215691/mastodon_simplified_federation-2.2.xpi";
-            hash = "sha256-4iU25chpjsdsMTPaa0yQOTWc9V9q1qFz6YV0lYtNjLA=";
-          })
-
-          # Locale
-          (pkgs.fetchFirefoxAddon {
-            name = "firefox_br";
-            url = "https://addons.mozilla.org/firefox/downloads/file/4144369/firefox_br-115.0.20230726.201356.xpi";
-            hash = "sha256-8zkqfdW0lX0b62+gAJeq4FFlQ06nXGFAexpH+wg2Cr0=";
-          })
-          (pkgs.fetchFirefoxAddon {
-            name = "corretor";
-            url = "https://addons.mozilla.org/firefox/downloads/file/1176165/corretor-65.2018.12.8.xpi";
-            hash = "sha256-/rFQtJHdgemMkGAd+KWuWxVA/BwSIkn6sk0XZE0LrGk=";
-          })
+            name = "tridactyl";
+            url = "https://addons.mozilla.org/firefox/downloads/file/4261352/tridactyl_vim-1.24.1.xpi";
+            # nix-prefetch-url --unpack https://addons.mozilla.org/firefox/downloads/file/4261352/tridactyl_vim-1.24.1.xpi
+            # nix hash convert --hash-algo sha256 --from nix32 05s3xc0ggvzxjlilh5qn6ydc89ig83gzga4k8pzyr3f32r9hr8mh
+            hash = "sha256-sKIMUxbDjez/RZOo999ALybEmjcWF0gjlf3v9wDrQxc="
+           })
         ];
       };
       profiles = {
         main = {
+          id = 0;
+          name = "ben";
           isDefault = true;
-          search.force = true;
-          search.default = "DuckDuckGo";
           settings = {
-            "devtools.theme" = "auto";
+            "signon.rememberSignons" = false; # Disable built-in password manager
+            "browser.startup.homepage" = "~/.config/tridactyl/home.html"; # custom homepage
+            "browser.compactmode.show" = true;
+            "browser.uidensity" = 1; # enable compact mode
+            "browser.uiCustomization.state" = "{\"placements\":{\"widget-overflow-fixed-list\":[],\"unified-extensions-area\":[\"_testpilot-containers-browser-action\",\"jid1-bofifl9vbdl2zq_jetpack-browser-action\",\"_446900e4-71c2-419f-a6a7-df9c091e268b_-browser-action\"],\"nav-bar\":[\"back-button\",\"forward-button\",\"stop-reload-button\",\"customizableui-special-spring1\",\"urlbar-container\",\"customizableui-special-spring2\",\"save-to-pocket-button\",\"downloads-button\",\"fxa-toolbar-menu-button\",\"ublock0_raymondhill_net-browser-action\",\"sponsorblocker_ajay_app-browser-action\",\"unified-extensions-button\",\"_c607c8df-14a7-4f28-894f-29e8722976af_-browser-action\"],\"toolbar-menubar\":[\"menubar-items\"],\"TabsToolbar\":[\"tabbrowser-tabs\",\"new-tab-button\",\"alltabs-button\"],\"PersonalToolbar\":[\"personal-bookmarks\"]},\"seen\":[\"_testpilot-containers-browser-action\",\"jid1-bofifl9vbdl2zq_jetpack-browser-action\",\"ublock0_raymondhill_net-browser-action\",\"_446900e4-71c2-419f-a6a7-df9c091e268b_-browser-action\",\"_c607c8df-14a7-4f28-894f-29e8722976af_-browser-action\",\"sponsorblocker_ajay_app-browser-action\",\"developer-button\"],\"dirtyAreaCache\":[\"unified-extensions-area\",\"nav-bar\",\"TabsToolbar\"],\"currentVersion\":20,\"newElementCount\":3}";
+            "browser.aboutConfig.showWarning" = false;
             "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+            "ui.systemUsesDarkTheme" = 1; # force dark theme
+            "extensions.pocket.enabled" = false;
 
-            # enable media RDD to allow gpu acceleration
-            "media.rdd-ffmpeg.enabled" = true;
-            "media.rdd-ffvpx.enabled" = true;
-            "media.rdd-opus.enabled" = true;
-            "media.rdd-process.enabled" = true;
-            "media.rdd-retryonfailure.enabled" = true;
-            "media.rdd-theora.enabled" = true;
-            "media.rdd-vorbis.enabled" = true;
-            "media.rdd-vpx.enabled" = true;
-            "media.rdd-wav.enabled" = true;
-
-            "media.av1.enabled" = false;
-            "media.ffmpeg.vaapi-drm-display.enabled" = true;
-            "media.ffmpeg.vaapi.enabled" = true;
-            "media.ffvpx.enabled" = true;
-
-            "gfx.webrender.all" = true;
+            # dubious performance enhancements
+            "network.buffer.cache.size" = 524288; # 512KB (default is 32 kB)
+            "network.http.max-connections" = 1800; # default is 900
+            "network.http.max-persistent-connections-per-server" = 12; # default is 6
+            "network.http.max-urgent-start-excessive-connections-per-host" = 10; # default is 3
+            "network.http.pacing.requests.burst" = 32; # default is 10
+            "network.http.pacing.requests.min-parallelism" = 10; # default is 6
+            "network.websocket.max-connections" = 400; # default is 200
+            "network.ssl_tokens_cache_capacity" = 32768; # more TLS token caching (fast reconnects) (default is 2048)
+            "image.mem.decode_bytes_at_a_time" = 65536; # 64KB (default is 16KB)
 
             # Enable installing non signed extensions
             "extensions.langpacks.signatures.required" = false;
             "xpinstall.signatures.required" = false;
-
-            "browser.aboutConfig.showWarning" = false;
 
             # Enable userChrome editor (Ctrl+Shift+Alt+I)
             "devtools.chrome.enabled" = true;
@@ -101,14 +69,37 @@ in
         };
       };
     };
-    wayland.windowManager.sway = {
-      extraConfig = ''
-        exec firefox
-      '';
+    home.file = {
+      # workarounds
+      # https://github.com/NixOS/nixpkgs/issues/281710#issuecomment-1987263584
+      ".mozilla/native-messaging-hosts" = {
+        recursive = true;
+        source = let
+          nativeMessagingHosts = with pkgs; [
+            tridactyl-native
+          ];
+        in pkgs.runCommandLocal "native-messaging-hosts" { } ''
+          mkdir $out
+          for ext in ${toString nativeMessagingHosts}; do
+              ln -sLt $out $ext/lib/mozilla/native-messaging-hosts/*
+          done
+        '';
+      };
+      ".config/tridactyl/tridactylrc".source = ./files/tridactyl-config;
+      ".config/tridactyl/themes/everforest.css".source = ./files/tridactyl-style;
+      ".config/tridactyl/home.html".source = ./files/tridactyl-homepage;
+      ".mozilla/firefox/ben/chrome/userChrome.css".source = ./files/firefox-userChrome;
+      ".mozilla/firefox/ben/chrome/userContent.css".source = ./files/firefox-userContent;
     };
     home.sessionVariables = {
       MOZ_ENABLE_WAYLAND = "1";
       MOZ_DISABLE_RDD_SANDBOX = "1";
+    };
+    xdg.mimeApps.defaultApplications = {
+      "text/html" = [ "firefox.desktop" ];
+      "text/xml" = [ "firefox.desktop" ];
+      "x-scheme-handler/http" = [ "firefox.desktop" ];
+      "x-scheme-handler/https" = [ "firefox.desktop" ];
     };
   };
 }
