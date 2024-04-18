@@ -27,7 +27,7 @@ in
             url = "https://addons.mozilla.org/firefox/downloads/file/4261352/tridactyl_vim-1.24.1.xpi";
             # nix-prefetch-url --unpack https://addons.mozilla.org/firefox/downloads/file/4261352/tridactyl_vim-1.24.1.xpi
             # nix hash convert --hash-algo sha256 --from nix32 05s3xc0ggvzxjlilh5qn6ydc89ig83gzga4k8pzyr3f32r9hr8mh
-            hash = "sha256-sKIMUxbDjez/RZOo999ALybEmjcWF0gjlf3v9wDrQxc="
+            hash = "sha256-sKIMUxbDjez/RZOo999ALybEmjcWF0gjlf3v9wDrQxc=";
            })
         ];
       };
