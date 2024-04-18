@@ -15,7 +15,7 @@
   };
   config = lib.mkIf (
   config.homeManagerModules.desktopEnvironment.enable 
-  && lib.mkIf pkgs.stdenv.isLinux) {
+  && pkgs.stdenv.isLinux) {
     homeManagerModules = {
       mpd.enable = lib.mkDefault true;
       rofi.enable = lib.mkDefault true;
