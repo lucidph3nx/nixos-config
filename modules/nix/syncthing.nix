@@ -13,7 +13,7 @@
     services.syncthing = {
       enable = true;
       user = "ben";
-      dataDir = "/home/ben/Documents";
+      dataDir = "/home/ben/documents";
       overrideDevices = true;
       settings = {
         devices = {
@@ -25,7 +25,7 @@
     };
     networking.firewall = {
       allowedTCPPorts = [
-        # 8384 # I don't think i want to expose this outside
+        # 8384 # This would be to make the web interface available on the network
         22000 
       ];
       allowedUDPPorts = [
