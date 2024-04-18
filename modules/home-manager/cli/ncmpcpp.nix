@@ -8,7 +8,7 @@ in
     homeManagerModules.ncmpcpp.enable =
       lib.mkEnableOption "enables ncmpcpp";
   };
-  config = (lib.mkIf config.homeManagerModules.ncmpcpp.enable
+  config = lib.mkIf (config.homeManagerModules.ncmpcpp.enable
             # no point in installing if mpd is not
             && config.homeManagerModules.mpd.enable) 
            {
