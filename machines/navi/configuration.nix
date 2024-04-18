@@ -16,6 +16,11 @@
     signingKeys.enable = true;
     homeSSHKeys.enable = true;
     workSSH.enable = true;
+    syncthing = {
+      enable = true;
+      obsidian.enable = true;
+      music.enable = true;
+    };
   };
 
   nix.settings.experimental-features = ["nix-command" "flakes"];

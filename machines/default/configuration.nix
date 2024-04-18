@@ -17,6 +17,11 @@
     homeSSHKeys.enable = true;
     workSSH.enable = true;
     kubeconfig.enable = true;
+    syncthing = {
+      enable = true;
+      obsidian.enable = true;
+      music.enable = false; # too large for a vm
+    };
   };
 
   nix.settings.experimental-features = ["nix-command" "flakes"];

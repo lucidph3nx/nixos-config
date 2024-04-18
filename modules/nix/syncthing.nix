@@ -4,6 +4,10 @@
   options = {
     nixModules.syncthing.enable =
       lib.mkEnableOption "Set up syncthing";
+    nixModules.syncthing.obsidian.enable =
+      lib.mkEnableOption "Set up syncthing obsidian folder";
+    nixModules.syncthing.music.enable =
+      lib.mkEnableOption "Set up syncthing music folder";
   };
   config = lib.mkIf config.nixModules.syncthing.enable {
     services.syncthing = {
@@ -18,21 +22,21 @@
           nas0 = { id = "7LANRKO-RRMWROL-PDMCTJX-WKSPOKO-LS3K35O-CJEMX7O-MHHIURW-GSF6FAS"; };
         };
         folders = {
-          "obsidian-vaults" = {
+          "obsidian-vaults" = lib.mkIf config.nixModules.syncthing.obsidian.enable {
             path = "/home/ben/documents/obsidian";
             devices = [ "k8s" ];
           };
-          # "music" = {
-          #   path = "/home/ben/music";
-          #   devices = [ "nas0" ];
-          # };
+          "music" = lib.mkIf config.nixModules.syncthing.music.enable {
+            path = "/home/ben/music";
+            devices = [ "nas0" ];
+          };
         };
         options.urAccepted = -1;
       };
     };
     networking.firewall = {
       allowedTCPPorts = [
-        # 8384
+        # 8384 # I don't think i want to expose this outside
         22000 
       ];
       allowedUDPPorts = [
