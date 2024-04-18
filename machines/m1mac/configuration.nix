@@ -29,7 +29,6 @@
       gnutar
       imagemagick
       jq
-      nodejs_20
       p7zip
       ripgrep
       rustup

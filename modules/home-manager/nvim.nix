@@ -3,6 +3,7 @@
 {
   home.packages = with pkgs; [
     alejandra
+    nodejs_20
   ];
   programs.neovim = {
     enable = true;
