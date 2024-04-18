@@ -5,7 +5,7 @@
   [
     ../../modules/home-manager/nvim.nix
     ../../modules/home-manager/scripts.nix
-    ../../modules/home-manager/syncthing.nix
+    # ../../modules/home-manager/syncthing.nix
   ];
   sysDefaults = {
     terminal = "${pkgs.kitty}/bin/kitty";
