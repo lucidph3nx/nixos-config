@@ -25,9 +25,10 @@ in
           (pkgs.fetchFirefoxAddon {
             name = "tridactyl";
             url = "https://addons.mozilla.org/firefox/downloads/file/4261352/tridactyl_vim-1.24.1.xpi";
-            # nix-prefetch-url --unpack https://addons.mozilla.org/firefox/downloads/file/4261352/tridactyl_vim-1.24.1.xpi
-            # nix hash convert --hash-algo sha256 --from nix32 05s3xc0ggvzxjlilh5qn6ydc89ig83gzga4k8pzyr3f32r9hr8mh
-            hash = "sha256-sKIMUxbDjez/RZOo999ALybEmjcWF0gjlf3v9wDrQxc=";
+            # curl -O https://addons.mozilla.org/firefox/downloads/file/4198829/tridactyl_vim-1.24.1.xpi
+            # nix-hash --flat --base32 --type sha256 tridactyl_vim-1.24.1.xpi
+            # nix hash convert --hash-algo sha256 --from nix32 0kg4b7bp3qz5sgb2l2y34fcsvv19vjk6nlsq13zi05qr104id5wp
+            hash = "sha256-l5cWCQgZFxD/CFhTa6bcKeytmSPDCyrW0+XjcddZ5E0=";
            })
         ];
       };
