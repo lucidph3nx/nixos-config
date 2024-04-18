@@ -65,7 +65,6 @@ in
           settings = {
             "devtools.theme" = "auto";
             "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-            "browser.tabs.inTitlebar" = if desktop == "sway" then 0 else 1;
 
             # enable media RDD to allow gpu acceleration
             "media.rdd-ffmpeg.enabled" = true;
@@ -95,10 +94,6 @@ in
             "devtools.chrome.enabled" = true;
             "devtools.debugger.remote-enabled" = true;
           };
-          userChrome = lib.mkIf (desktop == "sway") ''
-            #titlebar { display: none !important; }
-            #sidebar-header { display: none !important; }
-          '';
         };
       };
     };
