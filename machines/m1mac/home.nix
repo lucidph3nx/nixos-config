@@ -38,13 +38,10 @@
   home.homeDirectory = "/Users/ben";
 
   home.packages = with pkgs; [
-    pfetch-rs
-    neofetch
   ];
   home.sessionVariables = {
     EDITOR = "nvim";
     PAGER = "less";
-    PF_INFO = "ascii title os kernel pkgs wm shell editor";
     KUBECONFIG = "${config.sops.secrets.workkube.path}";
   };
   home.file = {
