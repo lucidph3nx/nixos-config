@@ -1,8 +1,11 @@
 { config, pkgs, lib, ... }: {
   imports = [
     ./sops
+    ./syncthing.nix
   ];
   config = {
-  # nothing to see here
+    nixModules = {
+      syncthing.enable = true;
+    };
   };
 }
