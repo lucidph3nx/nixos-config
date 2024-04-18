@@ -1,9 +1,10 @@
 { config, pkgs, lib, ... }:
 
 let 
-  homeDir = config.home.homeDirectory;
   browserNewWindow = "firefox --new-window";
   enableHomeAutomation = config.homeManagerModules.homeAutomation.enable;
+  enableMpd = config.homeManagerModules.mpd.enable;
+  homeDir = config.home.homeDirectory;
 in
 with config.theme;
 {
@@ -29,7 +30,7 @@ with config.theme;
             "sway/scratchpad"
             "sway/mode"
             # "hyprland/workspaces"
-            "mpd"
+            (lib.mkIf enableMpd "mpd")
           ];
           modules-center = [];
           modules-right = [
@@ -62,7 +63,7 @@ with config.theme;
             "on-click-middle" = "minimize";
             "on-click-right" = "close";
           };
-          "mpd" = {
+          "mpd" = lib.mkIf enableMpd {
             "format" = "{stateIcon} {artist} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S}) ";
             "format-disconnected" = "";
             "format-stopped" = "";

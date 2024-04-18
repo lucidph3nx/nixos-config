@@ -1,5 +1,6 @@
 { config, pkgs, inputs, lib, ... }: {
   imports = [
+    ./mpd.nix
     ./rofi.nix
     ./sway.nix
     ./swaylock.nix
@@ -13,10 +14,11 @@
   };
   config = lib.mkIf config.homeManagerModules.desktopEnvironment.enable {
     homeManagerModules = {
-      sway.enable = lib.mkDefault true;
-      swaync.enable = lib.mkDefault true;
-      swaylock.enable = lib.mkDefault true;
+      mpd.enable = lib.mkDefault true;
       rofi.enable = lib.mkDefault true;
+      sway.enable = lib.mkDefault true;
+      swaylock.enable = lib.mkDefault true;
+      swaync.enable = lib.mkDefault true;
       waybar.enable = lib.mkDefault true;
     };
   };

@@ -5,8 +5,6 @@
   [
     ../../modules/home-manager/asdf.nix
     ../../modules/home-manager/git.nix
-    ../../modules/home-manager/mpd.nix
-    ../../modules/home-manager/ncmpcpp.nix
     ../../modules/home-manager/nvim.nix
     ../../modules/home-manager/scripts.nix
     ../../modules/home-manager/syncthing.nix
