@@ -19,6 +19,7 @@
     homeAutomation.enable = lib.mkDefault false;
     k9s.enable = lib.mkDefault true;
     kubetools.enable = lib.mkDefault true;
+    lf.enable = lib.mkDefault true;
     ncmpcpp.enable = lib.mkDefault true;
     neofetch.enable = lib.mkDefault true;
     pfetch.enable = lib.mkDefault true;
