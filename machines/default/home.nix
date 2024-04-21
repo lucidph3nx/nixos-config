@@ -11,6 +11,7 @@
   };
   # my own modules
   homeManagerModules = {
+    firefox.enable = false; # temp disable while i figure out how to do extensions
     prospect-mail.enable = true;
     teams-for-linux.enable = true;
     # Enable home automation stuff as device should be in the home
