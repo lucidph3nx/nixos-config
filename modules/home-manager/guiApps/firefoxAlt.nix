@@ -25,7 +25,7 @@ in
           (pkgs.fetchFirefoxAddon {
             name = "tridactyl";
             url = "https://addons.mozilla.org/firefox/downloads/file/4261352/tridactyl_vim-1.24.1.xpi";
-            hash = "";
+            hash = "sha256-q2P+FVRHHCgPI0QJOTFy/FjhuyylJ/QynZg7AoBz4Zw=";
            })
         ];
       };
