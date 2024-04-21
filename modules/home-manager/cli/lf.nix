@@ -23,7 +23,7 @@
                   exit 1
               fi
 
-              ${pkgs.pistol} "$file"
+              ${pkgs.pistol}/bin/pistol "$file"
             '';
           cleaner = pkgs.writeShellScriptBin "clean.sh" ''
               kitty +kitten icat --clear --stdin no --silent --transfer-mode file < /dev/null > /dev/tty
