@@ -45,9 +45,7 @@
           system = "x86_64-linux";
           pkgs = import nixpkgs {
             system = "x86_64-linux";
-            config = {
-              allowUnfree = true;
-            };
+            config.allowUnfree = true;
             overlays = [
               inputs.neovim-nightly.overlay
             ];
@@ -68,9 +66,7 @@
           system = "x86_64-linux";
           pkgs = import nixpkgs {
             system = "x86_64-linux";
-            config = {
-              allowUnfree = true;
-            };
+            config.allowUnfree = true;
             overlays = [
               inputs.neovim-nightly.overlay
             ];
@@ -93,9 +89,7 @@
           system = "aarch64-darwin";
           pkgs = import nixpkgs {
             system = "aarch64-darwin";
-            config = {
-              allowUnfree = true;
-            };
+            config.allowUnfree = true;
             overlays = [
               inputs.neovim-nightly.overlay
             ];
