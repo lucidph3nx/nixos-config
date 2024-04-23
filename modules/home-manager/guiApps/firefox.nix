@@ -15,47 +15,47 @@ in
           (pkgs.fetchFirefoxAddon {
             name = "augmented-steam";
             url = "https://addons.mozilla.org/firefox/downloads/file/4264122/augmented_steam-3.1.1.xpi";
-            hash = "";
+            hash = "sha256-b6syDKr3Cm1NFfiyZiFngL632iRocbm+GkgOaKDrny8=";
            })
           (pkgs.fetchFirefoxAddon {
             name = "bitwarden";
             url = "https://addons.mozilla.org/firefox/downloads/file/4263752/bitwarden_password_manager-2024.4.1.xpi";
-            hash = "";
+            hash = "sha256-G6HmbLmk7jv4CoH8MTSLBBYjhUVdKwL5kCRz45MdlpM=";
            })
           (pkgs.fetchFirefoxAddon {
             name = "decentraleyes";
             url = "https://addons.mozilla.org/firefox/downloads/file/4255788/decentraleyes-2.0.19.xpi";
-            hash = "";
+            hash = "sha256-EF1lv4GJ1SclFkfQRScVxXJa9gZfumfNCBhxkKrkqY8=";
            })
           (pkgs.fetchFirefoxAddon {
             name = "dont-track-me-google";
             url = "https://addons.mozilla.org/firefox/downloads/file/4132891/dont_track_me_google1-4.28.xpi";
-            hash = "";
+            hash = "sha256-JbyQAF1vKNUxgu9Ix+/LunKxmM5nzx8HR9vSPUMHiyY=";
            })
           (pkgs.fetchFirefoxAddon {
             name = "multi-account-containers";
             url = "https://addons.mozilla.org/firefox/downloads/file/4186050/multi_account_containers-8.1.3.xpi";
-            hash = "";
+            hash = "sha256-M+3ZjQ/H1H+jEPIU+JfOTf4miw+GjJ1/MrTKUFc9+Fw=";
            })
           (pkgs.fetchFirefoxAddon {
             name = "i-still-dont-care-about-cookies";
             url = "https://addons.mozilla.org/firefox/downloads/file/4216095/istilldontcareaboutcookies-1.1.4.xpi";
-            hash = "";
+            hash = "sha256-yt6yRiLTuaK4K/QwgkL9gCVGsSa7ndFOHqZvKqIGZ5U=";
            })
           (pkgs.fetchFirefoxAddon {
             name = "protondb-for-steam";
             url = "https://addons.mozilla.org/firefox/downloads/file/4195217/protondb_for_steam-2.1.0.xpi";
-            hash = "";
+            hash = "sha256-PteCRQOjGERQMmsJpx0IbCvfzgTWOEyjsC8M+ADbWFI=";
            })
           (pkgs.fetchFirefoxAddon {
             name = "reddit-comments-for-youtube";
             url = "https://addons.mozilla.org/firefox/downloads/file/4217855/reddit_comments_for_youtube-3.1.2.xpi";
-            hash = "";
+            hash = "sha256-h8IIEJiSXog953IaoHXMpcb68Sroi/uF7gy2YEaAEiM=";
            })
           (pkgs.fetchFirefoxAddon {
             name = "reddit-enhancement-suite";
             url = "https://addons.mozilla.org/firefox/downloads/file/4257183/reddit_enhancement_suite-5.24.4.xpi";
-            hash = "";
+            hash = "sha256-hs9pWMVGBLnx3MfpJcHBi98+0qjgmGCJZFJ+azWdBXw=";
            })
           (pkgs.fetchFirefoxAddon {
             name = "sponsorblock";
@@ -65,12 +65,12 @@ in
           (pkgs.fetchFirefoxAddon {
             name = "tampermonkey";
             url = "https://addons.mozilla.org/firefox/downloads/file/4250678/tampermonkey-5.1.0.xpi";
-            hash = "";
+            hash = "sha256-k5p7BXPMeV6uLeoBexh92xNdF3i/JvHFEyFWdFEqBAs=";
            })
           (pkgs.fetchFirefoxAddon {
             name = "temporary-containers";
             url = "https://addons.mozilla.org/firefox/downloads/file/3723251/temporary_containers-1.9.2.xpi";
-            hash = "";
+            hash = "sha256-M0CgjCm+fIO9D+o/wn/eceRgikUy2TIRS0OappDn7cA=";
            })
           (pkgs.fetchFirefoxAddon {
             name = "tridactyl";
