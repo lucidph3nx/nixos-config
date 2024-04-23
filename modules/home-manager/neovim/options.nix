@@ -3,49 +3,62 @@
 {
   # Setting various vim options
   programs.neovim = {
-    extraConfig = 
-      /*
-      vim
-      */
-      ''
-        set nu " make line numbers default
-        set cursorline " highlight line of cursor
-        set spelllang=en_nz,mi
-        " tab definitions
-        set tabstop=2
-        set shiftwidth=2
-        set expandtab
-        set smarttab
-        set smartindent " indent automatically on newline
-        set breakindent " wrapped lines should ignore indent
-        set nowrap " wrap disabled by default (keybind to toggle)
-        set linebreak
-        set undofile " save undo history
-        set noswapfile " no swap file
-        set ignorecase " case insensitive search
-        set smartcase " unless a capital letter is used
-        set hlsearch " highlight all when searching (esc to clear)
-        set termguicolors
-        set signcolumn=yes " keep sign column visible
-        set noshowmode " using lualine, so don't need this twice
-        " when splitting, open new window below/right
-        set splitright
-        set splitbelow
-        set scrolloff=8 "show 8 lines below cursor when scrolling
-        " decrease update time
-        set updatetime=250
-        set timeoutlen=1000
-        set lazyredraw
-        " completion settings
-        set completeopt=menuone,noselect
-        " disable mouse
-        set mouse=""
-      '';
     extraLuaConfig = 
       /*
       lua
       */
       ''
+      local set = vim.opt
+      -- Make line numbers default
+      set.nu = true
+      -- highlight the line of a cursor
+      set.cursorline = true
+      -- spellcheck language
+      set.spelllang = 'en_nz,mi'
+
+      -- tab definitions
+      set.tabstop = 2
+      set.shiftwidth = 2
+      set.expandtab = true
+      set.smarttab = true
+      -- indent automatically on newline
+      set.smartindent = true
+      -- wrapped lines should ignore indent
+      set.breakindent = true
+      -- wrap disabled by default (keybind to toggle)
+      set.wrap = false
+      set.linebreak = true
+
+      -- save undo history
+      set.undofile = true
+      -- no swap file
+      set.swapfile = false
+      -- case insensitive search
+      set.ignorecase = true
+      -- unless a capital letter is used
+      set.smartcase = true
+
+      -- disable highlight on search (esc keybound to clear)
+      set.hlsearch = true
+      set.termguicolors = true
+      -- keep signcolumn always visible
+      set.signcolumn = 'yes'
+      set.showmode = false -- I use lualine and don't need to see the mode twice
+      -- when splitting, open new window below/right
+      set.splitright = true
+      set.splitbelow = true
+      set.scrolloff = 8
+
+      -- decrease update time
+      set.updatetime = 250
+      set.timeoutlen = 1000
+      set.lazyredraw = true
+
+      set.completeopt = 'menuone,noselect'
+
+      -- disable mouse
+      set.mouse = ""
+
       -- vim diagnostic messages - tell me the lsp it came from
       vim.diagnostic.config({
       virtual_text = {
