@@ -2,7 +2,7 @@
 {
   programs.neovim.plugins = [
     {
-      plugin = pkgs.vimPlugins.nvim-treesitter;
+      plugin = pkgs.vimPlugins.nvim-treesitter.withAllGrammars;
       type = "lua";
       config = 
         /*
