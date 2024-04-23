@@ -18,28 +18,19 @@
       defaultEditor = true;
       package = pkgs.neovim-unwrapped;
       # package = pkgs.neovim-nightly;
-      extraLuaConfig = 
-        /*
-        lua
-        */
-        ''
-          -- test
-              require('nvim-autopairs').setup{}
-        '';
       plugins = with pkgs.vimPlugins; [
-        nvim-autopairs
-      #   {
-      #     plugin = nvim-autopairs;
-      #     type = "lua";
-      #     config =
-      #       /*
-      #       lua
-      #       */
-      #       ''
-      #         -- ${nvim-autopairs}
-      #         -- require('nvim-autopairs').setup{}
-      #       '';
-      #   }
+        {
+          plugin = nvim-autopairs;
+          type = "lua";
+          config =
+            /*
+            lua
+            */
+            ''
+            -- ${nvim-autopairs}
+            require('nvim-autopairs').setup{}
+            '';
+        }
       ];
     };
   };
