@@ -2,7 +2,7 @@
 {
   programs.neovim.plugins = [
     {
-      plugin = inputs.forkpkgs.vimPlugins.nvim-sops;
+      plugin = inputs.forkpkgs.legacyPackages.${pkgs.system}.vimPlugins.nvim-sops;
       type = "lua";
       config = 
         /*
