@@ -24,14 +24,8 @@
         -- Keybindings
         vim.keymap.set(
           'n', '<leader>f',
-          function()
-            require("conform").format({ async = true, lsp_fallback = true })
-          end,
-          {
-          noremap = true, 
-          silent = true 
-          description = "Format the current buffer"
-          })
+          require("conform").format({ async = true, lsp_fallback = true }),
+          { desc = "Format the current buffer" })
         '';
     }
   ];
