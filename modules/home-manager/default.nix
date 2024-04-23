@@ -3,7 +3,7 @@
     ./cli
     ./desktopEnvironment
     ./guiApps
-    ./neovim
+    # ./neovim
     ./sops
     ./sshConfig
   ];
