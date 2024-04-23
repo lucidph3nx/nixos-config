@@ -1,6 +1,7 @@
 { config, pkgs, lib, ... }:
 let
   bugfixedFirefox = pkgs.firefox-esr-unwrapped // { requireSigning = false; allowAddonSideload = true; };
+  homeDir = config.home.homeDirectory;
 in
 {
   options = {
@@ -91,7 +92,7 @@ in
           isDefault = true;
           settings = {
             "signon.rememberSignons" = false; # Disable built-in password manager
-            "browser.startup.homepage" = "~/.config/tridactyl/home.html"; # custom homepage
+            "browser.startup.homepage" = "${homeDir}/.config/tridactyl/home.html"; # custom homepage
             "browser.compactmode.show" = true;
             "browser.uidensity" = 1; # enable compact mode
             "browser.uiCustomization.state" = "{\"placements\":{\"widget-overflow-fixed-list\":[],\"unified-extensions-area\":[\"_testpilot-containers-browser-action\",\"jid1-bofifl9vbdl2zq_jetpack-browser-action\",\"_446900e4-71c2-419f-a6a7-df9c091e268b_-browser-action\"],\"nav-bar\":[\"back-button\",\"forward-button\",\"stop-reload-button\",\"customizableui-special-spring1\",\"urlbar-container\",\"customizableui-special-spring2\",\"save-to-pocket-button\",\"downloads-button\",\"fxa-toolbar-menu-button\",\"ublock0_raymondhill_net-browser-action\",\"sponsorblocker_ajay_app-browser-action\",\"unified-extensions-button\",\"_c607c8df-14a7-4f28-894f-29e8722976af_-browser-action\"],\"toolbar-menubar\":[\"menubar-items\"],\"TabsToolbar\":[\"tabbrowser-tabs\",\"new-tab-button\",\"alltabs-button\"],\"PersonalToolbar\":[\"personal-bookmarks\"]},\"seen\":[\"_testpilot-containers-browser-action\",\"jid1-bofifl9vbdl2zq_jetpack-browser-action\",\"ublock0_raymondhill_net-browser-action\",\"_446900e4-71c2-419f-a6a7-df9c091e268b_-browser-action\",\"_c607c8df-14a7-4f28-894f-29e8722976af_-browser-action\",\"sponsorblocker_ajay_app-browser-action\",\"developer-button\"],\"dirtyAreaCache\":[\"unified-extensions-area\",\"nav-bar\",\"TabsToolbar\"],\"currentVersion\":20,\"newElementCount\":3}";
