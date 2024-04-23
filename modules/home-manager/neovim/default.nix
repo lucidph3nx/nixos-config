@@ -24,20 +24,19 @@
         */
         ''
           -- test
+              require('nvim-autopairs').setup{}
         '';
       plugins = with pkgs.vimPlugins; [
         {
           plugin = nvim-autopairs;
-          # type = "lua";
+          type = "lua";
           config =
             /*
             lua
             */
             ''
-            lua << EOF
               -- ${nvim-autopairs}
-              require('nvim-autopairs').setup{}
-            EOF
+              -- require('nvim-autopairs').setup{}
             '';
         }
       ];
