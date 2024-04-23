@@ -8,7 +8,7 @@
     # unstable repo for some packages
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    forkpkgs.url = "github:lucidph3nx/nixpkgs";
+    forkpkgs.url = "github:lucidph3nx/nixpkgs/nixos-unstable";
     forkpkgs.inputs.nixpkgs.follows = "nixpkgs";
 
     # sops
