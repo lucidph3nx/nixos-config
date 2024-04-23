@@ -10,7 +10,6 @@
   };
   # my own modules
   homeManagerModules = {
-    neovim.enable = false;
     prospect-mail.enable = true;
     teams-for-linux.enable = true;
     # Enable home automation stuff as device should be in the home
