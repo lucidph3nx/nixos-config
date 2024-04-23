@@ -5,10 +5,10 @@
   [
     # ../../modules/home-manager/scripts.nix
   ];
-  sysDefaults = {
-    terminal = "${pkgs.kitty}/bin/kitty";
-  };
-  # my own modules
+  # sysDefaults = {
+  #   terminal = "${pkgs.kitty}/bin/kitty";
+  # };
+  # # my own modules
   # homeManagerModules = {
   #   prospect-mail.enable = true;
   #   teams-for-linux.enable = true;
