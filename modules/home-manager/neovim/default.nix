@@ -12,11 +12,7 @@
     ./plugins
   ];
   config = lib.mkIf config.homeManagerModules.neovim.enable {
-    home.packages = with pkgs; [
-      alejandra
-    ];
     home.sessionVariables.EDITOR = "nvim";
-
     programs.neovim = {
       enable = true;
       defaultEditor = true;
