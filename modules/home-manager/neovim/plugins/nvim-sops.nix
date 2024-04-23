@@ -10,7 +10,7 @@ let
       owner = "lucidph3nx";
       repo = "nvim-sops";
       rev = "cb2209562d00ef8c6c88bdec836d9edb8fbb96ef";
-      hash = "";
+      hash = "sha256-kppkZtdDQzsqOL+iAclc8Ziij8ZaC9r1m6SNKEu3fTs=";
     };
   };
 in 
