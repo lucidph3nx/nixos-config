@@ -1,6 +1,6 @@
 { config, pkgs, lib, ... }:
 let
-  bugfixedFirefox = pkgs.firefox-esr-unwrapped // { requireSigning = false; allowAddonSideload = true; };
+  bugfixedFirefox = pkgs.firefox-unwrapped // { requireSigning = false; allowAddonSideload = true; };
   homeDir = config.home.homeDirectory;
 in
 {
