@@ -27,6 +27,7 @@
             lua
             */
             ''
+              -- ${nvim-autopairs}
               require('nvim-autopairs').setup{}
             '';
         }
