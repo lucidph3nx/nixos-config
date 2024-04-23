@@ -253,14 +253,14 @@ tab {
 /* --- AUTOHIDE NAVBAR ---------------------------------- */
 
 /* hide navbar unless focused */
-/* #nav-bar { */
-/* 	min-height: 0 !important; */
-/* 	max-height: 0 !important; */
-/* 	height: 0 !important; */
-/* 	--moz-transform: scaleY(0) !important; */
-/* 	transform: scaleY(0) !important; */
-/* } */
-/**/
+#nav-bar {
+	min-height: 0 !important;
+	max-height: 0 !important;
+	height: 0 !important;
+	--moz-transform: scaleY(0) !important;
+	transform: scaleY(0) !important;
+}
+
 /* show on focus */
 #nav-bar:focus-within {
 	--moz-transform: scale(1) !important;
