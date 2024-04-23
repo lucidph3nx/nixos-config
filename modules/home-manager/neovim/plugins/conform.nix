@@ -27,11 +27,11 @@
           function()
             require("conform").format({ async = true, lsp_fallback = true })
           end,
-          , {
-            noremap = true, 
-            silent = true 
-            description = "Format the current buffer"
-            } },
+          {
+          noremap = true, 
+          silent = true 
+          description = "Format the current buffer"
+          } },
         })
         '';
     }
