@@ -9,7 +9,7 @@
     ./autocmd.nix
     ./keymaps.nix
     ./options.nix
-    # ./plugins
+    ./plugins
   ];
   config = lib.mkIf config.homeManagerModules.neovim.enable {
     home.sessionVariables.EDITOR = "nvim";

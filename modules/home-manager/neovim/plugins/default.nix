@@ -19,18 +19,18 @@
     # awaiting merge
     # https://github.com/NixOS/nixpkgs/pull/306145
     # ./nvim-sops.nix
-    ./nvim-tree.nix
-    ./obsidian.nix
-    ./oil.nix
-    ./symbols-outline.nix
-    ./telescope.nix
-    # not currently in nix packages :(
-    # ./theme-everforest.nix
-    ./toggleterm.nix
-    ./treesitter.nix
-    ./undotree.nix
-    ./vim-fugitive.nix
-    ./vim-markdown.nix
+    # ./nvim-tree.nix
+    # ./obsidian.nix
+    # ./oil.nix
+    # ./symbols-outline.nix
+    # ./telescope.nix
+    # # not currently in nix packages :(
+    # # ./theme-everforest.nix
+    # ./toggleterm.nix
+    # ./treesitter.nix
+    # ./undotree.nix
+    # ./vim-fugitive.nix
+    # ./vim-markdown.nix
   ];
   options = {
     programs.neovim.plugins = with pkgs.vimPlugins; [
