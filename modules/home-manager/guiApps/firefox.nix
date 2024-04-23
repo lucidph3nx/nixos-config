@@ -142,8 +142,8 @@ in
       ".config/tridactyl/tridactylrc".source = ./files/tridactyl-config;
       ".config/tridactyl/themes/everforest.css".source = ./files/tridactyl-style;
       ".config/tridactyl/home.html".source = ./files/tridactyl-homepage;
-      ".mozilla/firefox/ben/chrome/userChrome.css".source = ./files/firefox-userChrome;
-      ".mozilla/firefox/ben/chrome/userContent.css".source = ./files/firefox-userContent;
+      ".mozilla/firefox/main/chrome/userChrome.css".source = ./files/firefox-userChrome;
+      ".mozilla/firefox/main/chrome/userContent.css".source = ./files/firefox-userContent;
     };
     # home.sessionVariables = {
     #   MOZ_ENABLE_WAYLAND = "1";
