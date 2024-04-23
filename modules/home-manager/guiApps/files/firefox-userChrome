@@ -32,6 +32,9 @@
 
 /* --- GENERAL DEBLOAT ---------------------------------- */
 
+/* firefox-view-button */
+#firefox-view-button { display: none !important; }
+
 /* Bottom left page loading status or url preview */
 /* #statuspanel { display: none !important; } */
 
@@ -58,7 +61,7 @@ menupopup > #context-sep-navigation { display: none !important; }
 #library-button { display: none; }
 #fxa-toolbar-menu-button { display: none; }
 /* empty space before and after the url bar */
-/* #customizableui-special-spring1, #customizableui-special-spring2 { display: none; } */
+#customizableui-special-spring1, #customizableui-special-spring2 { display: none; }
 
 /* --- STYLE NAVBAR ------------------------------------ */
 
@@ -274,61 +277,3 @@ tab {
 	transform: translateY(0);
 	opacity: 1;
 }
-
-/* #widget-overflow, #appMenu-popup { */
-/*   font-family: 'JetBrainsMono Nerd Font', monospace !important; */
-/* } */
-/**/
-/* .tabbrowser-tab[usercontextid] > .tab-stack > .tab-background > .tab-context-line { */
-/*   /* background-color: var(--identity-icon-color); */ */
-/*   height: 3px; */
-/*   border-radius: 0 !important; */
-/*   margin: 0 !important; */
-/* } */
-
-/* .identity-color-red { */
-/*   --identity-tab-color: #e06c75 !important; */
-/*   --identity-icon-color: #e06c75 ! important; */
-/* } */
-/**/
-/* .identity-color-blue { */
-/*   --identity-tab-color: #61afef !important; */
-/*   --identity-icon-color: #61afef !important; */
-/* } */
-/**/
-/* .identity-color-turquoise { */
-/*   --identity-tab-color: #abb2bf !important; */
-/*   --identity-icon-color: #abb2bf !important; */
-/* } */
-/**/
-/* .identity-color-orange { */
-/*   --identity-tab-color: #d19a66 !important; */
-/*   --identity-icon-color: #d19a66 !important; */
-/* } */
-/**/
-/* .identity-color-pink { */
-/*   --identity-tab-color: #c678dd !important; */
-/*   --identity-icon-color: #c678dd !important; */
-/* } */
-/**/
-/* .identity-color-yellow { */
-/*   --identity-tab-color: #56b6c2 !important; */
-/*   --identity-icon-color: #56b6c2 !important; */
-/* } */
-
-/* tab.tabbrowser-tab, .tab-background { */
-/*   font-weight: bold !important; */
-/*   /* --lwt-text-color: #98c379 !important;  */ */
-/*   /* --lwt-selected-tab-background-color: #98c379 !important; */ */
-/* } */
-/**/
-/**/
-/* tab.tabbrowser-tab, .tab-background[selected="true"] { */
-/*   /* --lwt-tab-text: #282c34 !important; */ */
-/*   --lwt-tab-line-color: none !important; */
-/*   --lwt-tabs-border-color: none !important; */
-/* } */
-/**/
-/* toolbarbutton[open="true"] { */
-/*   --toolbarbutton-icon-fill: #282c34 !important;  */
-/* } */
