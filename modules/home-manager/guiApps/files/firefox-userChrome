@@ -163,9 +163,8 @@ toolbar .toolbarbutton-1 { padding: 0 0 !important; }
 
 /* Hide tab if only one tab */
 #tabbrowser-tabs .tabbrowser-tab:only-of-type,
-#tabbrowser-tabs .tabbrowser-tab:only-of-type + #tabbrowser-arrowscrollbox-periphery{
-  display:none !important;
-}
+#tabbrowser-tabs .tabbrowser-tab:only-of-type + #tabbrowser-arrowscrollbox-periphery{ display: none !important; }
+#tabbrowser-tabs, #tabbrowser-arrowscrollbox { min-height: 0 !important; }
 
 /* Change color of normal tabs */
 tab:not([selected="true"]) {
