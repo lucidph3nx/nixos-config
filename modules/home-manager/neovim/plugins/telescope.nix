@@ -1,6 +1,6 @@
-{pkgs, ...}:
+{pkgs, lib, ...}:
 {
-  home.packages = [
+  home.packages = lib.mkAfter [
     pkgs.fzf
   ];
   programs.neovim.plugins = [
