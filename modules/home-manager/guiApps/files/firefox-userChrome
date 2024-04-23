@@ -32,9 +32,6 @@
 
 /* --- GENERAL DEBLOAT ---------------------------------- */
 
-/* firefox-view-button */
-#firefox-view-button { display: none !important; }
-
 /* Bottom left page loading status or url preview */
 /* #statuspanel { display: none !important; } */
 
