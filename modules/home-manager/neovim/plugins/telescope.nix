@@ -12,7 +12,6 @@
         lua
         */
         ''
-        -- ${pkgs.vimPlugins.telescope-nvim}
         require('telescope').setup {
           defaults = {
             mappings = {
