@@ -1,6 +1,6 @@
 {pkgs, lib, ...}:
 {
-  programs.neovim.plugins = lib.mkAfter [
+  programs.neovim.plugins = [
     {
       plugin = pkgs.vimPlugins.nvim-treesitter.withAllGrammars;
       type = "lua";

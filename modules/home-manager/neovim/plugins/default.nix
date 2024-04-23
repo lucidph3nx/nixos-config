@@ -24,8 +24,7 @@
     ./oil.nix
     ./symbols-outline.nix
     ./telescope.nix
-    # not currently in nix packages :(
-    # ./theme-everforest.nix
+    ./theme-everforest.nix
     ./toggleterm.nix
     ./treesitter.nix
     ./undotree.nix
