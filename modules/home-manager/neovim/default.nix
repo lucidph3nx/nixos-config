@@ -9,7 +9,7 @@
     ./autocmd.nix
     ./keymaps.nix
     ./options.nix
-    ./plugins
+    # ./plugins
   ];
   config = lib.mkIf config.homeManagerModules.neovim.enable {
     home.sessionVariables.EDITOR = "nvim";
@@ -18,6 +18,22 @@
       defaultEditor = true;
       package = nixpkgs-unstable.neovim-unwrapped;
       # package = pkgs.neovim-nightly;
+      plugins = with pkgs.vimPlugins; [
+        vim-table-mode
+        editorconfig-nvim
+        vim-surround
+        {
+          plugin = nvim-autopairs;
+          type = "lua";
+          config =
+            /*
+            lua
+            */
+            ''
+              require('nvim-autopairs').setup{}
+            '';
+        }
+      ];
     };
   };
 }
