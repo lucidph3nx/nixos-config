@@ -1,9 +1,9 @@
 {pkgs, lib, ...}:
 {
-  home.packages = lib.mkAfter [
+  home.packages = [
     pkgs.fzf
   ];
-  programs.neovim.plugins = [
+  programs.neovim.plugins = lib.mkAfter [
     {
       plugin = pkgs.vimPlugins.telescope-nvim;
       type = "lua";
