@@ -8,8 +8,6 @@
     # unstable repo for some packages
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    # forkpkgs.url = "github:lucidph3nx/nixpkgs/add-nvim-sops";
-
     # sops
     sops-nix = {
       url = "github:mic92/sops-nix";
@@ -28,7 +26,7 @@
        inputs.nixpkgs.follows = "nixpkgs";
      };
 
-    # neovim-nightly.url = "github:nix-community/neovim-nightly-overlay";
+    neovim-nightly.url = "github:nix-community/neovim-nightly-overlay";
 
     firefox-addons = {
       url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
@@ -49,7 +47,7 @@
             system = "x86_64-linux";
             config.allowUnfree = true;
             overlays = [
-              # inputs.neovim-nightly.overlay
+              inputs.neovim-nightly.overlay
             ];
           };
           specialArgs = { inherit inputs outputs; };
