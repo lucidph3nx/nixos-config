@@ -49,7 +49,7 @@
             system = "x86_64-linux";
             config.allowUnfree = true;
             overlays = [
-              inputs.neovim-nightly.overlay
+              # inputs.neovim-nightly.overlay
             ];
           };
           specialArgs = { inherit inputs outputs; };
