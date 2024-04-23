@@ -1,4 +1,4 @@
-{ config, lib, pkgs, inputs, ... }:
+{ config, nixpkgs-unstable, lib, pkgs, inputs, ... }:
 
 {
   options = {
@@ -16,7 +16,7 @@
     programs.neovim = {
       enable = true;
       defaultEditor = true;
-      package = pkgs.neovim-unwrapped;
+      package = nixpkgs-unstable.neovim-unwrapped;
       # package = pkgs.neovim-nightly;
     };
   };
