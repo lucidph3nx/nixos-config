@@ -28,27 +28,19 @@
       plugins = with pkgs.vimPlugins; [
         {
           plugin = nvim-autopairs;
-          type = "lua";
+          # type = "lua";
           config =
             /*
             lua
             */
             ''
+            lua << EOF
               -- ${nvim-autopairs}
               require('nvim-autopairs').setup{}
+            EOF
             '';
         }
       ];
     };
-    xdg.configFile."nvim/init.lua".onChange =
-    /*
-    bash
-    */
-    ''
-      XDG_RUNTIME_DIR=''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}
-      for server in $XDG_RUNTIME_DIR/nvim.*; do
-        nvim --server $server --remote-send '<Esc>:source $MYVIMRC<CR>' &
-      done
-    '';
   };
 }
