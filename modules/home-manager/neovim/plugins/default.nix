@@ -1,6 +1,6 @@
 { config, lib, pkgs, inputs, ... }:
 
-{
+lib.mkAfter {
   # my old neovim config had a one plugin per file structure
   # any plugins which have additional config, I have given them their own file
   # any plugins where i use the default, are just added below
