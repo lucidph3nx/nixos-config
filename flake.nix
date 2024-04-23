@@ -8,6 +8,9 @@
     # unstable repo for some packages
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
+    forkpkgs.url = "github:lucidph3nx/nixpkgs";
+    forkpkgs.inputs.nixpkgs.follows = "nixpkgs";
+
     # sops
     sops-nix = {
       url = "github:mic92/sops-nix";
@@ -55,6 +58,7 @@
             let
               defaults = {pkgs, ... }: {
                 _module.args.nixpkgs-unstable = import inputs.nixpkgs-unstable { inherit (pkgs.stdenv.targetPlatform) system; };
+                _module.args.forkpkgs = import inputs.forkpkgs { inherit (pkgs.stdenv.targetPlatform) system; };
               };
             in [
             defaults

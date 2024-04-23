@@ -18,7 +18,7 @@
     ./nvim-lspconfig.nix
     # awaiting merge
     # https://github.com/NixOS/nixpkgs/pull/306145
-    # ./nvim-sops.nix
+    ./nvim-sops.nix
     ./nvim-tree.nix
     ./obsidian.nix
     ./oil.nix

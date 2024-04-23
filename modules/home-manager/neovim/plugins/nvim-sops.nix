@@ -1,8 +1,8 @@
-{pkgs, ...}:
+{pkgs, forkpkgs, ...}:
 {
   programs.neovim.plugins = [
     {
-      plugin = pkgs.vimPlugins.nvim-sops;
+      plugin = forkpkgs.vimPlugins.nvim-sops;
       type = "lua";
       config = 
         /*
