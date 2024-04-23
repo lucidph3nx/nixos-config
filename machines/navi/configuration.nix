@@ -83,6 +83,7 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     arping
+    awscli2 ssm-session-manager-plugin
     chromium
     curl
     direnv

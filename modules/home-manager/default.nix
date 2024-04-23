@@ -3,13 +3,15 @@
     ./cli
     ./desktopEnvironment
     ./guiApps
-    ./sshConfig
+    ./neovim
     ./sops
+    ./sshConfig
   ];
   config = {
     homeManagerModules = {
-      guiApps.enable = lib.mkDefault true;
       desktopEnvironment.enable = lib.mkDefault true;
+      guiApps.enable = lib.mkDefault true;
+      neovim.enable = lib.mkDefault true;
       sops.enable = lib.mkDefault false;
     };
   };

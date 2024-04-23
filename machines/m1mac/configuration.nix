@@ -17,6 +17,7 @@
     loginShell = pkgs.zsh;
     systemPackages = with pkgs; [
       arping
+      awscli2 ssm-session-manager-plugin
       azure-cli
       cloudflared
       direnv
