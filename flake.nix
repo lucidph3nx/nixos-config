@@ -8,8 +8,7 @@
     # unstable repo for some packages
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    forkpkgs.url = "github:lucidph3nx/nixpkgs/e5504ecbd8ff8994e3404048a3ae7e5002b12704";
-    forkpkgs.inputs.nixpkgs.follows = "nixpkgs";
+    forkpkgs.url = "github:lucidph3nx/nixpkgs/add-nvim-sops";
 
     # sops
     sops-nix = {
