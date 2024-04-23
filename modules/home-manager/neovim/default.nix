@@ -6,9 +6,9 @@
       lib.mkEnableOption "Set up Neovim";
   };
   imports = [
-    ./autocmd.nix
-    ./keymaps.nix
-    ./options.nix
+    # ./autocmd.nix
+    # ./keymaps.nix
+    # ./options.nix
     # ./plugins
   ];
   config = lib.mkIf config.homeManagerModules.neovim.enable {
