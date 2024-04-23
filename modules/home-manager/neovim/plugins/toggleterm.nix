@@ -1,6 +1,6 @@
-{pkgs, ...}:
+{pkgs, lib, ...}:
 {
-  programs.neovim.plugins = [
+  programs.neovim.plugins = lib.mkAfter [
     {
       plugin = pkgs.vimPlugins.toggleterm-nvim;
       type = "lua";
