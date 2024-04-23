@@ -8,7 +8,7 @@
     # unstable repo for some packages
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    forkpkgs.url = "github:lucidph3nx/nixpkgs/add-nvim-sops";
+    # forkpkgs.url = "github:lucidph3nx/nixpkgs/add-nvim-sops";
 
     # sops
     sops-nix = {
@@ -28,7 +28,7 @@
        inputs.nixpkgs.follows = "nixpkgs";
      };
 
-    neovim-nightly.url = "github:nix-community/neovim-nightly-overlay";
+    # neovim-nightly.url = "github:nix-community/neovim-nightly-overlay";
 
     firefox-addons = {
       url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
