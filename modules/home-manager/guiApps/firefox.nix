@@ -1,11 +1,127 @@
-{ config, pkgs, inputs, lib, ... }:
-
+{ config, pkgs, lib, ... }:
+let
+  bugfixedFirefox = pkgs.firefox-esr-unwrapped // { requireSigning = false; allowAddonSideload = true; };
+in
 {
   options = {
     homeManagerModules.firefox.enable =
       lib.mkEnableOption "enables firefox";
   };
   config = lib.mkIf config.homeManagerModules.firefox.enable {
+    programs.firefox = {
+      enable = true;
+      package = pkgs.wrapFirefox bugfixedFirefox {
+        nixExtensions = [
+          (pkgs.fetchFirefoxAddon {
+            name = "augmented-steam";
+            url = "https://addons.mozilla.org/firefox/downloads/file/4264122/augmented_steam-3.1.1.xpi";
+            hash = "";
+           })
+          (pkgs.fetchFirefoxAddon {
+            name = "bitwarden";
+            url = "https://addons.mozilla.org/firefox/downloads/file/4263752/bitwarden_password_manager-2024.4.1.xpi";
+            hash = "";
+           })
+          (pkgs.fetchFirefoxAddon {
+            name = "decentraleyes";
+            url = "https://addons.mozilla.org/firefox/downloads/file/4255788/decentraleyes-2.0.19.xpi";
+            hash = "";
+           })
+          (pkgs.fetchFirefoxAddon {
+            name = "dont-track-me-google";
+            url = "https://addons.mozilla.org/firefox/downloads/file/4132891/dont_track_me_google1-4.28.xpi";
+            hash = "";
+           })
+          (pkgs.fetchFirefoxAddon {
+            name = "multi-account-containers";
+            url = "https://addons.mozilla.org/firefox/downloads/file/4186050/multi_account_containers-8.1.3.xpi";
+            hash = "";
+           })
+          (pkgs.fetchFirefoxAddon {
+            name = "i-still-dont-care-about-cookies";
+            url = "https://addons.mozilla.org/firefox/downloads/file/4216095/istilldontcareaboutcookies-1.1.4.xpi";
+            hash = "";
+           })
+          (pkgs.fetchFirefoxAddon {
+            name = "protondb-for-steam";
+            url = "https://addons.mozilla.org/firefox/downloads/file/4195217/protondb_for_steam-2.1.0.xpi";
+            hash = "";
+           })
+          (pkgs.fetchFirefoxAddon {
+            name = "reddit-comments-for-youtube";
+            url = "https://addons.mozilla.org/firefox/downloads/file/4217855/reddit_comments_for_youtube-3.1.2.xpi";
+            hash = "";
+           })
+          (pkgs.fetchFirefoxAddon {
+            name = "reddit-enhancement-suite";
+            url = "https://addons.mozilla.org/firefox/downloads/file/4257183/reddit_enhancement_suite-5.24.4.xpi";
+            hash = "";
+           })
+          (pkgs.fetchFirefoxAddon {
+            name = "sponsorblock";
+            url = "https://addons.mozilla.org/firefox/downloads/file/4202411/sponsorblock-5.4.29.xpi";
+            hash = "sha256-7Xqc8cyQNylMe5/dgDOx1f2QDVmz3JshDlTueu6AcSg=";
+          })
+          (pkgs.fetchFirefoxAddon {
+            name = "tampermonkey";
+            url = "https://addons.mozilla.org/firefox/downloads/file/4250678/tampermonkey-5.1.0.xpi";
+            hash = "";
+           })
+          (pkgs.fetchFirefoxAddon {
+            name = "temporary-containers";
+            url = "https://addons.mozilla.org/firefox/downloads/file/3723251/temporary_containers-1.9.2.xpi";
+            hash = "";
+           })
+          (pkgs.fetchFirefoxAddon {
+            name = "tridactyl";
+            url = "https://addons.mozilla.org/firefox/downloads/file/4261352/tridactyl_vim-1.24.1.xpi";
+            hash = "sha256-q2P+FVRHHCgPI0QJOTFy/FjhuyylJ/QynZg7AoBz4Zw=";
+           })
+          (pkgs.fetchFirefoxAddon {
+            name = "ublock-origin";
+            url = "https://addons.mozilla.org/firefox/downloads/file/4198829/ublock_origin-1.54.0.xpi";
+            hash = "sha256-l5cWCQgZFxD/CFhTa6bcKeytmSPDCyrW0+XjcddZ5E0=";
+          })
+        ];
+      };
+      profiles = {
+        main = {
+          id = 0;
+          name = "ben";
+          isDefault = true;
+          settings = {
+            "signon.rememberSignons" = false; # Disable built-in password manager
+            "browser.startup.homepage" = "~/.config/tridactyl/home.html"; # custom homepage
+            "browser.compactmode.show" = true;
+            "browser.uidensity" = 1; # enable compact mode
+            "browser.uiCustomization.state" = "{\"placements\":{\"widget-overflow-fixed-list\":[],\"unified-extensions-area\":[\"_testpilot-containers-browser-action\",\"jid1-bofifl9vbdl2zq_jetpack-browser-action\",\"_446900e4-71c2-419f-a6a7-df9c091e268b_-browser-action\"],\"nav-bar\":[\"back-button\",\"forward-button\",\"stop-reload-button\",\"customizableui-special-spring1\",\"urlbar-container\",\"customizableui-special-spring2\",\"save-to-pocket-button\",\"downloads-button\",\"fxa-toolbar-menu-button\",\"ublock0_raymondhill_net-browser-action\",\"sponsorblocker_ajay_app-browser-action\",\"unified-extensions-button\",\"_c607c8df-14a7-4f28-894f-29e8722976af_-browser-action\"],\"toolbar-menubar\":[\"menubar-items\"],\"TabsToolbar\":[\"tabbrowser-tabs\",\"new-tab-button\",\"alltabs-button\"],\"PersonalToolbar\":[\"personal-bookmarks\"]},\"seen\":[\"_testpilot-containers-browser-action\",\"jid1-bofifl9vbdl2zq_jetpack-browser-action\",\"ublock0_raymondhill_net-browser-action\",\"_446900e4-71c2-419f-a6a7-df9c091e268b_-browser-action\",\"_c607c8df-14a7-4f28-894f-29e8722976af_-browser-action\",\"sponsorblocker_ajay_app-browser-action\",\"developer-button\"],\"dirtyAreaCache\":[\"unified-extensions-area\",\"nav-bar\",\"TabsToolbar\"],\"currentVersion\":20,\"newElementCount\":3}";
+            "browser.aboutConfig.showWarning" = false;
+            "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+            "ui.systemUsesDarkTheme" = 1; # force dark theme
+            "extensions.pocket.enabled" = false;
+
+            # dubious performance enhancements
+            "network.buffer.cache.size" = 524288; # 512KB (default is 32 kB)
+            "network.http.max-connections" = 1800; # default is 900
+            "network.http.max-persistent-connections-per-server" = 12; # default is 6
+            "network.http.max-urgent-start-excessive-connections-per-host" = 10; # default is 3
+            "network.http.pacing.requests.burst" = 32; # default is 10
+            "network.http.pacing.requests.min-parallelism" = 10; # default is 6
+            "network.websocket.max-connections" = 400; # default is 200
+            "network.ssl_tokens_cache_capacity" = 32768; # more TLS token caching (fast reconnects) (default is 2048)
+            "image.mem.decode_bytes_at_a_time" = 65536; # 64KB (default is 16KB)
+
+            # Enable installing non signed extensions
+            "extensions.langpacks.signatures.required" = false;
+            "xpinstall.signatures.required" = false;
+
+            # Enable userChrome editor (Ctrl+Shift+Alt+I)
+            "devtools.chrome.enabled" = true;
+            "devtools.debugger.remote-enabled" = true;
+          };
+        };
+      };
+    };
     home.file = {
       # workarounds
       # https://github.com/NixOS/nixpkgs/issues/281710#issuecomment-1987263584
@@ -28,55 +144,9 @@
       ".mozilla/firefox/ben/chrome/userChrome.css".source = ./files/firefox-userChrome;
       ".mozilla/firefox/ben/chrome/userContent.css".source = ./files/firefox-userContent;
     };
-    programs.firefox = 
-    let 
-      # https://github.com/NixOS/nixpkgs/pull/294369
-      bugfixedFirefox = pkgs.firefox-unwrapped // { requireSigning = false; allowAddonSideload = true; };
-    in
-    {
-      enable = true;
-      package = pkgs.wrapFirefox bugfixedFirefox {};
-      # not in 23.11
-      # nativeMessagingHosts.packages = [
-      #   pkgs.tridactyl-native
-      # ];
-      profiles.ben = {
-        id = 0;
-        name = "ben";
-        isDefault = true;
-        settings = {
-          "signon.rememberSignons" = false; # Disable built-in password manager
-          "browser.startup.homepage" = "~/.config/tridactyl/home.html"; # custom homepage
-          "browser.compactmode.show" = true;
-          "browser.uidensity" = 1; # enable compact mode
-          "browser.uiCustomization.state" = "{\"placements\":{\"widget-overflow-fixed-list\":[],\"unified-extensions-area\":[\"_testpilot-containers-browser-action\",\"jid1-bofifl9vbdl2zq_jetpack-browser-action\",\"_446900e4-71c2-419f-a6a7-df9c091e268b_-browser-action\"],\"nav-bar\":[\"back-button\",\"forward-button\",\"stop-reload-button\",\"customizableui-special-spring1\",\"urlbar-container\",\"customizableui-special-spring2\",\"save-to-pocket-button\",\"downloads-button\",\"fxa-toolbar-menu-button\",\"ublock0_raymondhill_net-browser-action\",\"sponsorblocker_ajay_app-browser-action\",\"unified-extensions-button\",\"_c607c8df-14a7-4f28-894f-29e8722976af_-browser-action\"],\"toolbar-menubar\":[\"menubar-items\"],\"TabsToolbar\":[\"tabbrowser-tabs\",\"new-tab-button\",\"alltabs-button\"],\"PersonalToolbar\":[\"personal-bookmarks\"]},\"seen\":[\"_testpilot-containers-browser-action\",\"jid1-bofifl9vbdl2zq_jetpack-browser-action\",\"ublock0_raymondhill_net-browser-action\",\"_446900e4-71c2-419f-a6a7-df9c091e268b_-browser-action\",\"_c607c8df-14a7-4f28-894f-29e8722976af_-browser-action\",\"sponsorblocker_ajay_app-browser-action\",\"developer-button\"],\"dirtyAreaCache\":[\"unified-extensions-area\",\"nav-bar\",\"TabsToolbar\"],\"currentVersion\":20,\"newElementCount\":3}";
-          "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-          "ui.systemUsesDarkTheme" = 1; # force dark theme
-          "extensions.pocket.enabled" = false;
-          # dubious performance enhancements
-          "network.buffer.cache.size" = 524288; # 512KB (default is 32 kB)
-          "network.http.max-connections" = 1800; # default is 900
-          "network.http.max-persistent-connections-per-server" = 12; # default is 6
-          "network.http.max-urgent-start-excessive-connections-per-host" = 10; # default is 3
-          "network.http.pacing.requests.burst" = 32; # default is 10
-          "network.http.pacing.requests.min-parallelism" = 10; # default is 6
-          "network.websocket.max-connections" = 400; # default is 200
-          "network.ssl_tokens_cache_capacity" = 32768; # more TLS token caching (fast reconnects) (default is 2048)
-          "image.mem.decode_bytes_at_a_time" = 65536; # 64KB (default is 16KB)
-        };
-        extensions = with inputs.firefox-addons.packages.${pkgs.system}; [
-          augmented-steam
-          bitwarden
-          decentraleyes
-          multi-account-containers
-          protondb-for-steam
-          reddit-enhancement-suite
-          sponsorblock
-          temporary-containers
-          tridactyl
-          ublock-origin
-        ];
-      };
+    home.sessionVariables = {
+      MOZ_ENABLE_WAYLAND = "1";
+      MOZ_DISABLE_RDD_SANDBOX = "1";
     };
     xdg.mimeApps.defaultApplications = {
       "text/html" = [ "firefox.desktop" ];
