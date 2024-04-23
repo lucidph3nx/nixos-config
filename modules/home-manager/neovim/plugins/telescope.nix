@@ -3,9 +3,9 @@
   home.packages = [
     pkgs.fzf
   ];
-  programs.neovim.plugins = lib.mkAfter [
+  programs.neovim.plugins = with pkgs.vimPlugins; [
     {
-      plugin = pkgs.vimPlugins.telescope-nvim;
+      plugin = telescope-nvim;
       type = "lua";
       config = 
         /*
