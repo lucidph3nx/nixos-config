@@ -145,10 +145,10 @@ in
       ".mozilla/firefox/ben/chrome/userChrome.css".source = ./files/firefox-userChrome;
       ".mozilla/firefox/ben/chrome/userContent.css".source = ./files/firefox-userContent;
     };
-    home.sessionVariables = {
-      MOZ_ENABLE_WAYLAND = "1";
-      MOZ_DISABLE_RDD_SANDBOX = "1";
-    };
+    # home.sessionVariables = {
+    #   MOZ_ENABLE_WAYLAND = "1";
+    #   MOZ_DISABLE_RDD_SANDBOX = "1";
+    # };
     xdg.mimeApps.defaultApplications = {
       "text/html" = [ "firefox.desktop" ];
       "text/xml" = [ "firefox.desktop" ];
