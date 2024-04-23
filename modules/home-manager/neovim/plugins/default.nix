@@ -16,7 +16,9 @@
     ./luasnip.nix
     ./nvim-cmp.nix
     ./nvim-lspconfig.nix
-    ./nvim-sops.nix
+    # merged but not yet showing in unstable
+    # https://search.nixos.org/packages?channel=unstable&from=0&size=50&sort=relevance&type=packages&query=nvim-sops
+    # ./nvim-sops.nix
     ./nvim-tree.nix
     ./obsidian.nix
     ./oil.nix
