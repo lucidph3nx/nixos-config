@@ -31,6 +31,7 @@ in
             }
           end
         }
+        require("everforest").load()
         '';
     }
   ];
