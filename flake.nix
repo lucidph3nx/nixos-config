@@ -26,7 +26,7 @@
        inputs.nixpkgs.follows = "nixpkgs";
      };
 
-    neovim-nightly.url = "github:nix-community/neovim-nightly-overlay";
+    # neovim-nightly.url = "github:nix-community/neovim-nightly-overlay";
 
     firefox-addons = {
       url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
@@ -47,7 +47,7 @@
             system = "x86_64-linux";
             config.allowUnfree = true;
             overlays = [
-              inputs.neovim-nightly.overlay
+              # inputs.neovim-nightly.overlay
             ];
           };
           specialArgs = { inherit inputs outputs; };
