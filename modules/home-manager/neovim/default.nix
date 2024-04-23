@@ -18,6 +18,13 @@
       defaultEditor = true;
       package = pkgs.neovim-unwrapped;
       # package = pkgs.neovim-nightly;
+      extraLuaConfig = 
+        /*
+        lua
+        */
+        ''
+          -- test
+        '';
       plugins = with pkgs.vimPlugins; [
         {
           plugin = nvim-autopairs;
