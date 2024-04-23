@@ -27,18 +27,19 @@
               require('nvim-autopairs').setup{}
         '';
       plugins = with pkgs.vimPlugins; [
-        {
-          plugin = nvim-autopairs;
-          type = "lua";
-          config =
-            /*
-            lua
-            */
-            ''
-              -- ${nvim-autopairs}
-              -- require('nvim-autopairs').setup{}
-            '';
-        }
+        nvim-autopairs
+      #   {
+      #     plugin = nvim-autopairs;
+      #     type = "lua";
+      #     config =
+      #       /*
+      #       lua
+      #       */
+      #       ''
+      #         -- ${nvim-autopairs}
+      #         -- require('nvim-autopairs').setup{}
+      #       '';
+      #   }
       ];
     };
   };
