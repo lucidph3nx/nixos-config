@@ -75,7 +75,7 @@
 	  users = {
       ben.imports = [
         ./home.nix
-        ../../modules
+        # ../../modules
       ];
 	  };
   };

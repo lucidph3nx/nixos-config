@@ -3,7 +3,7 @@
 {
   imports =
   [
-    ../../modules/home-manager/scripts.nix
+    # ../../modules/home-manager/scripts.nix
   ];
   sysDefaults = {
     terminal = "${pkgs.kitty}/bin/kitty";
@@ -32,6 +32,28 @@
   home.sessionVariables = {
     KUBECONFIG = "/home/ben/.config/kube/config-home";
     PAGER = "less";
+  };
+
+
+  programs.neovim = {
+    enable = true;
+    defaultEditor = true;
+    package = pkgs.neovim-unwrapped;
+    # package = pkgs.neovim-nightly;
+    plugins = with pkgs.vimPlugins; [
+      {
+        plugin = nvim-autopairs;
+        type = "lua";
+        config =
+          /*
+          lua
+          */
+          ''
+          -- ${nvim-autopairs}
+          require('nvim-autopairs').setup{}
+          '';
+      }
+    ];
   };
 
   # Let Home Manager install and manage itself.
