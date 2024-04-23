@@ -16,7 +16,8 @@
     programs.neovim = {
       enable = true;
       defaultEditor = true;
-      package = pkgs.neovim-nightly;
+      package = pkgs.neovim-unwrapped;
+      # package = pkgs.neovim-nightly;
     };
   };
 }
