@@ -60,9 +60,9 @@
         vim.keymap.set('n', '<leader>oo',
           vim.cmd.ObsidianOpen, { desc = '[O]bsidian [O]pen' })
         vim.keymap.set('n', '<leader>of',
-          vim.cmd.ObsidianFollow, { desc = '[O]bsidian [F]ollow' }),
+          vim.cmd.ObsidianFollow, { desc = '[O]bsidian [F]ollow' })
         vim.keymap.set('n', '<leader>ob',
-          vim.cmd.ObsidianBacklinks, { desc = '[O]bsidian [B]acklinks' }),
+          vim.cmd.ObsidianBacklinks, { desc = '[O]bsidian [B]acklinks' })
         '';
     }
   ];
