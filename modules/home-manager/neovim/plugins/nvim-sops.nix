@@ -1,8 +1,8 @@
-{pkgs, inputs, ...}:
+{pkgs, nixpkgs-unstable, ...}:
 {
   programs.neovim.plugins = [
     {
-      plugin = inputs.forkpkgs.legacyPackages.${pkgs.system}.vimPlugins.nvim-sops;
+      plugin = nixpkgs-unstable.vimPlugins.nvim-sops;
       type = "lua";
       config = 
         /*
