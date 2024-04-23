@@ -1,29 +1,20 @@
-{pkgs, lib, ...}:
+{pkgs, ...}:
 
-rec {
-  nixpkgs = {
-    overlays = [
-      (self: super:
-        let
-          everforest-nvim = super.vimUtils.buildVimPlugin {
-            name = "everforest-nvim";
-            src = pkgs.fetchFromGitHub {
-              owner = "neanias";
-              repo = "everforest-nvim";
-              rev = "5e0e32a569fb464911342f0d421721cc1c94cf25";
-              sha256 = "";
-            };
-          };
-        in {
-          vimPlugins =
-            super.vimPlugins // { inherit everforest-nvim; };
-          }
-      )
-    ];
+let
+  everforest-nvim = pkgs.vimUtils.buildVimPlugin {
+    name = "everforest-nvim";
+    src = pkgs.fetchFromGitHub {
+      owner = "neanias";
+      repo = "everforest-nvim";
+      rev = "5e0e32a569fb464911342f0d421721cc1c94cf25";
+      hash = "";
+    };
   };
+in 
+{
   programs.neovim.plugins = [
     {
-      plugin = pkgs.vimPlugins.everforest-nvim;
+      plugin = everforest-nvim;
       type = "lua";
       config = 
         /*
