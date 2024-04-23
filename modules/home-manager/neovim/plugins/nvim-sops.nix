@@ -1,8 +1,24 @@
 {pkgs, nixpkgs-unstable, ...}:
+
+# merged but not yet showing in unstable
+# https://search.nixos.org/packages?channel=unstable&from=0&size=50&sort=relevance&type=packages&query=nvim-sops
+
+let
+  nvim-sops = pkgs.vimUtils.buildVimPlugin {
+    name = "nvim-sops";
+    src = pkgs.fetchFromGitHub {
+      owner = "lucidph3nx";
+      repo = "nvim-sops";
+      rev = "cb2209562d00ef8c6c88bdec836d9edb8fbb96ef";
+      hash = "";
+    };
+  };
+in 
 {
   programs.neovim.plugins = [
     {
-      plugin = nixpkgs-unstable.vimPlugins.nvim-sops;
+      # plugin = nixpkgs-unstable.vimPlugins.nvim-sops;
+      plugin = nvim-sops;
       type = "lua";
       config = 
         /*
