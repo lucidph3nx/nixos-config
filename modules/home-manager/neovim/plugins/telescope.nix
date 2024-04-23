@@ -3,15 +3,16 @@
   home.packages = [
     pkgs.fzf
   ];
-  programs.neovim.plugins = with pkgs.vimPlugins; [
+  programs.neovim.plugins = [
     {
-      plugin = telescope-nvim;
+      plugin = pkgs.vimPlugins.telescope-nvim;
       type = "lua";
       config = 
         /*
         lua
         */
         ''
+        -- ${pkgs.vimPlugins.telescope-nvim}
         require('telescope').setup {
           defaults = {
             mappings = {
