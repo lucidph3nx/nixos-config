@@ -58,7 +58,6 @@
             let
               defaults = {pkgs, ... }: {
                 _module.args.nixpkgs-unstable = import inputs.nixpkgs-unstable { inherit (pkgs.stdenv.targetPlatform) system; };
-                _module.args.forkpkgs = import inputs.forkpkgs { inherit (pkgs.stdenv.targetPlatform) system; };
               };
             in [
             defaults
