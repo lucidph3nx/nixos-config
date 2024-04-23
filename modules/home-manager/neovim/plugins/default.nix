@@ -26,11 +26,11 @@
     ./telescope.nix
     # not currently in nix packages :(
     # ./theme-everforest.nix
-    ./toggleterm.nix
-    ./treesitter.nix
-    ./undotree.nix
-    ./vim-fugitive.nix
-    ./vim-markdown.nix
+    # ./toggleterm.nix
+    # ./treesitter.nix
+    # ./undotree.nix
+    # ./vim-fugitive.nix
+    # ./vim-markdown.nix
   ];
   programs.neovim.plugins = with pkgs.vimPlugins; [
     comment-nvim
