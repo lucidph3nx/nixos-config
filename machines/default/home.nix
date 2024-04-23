@@ -9,14 +9,14 @@
     terminal = "${pkgs.kitty}/bin/kitty";
   };
   # my own modules
-  homeManagerModules = {
-    prospect-mail.enable = true;
-    teams-for-linux.enable = true;
-    # Enable home automation stuff as device should be in the home
-    homeAutomation.enable = true;
-    ssh.client.enable = true;
-    ssh.client.workConfig.enable = true;
-  };
+  # homeManagerModules = {
+  #   prospect-mail.enable = true;
+  #   teams-for-linux.enable = true;
+  #   # Enable home automation stuff as device should be in the home
+  #   homeAutomation.enable = true;
+  #   ssh.client.enable = true;
+  #   ssh.client.workConfig.enable = true;
+  # };
   home = {
     username = "ben";
     homeDirectory = "/home/ben";
@@ -49,6 +49,7 @@
           lua
           */
           ''
+          -- ${pkgs.neovim-unwrapped}
           -- ${nvim-autopairs}
           require('nvim-autopairs').setup{}
           '';
