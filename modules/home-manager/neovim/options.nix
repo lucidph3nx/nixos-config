@@ -25,7 +25,7 @@
         set ignorecase " case insensitive search
         set smartcase " unless a capital letter is used
         set hlsearch " highlight all when searching (esc to clear)
-        set termguicolours
+        set termguicolors
         set signcolumn=yes " keep sign column visible
         set noshowmode " using lualine, so don't need this twice
         " when splitting, open new window below/right
