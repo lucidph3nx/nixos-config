@@ -34,7 +34,7 @@
         set scrolloff=8 "show 8 lines below cursor when scrolling
         " decrease update time
         set updatetime=250
-        set timeoutlen= 1000
+        set timeoutlen=1000
         set lazyredraw
         " completion settings
         set completeopt=menuone,noselect
