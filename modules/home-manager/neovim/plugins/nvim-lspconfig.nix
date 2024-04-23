@@ -53,30 +53,30 @@
             })
         -- keymaps
         vim.keymap.set('n', '<leader>rn',
-          vim.lsp.buf.rename, { buffer = bufnr, desc = '[R]e[n]ame'}
+          vim.lsp.buf.rename, { buffer = bufnr, desc = '[R]e[n]ame'})
         vim.keymap.set('n', '<leader>ca',
-          vim.lsp.buf.code_action, { buffer = bufnr, desc = '[C]ode [A]ction'}
+          vim.lsp.buf.code_action, { buffer = bufnr, desc = '[C]ode [A]ction'})
 
         vim.keymap.set('n', 'gd',
-          vim.lsp.buf.definition, { buffer = bufnr, desc = '[G]oto [D]efinition'}
+          vim.lsp.buf.definition, { buffer = bufnr, desc = '[G]oto [D]efinition'})
         vim.keymap.set('n', 'gD',
-          vim.lsp.buf.declaration, { buffer = bufnr, desc = '[G]oto [D]eclaration'}
+          vim.lsp.buf.declaration, { buffer = bufnr, desc = '[G]oto [D]eclaration'})
         vim.keymap.set('n', 'gi',
-          vim.lsp.buf.implementation, { buffer = bufnr, desc = '[G]oto [I]mplementation'}
+          vim.lsp.buf.implementation, { buffer = bufnr, desc = '[G]oto [I]mplementation'})
         vim.keymap.set('n', 'gr',
-          vim.lsp.buf.references, { buffer = bufnr, desc = '[G]oto [R]eferences'}
+          vim.lsp.buf.references, { buffer = bufnr, desc = '[G]oto [R]eferences'})
         vim.keymap.set('n', 'K',
-          vim.lsp.buf.hover, { buffer = bufnr, desc = '[K]ind (Hover Documentation)'}
+          vim.lsp.buf.hover, { buffer = bufnr, desc = '[K]ind (Hover Documentation)'})
         
         vim.keymap.set('n', '<leader>D',
-          vim.lsp.buf.type_definition, { buffer = bufnr, desc = 'Type [D]efinition'}
+          vim.lsp.buf.type_definition, { buffer = bufnr, desc = 'Type [D]efinition'})
         vim.keymap.set('n', '<leader>ds',
-          require('telescope.builtin').lsp_document_symbols, { buffer = bufnr, desc = '[D]ocument [S]ymbols'}
+          require('telescope.builtin').lsp_document_symbols, { buffer = bufnr, desc = '[D]ocument [S]ymbols'})
         vim.keymap.set('n', '<leader>ws',
-          require('telescope.builtin').lsp_workspace_symbols, { buffer = bufnr, desc = '[W]orkspace [S]ymbols'}
+          require('telescope.builtin').lsp_workspace_symbols, { buffer = bufnr, desc = '[W]orkspace [S]ymbols'})
         -- format
         -- vim.keymap.set('n', '<leader>f',
-        --   vim.lsp.buf.formatting, { buffer = bufnr, desc = '[F]ormat'}
+        --   vim.lsp.buf.formatting, { buffer = bufnr, desc = '[F]ormat'})
         '';
     }
   ];
