@@ -127,30 +127,30 @@ in
     home.file = {
       # workarounds
       # https://github.com/NixOS/nixpkgs/issues/281710#issuecomment-1987263584
-      # ".mozilla/native-messaging-hosts" = {
-      #   recursive = true;
-      #   source = let
-      #     nativeMessagingHosts = with pkgs; [
-      #       tridactyl-native
-      #     ];
-      #   in pkgs.runCommandLocal "native-messaging-hosts" { } ''
-      #     mkdir $out
-      #     for ext in ${toString nativeMessagingHosts}; do
-      #         ln -sLt $out $ext/lib/mozilla/native-messaging-hosts/*
-      #     done
-      #   '';
-      # };
-      ".mozilla/native-messaging-hosts/tridactyl.json" = {
-        text = ''
-        {
-          "name": "tridactyl",
-          "description": "Tridactyl native command handler",
-          "path": "${pkgs.tridactyl-native}/bin/native_main",
-          "type": "stdio",
-          "allowed_extensions": [ "nixos@tridactyl.xpi", "tridactyl.vim@cmcaine.co.uk","tridactyl.vim.betas@cmcaine.co.uk", "tridactyl.vim.betas.nonewtab@cmcaine.co.uk" ]
-        }
+      ".mozilla/native-messaging-hosts" = {
+        recursive = true;
+        source = let
+          nativeMessagingHosts = with pkgs; [
+            tridactyl-native
+          ];
+        in pkgs.runCommandLocal "native-messaging-hosts" { } ''
+          mkdir $out
+          for ext in ${toString nativeMessagingHosts}; do
+              ln -sLt $out $ext/lib/mozilla/native-messaging-hosts/*
+          done
         '';
       };
+      # ".mozilla/native-messaging-hosts/tridactyl.json" = {
+      #   text = ''
+      #   {
+      #     "name": "tridactyl",
+      #     "description": "Tridactyl native command handler",
+      #     "path": "${pkgs.tridactyl-native}/bin/native_main",
+      #     "type": "stdio",
+      #     "allowed_extensions": [ "nixos@tridactyl.xpi", "tridactyl.vim@cmcaine.co.uk","tridactyl.vim.betas@cmcaine.co.uk", "tridactyl.vim.betas.nonewtab@cmcaine.co.uk" ]
+      #   }
+      #   '';
+      # };
       ".config/tridactyl/tridactylrc".source = ./files/tridactyl-config;
       ".config/tridactyl/themes/everforest.css".source = ./files/tridactyl-style;
       ".config/tridactyl/home.html".source = ./files/tridactyl-homepage;
