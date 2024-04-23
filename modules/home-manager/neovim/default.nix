@@ -1,4 +1,4 @@
-{ config, nixpkgs-unstable, lib, pkgs, inputs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
 {
   options = {
@@ -16,12 +16,9 @@
     programs.neovim = {
       enable = true;
       defaultEditor = true;
-      package = nixpkgs-unstable.neovim-unwrapped;
+      package = pkgs.neovim-unwrapped;
       # package = pkgs.neovim-nightly;
       plugins = with pkgs.vimPlugins; [
-        vim-table-mode
-        editorconfig-nvim
-        vim-surround
         {
           plugin = nvim-autopairs;
           type = "lua";
@@ -30,7 +27,7 @@
             lua
             */
             ''
-              require('nvim-autopairs').setup{}
+              -- require('nvim-autopairs').setup{}
             '';
         }
       ];
