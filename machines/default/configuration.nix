@@ -24,6 +24,7 @@
       obsidian.enable = true;
       music.enable = false; # too large for a vm
     };
+    nfs-mounts.enable = true;
   };
 
   nix.settings.experimental-features = ["nix-command" "flakes"];
