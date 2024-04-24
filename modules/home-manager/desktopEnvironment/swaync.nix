@@ -224,7 +224,7 @@ with config.theme;
           background: ${blue};
         }
         .widget-dnd > switch slider {
-          background: {green};
+          background: ${green};
           border-radius: 0px;
         }
 
