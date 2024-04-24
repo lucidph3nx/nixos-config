@@ -1,4 +1,4 @@
-{pkgs, nixpkgs-unstable, ...}:
+{pkgs, ...}:
 
 # merged but not yet showing in unstable
 # https://search.nixos.org/packages?channel=unstable&from=0&size=50&sort=relevance&type=packages&query=nvim-sops
@@ -17,7 +17,7 @@ in
 {
   programs.neovim.plugins = [
     {
-      # plugin = nixpkgs-unstable.vimPlugins.nvim-sops;
+      # plugin = pkgs.vimPlugins.nvim-sops;
       plugin = nvim-sops;
       type = "lua";
       config = 

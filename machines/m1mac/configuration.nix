@@ -1,4 +1,4 @@
-{ pkgs, nixpkgs-unstable, inputs, ... }:
+{ pkgs, inputs, nixpkgs-stable, ... }:
 
 {
   imports =
@@ -38,8 +38,6 @@
       tridactyl-native
       yq
       zsh
-      # example unstable
-      # nixpkgs-unstable.mise
     ];
   };
   nix.extraOptions = ''
@@ -111,7 +109,7 @@
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    extraSpecialArgs = { inherit inputs; inherit nixpkgs-unstable;};
+    extraSpecialArgs = { inherit inputs; inherit nixpkgs-stable;};
     users = {
       ben.imports = [
         ./home.nix

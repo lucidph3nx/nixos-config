@@ -1,4 +1,4 @@
-{ config, pkgs, nixpkgs-unstable, inputs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   imports = 

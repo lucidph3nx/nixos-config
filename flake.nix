@@ -5,9 +5,8 @@
     # Our primary nixpkgs repo. Modify with caution.
     # nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    # stable repo for some packages
     nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-23.11";
-    # unstable repo for some packages
-    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     # sops
     sops-nix = {
@@ -47,7 +46,6 @@
             let
               defaults = {pkgs, ... }: {
                 _module.args.nixpkgs-stable = import inputs.nixpkgs-stable { inherit (pkgs.stdenv.targetPlatform) system; };
-                _module.args.nixpkgs-unstable = import inputs.nixpkgs-unstable { inherit (pkgs.stdenv.targetPlatform) system; };
               };
             in [
             defaults
@@ -66,7 +64,6 @@
             let
               defaults = {pkgs, ... }: {
                 _module.args.nixpkgs-stable = import inputs.nixpkgs-stable { inherit (pkgs.stdenv.targetPlatform) system; };
-                _module.args.nixpkgs-unstable = import inputs.nixpkgs-unstable { inherit (pkgs.stdenv.targetPlatform) system; };
               };
             in [
             defaults
@@ -87,7 +84,6 @@
             let
               defaults = {pkgs, ... }: {
                 _module.args.nixpkgs-stable = import inputs.nixpkgs-stable { inherit (pkgs.stdenv.targetPlatform) system; };
-                _module.args.nixpkgs-unstable = import inputs.nixpkgs-unstable { inherit (pkgs.stdenv.targetPlatform) system; };
               };
             in [
             defaults

@@ -1,9 +1,8 @@
-{pkgs, nixpkgs-unstable, ...}:
+{pkgs, ...}:
 {
   programs.neovim.plugins = [
     {
-      # unstable because not in 23.11
-      plugin = nixpkgs-unstable.vimPlugins.obsidian-nvim;
+      plugin = pkgs.vimPlugins.obsidian-nvim;
       type = "lua";
       config = 
         /*

@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ pkgs, nixpkgs-unstable, nixpkgs-stable, inputs, config, ... }:
+{ pkgs, nixpkgs-stable, inputs, config, ... }:
 
 {
   imports =
@@ -70,7 +70,7 @@
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    extraSpecialArgs = { inherit inputs; inherit nixpkgs-unstable; inherit nixpkgs-stable;};
+    extraSpecialArgs = { inherit inputs; inherit nixpkgs-stable;};
 	  users = {
       ben.imports = [
         ./home.nix

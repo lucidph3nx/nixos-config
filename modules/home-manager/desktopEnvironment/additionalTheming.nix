@@ -1,4 +1,4 @@
-{ config, pkgs, lib, nixpkgs-unstable, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   config = lib.mkIf pkgs.stdenv.isLinux {
@@ -7,7 +7,7 @@
       gtk.enable = true;
       name = "breeze_cursors";
       # this is the cursor I like, from plasma 6
-      package = nixpkgs-unstable.kdePackages.breeze;
+      package = pkgs.kdePackages.breeze;
       size = 24;
     };
     gtk = {
@@ -23,7 +23,7 @@
       cursorTheme = {
         name = "breeze_cursors";
       # this is the cursor I like, from plasma 6
-        package = nixpkgs-unstable.kdePackages.breeze;
+        package = pkgs.kdePackages.breeze;
       };
       gtk3 = {
         extraConfig.gtk-application-prefer-dark-theme = true;
