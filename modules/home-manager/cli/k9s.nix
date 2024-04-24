@@ -61,16 +61,18 @@ in
         };
       };
       aliases = {
-        cr = "clusterroles";
-        crb = "clusterrolebindings";
-        dp = "deployments";
-        hr = "HelmRelease";
-        jo = "jobs";
-        ks = "kustomizations";
-        np = "networkpolicies";
-        rb = "rolebindings";
-        ro = "roles";
-        sec = "v1/secrets";
+        alias = {
+          cr = "clusterroles";
+          crb = "clusterrolebindings";
+          dp = "deployments";
+          hr = "HelmRelease";
+          jo = "jobs";
+          ks = "kustomizations";
+          np = "networkpolicies";
+          rb = "rolebindings";
+          ro = "roles";
+          sec = "v1/secrets";
+        };
       };
       views = {
         "v1/pods" = {
