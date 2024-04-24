@@ -11,6 +11,9 @@ in
   config = lib.mkIf config.homeManagerModules.firefox.enable {
     programs.firefox = {
       enable = true;
+      nativeMessagingHosts = [
+        pkgs.tridactyl-native
+      ];
       package = pkgs.wrapFirefox bugfixedFirefox {
         nixExtensions = [
           (pkgs.fetchFirefoxAddon {
