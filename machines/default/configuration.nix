@@ -24,6 +24,7 @@
       obsidian.enable = true;
       music.enable = false; # too large for a vm
     };
+    # should be on home network
     nfs-mounts.enable = true;
   };
 

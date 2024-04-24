@@ -23,6 +23,8 @@
       obsidian.enable = true;
       music.enable = true;
     };
+    # should be on home network
+    nfs-mounts.enable = true;
   };
 
   nix.settings.experimental-features = ["nix-command" "flakes"];
