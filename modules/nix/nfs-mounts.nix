@@ -45,7 +45,7 @@ in
       fsType = "nfs";
     };
     fileSystems."/nfs/software" = {
-      device = "${nasServerIP}:/volume1/software";
+      device = "${nasServerIP}:/volume1/Software";
       fsType = "nfs";
     };
   };
