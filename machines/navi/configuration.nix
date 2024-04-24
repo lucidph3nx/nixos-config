@@ -161,6 +161,13 @@
       };
     };
   };
+  # sound
+  services.pipewire = {
+    enable = true;
+    pulse.enable = true;
+  };
+  services.rtkit.enable = true;
+
   # cups for printing
   services.printing.enable = true;
 
