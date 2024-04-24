@@ -99,7 +99,7 @@ in
           ];
         };
       };
-      skin = with config.theme; {
+      skins.skin = with config.theme; {
         k9s = {
           body = {
             fgColor = "${foreground}";
