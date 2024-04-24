@@ -72,7 +72,7 @@ in
         ro = "roles";
         sec = "v1/secrets";
       };
-      views = {
+      views.views = {
         "v1/pods" = {
           columns = [
           "AGE"
