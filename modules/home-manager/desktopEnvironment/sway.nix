@@ -1,4 +1,4 @@
-{ config, pkgs, osConfig, lib, ... }:
+{ config, pkgs, nixpkgs-stable, osConfig, lib, ... }:
 
 let 
 homeDir = config.home.homeDirectory;
@@ -176,7 +176,7 @@ in
           };
         };
         bars = [{
-          command = "${pkgs.waybar}/bin/waybar";
+          command = "${nixpkgs-stable.waybar}/bin/waybar";
         }];
         window = {
           border = 3;
