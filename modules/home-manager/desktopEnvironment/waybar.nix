@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, nixpkgs-stable, pkgs, lib, ... }:
 
 let 
   browserNewWindow = "firefox --new-window";
@@ -18,6 +18,7 @@ with config.theme;
   config = lib.mkIf config.homeManagerModules.waybar.enable {
     programs.waybar = {
       enable = true;
+      package = nixpkgs-stable.waybar;
       systemd.target = "sway-session.target";
       settings = {
         mainBar = {
