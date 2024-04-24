@@ -1,4 +1,4 @@
-{ ... }:
+{ lib, ... }:
 let
   nasServerIP = "10.87.1.200";
 in 
