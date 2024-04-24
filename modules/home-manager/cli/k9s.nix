@@ -60,7 +60,7 @@ in
           };
         };
       };
-      aliases = {
+      aliases.aliases = {
         cr = "clusterroles";
         crb = "clusterrolebindings";
         dp = "deployments";
