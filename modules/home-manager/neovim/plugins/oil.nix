@@ -11,10 +11,6 @@
         */
         ''
         require('oil').setup {
-          -- due to bug, you might need to set this to false
-          -- then once you have the spell files, set it back.
-          -- https://github.com/neovim/neovim/issues/7189
-          default_file_explorer = false,
           view_options = {
             show_hidden = true,
           },
