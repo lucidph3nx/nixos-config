@@ -3,6 +3,6 @@
 {
   # some lua functions that don't escape well
   programs.neovim = {
-    extraLuaConfig = builtins.toFile ./functions.lua '';
+    extraLuaConfig = builtins.toFile ./functions.lua;
   };
 }
