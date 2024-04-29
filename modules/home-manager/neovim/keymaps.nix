@@ -70,22 +70,12 @@
       -- Terminal keymaps
       map('t', '<Esc>', '<C-\\><C-n>', { silent = true, desc = 'Exit terminal mode' })
 
-      -- Some code to toggle checkboxes in markdown
-      function toggle_checkbox()
-          local line_number = vim.fn.line('.')
-          local line = vim.fn.getline(line_number)
-          if line:match('- %[%s%]') then
-              line = line:gsub('- %[%s%]', '- [x]')
-          elseif line:match('- %[%a%]') then
-              line = line:gsub('- %[%a%]', '- [ ]')
-          else
-              print('No checkbox found at line ' .. line_number)
-              return
-          end
-          vim.fn.setline(line_number, line)
-      end
+    
       -- Since I will mostly use this in my obsidian vault, I'm going to continue to use the <leader>o convention.
-      vim.api.nvim_set_keymap('n', '<leader>oc', ':lua toggle_checkbox()<CR>', { noremap = true, desc = '[O]bsidian [C]heckbox' })
+      -- these functions are included in functions.lua
+      map('n', '<leader>oc', ':lua toggle_checkbox()<CR>', { noremap = true, desc = '[O]bsidian [C]heckbox' })
+      map('n', '<leader>ol', ':lua wrap_wiki_link_normal()<CR>', { noremap = true, desc = '[O]bsidian [L]ink' })
+      map('x', '<leader>ol', ':lua wrap_wiki_link_visual()<CR>', { noremap = true, desc = '[O]bsidian [L]ink' })
       '';
   };
 }

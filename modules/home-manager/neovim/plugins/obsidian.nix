@@ -17,7 +17,8 @@
             },
           },
           note_id_func = function(title)
-            return title
+            -- lowercase and replace spaces with underscores
+            return string.lower(title:gsub("%s", "_"))
           end,
           notes_subdir = 'notes',
           daily_notes = {
