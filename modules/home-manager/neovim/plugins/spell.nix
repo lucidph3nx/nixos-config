@@ -26,7 +26,7 @@ in
         lua
         */
         ''
-        require('spellfile_nvim').setup {}
+        require('spellfile_nvim').setup()
         '';
     }
   ];
