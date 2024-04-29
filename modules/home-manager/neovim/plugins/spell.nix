@@ -12,7 +12,7 @@ let
       owner = "cuducos";
       repo = "spellfile.nvim";
       rev = "93349f7961b748d71f192eff7a28c04f6ef64784";
-      hash = "";
+      hash = "sha256-bkaeCfkD+8ckJoKStXtemnEKc7Kim8DMkmrR6RQouwg=";
     };
   };
 in 
