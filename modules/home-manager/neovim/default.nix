@@ -7,6 +7,7 @@
   };
   imports = [
     ./autocmd.nix
+    ./functions.nix
     ./keymaps.nix
     ./options.nix
     ./plugins
