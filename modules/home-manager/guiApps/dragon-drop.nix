@@ -11,7 +11,7 @@
           {
     home.packages = with pkgs; [ xdragon ];
     # lf integration
-    programs.lf.exraConfig = lib.mkIf config.homeManagerModules.lf.enable ''
+    programs.lf.extraConfig = lib.mkIf config.homeManagerModules.lf.enable ''
         # dragon
         cmd dragon-out :xdragon -a -x "$fx"
         cmd dragon-in ''${{
