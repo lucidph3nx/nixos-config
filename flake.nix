@@ -8,8 +8,6 @@
     # stable repo for some packages
     nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-23.11";
 
-    nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-23.11-darwin";
-
     # sops
     sops-nix = {
       url = "github:mic92/sops-nix";
@@ -19,7 +17,7 @@
     # Macos Modules
     darwin = {
       url = "github:lnl7/nix-darwin";
-      inputs.nixpkgs.follows = "nixpkgs-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     home-manager = {
