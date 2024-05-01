@@ -55,6 +55,10 @@ in
         {key = "f"; command = "change_browse_mode";}
         {key = "m"; command = "show_media_library";}
         {key = "u"; command = "update_database";}
+        # wanted to unbind but couldnt figure out how
+        # at least they wont mess with volume anymore
+        {key = "left"; command = "previous_column";}
+        {key = "right"; command = "next_column";}
       ];
     };
   };
