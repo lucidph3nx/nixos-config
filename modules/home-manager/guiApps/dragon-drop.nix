@@ -3,11 +3,12 @@
 {
   options = {
     homeManagerModules.dragon-drop.enable =
-      lib.mkEnableOption "enables dragon-drop";
+      lib.mkEnableOption "enables dragon-drop / xdragon";
   };
   config = lib.mkIf (config.homeManagerModules.dragon-drop.enable 
           # doesn't work on darwin
-          && lib.mkIf pkgs.stdenv.isLinux){
+          && pkgs.stdenv.isLinux)
+          {
     home.packages = with pkgs; [ xdragon ];
     # lf integration
     programs.lf.exraConfig = lib.mkIf config.homeManagerModules.lf.enable ''
