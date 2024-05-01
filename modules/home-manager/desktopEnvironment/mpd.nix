@@ -14,7 +14,7 @@
         db_file            "~/.local/share/mpd/database"
         log_file           "syslog"
         auto_update "yes"
-        playlist_directory "~/.local/share/mpd/playlists"
+        playlist_directory "~/music/playlists"
         state_file         "~/.local/share/mpd/state"
         sticker_file       "~/.local/share/mpd/sticker.sql"
         restore_paused "yes"
