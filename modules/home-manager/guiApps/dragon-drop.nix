@@ -13,7 +13,7 @@
     # lf integration
     programs.lf.extraConfig = lib.mkIf config.homeManagerModules.lf.enable ''
         # dragon
-        cmd dragon-out :xdragon -a -x "$fx"
+        cmd dragon-out %xdragon -a -x "$fx"
         cmd dragon-in ''${{
           files=$(xdragon -t -x)
           for file in $files
