@@ -99,6 +99,7 @@
     jq
     killall
     p7zip
+    qpwgraph
     ripgrep
     rustup
     sops
