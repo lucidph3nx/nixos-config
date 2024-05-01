@@ -1,5 +1,6 @@
 { config, pkgs, inputs, lib, ... }: {
   imports = [
+    ./dragon-drop.nix
     ./firefox.nix
     ./kitty.nix
     ./prospect-mail.nix
