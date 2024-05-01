@@ -261,7 +261,7 @@ in
           }
           {
             # set smart gaps etc if super-ultrawide
-            command = "cli.system.setSwayGaps";
+            command = "${homeDir}/.local/scripts/cli.system.setSwayGaps";
             always = true;
           }
           { # Autotiling Sway Extension
