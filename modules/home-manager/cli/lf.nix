@@ -37,20 +37,6 @@
             map d
             map dd :cut
             map D :delete
-
-            # dragon
-            cmd dragon-out :${pkgs.xdragon}/bin/xdragon -a -x "$fx"
-            cmd dragon-in ''${{
-              files=$(${pkgs.xdragon}/bin/xdragon -t -x)
-              for file in $files
-              do
-                path=''${file#file://}
-                name=$(basename "$path")
-                mv "$path" "$(pwd)/$name"
-              done
-            }}
-            map do dragon-out
-            map di dragon-in 
         '';
 
     };
