@@ -25,7 +25,7 @@
       music.enable = false; # too large for a vm
     };
     # should be on home network
-    nfs-mounts.enable = true;
+    nfs-mounts.enable = false; # not whitelisted on nas
   };
 
   nix.settings.experimental-features = ["nix-command" "flakes"];
