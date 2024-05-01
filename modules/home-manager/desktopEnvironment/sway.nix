@@ -147,13 +147,13 @@ in
           "${alt}+Shift+l" = "exec ${openshoppinglist}";
           "${alt}+o" = "exec ${obsidian}";
           # Media Controls
-          "XF86AudioMute" = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
-          "XF86AudioRaiseVolume" = "wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+";
-          "XF86AudioLowerVolume" = "wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%-";
-          "XF86AudioPlay" = "playerctl play-pause";
-          "XF86AudioStop" = "playerctl stop";
-          "XF86AudioNext" = "playerctl next";
-          "XF86AudioPrev" = "playerctl previous";
+          "XF86AudioMute" = "exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+          "XF86AudioRaiseVolume" = "exec wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+";
+          "XF86AudioLowerVolume" = "exec wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%-";
+          "XF86AudioPlay" = "exec playerctl play-pause";
+          "XF86AudioStop" = "exec playerctl stop";
+          "XF86AudioNext" = "exec playerctl next";
+          "XF86AudioPrev" = "exec playerctl previous";
         };
         modes = {
           resize = {
