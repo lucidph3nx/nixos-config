@@ -14,7 +14,7 @@
   };
   config = lib.mkIf config.homeManagerModules.guiApps.enable {
     homeManagerModules = {
-      dragon.enable = lib.mkDefault true;
+      dragon-drop.enable = lib.mkDefault true;
       firefox.enable = lib.mkDefault true;
       kitty.enable = lib.mkDefault true;
       prospect-mail.enable = lib.mkDefault false;
