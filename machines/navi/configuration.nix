@@ -170,7 +170,7 @@
       support32Bit = true;
     };
   };
-  services.rtkit.enable = true;
+  security.rtkit.enable = true;
 
   # cups for printing
   services.printing.enable = true;
