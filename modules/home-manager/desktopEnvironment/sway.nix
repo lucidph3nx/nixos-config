@@ -147,9 +147,9 @@ in
           "${alt}+Shift+l" = "exec ${openshoppinglist}";
           "${alt}+o" = "exec ${obsidian}";
           # Media Controls
-          "XF86AudioMute" = "pactl set-sink-mute @DEFAULT_SINK@ toggle";
-          "XF86AudioRaiseVolume" = "pactl set-sink-volume @DEFAULT_SINK@ +5%";
-          "XF86AudioLowerVolume" = "pactl set-sink-volume @DEFAULT_SINK@ -5%";
+          "XF86AudioMute" = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+          "XF86AudioRaiseVolume" = "wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+";
+          "XF86AudioLowerVolume" = "wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%-";
           "XF86AudioPlay" = "playerctl play-pause";
           "XF86AudioStop" = "playerctl stop";
           "XF86AudioNext" = "playerctl next";
