@@ -1,3 +1,0 @@
-#!/bin/sh
-pactl --format=json list sinks short | jq -cM --unbuffered "[.[].name] | .[((index(\"$(pactl get-default-sink)\")+1)%length)]" | xargs pactl set-default-sink
-
