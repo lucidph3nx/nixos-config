@@ -96,6 +96,7 @@
     gh
     htop
     imagemagick
+    jnv
     jq
     killall
     p7zip
