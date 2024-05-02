@@ -1,11 +1,12 @@
+{ config, pkgs, lib, ... }:
 
 {
   options = {
-    homeManagerModules.pipwire-utils = {
+    homeManagerModules.pipewire-utils = {
       enable = lib.mkEnableOption "enables pipwire-utils";
     };
   };
-  config = lib.mkIf config.homeManagerModules.pipwire-utils.enable {
+  config = lib.mkIf config.homeManagerModules.pipewire-utils.enable {
     # my scripts relevant to pipewire
     home.sessionPath = ["$HOME/.local/scripts"];
     home.file.".local/scripts/system.audio.switchOutput" = {
