@@ -24,6 +24,7 @@
         # Set the next sink as the default sink
         wpctl set-default $next_sink_id
       '';
+    };
     home.file.".local/scripts/cli.audio.getOutput" = {
       executable = true;
       text = ''
