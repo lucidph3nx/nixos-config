@@ -105,7 +105,7 @@ in
         #!/bin/sh
         monitor="$(swaymsg -t get_outputs | jq -c '.[] | select(.focused) | select(.id)' | jq -c '.name')"
         # Get the selection from tmux project getter
-        selection=$(~/.local/scripts/cli.tmux.projectGetter | rofi -monitor "$monitor" -dmenu -theme-str "${nvimSessionLauncherStyle}")
+        selection=$(~/.local/scripts/cli.tmux.projectGetter | rofi -monitor "$monitor" -dmenu -theme-str '${nvimSessionLauncherStyle}')
         if [ -n "$selection" ]; then
           # Run the tmux sessioniser with the selected session
           xargs -I{} ${terminal} ~/.local/scripts/cli.tmux.projectSessioniser "{}" 2> /dev/null <<<"$selection"
