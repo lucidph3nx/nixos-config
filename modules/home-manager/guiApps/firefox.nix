@@ -9,6 +9,9 @@ in
       lib.mkEnableOption "enables firefox";
   };
   config = lib.mkIf config.homeManagerModules.firefox.enable {
+    home.packages = with pkgs; [
+      tridactyl-native
+    ];
     programs.firefox = {
       enable = true;
       nativeMessagingHosts = [
