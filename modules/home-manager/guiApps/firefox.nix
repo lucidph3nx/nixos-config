@@ -12,6 +12,20 @@ in
     home.packages = with pkgs; [
       tridactyl-native
     ];
+    home.file.".mozilla/native-messaging-hosts" = {
+      recursive = true;
+      source = let
+        nativeMessagingHosts = with pkgs; [
+          plasma5Packages.plasma-browser-integration
+          tridactyl-native
+        ];
+      in pkgs.runCommandLocal "native-messaging-hosts" { } ''
+        mkdir $out
+        for ext in ${toString nativeMessagingHosts}; do
+            ln -sLt $out $ext/lib/mozilla/native-messaging-hosts/*
+        done
+      '';
+    };
     programs.firefox = {
       enable = true;
       nativeMessagingHosts = [
