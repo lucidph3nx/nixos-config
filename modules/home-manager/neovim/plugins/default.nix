@@ -7,6 +7,7 @@
   imports = [
     ./autopairs.nix
     ./colorizer.nix
+    ./comment.nix
     ./conform.nix
     ./copilot.nix
     ./gitsigns.nix
@@ -31,7 +32,6 @@
     ./vim-markdown.nix
   ];
   programs.neovim.plugins = with pkgs.vimPlugins; [
-    comment-nvim
     indent-blankline-nvim
     markdown-preview-nvim
     quickfix-reflector-vim
