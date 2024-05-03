@@ -2,6 +2,7 @@
 
 let 
   browserNewWindow = "firefox --new-window";
+  enableAudio = config.homeManagerModules.pipewire-utils.enable;
   enableHomeAutomation = config.homeManagerModules.homeAutomation.enable;
   enableMpd = config.homeManagerModules.mpd.enable;
   homeDir = config.home.homeDirectory;
@@ -36,8 +37,8 @@ with config.theme;
           modules-center = [];
           modules-right = [
             "tray"
-            "pulseaudio"
-            "custom/pulseaudio-cycle"
+            (lib.mkIf enableAudio "custom/audio-cycle")
+            (lib.mkIf enableAudio "pulseaudio")
             (lib.mkIf enableHomeAutomation "custom/office-temp")
             (lib.mkIf enableHomeAutomation "custom/office-humidity")
             "custom/notification"
@@ -95,22 +96,18 @@ with config.theme;
             "icon-size" = 18;
             "spacing" = 12;
           };
-          "pulseaudio" = {
+          "pulseaudio" = lib.mkIf enableAudio {
             "format" = "{volume}%";
             "on-click" = "pavucontrol";
           };
-          "custom/pulseaudio-cycle" = {
+          "custom/audio-cycle" = lib.mkIf enableAudio {
             "return-type" = "json";
             "exec-on-event" = true;
             "interval" = 1;
-            "format" = "{icon}";
-            "format-icons" = {
-                "0" = "󰋋";
-                "1" = "󰓃" ;
-            };
-            "exec" = "pactl --format=json list sinks | jq -cM --unbuffered \"map(select(.name == \\\"$(pactl get-default-sink)\\\"))[0] | {alt:(.\\\"index\\\")}\"";
-            "exec-if" = "sleep 0.5"; # Give enough time for `pactl get-default-sink` to update
-            "on-click" = "pactl --format=json list sinks short | jq -cM --unbuffered \"[.[].name] | .[((index(\\\"$(pactl get-default-sink)\\\")+1)%length)]\" | xargs pactl set-default-sink";
+            "format" = "{alt}";
+            "exec" = "${homeDir}/.local/scripts/cli.audio.getOutput";
+            "exec-if" = "sleep 0.5"; # Give enough time for script to get output
+            "on-click" = "${homeDir}/.local/scripts/system.audio.switchOutput";
             };
           "custom/clock" = {
             "interval" = 1;
@@ -218,7 +215,7 @@ with config.theme;
           background: ${bg0};
         }
         #pulseaudio {
-            padding-right: 0px;
+            padding-left: 0px;
         }
         label:focus {
           background-color: ${bg0};

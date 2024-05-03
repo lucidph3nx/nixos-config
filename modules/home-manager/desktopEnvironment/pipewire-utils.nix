@@ -11,7 +11,11 @@
     home.sessionPath = ["$HOME/.local/scripts"];
     home.file.".local/scripts/system.audio.switchOutput" = {
       executable = true;
-      text = ''
+      text = 
+      /*
+      bash
+      */
+      ''
         #!/bin/sh
         # Find the ID of the current default sink
         current_sink_id=$(wpctl inspect @DEFAULT_SINK@ | awk 'NR==1 {gsub(/,/, "", $2); print $2}')
@@ -28,16 +32,34 @@
     };
     home.file.".local/scripts/cli.audio.getOutput" = {
       executable = true;
-      text = ''
+      text = 
+      /*
+      bash
+      */
+      ''
         #!/bin/sh
+        # a handy little lookup table to provide icons
+        get_alt() {
+            local text="$1"
+            declare -A alt_lookup
+            alt_lookup=(
+                ["Razer BlackShark V2 Pro"]="󰋋"
+                ["ALC1220 Analog"]="󰓃"
+                # Add more entries here as needed
+            )
+            echo ''${alt_lookup[$text]}
+        }
+
         # Find the ID of the current default sink
         current_sink_id=$(wpctl inspect @DEFAULT_SINK@ | awk 'NR==1 {gsub(/,/, "", $2); print $2}')
 
         # Get the node.nick of the current default sink
         current_sink_nick=$(pw-dump | jq -r '.[] | select(.id == '$current_sink_id') | .info.props."node.nick"')
+        alt=$(get_alt "$current_sink_nick")
 
-        # Print the node.nick of the current default sink
-        echo "$current_sink_nick"
+        # Format the output as JSON
+        output=$(printf '{"text": "%s", "alt": "%s", "tooltip": "%s"}' "$current_sink_nick" "$alt" "$current_sink_nick")
+        echo "$output"
       '';
     };
   };
