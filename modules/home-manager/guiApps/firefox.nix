@@ -9,9 +9,9 @@ in
       lib.mkEnableOption "enables firefox";
   };
   config = lib.mkIf config.homeManagerModules.firefox.enable {
-    home.packages = with pkgs; [
-      tridactyl-native
-    ];
+    # home.packages = with pkgs; [
+    #   tridactyl-native
+    # ];
     home.file.".mozilla/native-messaging-hosts" = {
       recursive = true;
       source = let
@@ -28,9 +28,9 @@ in
     };
     programs.firefox = {
       enable = true;
-      nativeMessagingHosts = [
-        pkgs.tridactyl-native
-      ];
+      # nativeMessagingHosts = [
+      #   pkgs.tridactyl-native
+      # ];
       package = pkgs.wrapFirefox bugfixedFirefox {
         nixExtensions = [
           (pkgs.fetchFirefoxAddon {
