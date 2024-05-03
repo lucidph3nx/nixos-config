@@ -98,7 +98,7 @@ with config.theme;
           };
           "pulseaudio" = lib.mkIf enableAudio {
             "format" = "{volume}%";
-            "on-click" = "pavucontrol";
+            "on-click" = "qpwgraph";
           };
           "custom/audio-cycle" = lib.mkIf enableAudio {
             "return-type" = "json";
