@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ config, pkgs, lib, ... }:
 let
   nasServerIP = "10.87.1.200";
 in 
@@ -7,7 +7,7 @@ in
     nixModules.nfs-mounts.enable =
       lib.mkEnableOption "Set up local NFS mounts";
   };
-  config = {
+  config = lib.mkIf config.nixModules.nfs-mounts.enable {
     fileSystems."/nfs/3d" = {
       device = "${nasServerIP}:/volume1/3d";
       fsType = "nfs";
