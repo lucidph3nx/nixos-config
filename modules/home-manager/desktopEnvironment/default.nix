@@ -1,6 +1,7 @@
 { config, pkgs, inputs, lib, ... }: {
   imports = [
     ./additionalTheming.nix
+    ./input-remapper.nix
     ./mpd.nix
     ./pipewire-utils.nix
     ./rofi.nix
@@ -18,6 +19,7 @@
   config.homeManagerModules.desktopEnvironment.enable 
   && pkgs.stdenv.isLinux) {
     homeManagerModules = {
+      input-remapper.enable = lib.mkDefault true;
       mpd.enable = lib.mkDefault true;
       pipewire-utils.enable = lib.mkDefault true;
       rofi.enable = lib.mkDefault true;
