@@ -34,7 +34,7 @@
     };
     # xmodmap file
     home.file.".config/input-remapper-2/xmodmap" = {
-      source = ./file/input-remapper-xmodmap;
+      source = ./files/input-remapper-xmodmap;
     };
     # startup command for sway
     wayland.windowManager.sway.config.startup = [
