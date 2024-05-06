@@ -44,6 +44,23 @@
     {
       overlays = import ./overlays { inherit inputs outputs; };
       nixosConfigurations = {
+      	bootstrap = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          pkgs = import nixpkgs {
+            system = "x86_64-linux";
+            config.allowUnfree = true;
+          };
+          specialArgs = { inherit inputs outputs; };
+          modules = 
+            let
+              defaults = {pkgs, ... }: {
+                _module.args.nixpkgs-stable = import inputs.nixpkgs-stable { inherit (pkgs.stdenv.targetPlatform) system; };
+              };
+            in [
+            defaults
+            ./machines/bootstrap/configuration.nix
+          ];
+        };
       	default = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           pkgs = import nixpkgs {
