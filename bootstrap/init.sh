@@ -10,6 +10,6 @@ sudo nix --experimental-features "nix-command flakes" \
 
 sudo nixos-generate-config --no-filesystems --root /mnt
 
-cp ./configuration.nix /mnt/etc/nixos/configuration.nix
+sudo cp ./configuration.nix /mnt/etc/nixos/configuration.nix
 
 sudo nixos-rebuild boot
