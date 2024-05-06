@@ -58,7 +58,6 @@
               };
             in [
             defaults
-            (import ./machines/default/disko.nix { device = "/dev/vda";})
             ./machines/default/configuration.nix
             home-manager.nixosModules.default
             inputs.impermanence.nixosModules.impermanence

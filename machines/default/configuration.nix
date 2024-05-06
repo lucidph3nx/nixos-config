@@ -8,6 +8,8 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      (import ./machines/default/disko.nix { device = "/dev/vda";})
+      inputs.disko.nixoxModules.default
       ../../modules/nix
     ];
 
