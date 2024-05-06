@@ -1,9 +1,10 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   imports =
   [
     ../../modules/home-manager/scripts.nix
+    inputs.impermanence.nixosModules.home-manager.impermanence
   ];
   sysDefaults = {
     terminal = "${pkgs.kitty}/bin/kitty";
@@ -23,6 +24,14 @@
     homeDirectory = "/home/ben";
   };
   home.stateVersion = "23.11"; # Do Not Touch!
+
+    home.persistence."/persist/home" = {
+    directories = [
+      "code"
+      ".ssh"
+    ];
+    allowOther = true;
+  };
   
   home.packages = with pkgs; [
     gimp # temp for troubleshooting
