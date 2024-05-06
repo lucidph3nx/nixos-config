@@ -5,7 +5,7 @@ device="/dev/${diskname}"
 
 sudo nix --experimental-features "nix-command flakes" \
     run github:nix-community/disko -- \
-    --mode disko ./disko.nix
+    --mode disko ./disko.nix \
     --arg device $device
 
 sudo nixos-generate-config --no-filesystems --root /mnt
