@@ -45,7 +45,7 @@
 
     # profiles
     # DeathAdder V3 Pro - default
-    home.file."config/input-remapper-2/presets/Razer Razer DeathAdder V3 Pro/apex-legends.json" = {
+    home.file.".config/input-remapper-2/presets/Razer Razer DeathAdder V3 Pro/default.json" = {
       text = ''
         [
           {
