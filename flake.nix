@@ -8,6 +8,15 @@
     # stable repo for some packages
     nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-23.11";
 
+    # disk formatting
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    impermanence = {
+      url = "github:nix-community/impermanence";
+    };
+
     # sops
     sops-nix = {
       url = "github:mic92/sops-nix";
@@ -49,8 +58,10 @@
               };
             in [
             defaults
+            (import ./machines/default/disko.nix { device = "/dev/vda";})
             ./machines/default/configuration.nix
             home-manager.nixosModules.default
+            inputs.impermanence.nixosModules.impermanence
           ];
         };
       	navi = nixpkgs.lib.nixosSystem {
