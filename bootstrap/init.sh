@@ -1,7 +1,7 @@
 #!bash
 echo "on which disk am I setting up nixos?"
 read diskname
-device="/dev/${diskname}"
+device="'"/dev/${diskname}"'"
 
 sudo nix --experimental-features "nix-command flakes" \
     run github:nix-community/disko -- \
