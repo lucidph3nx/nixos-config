@@ -95,7 +95,7 @@
   environment.systemPackages = with pkgs; [
     curl
     git
-    nvim
+    neovim
     sops
     zsh
   ];
