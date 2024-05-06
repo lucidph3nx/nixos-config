@@ -5,7 +5,7 @@
     [
       ./hardware-configuration.nix
       (import ./disko.nix { device = "/dev/vda";})
-      inputs.disko.nixosModules.default
+      "${builtins.fetchTarball "https://github.com/nix-community/disko/archive/master.tar.gz"}/module.nix"
     ];
 
   nix.settings.experimental-features = ["nix-command" "flakes"];
