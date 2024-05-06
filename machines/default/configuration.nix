@@ -33,8 +33,9 @@
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
   # Bootloader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.grub.enable = true;
+  boot.loader.grub.efiSupport = true;
+  boot.loader.grub.efiInstallAsRemovable = true;
 
   # Wipe the disk on each boot
   boot.initrd.postDeviceCommands = lib.mkAfter ''
@@ -69,7 +70,7 @@
     directories = [
       "/var/log"
       "/var/lib/bluetooth"
-      "/var/lib/nixos"
+      # "/var/lib/nixos"
       "/var/lib/systemd/coredump"
       "/etc/NetworkManager/system-connections"
     ];
