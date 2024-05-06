@@ -25,9 +25,9 @@
     sops = {
       defaultSopsFile = ../../../secrets/secrets.yaml;
       defaultSopsFormat = "yaml";
-      age.sshKeyPaths = [ "${config.home.homeDirectory}/.ssh/nix-ed25519" ];
       # age.keyFile = "${config.home.homeDirectory}/.config/sops/age/keys.txt";
-      age.generateKey = true;
+      age.sshKeyPaths = [ "${config.home.homeDirectory}/.ssh/nix-ed25519" ];
+      # sops.age.generateKey = true;
     };
   #   home.sessionVariables = {
   #     SOPS_AGE_KEY_FILE = "${config.home.homeDirectory}/.config/sops/age/keys.txt";
