@@ -19,9 +19,11 @@
     sops = {
       defaultSopsFile = ../../../secrets/secrets.yaml;
       defaultSopsFormat = "yaml";
-      age.sshKeyPaths = [ "/home/ben/.ssh/nix-ed25519" ];
-      age.keyFile = /home/ben/.config/sops/age/keys.txt;
-      age.generateKey = true;
+      age = {
+        keyFile = "/home/ben/.config/sops/age/keys.txt";
+        generateKey = true;
+        sshKeyPaths = [ "/home/ben/.ssh/nix-ed25519" ];
+      };
     };
   };
 }
