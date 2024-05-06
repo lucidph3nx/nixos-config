@@ -1,4 +1,4 @@
-#!/bin/sh
+#!bash
 echo "on which disk am I setting up nixos?"
 read diskname
 
