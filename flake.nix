@@ -59,6 +59,7 @@
             in [
             defaults
             ./machines/bootstrap/configuration.nix
+            inputs.impermanence.nixosModules.impermanence
           ];
         };
       	default = nixpkgs.lib.nixosSystem {
