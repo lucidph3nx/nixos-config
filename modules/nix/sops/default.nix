@@ -22,7 +22,7 @@
       age = {
         keyFile = "/var/lib/sops-nix/key.txt";
         generateKey = true;
-        sshKeyPaths = [ "/home/ben/.ssh/nix-ed25519" ];
+        sshKeyPaths = [ "/etc/ssh/nix-ed25519" ];
       };
     };
   };
