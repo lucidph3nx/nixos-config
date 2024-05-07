@@ -31,7 +31,7 @@
       ".ssh"
     ];
     files = [
-      ".zsh_history"
+      # ".zsh_history"
     ];
     allowOther = true;
   };
