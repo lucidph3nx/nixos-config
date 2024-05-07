@@ -15,25 +15,21 @@
         owner = "ben";
         mode = "0600";
         sopsFile = sopsFile;
-        neededForUsers = true;
       };
       secret_domain = {
         owner = "ben";
         mode = "0600";
         sopsFile = sopsFile;
-        neededForUsers = true;
       };
       github_token = {
         owner = "ben";
         mode = "0600";
         sopsFile = sopsFile;
-        neededForUsers = true;
       };
       notion_shopping_list_key = {
         owner = "ben";
         mode = "0600";
         sopsFile = sopsFile;
-        neededForUsers = true;
       };
     };
     environment.sessionVariables = {
