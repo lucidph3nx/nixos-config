@@ -77,6 +77,12 @@
     ];
     files = [
       "/etc/machine-id"
+      # suspect I should persist the host keys
+      # alternatively, I could generate some and keep them static across installs
+      "/etc/ssh_host_ed25519_key"
+      "/etc/ssh_host_ed25519_key.pub"
+      "/etc/ssh_host_rsa_key"
+      "/etc/ssh_host_rsa_key.pub"
     ];
   };
 
