@@ -5,6 +5,7 @@
     ./homeSSHKeys.nix
     ./workSSH.nix
     ./kubeconfig.nix
+    ./mountfix.nix
     inputs.sops-nix.nixosModules.sops
   ];
   config = {
