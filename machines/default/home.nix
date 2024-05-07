@@ -25,7 +25,7 @@
   };
   home.stateVersion = "23.11"; # Do Not Touch!
 
-    home.persistence."/persist/home" = {
+  home.persistence."/persist/home" = {
     directories = [
       "code"
       ".ssh"
