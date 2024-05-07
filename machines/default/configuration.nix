@@ -80,6 +80,10 @@
       "/etc/machine-id"
     ];
   };
+  # make sure /persist/home exists for home manager to use
+  system.activationScripts.persistHome = ''
+    mkdir -p /persist/home
+  '';
 
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
