@@ -87,6 +87,18 @@
     chown -R ben:users /persist/home
   '';
 
+  # seems necessary to get sops-nix to work with impermanance 🤷
+  systemd.services.force-rebuild-sops-hack = {
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      ExecStart = ''
+        /run/current-system/activate
+      '';
+      Type = "oneshot";
+      Restart = "on-failure"; # because oneshot
+      RestartSec = "10s";
+    };
+  }; 
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
