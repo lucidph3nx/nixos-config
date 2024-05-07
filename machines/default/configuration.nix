@@ -115,8 +115,6 @@
     shell = pkgs.zsh;
   };
   
-  # needed for some gtk stuff
-  programs.dconf.enable = true;
   # needed for impermanance in home-manager
   programs.fuse.userAllowOther = true; 
   # home-manager is awesome
