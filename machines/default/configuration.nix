@@ -82,7 +82,10 @@
   };
   # make sure /persist/home exists for home manager to use
   system.activationScripts.persistHome = ''
+    mkdir -p /persist/system/var/log
+    mkdir -p /persist/system/var/lib/nixos
     mkdir -p /persist/home
+    chown -R ben:users /persist/home
   '';
 
   networking.hostName = "nixos"; # Define your hostname.
