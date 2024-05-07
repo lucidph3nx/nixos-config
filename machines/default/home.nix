@@ -30,6 +30,9 @@
       "code"
       ".ssh"
     ];
+    files = [
+      ".zsh_history"
+    ];
     allowOther = true;
   };
   
