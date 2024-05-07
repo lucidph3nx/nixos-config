@@ -116,8 +116,8 @@
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.ben = {
     isNormalUser = true;
-    # initialPassword = "password";
-    hashedPasswordFile = config.sops.secrets.ben_hashed_password.path;
+    initialPassword = "password";
+    # hashedPasswordFile = config.sops.secrets.ben_hashed_password.path;
     description = "ben";
     extraGroups = [ "networkmanager" "wheel" ];
     shell = pkgs.zsh;
