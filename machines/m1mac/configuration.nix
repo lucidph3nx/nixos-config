@@ -36,6 +36,7 @@
       sops
       tree
       tridactyl-native
+      utm
       yq
       zsh
     ];
