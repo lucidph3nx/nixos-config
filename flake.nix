@@ -64,9 +64,9 @@
           ];
         };
       	default-arm = nixpkgs.lib.nixosSystem {
-          system = "arch64-linux";
+          system = "aarch64-linux";
           pkgs = import nixpkgs {
-            system = "arch64-linux";
+            system = "aarch64-linux";
             config.allowUnfree = true;
           };
           specialArgs = { inherit inputs outputs; };
