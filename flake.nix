@@ -79,6 +79,7 @@
             defaults
             ./machines/default-arm/configuration.nix
             home-manager.nixosModules.default
+            inputs.impermanence.nixosModules.impermanence
           ];
         };
       	navi = nixpkgs.lib.nixosSystem {
