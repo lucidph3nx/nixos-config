@@ -13,7 +13,6 @@
     services.syncthing = {
       enable = true;
       user = "ben";
-      dataDir = "/home/ben/documents";
       overrideDevices = true;
       settings = {
         devices = {
