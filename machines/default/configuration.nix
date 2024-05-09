@@ -81,15 +81,13 @@
     ];
   };
   # without these, you will get errors the first time after install
-  system.activationScripts.persistHome = '' 
+  system.activationScripts.persistDirs = '' 
     mkdir -p /persist/system/var/log
     mkdir -p /persist/system/var/lib/nixos
     mkdir -p /persist/home
     mkdir -p /persist/home/.ssh
     mkdir -p /persist/home/.config
     chown -R ben:users /persist/home
-    chown -R ben:users /persist/home/.ssh
-    chown -R ben:users /persist/home/.config
   '';
 
   networking.hostName = "nixos"; # Define your hostname.

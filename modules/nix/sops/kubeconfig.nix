@@ -30,5 +30,8 @@
         sopsFile = sopsFile;
       };
     };
+    system.activationScripts.chownConfig = '' 
+      chown -R ben:users /home/ben/.config
+    '';
   };
 }

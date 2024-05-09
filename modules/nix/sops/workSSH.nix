@@ -39,5 +39,8 @@
       sopsFile = ../../../secrets/worksshconfig;
       path = "/home/ben/.ssh/workconfig";
     };
+    system.activationScripts.chownSSH = '' 
+      chown -R ben:users /home/ben/.ssh
+    '';
   };
 }
