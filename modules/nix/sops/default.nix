@@ -22,19 +22,21 @@
       age = {
         keyFile = "/var/lib/sops-nix/key.txt";
         generateKey = true;
-        sshKeyPaths = [ "/etc/ssh/nix-ed25519" ];
+        sshKeyPaths = [ "/persist/system/etc/ssh/nix-ed25519" ];
       };
     };
     # seems necessary to get sops-nix to work with impermanance 🤷
-    systemd.services.force-rebuild-sops-hack = {
+    systemd.services.hack-setup-secrets = {
+      description = "Decrypt sops secrets";
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         ExecStart = ''
           /run/current-system/activate
         '';
         Type = "oneshot";
+        RemainAfterExit = true;
         Restart = "on-failure"; # because oneshot
-        RestartSec = "10s";
+        RestartSec = "2s";
       };
     }; 
   };

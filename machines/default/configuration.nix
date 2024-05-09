@@ -83,6 +83,7 @@
   # without these, you will get errors the first time after install
   system.activationScripts.persistHome = '' mkdir -p /persist/system/var/log
     mkdir -p /persist/system/var/lib/nixos
+    mkdir -p /persist/ssh
     mkdir -p /persist/home
     chown -R ben:users /persist/home
   '';
@@ -115,6 +116,14 @@
   security.sudo.wheelNeedsPassword = false;
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.ben = {
+    isNormalUser = true;
+    initialPassword = "password";
+    # hashedPasswordFile = config.sops.secrets.ben_hashed_password.path;
+    description = "ben";
+    extraGroups = [ "networkmanager" "wheel" ];
+    shell = pkgs.zsh;
+  };
+  users.users.test = {
     isNormalUser = true;
     # initialPassword = "password";
     hashedPasswordFile = config.sops.secrets.ben_hashed_password.path;

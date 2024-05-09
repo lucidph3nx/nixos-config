@@ -12,7 +12,6 @@
       in
       {
       ben_hashed_password = {
-        neededForUsers = true;
         sopsFile = sopsFile;
       };
       hass_api_key = {

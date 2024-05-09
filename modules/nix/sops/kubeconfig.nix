@@ -30,5 +30,8 @@
         sopsFile = sopsFile;
       };
     };
+  system.activationScripts.persistHome = '' mkdir -p /persist/system/var/log
+    chown -R ben:users /home/.config
+  '';
   };
 }
