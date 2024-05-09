@@ -25,7 +25,7 @@
       };
       extraFlags = [
         "--no-default-folder"
-      ]
+      ];
     };
     networking.firewall = {
       allowedTCPPorts = [
