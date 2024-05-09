@@ -22,22 +22,10 @@
       age = {
         keyFile = "/var/lib/sops-nix/key.txt";
         generateKey = true;
+        # this needs to be the /persist path,
+        # or else it wont be available when needed to create user passwords etc
         sshKeyPaths = [ "/persist/system/etc/ssh/nix-ed25519" ];
       };
     };
-    # seems necessary to get sops-nix to work with impermanance 🤷
-    systemd.services.hack-setup-secrets = {
-      description = "Decrypt sops secrets";
-      wantedBy = [ "multi-user.target" ];
-      serviceConfig = {
-        ExecStart = ''
-          /run/current-system/activate
-        '';
-        Type = "oneshot";
-        RemainAfterExit = true;
-        Restart = "on-failure"; # because oneshot
-        RestartSec = "2s";
-      };
-    }; 
   };
 }
