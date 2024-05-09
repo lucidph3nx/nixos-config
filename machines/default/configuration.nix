@@ -86,7 +86,6 @@
     mkdir -p /persist/system/var/lib/nixos
     mkdir -p /persist/home
     mkdir -p /persist/home/.ssh
-    mkdir -p /persist/home/.config
     chown -R ben:users /persist/home
   '';
 
@@ -124,14 +123,7 @@
     extraGroups = [ "networkmanager" "wheel" ];
     shell = pkgs.zsh;
   };
-  users.users.test = {
-    isNormalUser = true;
-    initialPassword = "password";
-    description = "ben";
-    extraGroups = [ "networkmanager" "wheel" ];
-    shell = pkgs.zsh;
-  };
-  
+
   # needed for impermanance in home-manager
   programs.fuse.userAllowOther = true; 
   # home-manager is awesome

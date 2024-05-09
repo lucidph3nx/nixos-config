@@ -40,7 +40,8 @@
       path = "/home/ben/.ssh/workconfig";
     };
     system.activationScripts.chownSSH = '' 
-      chown -R ben:users /home/ben/.ssh
+      mkdir -p /home/ben/.ssh
+      chown ben:users /home/ben/.ssh
     '';
   };
 }

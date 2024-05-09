@@ -36,8 +36,9 @@
         sopsFile = sopsFile;
       };
     };
-    system.activationScripts.chownSSH = '' 
-      chown -R ben:users /home/ben/.ssh
+    system.activationScripts.chownSSH = ''
+      mkdir -p /home/ben/.ssh
+      chown ben:users /home/ben/.ssh
     '';
   };
 }

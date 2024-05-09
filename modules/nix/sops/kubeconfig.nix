@@ -30,8 +30,10 @@
         sopsFile = sopsFile;
       };
     };
-    system.activationScripts.chownConfig = '' 
-      chown -R ben:users /home/ben/.config
+    system.activationScripts.chownConfig = ''
+      mkdir -p /home/ben/.config/kube
+      chown ben:users /home/ben/.config
+      chown ben:users /home/ben/.config/kube
     '';
   };
 }
