@@ -23,6 +23,9 @@
         };
         options.urAccepted = -1;
       };
+      extraFlags = [
+        "--no-default-folder"
+      ]
     };
     networking.firewall = {
       allowedTCPPorts = [
