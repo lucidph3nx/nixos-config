@@ -34,10 +34,6 @@
         21027
       ];
     };
-    # Syncthing makes this Sync folder when enabled, its anoying and I don't use it.
-    system.activationScripts.removeSyncFolder = lib.mkIf config.nixModules.syncthing.enable '' 
-      rm -r /home/ben/Sync
-    '';
     system.activationScripts.obsidianFolder = lib.mkIf config.nixModules.syncthing.obsidian.enable '' 
       mkdir -p /home/ben/documents/obsidian
       chown ben:users /home/ben/documents/obsidian
