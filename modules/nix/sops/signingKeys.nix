@@ -24,5 +24,8 @@
         sopsFile = sopsFile;
       };
     };
+    system.activationScripts.chownSSH = '' 
+      chown -R ben:users /home/ben/.ssh
+    '';
   };
 }
