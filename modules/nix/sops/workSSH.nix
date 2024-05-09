@@ -39,7 +39,7 @@
       sopsFile = ../../../secrets/worksshconfig;
       path = "/home/ben/.ssh/workconfig";
     };
-    system.activationScripts.chownSSH = '' 
+    system.activationScripts.workSSHFolderPermissions = '' 
       mkdir -p /home/ben/.ssh
       chown ben:users /home/ben/.ssh
     '';

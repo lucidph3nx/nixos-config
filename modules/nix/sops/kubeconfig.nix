@@ -30,7 +30,7 @@
         sopsFile = sopsFile;
       };
     };
-    system.activationScripts.chownConfig = ''
+    system.activationScripts.kubeConfigFolderPermissions = ''
       mkdir -p /home/ben/.config/kube
       chown ben:users /home/ben/.config
       chown ben:users /home/ben/.config/kube

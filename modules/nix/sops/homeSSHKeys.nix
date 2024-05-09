@@ -36,7 +36,7 @@
         sopsFile = sopsFile;
       };
     };
-    system.activationScripts.chownSSH = ''
+    system.activationScripts.homeSSHKeysFolderPermissions = ''
       mkdir -p /home/ben/.ssh
       chown ben:users /home/ben/.ssh
     '';
