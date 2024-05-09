@@ -86,6 +86,8 @@
     mkdir -p /persist/ssh
     mkdir -p /persist/home
     chown -R ben:users /persist/home
+    chown -R ben:users /persist/home/.ssh
+    chown -R ben:users /persist/home/.config
   '';
 
   networking.hostName = "nixos"; # Define your hostname.

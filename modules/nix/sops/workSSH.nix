@@ -39,8 +39,5 @@
       sopsFile = ../../../secrets/worksshconfig;
       path = "/home/ben/.ssh/workconfig";
     };
-  system.activationScripts.persistHome = '' mkdir -p /persist/system/var/log
-    chown -R ben:users /home/.ssh
-  '';
   };
 }
