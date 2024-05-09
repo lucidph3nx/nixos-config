@@ -22,7 +22,7 @@
       kubeconfig.enable = true;
     };
     syncthing = {
-      enable = true;
+      enable = false;
       obsidian.enable = true;
       music.enable = false; # too large for a vm
     };
