@@ -13,6 +13,7 @@
     services.syncthing = {
       enable = true;
       user = "ben";
+      dataDir = "/home/ben/documents";
       overrideDevices = true;
       settings = {
         devices = {
@@ -20,7 +21,6 @@
           "nas0" = { id = "7LANRKO-RRMWROL-PDMCTJX-WKSPOKO-LS3K35O-CJEMX7O-MHHIURW-GSF6FAS"; };
         };
         options.urAccepted = -1;
-        folders = {};
       };
     };
     networking.firewall = {
@@ -33,6 +33,10 @@
         21027
       ];
     };
+    # Syncthing makes this Sync folder when enabled, its anoying and I don't use it.
+    system.activationScripts.removeSyncFolder = lib.mkIf config.nixModules.syncthing.enable '' 
+      rm -r /home/ben/Sync
+    '';
     system.activationScripts.obsidianFolder = lib.mkIf config.nixModules.syncthing.obsidian.enable '' 
       mkdir -p /home/ben/documents/obsidian
       chown ben:users /home/ben/documents/obsidian
