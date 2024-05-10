@@ -32,8 +32,6 @@
     ./vim-markdown.nix
   ];
   programs.neovim.plugins = with pkgs.vimPlugins; [
-    indent-blankline-nvim
-    markdown-preview-nvim
-    quickfix-reflector-vim
+    markdown-preview-nvim # this doesnt seem to work...
   ];
 }
