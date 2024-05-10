@@ -12,6 +12,7 @@
       history = {
         size = 10000;
         expireDuplicatesFirst = true;
+        path = "$XDG_STATE_HOME/zsh/history";
       };
       # autosuggestion.enable = true; # not in 23.11
       syntaxHighlighting.enable = true;
@@ -70,6 +71,9 @@
         # utils
         eval "$(direnv hook zsh)"
       '';
+    };
+    home.persistence = {
+      "/persist/home".directories = [ ".local/state/zsh/history" ];
     };
   };
 }
