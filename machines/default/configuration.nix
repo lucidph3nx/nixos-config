@@ -142,28 +142,9 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    arping
     awscli2 ssm-session-manager-plugin
     chromium
-    curl
-    direnv
-    eza
-    fzf
-    fzy
-    gh
-    htop
-    imagemagick
-    jq
-    killall
     p7zip
-    ripgrep
-    rustup
-    sops
-    tree
-    xdg-utils
-    yq
-    yt-dlp
-    zsh
   ];
 
   environment.sessionVariables = {
