@@ -21,6 +21,13 @@
           "k8s" = { id = "FZVNVGQ-6TJDJLG-DRWSAWW-AQLKQM7-U36GWON-7ZQ7CLF-32MBYFN-SFHWHAX"; };
           "nas0" = { id = "7LANRKO-RRMWROL-PDMCTJX-WKSPOKO-LS3K35O-CJEMX7O-MHHIURW-GSF6FAS"; };
         };
+        folders = {
+          "obsidian" = lib.mkIf config.nixModules.syncthing.obsidian.enable {
+            id = "hgl5u-yejsp";
+            devices = ["k8s"];
+            path = "/home/ben/documents/obsidian";
+          };
+        };
         options.urAccepted = -1;
       };
       extraFlags = [
@@ -37,7 +44,7 @@
         21027
       ];
     };
-    system.activationScripts.documetnsFolder = '' 
+    system.activationScripts.documentsFolder = lib.mkIf config.nixModules.syncthing.enable '' 
       mkdir -p /home/ben/documents
       chown ben:users /home/ben/documents
     '';
