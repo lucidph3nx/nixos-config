@@ -89,7 +89,7 @@
     chown -R ben:users /persist/home
   '';
 
-  networking.hostName = "nixos"; # Define your hostname.
+  networking.hostName = "default"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Enable networking
