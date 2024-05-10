@@ -185,6 +185,20 @@
   # cups for printing
   services.printing.enable = true;
 
+  # device specific syncthing config
+  sops.secrets.default-cert-pem = {
+    owner = "ben";
+    mode = "0600";
+    sopsFile = ../../secrets/syncthingKeys.yaml;
+  };
+  sops.secrets.default-key-pem = {
+    owner = "ben";
+    mode = "0600";
+    sopsFile = ../../secrets/syncthingKeys.yaml;
+  };
+  services.syncthing.cert = config.sops.secrets.default-cert-pem.path;
+  services.syncthing.key = config.sops.secrets.default-key-pem.path;
+
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
