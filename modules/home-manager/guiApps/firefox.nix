@@ -1,4 +1,6 @@
 { config, pkgs, lib, ... }:
+
+with config.theme;
 let
   homeDir = config.home.homeDirectory;
 in
@@ -92,11 +94,47 @@ in
       set searchurls.nixpkgs https://search.nixos.org/packages?channel=unstable&from=0&size=50&sort=relevance&type=packages&query=
       set searchurls.nix https://search.nixos.org/options?channel=unstable&from=0&size=50&sort=relevance&type=packages&query=
     '';
+    home.".config/tridactyl/home.html".text = 
+    /*
+    html
+    */
+    ''
+    <html>
+      <head>
+        <link rel="stylesheet" href="chrome://activity-stream/content/css/activity-stream.css">
+        <!-- <style> -->
+          <!-- --newtab-textbox-focus-color: ${bg0} !important; -->
+          <!-- </style> -->
+      </head>
+      <body style="background-color: ${bg0}; ">
+        <div class="outer-wrapper ds-outer-wrapper-breakpoint-override only-search visible-logo">
+          <main>
+            <div class="non-collapsible-section">
+              <div class="search-wrapper">
+                <div class="logo-and-wordmark" style="width:100%;">
+                  <div class="logo"></div>
+                  <div class="wordmark" style="fill: ${foreground} !important;"></div>
+                </div>
+                <div class="search-inner-wrapper" padding-inline-start>
+                  <form style="display: block; font-family='JetBrainsMonoNerdFont',monospace; width:100%;">
+                    <input
+                      style="background-color: ${bg3}; color: ${foreground}; border-radius: 0px !important; --newtab-primary-action-background: ${green}; padding-inline-start:10px; height: 50px;"
+                      type="text" size="50" name="q" placeholder="Search the web" id="search-field">
+                    <input type="submit" style="display: none;" formaction="https://google.com/search?hl=en&amp;q={}"
+                      formmethod="get">
+                  </form>
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      </body>
+      </html>
+    '';
+
 
     home.file = {
-      # ".config/tridactyl/tridactylrc".source = ./files/tridactyl-config;
       ".config/tridactyl/themes/everforest.css".source = ./files/tridactyl-style;
-      ".config/tridactyl/home.html".source = ./files/tridactyl-homepage;
       ".mozilla/firefox/main/chrome/userChrome.css".source = ./files/firefox-userChrome;
       ".mozilla/firefox/main/chrome/userContent.css".source = ./files/firefox-userContent;
     };
