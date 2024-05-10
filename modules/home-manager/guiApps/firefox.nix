@@ -85,7 +85,7 @@ in
       " Editor
       set editorcmd kitty --class qute-editor -e nvim
       " Theme
-      colors default
+      colors customtheme
       " Disable
       blacklistadd https://monkeytype.com/
       " Search Urls
@@ -134,7 +134,7 @@ in
 
 
     home.file = {
-      ".config/tridactyl/themes/default.css".source = ./files/tridactyl-style;
+      ".config/tridactyl/themes/customtheme.css".source = ./files/tridactyl-style;
       ".mozilla/firefox/main/chrome/userChrome.css".source = ./files/firefox-userChrome;
       ".mozilla/firefox/main/chrome/userContent.css".source = ./files/firefox-userContent;
     };
