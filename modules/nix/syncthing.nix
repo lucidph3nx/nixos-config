@@ -37,6 +37,10 @@
         21027
       ];
     };
+    system.activationScripts.documetnsFolder = '' 
+      mkdir -p /home/ben/documents
+      chown ben:users /home/ben/documents
+    '';
     system.activationScripts.obsidianFolder = lib.mkIf config.nixModules.syncthing.obsidian.enable '' 
       mkdir -p /home/ben/documents/obsidian
       chown ben:users /home/ben/documents/obsidian
