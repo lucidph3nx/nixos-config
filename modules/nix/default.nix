@@ -33,5 +33,12 @@
       yt-dlp
       zsh
     ];
+    # nix helper
+    programs.nh = {
+      enable = true;
+      clean.enable = true;
+      clean.extraArgs = "--keep since 14d";
+      flake = /home/ben/code/nixos-config;
+    };
   };
 }
