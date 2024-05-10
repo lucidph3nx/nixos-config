@@ -151,6 +151,20 @@
     gamescopeSession.enable = true;
   };
   programs.gamemode.enable = true;
+  
+  # device specific syncthing config
+  sops.secrets.navi-cert-pem = {
+    owner = "ben";
+    mode = "0600";
+    sopsFile = ../../secrets/syncthingKeys.yaml;
+  };
+  sops.secrets.navi-key-pem = {
+    owner = "ben";
+    mode = "0600";
+    sopsFile = ../../secrets/syncthingKeys.yaml;
+  };
+  services.syncthing.cert = config.sops.secrets.navi-cert-pem.path;
+  services.syncthing.key = config.sops.secrets.navi-key-pem.path;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
