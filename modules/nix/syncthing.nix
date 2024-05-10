@@ -27,6 +27,11 @@
             devices = ["k8s"];
             path = "/home/ben/documents/obsidian";
           };
+          "music" = lib.mkIf config.nixModules.syncthing.music.enable {
+            id = "dmuif-nefck";
+            devices = ["nas0"];
+            path = "/home/ben/music";
+          };
         };
         options.urAccepted = -1;
       };
