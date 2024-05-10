@@ -1,14 +1,7 @@
 { config, pkgs, ... }:
 
 {
-  imports =
-  [
-    ../../modules/home-manager/scripts.nix
-    # ../../modules/home-manager/syncthing.nix
-  ];
-  sysDefaults = {
-    terminal = "${pkgs.kitty}/bin/kitty";
-  };
+  imports = [];
   # my own modules
   homeManagerModules = {
     prospect-mail.enable = true;

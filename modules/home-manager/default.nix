@@ -4,6 +4,7 @@
     ./desktopEnvironment
     ./guiApps
     ./neovim
+    ./scripts
     ./sops
     ./sshConfig
   ];

@@ -3,13 +3,8 @@
 {
   imports = 
   [
-    ../../modules/home-manager/git-sync.nix
-    ../../modules/home-manager/scripts.nix
     ../../modules/home-manager/syncthing.nix
   ];
-  sysDefaults = {
-    terminal = "${pkgs.kitty}/bin/kitty";
-  };
   homeManagerModules = {
     firefox.enable = false; # doesnt work on nix-darwin currently
     vimiv.enable = false; # doesnt work on nix-darwin currently

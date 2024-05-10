@@ -1,8 +1,5 @@
 { config, pkgs, inputs, lib, ... }: 
 
-let
-  terminal = config.sysDefaults.terminal;
-in
 {
   options = {
     homeManagerModules.k9s.enable =
@@ -223,14 +220,14 @@ in
       executable = true;
       text = ''
         #!/bin/sh
-        ${terminal} ${pkgs.k9s}/bin/k9s --kubeconfig /home/ben/.config/kube/config-home
+        ${pkgs.kitty} ${pkgs.k9s}/bin/k9s --kubeconfig /home/ben/.config/kube/config-home
       '';
     };
     home.file.".local/scripts/application.k9s.openWorkKube" = lib.mkIf config.homeManagerModules.guiApps.enable {
       executable = true;
       text = ''
         #!/bin/sh
-        ${terminal} ${pkgs.k9s}/bin/k9s --kubeconfig /home/ben/.config/kube/config-work
+        ${pkgs.kitty} ${pkgs.k9s}/bin/k9s --kubeconfig /home/ben/.config/kube/config-work
       '';
     };
   };

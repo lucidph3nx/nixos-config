@@ -3,12 +3,8 @@
 {
   imports =
   [
-    ../../modules/home-manager/scripts.nix
     inputs.impermanence.nixosModules.home-manager.impermanence
   ];
-  sysDefaults = {
-    terminal = "${pkgs.kitty}/bin/kitty";
-  };
   # my own modules
   homeManagerModules = {
     firefox.enable = true; # testing removing and readding

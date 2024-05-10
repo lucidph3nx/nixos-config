@@ -1,6 +1,6 @@
 #!/bin/sh
 
-session="jarden-ssh"
+session="work-ssh"
 
 tmux new-session -d -s $session
 tmux rename-window -t $session:0 "uat-18w"

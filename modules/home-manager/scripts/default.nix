@@ -6,7 +6,7 @@
   home.sessionPath = ["$HOME/.local/scripts"];
   home.file = {
     ".local/scripts/" = {
-      source = ./scripts;
+      source = ./;
       recursive = true;
     };
   };
