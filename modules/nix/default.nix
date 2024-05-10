@@ -15,6 +15,7 @@
     };
     # packages that should always be installed by nix
     environment.systemPackages = with pkgs; [
+      bitwarden-cli
       curl
       direnv
       eza
