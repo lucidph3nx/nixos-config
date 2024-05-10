@@ -73,7 +73,7 @@
       '';
     };
     home.persistence = {
-      "/persist/home".directories = [ ".local/state/zsh/history" ];
+      "/persist/home".directories = [ ".local/state/zsh" ];
     };
   };
 }
