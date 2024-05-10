@@ -68,6 +68,7 @@
   environment.persistence."/persist/system" = {
     hideMounts = true;
     directories = [
+      "/var/cache/tuigreet" # for remembering last user
       "/var/log"
       "/var/lib/bluetooth"
       "/var/lib/nixos"
