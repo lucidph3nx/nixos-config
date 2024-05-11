@@ -6,6 +6,7 @@
       lib.mkEnableOption "Set up Neovim";
   };
   imports = [
+    ./abbreviations.nix
     ./autocmd.nix
     ./functions.nix
     ./keymaps.nix
