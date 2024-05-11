@@ -303,7 +303,11 @@ in
         bindsym --to-code ${super}+Shift+e mode $mode_exit
         bindsym --release ${super}+Shift+e exec sleep 3 && swaymsg mode "default"
       '';
-      systemd.enable = true;
+      systemd = {
+        enable = true;
+        xdgAutostart = true;
+      };
+      xwayland = true;
     };
     home.packages = with pkgs; [
       autotiling
@@ -316,7 +320,6 @@ in
       swaylock
       swaynotificationcenter
       wl-clipboard
-      xwayland
     ];
     # home.file = {
       # ".config/sway/config".source              = ./files/sway-config;
