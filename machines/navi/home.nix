@@ -25,6 +25,7 @@
       ".local/share"
       ".local/state"
       ".ssh"
+      ".steam"
       "code"
       "documents"
       "music"
