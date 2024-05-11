@@ -2,6 +2,10 @@
 
 with config.theme;
 {
+  options = {
+    homeManagerModules.firefox.hideUrlbar =
+      lib.mkEnableOption "hideurlbar" true;
+  };
   config = lib.mkIf config.homeManagerModules.firefox.enable {
     # heavy firefox customization
     # mostly inspired/copied from https://github.com/Dook97/firefox-qutebrowser-userchrome
@@ -259,13 +263,17 @@ with config.theme;
       /* --- AUTOHIDE NAVBAR ---------------------------------- */
 
       /* hide navbar unless focused */
-      #nav-bar {
-        min-height: 0 !important;
-        max-height: 0 !important;
-        height: 0 !important;
-        --moz-transform: scaleY(0) !important;
-        transform: scaleY(0) !important;
-      }
+      ${lib.mkIf config.homeManagerModules.firefox.hideUrlbar 
+        /* css */
+        ''
+        #nav-bar {
+          min-height: 0 !important;
+          max-height: 0 !important;
+          height: 0 !important;
+          --moz-transform: scaleY(0) !important;
+          transform: scaleY(0) !important;
+        }
+        ''}
 
       /* show on focus */
       #nav-bar:focus-within {
