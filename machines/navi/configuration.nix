@@ -202,7 +202,7 @@
   services.xserver.videoDrivers = [ "amdgpu" ];
   programs.steam = {
     enable = true;
-    gamescopeSession.enable = true;
+    gamescopeSession.enable = false;
   };
   programs.gamemode.enable = true;
   
