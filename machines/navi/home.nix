@@ -22,13 +22,19 @@
   home.persistence."/persist/home" = {
     directories = [
       ".config/autostart"
-      ".local/share"
+      # ".local/share"
+      ".local/share/mpd"
+      ".local/share/nvim"
       ".local/state"
       ".ssh"
       ".steam"
       "code"
       "documents"
       "music"
+      {
+        directory = ".local/share/Steam";
+        method = "symlink";
+      }
     ];
     allowOther = true;
   };
