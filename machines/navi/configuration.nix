@@ -1,13 +1,11 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-
-{ pkgs, nixpkgs-stable, inputs, config, ... }:
+{ pkgs, nixpkgs-stable, inputs, config, lib, ... }:
 
 {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      (import ./disko.nix { device = "/dev/sdb";})
+      inputs.disko.nixosModules.default
       ../../modules/nix
     ];
 
@@ -31,8 +29,62 @@
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
   # Bootloader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.grub.enable = true;
+  boot.loader.grub.efiSupport = true;
+  boot.loader.grub.efiInstallAsRemovable = true;
+
+  # Wipe the disk on each boot
+  boot.initrd.postDeviceCommands = lib.mkAfter ''
+    mkdir /btrfs_tmp
+    mount /dev/root_vg/root /btrfs_tmp
+    if [[ -e /btrfs_tmp/root ]]; then
+        mkdir -p /btrfs_tmp/old_roots
+        timestamp=$(date --date="@$(stat -c %Y /btrfs_tmp/root)" "+%Y-%m-%-d_%H:%M:%S")
+        mv /btrfs_tmp/root "/btrfs_tmp/old_roots/$timestamp"
+    fi
+
+    delete_subvolume_recursively() {
+        IFS=$'\n'
+        for i in $(btrfs subvolume list -o "$1" | cut -f 9- -d ' '); do
+            delete_subvolume_recursively "/btrfs_tmp/$i"
+        done
+        btrfs subvolume delete "$1"
+    }
+
+    for i in $(find /btrfs_tmp/old_roots/ -maxdepth 1 -mtime +30); do
+        delete_subvolume_recursively "$i"
+    done
+
+    btrfs subvolume create /btrfs_tmp/root
+    umount /btrfs_tmp
+  '';
+
+  # things to persist
+  fileSystems."/persist".neededForBoot = true;
+  environment.persistence."/persist/system" = {
+    hideMounts = true;
+    directories = [
+      "/var/cache/tuigreet" # for remembering last user with tuigreet
+      "/var/log"
+      "/var/lib/bluetooth"
+      "/var/lib/nixos"
+      "/var/lib/sops-nix"
+      "/var/lib/systemd/coredump"
+      "/etc/NetworkManager/system-connections"
+      "/etc/ssh"
+    ];
+    files = [
+      "/etc/machine-id"
+    ];
+  };
+  # without these, you will get errors the first time after install
+  system.activationScripts.persistDirs = '' 
+    mkdir -p /persist/system/var/log
+    mkdir -p /persist/system/var/lib/nixos
+    mkdir -p /persist/home
+    mkdir -p /persist/home/.ssh
+    chown -R ben:users /persist/home
+  '';
 
   networking.hostName = "navi";
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -45,13 +97,15 @@
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.ben = {
     isNormalUser = true;
+    hashedPasswordFile = config.sops.secrets.ben_hashed_password.path;
     description = "ben";
     extraGroups = [ "networkmanager" "wheel" ];
     shell = pkgs.zsh;
   };
-  # seems to be needed for something 🤷
-  # programs.dconf.enable = true;
 
+  # needed for impermanance in home-manager
+  programs.fuse.userAllowOther = true; 
+  # home-manager is awesome
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
@@ -70,7 +124,6 @@
     awscli2 ssm-session-manager-plugin
     chromium
     p7zip
-    qpwgraph
   ];
 
   environment.sessionVariables = {
@@ -135,6 +188,7 @@
     };
   };
   security.rtkit.enable = true;
+  environment.systemPackages = [pkgs.qpwgraph];
 
   # cups for printing
   services.printing.enable = true;

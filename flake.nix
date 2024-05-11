@@ -79,6 +79,7 @@
             defaults
             ./machines/navi/configuration.nix
             home-manager.nixosModules.default
+            inputs.impermanence.nixosModules.impermanence
           ];
         };
       };
