@@ -18,6 +18,14 @@
   };
   home.stateVersion = "23.11"; # Do Not Touch!
   
+  home.persistence."/persist/home" = {
+    directories = [
+      "code"
+      ".ssh"
+    ];
+    allowOther = true;
+  };
+
   home.packages = with pkgs; [
     gimp # temp for troubleshooting
     picard
