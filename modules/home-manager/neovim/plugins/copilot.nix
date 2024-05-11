@@ -50,4 +50,9 @@
         '';
     }
   ];
+  home.persistence."/persist/home" = {
+    directories = [
+      ".config/github-copilot"
+    ];
+  };
 }
