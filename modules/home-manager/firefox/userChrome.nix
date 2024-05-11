@@ -277,7 +277,7 @@ with config.theme;
       /* --- AUTOHIDE NAVBAR ---------------------------------- */
 
       /* hide navbar unless focused */
-      ${lib.mkIf config.homeManagerModules.firefox.hideUrlbar hideUrlBar}
+      ${if config.homeManagerModules.firefox.hideUrlbar then hideUrlBar else ""}
 
       /* show on focus */
       #nav-bar:focus-within {
