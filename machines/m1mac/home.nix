@@ -1,10 +1,6 @@
 { config, pkgs, inputs, ... }:
 
 {
-  imports = 
-  [
-    ../../modules/home-manager/syncthing.nix
-  ];
   homeManagerModules = {
     firefox.enable = false; # doesnt work on nix-darwin currently
     vimiv.enable = false; # doesnt work on nix-darwin currently
