@@ -21,10 +21,13 @@
   
   home.persistence."/persist/home" = {
     directories = [
-      "code"
-      ".ssh"
-      ".local/share/Steam"
       ".config/autostart"
+      ".local/share/Steam"
+      ".local/share/wireplumber" # remember the last used auto device
+      ".ssh"
+      "code"
+      "documents"
+      "music"
     ];
     allowOther = true;
   };
