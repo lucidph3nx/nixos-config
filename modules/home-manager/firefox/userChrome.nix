@@ -4,9 +4,10 @@ with config.theme;
 {
   options = {
     homeManagerModules.firefox.hideUrlbar =
-      lib.mkEnableOption "hideurlbar" true;
+      lib.mkEnableOption "hideurlbar";
   };
   config = lib.mkIf config.homeManagerModules.firefox.enable {
+    config.homeManagerModules.firefox.hideUrlbar = lib.mkDefault true;
     # heavy firefox customization
     # mostly inspired/copied from https://github.com/Dook97/firefox-qutebrowser-userchrome
     programs.firefox.profiles.main.userChrome = 
