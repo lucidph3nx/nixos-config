@@ -8,7 +8,7 @@
   # my own modules
   homeManagerModules = {
     firefox.enable = true; # testing removing and readding
-    firefox.hideUrlBar = true;
+    firefox.hideUrlbar = true;
     prospect-mail.enable = true;
     teams-for-linux.enable = true;
     # Enable home automation stuff as device should be in the home
