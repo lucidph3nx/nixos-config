@@ -22,8 +22,8 @@
   home.persistence."/persist/home" = {
     directories = [
       ".config/autostart"
-      ".local/share/Steam"
-      ".local/share/wireplumber" # remember the last used auto device
+      ".local/share"
+      ".local/state"
       ".ssh"
       "code"
       "documents"
