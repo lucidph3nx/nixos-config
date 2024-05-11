@@ -124,6 +124,7 @@
     awscli2 ssm-session-manager-plugin
     chromium
     p7zip
+    qpwgraph
   ];
 
   environment.sessionVariables = {
@@ -188,7 +189,6 @@
     };
   };
   security.rtkit.enable = true;
-  environment.systemPackages = [pkgs.qpwgraph];
 
   # cups for printing
   services.printing.enable = true;
