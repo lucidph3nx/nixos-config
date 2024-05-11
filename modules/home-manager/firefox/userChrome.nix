@@ -12,7 +12,9 @@ with config.theme;
     # mostly inspired/copied from https://github.com/Dook97/firefox-qutebrowser-userchrome
     programs.firefox.profiles.main.userChrome = 
     let
-      hideUrlBar = lib.mkIf config.homeManagerModules.firefox.hideUrlbar ''
+      hideUrlBar = (lib.mkIf config.homeManagerModules.firefox.hideUrlbar 
+      /* css */
+      ''
         #nav-bar {
           min-height: 0 !important;
           max-height: 0 !important;
@@ -20,7 +22,7 @@ with config.theme;
           --moz-transform: scaleY(0) !important;
           transform: scaleY(0) !important;
         }
-      '';
+      '');
     in
     /*
     css
