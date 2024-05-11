@@ -23,6 +23,7 @@
     directories = [
       "code"
       ".ssh"
+      ".local/share/Steam"
     ];
     allowOther = true;
   };
