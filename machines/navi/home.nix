@@ -24,6 +24,7 @@
       "code"
       ".ssh"
       ".local/share/Steam"
+      ".config/autostart
     ];
     allowOther = true;
   };
