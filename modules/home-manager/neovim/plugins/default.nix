@@ -21,7 +21,6 @@
     ./nvim-tree.nix
     ./obsidian.nix
     ./oil.nix
-    ./spell.nix
     ./symbols-outline.nix
     ./telescope.nix
     ./theme-everforest.nix
