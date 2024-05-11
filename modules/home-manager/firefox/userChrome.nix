@@ -11,6 +11,17 @@ with config.theme;
     # heavy firefox customization
     # mostly inspired/copied from https://github.com/Dook97/firefox-qutebrowser-userchrome
     programs.firefox.profiles.main.userChrome = 
+    let
+      hideUrlBar = mkIf config.homeManagerModules.firefox.hideUrlbar ''
+        #nav-bar {
+          min-height: 0 !important;
+          max-height: 0 !important;
+          height: 0 !important;
+          --moz-transform: scaleY(0) !important;
+          transform: scaleY(0) !important;
+        }
+      '';
+    in
     /*
     css
     */
@@ -264,16 +275,7 @@ with config.theme;
       /* --- AUTOHIDE NAVBAR ---------------------------------- */
 
       /* hide navbar unless focused */
-      ${lib.mkIf homeManagerModules.firefox.hideUrlbar 
-        /* css */ ''
-        #nav-bar {
-          min-height: 0 !important;
-          max-height: 0 !important;
-          height: 0 !important;
-          --moz-transform: scaleY(0) !important;
-          transform: scaleY(0) !important;
-        }
-        ''}
+      ${hideUrlBar}
 
       /* show on focus */
       #nav-bar:focus-within {
