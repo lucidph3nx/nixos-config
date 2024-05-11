@@ -7,12 +7,13 @@ with config.theme;
       lib.mkEnableOption "hides the url bar in firefox by default";
   };
   config = lib.mkIf config.homeManagerModules.firefox.enable {
-    # homeManagerModules.firefox.hideUrlbar = lib.mkDefault true;
+    homeManagerModules.firefox.hideUrlbar = lib.mkDefault false;
     # heavy firefox customization
     # mostly inspired/copied from https://github.com/Dook97/firefox-qutebrowser-userchrome
     programs.firefox.profiles.main.userChrome = 
     let
-      hideUrlBar = lib.mkIf config.homeManagerModules.firefox.hideUrlbar 
+      hideUrlBar = 
+      # lib.mkIf config.homeManagerModules.firefox.hideUrlbar 
       /* css */
       ''
         #nav-bar {
