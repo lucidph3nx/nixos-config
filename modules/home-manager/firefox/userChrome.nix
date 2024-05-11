@@ -264,9 +264,8 @@ with config.theme;
       /* --- AUTOHIDE NAVBAR ---------------------------------- */
 
       /* hide navbar unless focused */
-      ${lib.mkIf config.homeManagerModules.firefox.hideUrlbar 
-        /* css */
-        ''
+      ${lib.mkIf homeManagerModules.firefox.hideUrlbar 
+        /* css */ ''
         #nav-bar {
           min-height: 0 !important;
           max-height: 0 !important;
