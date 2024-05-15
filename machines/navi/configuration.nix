@@ -83,6 +83,8 @@
     mkdir -p /persist/system/var/lib/nixos
     mkdir -p /persist/home
     mkdir -p /persist/home/.ssh
+    mkdir -p /persist/home/.steam
+    mkdir -p /persist/home/.local/share/Steam
     chown -R ben:users /persist/home
   '';
 
