@@ -4,7 +4,7 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      (import ./disko.nix { device = "/dev/sda";})
+      (import ./disko.nix { device = "/dev/sdb";})
       inputs.disko.nixosModules.default
       ../../modules/nix
     ];
