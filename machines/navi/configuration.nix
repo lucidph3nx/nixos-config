@@ -20,7 +20,7 @@
     syncthing = {
       enable = true;
       obsidian.enable = true;
-      music.enable = true;
+      music.enable = false; # disable until I work out issues with disk space
     };
     # should be on home network
     nfs-mounts.enable = true;
