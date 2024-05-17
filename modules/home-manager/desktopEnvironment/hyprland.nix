@@ -186,7 +186,7 @@ in
       };
       systemd = {
         enable = true;
-        xdgAutostart = true;
+        enableXdgAutostart = true;
       };
       xwayland.enable = true;
     };
