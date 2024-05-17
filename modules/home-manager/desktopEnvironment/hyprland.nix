@@ -108,6 +108,8 @@ in
           "DP-3,highrr,0x0,1"
         ];
         bind = [
+          # exit hyprland TODO: make better exit menu
+          "SUPER SHIFT, e, exit"
           # Motions
           # focus window
           "SUPER, h, movefocus, l"
