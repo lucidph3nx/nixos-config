@@ -1,6 +1,7 @@
 { config, pkgs, inputs, lib, ... }: {
   imports = [
     ./additionalTheming.nix
+    ./hyprland.nix
     ./input-remapper.nix
     ./mpd.nix
     ./pipewire-utils.nix
@@ -19,6 +20,7 @@
   config.homeManagerModules.desktopEnvironment.enable 
   && pkgs.stdenv.isLinux) {
     homeManagerModules = {
+      hyprland.enable = lib.mkDefault true;
       input-remapper.enable = lib.mkDefault true;
       mpd.enable = lib.mkDefault true;
       pipewire-utils.enable = lib.mkDefault true;
