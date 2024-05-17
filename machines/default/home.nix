@@ -40,7 +40,7 @@
   ];
 
   home.sessionVariables = {
-    KUBECONFIG = "/home/ben/.config/kube/config-home";
+    # KUBECONFIG = "/home/ben/.config/kube/config-home";
     PAGER = "less";
   };
 
