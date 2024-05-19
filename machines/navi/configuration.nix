@@ -81,11 +81,11 @@
   system.activationScripts.persistDirs = '' 
     mkdir -p /persist/system/var/log
     mkdir -p /persist/system/var/lib/nixos
-    mkdir -p /persist/home
-    mkdir -p /persist/home/.ssh
-    mkdir -p /persist/home/.steam
-    mkdir -p /persist/home/.local/share/Steam
-    chown -R ben:users /persist/home
+    mkdir -p /persist/home/ben
+    mkdir -p /persist/home/ben/.ssh
+    mkdir -p /persist/home/ben/.steam
+    mkdir -p /persist/home/ben/.local/share/Steam
+    chown -R ben:users /persist/home/ben
   '';
 
   networking.hostName = "navi";

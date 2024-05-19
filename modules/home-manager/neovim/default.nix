@@ -20,7 +20,7 @@
       defaultEditor = true;
       # package = pkgs.neovim-nightly;
     };
-    home.persistence."/persist/home" = {
+    home.persistence."/persist/home/ben" = {
       directories = [
         ".config/nvim/spell"
       ];

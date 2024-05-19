@@ -19,24 +19,19 @@
   };
   home.stateVersion = "23.11"; # Do Not Touch!
   
-  home.persistence."/persist/home" = {
+  home.persistence."/persist/home/ben" = {
+    allowOther = true;
     directories = [
       ".config/autostart"
-      # ".local/share"
+      ".local/share/Steam"
       ".local/share/mpd"
       ".local/share/nvim"
       ".local/state"
       ".ssh"
-      ".steam"
       "code"
       "documents"
       "music"
-      {
-        directory = ".local/share/Steam";
-        method = "symlink";
-      }
     ];
-    allowOther = true;
   };
 
   home.packages = with pkgs; [

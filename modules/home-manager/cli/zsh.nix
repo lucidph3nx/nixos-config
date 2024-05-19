@@ -64,7 +64,7 @@
       '';
     };
     home.persistence = {
-      "/persist/home".directories = [ ".local/state/zsh" ];
+      "/persist/home/ben".directories = [ ".local/state/zsh" ];
     };
   };
 }

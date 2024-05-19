@@ -81,9 +81,9 @@
   system.activationScripts.persistDirs = '' 
     mkdir -p /persist/system/var/log
     mkdir -p /persist/system/var/lib/nixos
-    mkdir -p /persist/home
-    mkdir -p /persist/home/.ssh
-    chown -R ben:users /persist/home
+    mkdir -p /persist/home/ben
+    mkdir -p /persist/home/ben/.ssh
+    chown -R ben:users /persist/home/ben
   '';
 
   networking.hostName = "default"; # Define your hostname.
