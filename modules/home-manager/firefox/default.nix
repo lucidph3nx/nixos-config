@@ -67,7 +67,7 @@ in
     };
     # persist firefox directory
     home.persistence = {
-      "/persist/home".directories = [ ".mozilla/firefox" ];
+      "/persist/home/ben".directories = [ ".mozilla/firefox" ];
     };
   };
 }
