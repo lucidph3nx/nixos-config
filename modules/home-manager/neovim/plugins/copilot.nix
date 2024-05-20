@@ -50,7 +50,7 @@
         '';
     }
   ];
-  home.persistence."/persist/home/ben" = {
+  home.persistence."/persist/home/ben" = lib.mkIf pkgs.stdenv.isLinux {
     directories = [
       ".config/github-copilot"
     ];
