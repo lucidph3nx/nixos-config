@@ -20,7 +20,7 @@
   config.homeManagerModules.desktopEnvironment.enable 
   && pkgs.stdenv.isLinux) {
     homeManagerModules = {
-      hyprland.enable = lib.mkDefault true;
+      hyprland.enable = lib.mkDefault false;
       input-remapper.enable = lib.mkDefault true;
       mpd.enable = lib.mkDefault true;
       pipewire-utils.enable = lib.mkDefault true;

@@ -12,6 +12,9 @@
     teams-for-linux.enable = true;
     # Enable home automation stuff as device should be in the home
     homeAutomation.enable = true;
+    # testing hyprland instead of sway
+    sway.enable = true;
+    hyprland.enable = false;
   };
   home = {
     username = "ben";
