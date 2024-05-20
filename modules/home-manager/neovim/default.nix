@@ -20,7 +20,8 @@
       defaultEditor = true;
       # package = pkgs.neovim-nightly;
     };
-    home.persistence."/persist/home/ben" = {
+    # persistance conditional on isLinux, TODO: probably need to make this more specific in future 
+    home.persistence."/persist/home/ben" = lib.mkIf pkgs.stdenv.isLinux {
       directories = [
         ".config/nvim/spell"
       ];
