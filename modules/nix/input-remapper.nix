@@ -8,5 +8,9 @@
     services.input-remapper = {
       enable = true;
     };
+    security.sudo.extraConfig = ''
+      ben ALL=(ALL) NOPASSWD: ${pkgs.input-remapper}/bin/input-remapper-control
+    '';
+    users.users.ben.extraGroups = [ "input" ];
   };
 }
