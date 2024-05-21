@@ -24,7 +24,6 @@ in
          })
       ];
       extraConfig = {
-        modi = "run,drun,emoji,calc";
         steal-focus = true;
         show-icons = true;
         icon-theme = "Papirus-Dark";
