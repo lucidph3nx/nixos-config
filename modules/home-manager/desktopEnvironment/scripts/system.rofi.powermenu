@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# Define options for the power menu
+options="Shutdown\nRestart\nLogout\nLock"
+
+# Get user selection using rofi
+selected_option=$(echo -e "$options" | rofi -dmenu -p "Power Menu" -lines 4 -width 20)
+
+# Perform actions based on user selection
+case $selected_option in
+    "Shutdown")
+        systemctl poweroff
+        ;;
+    "Restart")
+        systemctl reboot
+        ;;
+    "Logout")
+        loginctl terminate-user $USER
+        ;;
+    "Lock")
+        swaylock
+        ;;
+    *)
+        echo "Invalid option"
+        ;;
+esac
+
