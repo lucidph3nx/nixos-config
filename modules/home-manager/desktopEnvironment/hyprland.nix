@@ -37,7 +37,7 @@ in
         exec-once = [];
         exec = [
           "pkill waybar && hyprctl dispatch exec waybar"
-          "${homeDir}.local/scripts/cli.system.setHyprGaps"
+          "${homeDir}/.local/scripts/cli.system.setHyprGaps"
         ];
         input = {
           # Te Reo Macrons
@@ -71,12 +71,12 @@ in
         animations = {
           enabled = true;
           animation = [
-             "windows, 1, 1, myBezier"
-             "windowsOut, 1, 0.5, myBezier, popin 90%"
-             "windowsIn, 1, 0.5, myBezier, popin 90%"
-             "border, 1, 1, default"
+             "windows, 1, 2, myBezier"
+             "windowsOut, 1, 1, myBezier, popin 90%"
+             "windowsIn, 1, 1, myBezier, popin 90%"
+             "border, 1, 2, default"
              "borderangle, 1, 50, linear, loop"
-             "fade, 1, 1, default"
+             "fade, 1, 2, default"
              "workspaces,0" # disable workspace animations
           ];
         };
@@ -151,33 +151,33 @@ in
           "SUPER, mouse_up, workspace, e-1"
           # window shortcuts
           "SUPER, q, killactive"
-          "SUPER SHIFT, C, exec hyprctl reload"
-          "SUPER SHIFT, S, exec ${screenshotutil}"
-          "SUPER, period, exec ${emojipicker}"
-          "SUPER, Space, exec ${runscripts}"
-          "SUPER, c, exec ${calculator}"
-          "SUPER, f, exec ${nvimsessionlauncher}"
+          "SUPER SHIFT, C, exec, hyprctl reload"
+          "SUPER SHIFT, S, exec, ${screenshotutil}"
+          "SUPER, period, exec, ${emojipicker}"
+          "SUPER, Space, exec, ${runscripts}"
+          "SUPER, c, exec, ${calculator}"
+          "SUPER, f, exec, ${nvimsessionlauncher}"
           # TODO Notification Center
           # application shortcuts
-          "ALT, Return, exec ${terminal}"
-          "AlT, Space, exec ${applicationlauncher}"
-          "ALT, b, exec ${browser}"
-          "ALT, c, exec ${calendar}"
-          "ALT, h, exec ${home-assistant}"
-          "ALT, f, exec ${filemanager}"
-          "ALT, p, exec ${plex}"
-          "ALT, m, exec ${musicplayer}"
-          "ALT, l, exec ${addtoshoppinglist}"
-          "ALT SHIFT, l, exec ${openshoppinglist}"
-          "ALT, o, exec ${obsidian}"
+          "ALT, Return, exec, ${terminal}"
+          "AlT, Space, exec, ${applicationlauncher}"
+          "ALT, b, exec, ${browser}"
+          "ALT, c, exec, ${calendar}"
+          "ALT, h, exec, ${home-assistant}"
+          "ALT, f, exec, ${filemanager}"
+          "ALT, p, exec, ${plex}"
+          "ALT, m, exec, ${musicplayer}"
+          "ALT, l, exec, ${addtoshoppinglist}"
+          "ALT SHIFT, l, exec, ${openshoppinglist}"
+          "ALT, o, exec, ${obsidian}"
           # media controls
-          ", XF86AudioMute, exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
-          ", XF86AudioRaiseVolume, exec wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+"
-          ", XF86AudioLowerVolume, exec wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%-"
-          ", XF86AudioPlay, exec ${pkgs.playerctl}/bin/playerctl play-pause"
-          ", XF86AudioStop, exec ${pkgs.playerctl}/bin/playerctl stop"
-          ", XF86AudioNext, exec ${pkgs.playerctl}/bin/playerctl next"
-          ", XF86AudioPrev, exec ${pkgs.playerctl}/bin/playerctl previous"
+          ", XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+          ", XF86AudioRaiseVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+"
+          ", XF86AudioLowerVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%-"
+          ", XF86AudioPlay, exec, ${pkgs.playerctl}/bin/playerctl play-pause"
+          ", XF86AudioStop, exec, ${pkgs.playerctl}/bin/playerctl stop"
+          ", XF86AudioNext, exec, ${pkgs.playerctl}/bin/playerctl next"
+          ", XF86AudioPrev, exec, ${pkgs.playerctl}/bin/playerctl previous"
         ];
         bindm = [
           "SUPER, mouse:272, movewindow"

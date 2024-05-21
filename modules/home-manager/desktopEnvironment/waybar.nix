@@ -25,13 +25,13 @@ with config.theme;
         mainBar = {
           layer = "top";
           position = "top";
-          height = 25;
+          height = 33;
           # output = "DP-3";
           modules-left = [
             "sway/workspaces"
             "sway/scratchpad"
             "sway/mode"
-            # "hyprland/workspaces"
+            "hyprland/workspaces"
             (lib.mkIf enableMpd "mpd")
           ];
           modules-center = [];
@@ -149,6 +149,11 @@ with config.theme;
         }
         #workspaces {
           padding: 0px 0px 0px 0px;
+        }
+        /* for hyprland its active instead of focused*/
+        #workspaces button.active {
+          background-color: ${green};
+          color: ${bg0};
         }
         #workspaces button.focused {
           background-color: ${green};
