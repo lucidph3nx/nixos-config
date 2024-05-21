@@ -64,6 +64,10 @@ in
           blur.enabled = false;
           drop_shadow = "no";
         };
+        bezier = [
+          "myBezier,0.05,0.9,0.1,1.0"
+          "linear,0,0,1,1"
+        ];
         animations = {
           enabled = true;
           animation = [
@@ -189,10 +193,6 @@ in
          "QT_QPA_PLATFORM,wayland"
         ];
       };
-      extraConfig = ''
-        bezier = myBezier,0.05, 0.9, 0.1, 1.0
-        bezier = linear,0,0,1,1
-      '';
       systemd = {
         enable = true;
         enableXdgAutostart = true;
