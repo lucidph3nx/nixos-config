@@ -66,10 +66,6 @@ in
         };
         animations = {
           enabled = true;
-          bezier = {
-            myBezier = "0.05, 0.9, 0.1, 1.0";
-            linear = "0,0,1,1";
-          };
           animation = [
              "windows, 1, 1, myBezier"
              "windowsOut, 1, 0.5, myBezier, popin 90%"
@@ -193,6 +189,10 @@ in
          "QT_QPA_PLATFORM,wayland"
         ];
       };
+      extraConfig = ''
+        bezier = myBezier,0.05, 0.9, 0.1, 1.0
+        bezier = linear,0,0,1,1
+      '';
       systemd = {
         enable = true;
         enableXdgAutostart = true;
