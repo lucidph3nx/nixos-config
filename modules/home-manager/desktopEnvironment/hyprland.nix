@@ -54,8 +54,9 @@ in
           gaps_in = 5;
           gaps_out = 5;
           border_size = 3;
-          "col.active_border" = "rgba(${theme.green}ff) rgba(${theme.blue}ff) 45deg";
-          "col.inactive_border" = "rgba(${theme.bg2}ff)";
+          # these substring functions are to remove the '#' from the hex color
+          "col.active_border" = "rgba(${builtins.substring 1 6 (theme.green)}ff) rgba(${builtins.substring 1 6 (theme.blue)}ff) 45deg";
+          "col.inactive_border" = "rgba(${builtins.substring 1 6 (theme.bg2)}ff)";
           layout = "dwindle";
           cursor_inactive_timeout = 5;
         };
