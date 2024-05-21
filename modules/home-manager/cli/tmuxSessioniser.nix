@@ -23,7 +23,6 @@
         specific_folders=(
           "~/.local/scripts/"
           "~/.ssh/"
-          "~/.mozilla/firefox/ben/chrome/"
           "~/documents/obsidian/personal-vault/"
           "~/documents/obsidian/jarden-vault/"
         )
