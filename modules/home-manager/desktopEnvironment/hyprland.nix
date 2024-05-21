@@ -38,6 +38,7 @@ in
           "swaync"
           "swaybg -i ${homeDir}/.config/wallpaper.jpg --mode fill"
           "hypridle"
+          "waybar"
         ];
         exec = [
           "pkill waybar && hyprctl dispatch exec waybar"
