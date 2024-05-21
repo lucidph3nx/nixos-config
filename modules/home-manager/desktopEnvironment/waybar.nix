@@ -130,6 +130,10 @@ with config.theme;
             "on-click-right" = "swaync-client -d -sw";
             "escape" = true;
           };
+          "network" = {
+            # don't show when on ethernet
+            "format-ethernet" = "";
+          };
         };
       };
       style = ''
