@@ -37,6 +37,7 @@ in
         exec-once = [
           "swaync"
           "swaybg -i ${homeDir}/.config/wallpaper.jpg --mode fill"
+          "hypridle"
         ];
         exec = [
           "pkill waybar && hyprctl dispatch exec waybar"
@@ -204,6 +205,27 @@ in
         enableXdgAutostart = true;
       };
       xwayland.enable = true;
+    };
+    services.hypridle = {
+      enable = true;
+      settings = {
+        general = {
+          lock_cmd = "hyprctl dispatch exec swaylock";
+        };
+        listener = [
+          {
+            # lock screen after 30 minutes inactivity
+            timeout = 1800;
+            on-timeout = "hyprctl dispatch exec swaylock";
+          }
+          {
+            # turn off screen after 1 hour of inactivity
+            timeout = 3600;
+            on-timeout = "hyprctl dispatch dpms off";
+            on-resume = "hyprctl dispatch dpms on";
+          }
+        ];
+      };
     };
     home.packages = with pkgs; [
       dex
