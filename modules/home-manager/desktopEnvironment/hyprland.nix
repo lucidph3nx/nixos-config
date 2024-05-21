@@ -183,21 +183,21 @@ in
           "SUPER, mouse:272, movewindow"
           "SUPER, mouse:273, resizewindow"
         ];
+        env = [
+         "XDG_CURRENT_DESKTOP,Hyprland"
+         "XDG_SESSION_TYPE,wayland"
+         "XDG_SESSION_DESKTOP,Hyprland"
+         "GDK_BACKEND,wayland,x11"
+         "SDL_VIDEODRIVER,wayland"
+         "_JAVA_AWT_WM_NONREPARENTING,1"
+         "QT_QPA_PLATFORM,wayland"
+        ];
       };
       systemd = {
         enable = true;
         enableXdgAutostart = true;
       };
       xwayland.enable = true;
-    };
-    home.sessionVariables = {
-      XDG_CURRENT_DESKTOP = "Hyprland";
-      XDG_SESSION_TYPE = "wayland";
-      XDG_SESSION_DESKTOP = "Hyprland";
-      GDK_BACKEND = "wayland,x11";
-      SDL_VIDEODRIVER = "wayland";
-      _JAVA_AWT_WM_NONREPARENTING = "1";
-      QT_QPA_PLATFORM = "wayland";
     };
     home.sessionPath = ["$HOME/.local/scripts"];
     home.file.".local/scripts/cli.system.setHyprGaps" = {
