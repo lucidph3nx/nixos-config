@@ -36,7 +36,7 @@ in
       settings = {
         exec-once = [
           "swaync"
-          "swaybg -i ${homeDir}/.config/wallpaper.png --mode fill"
+          "swaybg -i ${homeDir}/.config/wallpaper.jpg --mode fill"
         ];
         exec = [
           "pkill waybar && hyprctl dispatch exec waybar"

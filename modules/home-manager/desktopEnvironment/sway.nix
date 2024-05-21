@@ -274,7 +274,7 @@ in
           }
           {
             # wallpaper
-            command = "swaybg -i ${homeDir}/.config/wallpaper.png --mode fill"
+            command = "swaybg -i ${homeDir}/.config/wallpaper.jpg --mode fill";
           }
           {
             # Many apps have tray icons, so wait for tray to be ready before starting them
