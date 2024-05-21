@@ -20,7 +20,7 @@
     syncthing = {
       enable = true;
       obsidian.enable = true;
-      music.enable = false; # disable until I work out issues with disk space
+      music.enable = true;
     };
     input-remapper.enable = true;
     # should be on home network
