@@ -161,7 +161,9 @@ in
           "SUPER, Space, exec, ${runscripts}"
           "SUPER, c, exec, ${calculator}"
           "SUPER, f, exec, ${nvimsessionlauncher}"
-          # TODO Notification Center
+          # Notification Center
+          "SUPER, n, exec, swaync-client -t -sw"
+          "SUPER SHIFT, N, exec, swaync-client --close-all && swaync-client --close-panel"
           # application shortcuts
           "ALT, Return, exec, ${terminal}"
           "AlT, Space, exec, ${applicationlauncher}"
@@ -203,6 +205,14 @@ in
       };
       xwayland.enable = true;
     };
+    home.packages = with pkgs; [
+      dex
+      grim
+      slurp
+      swaybg
+      swaynotificationcenter
+      wl-clipboard
+    ];
     home.sessionPath = ["$HOME/.local/scripts"];
     home.file.".local/scripts/cli.system.setHyprGaps" = {
       executable = true;
