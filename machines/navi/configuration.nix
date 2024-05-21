@@ -22,6 +22,7 @@
       obsidian.enable = true;
       music.enable = false; # disable until I work out issues with disk space
     };
+    input-remapper.enable = true;
     # should be on home network
     nfs-mounts.enable = true;
   };

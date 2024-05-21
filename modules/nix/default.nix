@@ -3,6 +3,7 @@
     ./sops
     ./syncthing.nix
     ./nfs-mounts.nix
+    ./input-remapper.nix
   ];
   config = {
     nixModules = {
@@ -10,6 +11,9 @@
         enable = lib.mkDefault false;
         obsidian.enable = lib.mkDefault false;
         music.enable = lib.mkDefault false;
+      };
+      input-remapper = {
+        enable = lib.mkDefault false;
       };
       nfs-mounts.enable = lib.mkDefault false;
     };
