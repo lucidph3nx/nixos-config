@@ -273,6 +273,10 @@ in
             always = true;
           }
           {
+            # wallpaper
+            command = "swaybg -i ${homeDir}/.config/wallpaper.png --mode fill"
+          }
+          {
             # Many apps have tray icons, so wait for tray to be ready before starting them
             # Then autostart all XDG autostart .desktop files using dex
             command = "gdbus wait --session org.kde.StatusNotifierWatcher && dex -a -s ${homeDir}/.config/autostart/";

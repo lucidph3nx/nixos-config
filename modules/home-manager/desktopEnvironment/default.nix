@@ -30,5 +30,7 @@
       swaync.enable = lib.mkDefault true;
       waybar.enable = lib.mkDefault true;
     };
+    home.file.".config/wallpaper.jpg".source = ./files/wallpaper.jpg;
+
   };
 }

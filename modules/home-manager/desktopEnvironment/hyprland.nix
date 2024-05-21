@@ -34,7 +34,10 @@ in
     {
       enable = true;
       settings = {
-        exec-once = [];
+        exec-once = [
+          "swaync"
+          "swaybg -i ${homeDir}/.config/wallpaper.png --mode fill"
+        ];
         exec = [
           "pkill waybar && hyprctl dispatch exec waybar"
           "${homeDir}/.local/scripts/cli.system.setHyprGaps"
