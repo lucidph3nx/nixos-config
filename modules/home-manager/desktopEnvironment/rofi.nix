@@ -13,10 +13,15 @@ in
   config = lib.mkIf config.homeManagerModules.rofi.enable {
     programs.rofi = {
       enable = true;
+      package = pkgs.rofi-wayland;
       font = "JetBrainsMono Nerd Font Medium";
       plugins = with pkgs; [
-        rofi-calc
-        rofi-emoji
+        (rofi-calc.override {
+          rofi-unwrapped = rofi-wayland-unwrapped;
+         })
+        (rofi-emoji.override {
+          rofi-unwrapped = rofi-wayland-unwrapped;
+         })
       ];
       extraConfig = {
         modi = "run,drun,emoji,calc";
