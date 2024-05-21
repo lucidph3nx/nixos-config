@@ -7,6 +7,6 @@
   config = lib.mkIf config.nixModules.input-remapper.enable {
     services.input-remapper = {
       enable = true;
-    }
+    };
   };
 }
