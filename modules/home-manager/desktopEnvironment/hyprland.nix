@@ -25,7 +25,7 @@ in
       calendar = "firefox --new-window https://calendar.google.com";
       home-assistant = "firefox --new-window https://home-assistant.$SECRET_DOMAIN";
       plex = "firefox --new-window https://plex.$SECRET_DOMAIN";
-      filemanager = "lf";
+      filemanager = "kitty lf";
       musicplayer = "kitty ncmpcpp";
       obsidian = "kitty ${homeDir}/.local/scripts/cli.tmux.projectSessioniser ${homeDir}/documents/obsidian/personal-vault";
       addtoshoppinglist = "home.shoppinglist.addItem";
