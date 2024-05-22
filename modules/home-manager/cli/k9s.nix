@@ -220,14 +220,14 @@
       executable = true;
       text = ''
         #!/bin/sh
-        ${pkgs.kitty} ${pkgs.k9s}/bin/k9s --kubeconfig /home/ben/.config/kube/config-home
+        ${pkgs.kitty}/bin/kitty ${pkgs.k9s}/bin/k9s --kubeconfig /home/ben/.config/kube/config-home
       '';
     };
     home.file.".local/scripts/application.k9s.openWorkKube" = lib.mkIf config.homeManagerModules.guiApps.enable {
       executable = true;
       text = ''
         #!/bin/sh
-        ${pkgs.kitty} ${pkgs.k9s}/bin/k9s --kubeconfig /home/ben/.config/kube/config-work
+        ${pkgs.kitty}/bin/kitty ${pkgs.k9s}/bin/k9s --kubeconfig /home/ben/.config/kube/config-work
       '';
     };
   };
