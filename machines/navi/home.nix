@@ -24,7 +24,6 @@
   home.persistence."/persist/home/ben" = {
     allowOther = true;
     directories = [
-      ".config/autostart"
       ".local/share/Steam"
       ".local/share/mpd"
       ".local/share/nvim"

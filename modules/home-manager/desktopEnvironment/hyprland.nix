@@ -39,6 +39,7 @@ in
           "swaybg -i ${homeDir}/.config/wallpaper.jpg --mode fill"
           "hypridle"
           "waybar"
+          "steam -silent" # couldn't figure out xdg-autostart
         ];
         exec = [
           "pkill waybar && hyprctl dispatch exec waybar"
@@ -203,9 +204,11 @@ in
       };
       systemd = {
         enable = true;
-        enableXdgAutostart = true;
       };
       xwayland.enable = true;
+      plugins = [
+        pkgs.hyprlandPlugins.hy3
+      ];
     };
     services.hypridle = {
       enable = true;
