@@ -10,7 +10,7 @@
       lib.mkEnableOption "enables webcord";
   };
   config = lib.mkIf config.homeManagerModules.webcord.enable {
-    home.pkgs = with pkgs; [
+    home.packages = with pkgs; [
       webcord
     ];
   };
