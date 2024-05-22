@@ -46,6 +46,7 @@
           disable_frontmatter = true,
           mappings = {},
         }
+        vim.opt.conceallevel = 2
         vim.keymap.set('n', '<leader>od',
           vim.cmd.ObsidianToday, { desc = '[O]bsidian [D]aily note for Today' })
         vim.keymap.set('n', '<leader>oy',

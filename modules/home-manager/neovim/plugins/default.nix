@@ -28,7 +28,6 @@
     ./treesitter.nix
     ./undotree.nix
     ./vim-fugitive.nix
-    ./vim-markdown.nix
   ];
   programs.neovim.plugins = with pkgs.vimPlugins; [
     markdown-preview-nvim # this doesnt seem to work...
