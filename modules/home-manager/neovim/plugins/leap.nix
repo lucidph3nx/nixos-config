@@ -1,10 +1,30 @@
 {pkgs, ...}:
 {
   programs.neovim.plugins = [
-    # I used to have a lot of config for these, it wasnt clear what it did...
-    # lets see if I miss it
-    pkgs.vimPlugins.leap-nvim
-    pkgs.vimPlugins.flit-nvim
+    {
+      plugin = pkgs.vimPlugins.leap-nvim;
+      type = "lua";
+      config = 
+      /*
+      lua
+      */
+      ''
+      require('leap').create_default_mappings()
+      '';
+
+    }
+    {
+      plugin = pkgs.pkgs.vimPlugins.flit-nvim;
+      type = "lua";
+      config = 
+      /*
+      lua
+      */
+      ''
+      require('flit').setup()
+      '';
+
+    }
     pkgs.vimPlugins.vim-repeat
   ];
 }
