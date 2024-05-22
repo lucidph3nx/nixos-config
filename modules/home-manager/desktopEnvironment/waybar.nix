@@ -35,6 +35,7 @@ in
               "sway/scratchpad"
               "sway/mode"
               "hyprland/workspaces"
+              "hyprland/submap"
               (lib.mkIf enableMpd "mpd")
             ];
             modules-center = [];
@@ -190,6 +191,12 @@ in
             padding-left: 10px;
             padding-right: 10px;
             background-color: ${green};
+            color: ${bg0};
+          }
+          #submap {
+            padding-left: 10px;
+            padding-right: 10px;
+            background-color: ${red};
             color: ${bg0};
           }
           #mpd {

@@ -123,8 +123,6 @@ in {
           "DP-3,highrr,0x0,1"
         ];
         bind = [
-          # exit hyprland TODO: make better exit menu
-          "SUPER SHIFT, e, exit"
           # Motions
           # focus window
           "SUPER, h, movefocus, l"
@@ -210,6 +208,30 @@ in {
           "QT_QPA_PLATFORM,wayland"
         ];
       };
+      extraConfig = ''
+        # resize submap
+        bind=SUPER,R,submap,resize
+        submap=resize
+        binde=,h,resizeactive,-10 0
+        binde=,j,resizeactive,0 10
+        binde=,k,resizeactive,0 -10
+        binde=,l,resizeactive,10 0
+        bind=,escape,submap,reset
+        submap=reset
+        # exit submap
+        bind=SUPER SHIFT,E,submap,exit
+        submap=exit
+        # lock
+        binde=,l,exec, swaylock
+        # logout
+        bind=SHIFT,L,exec, loginctl terminate-user $USER
+        # shutdown
+        binde=,s,exec, systemctl poweroff
+        # reboot
+        binde=,r,exec, systemctl reboot
+        bind=,escape,submap,reset
+        submap=reset
+      '';
       systemd = {
         enable = true;
       };
