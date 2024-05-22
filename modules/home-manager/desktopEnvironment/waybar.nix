@@ -179,6 +179,7 @@ in
           }
           #workspaces button {
             color: ${foreground};
+            min-width: 25px;
           }
           #scratchpad {
             background-color: ${blue};
