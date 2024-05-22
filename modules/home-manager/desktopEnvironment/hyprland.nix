@@ -239,7 +239,7 @@ in {
       };
       xwayland.enable = true;
       plugins = [
-        pkgs.hyprlandPlugins.hy3
+        # pkgs.hyprlandPlugins.hy3
       ];
     };
     services.hypridle = {
