@@ -51,6 +51,7 @@
       polkit_gnome
       ripgrep
       sops
+      unzip
       xdg-utils
       yq
       yt-dlp
