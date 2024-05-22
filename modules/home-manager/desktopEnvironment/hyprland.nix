@@ -67,7 +67,9 @@ in {
           "col.active_border" = "rgba(${builtins.substring 1 6 (theme.red)}ff) rgba(${builtins.substring 1 6 (theme.orange)}ff) rgba(${builtins.substring 1 6 (theme.yellow)}ff) rgba(${builtins.substring 1 6 (theme.green)}ff) rgba(${builtins.substring 1 6 (theme.aqua)}ff) rgba(${builtins.substring 1 6 (theme.blue)}ff) rgba(${builtins.substring 1 6 (theme.purple)}ff) 45deg";
           "col.inactive_border" = "rgba(${builtins.substring 1 6 (theme.bg2)}ff)";
           layout = "dwindle"; #TODO: figure out hy3
-          cursor_inactive_timeout = 5;
+        };
+        cursor = {
+          inactive_timeout = 5;
         };
         decoration = {
           rounding = 0;
@@ -157,8 +159,8 @@ in {
           "SUPER SHIFT, 9, movetoworkspace, 9"
           "SUPER SHIFT, 0, movetoworkspace, 0"
           # example special workspace TODO more
-          "SUPER, -, togglespecialworkspace, magic"
-          "SUPER SHIFT, -, movetoworkspace, special:magic"
+          "SUPER, X, togglespecialworkspace, magic"
+          "SUPER SHIFT, X, movetoworkspacesilent, special:magic"
           # scroll through existing workspaces
           "SUPER, mouse_down, workspace, e+1"
           "SUPER, mouse_up, workspace, e-1"
