@@ -11,6 +11,7 @@
     ./prospect-mail.nix
     ./teams-for-linux.nix
     ./vimiv.nix
+    ./webcord.nix
     ./zathura.nix
   ];
 
@@ -25,6 +26,7 @@
       prospect-mail.enable = lib.mkDefault false;
       teams-for-linux.enable = lib.mkDefault false;
       vimiv.enable = lib.mkDefault true;
+      webcord.enable = lib.mkDefault true;
       zathura.enable = lib.mkDefault true;
     };
   };
