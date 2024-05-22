@@ -31,5 +31,9 @@
         }
       '';
     };
+    # needed for playerctl to access mpd
+    services.mpdris2 = {
+      enable = true;
+    };
   };
 }
