@@ -1,6 +1,12 @@
-{ config, pkgs, inputs, lib, ... }: {
+{
+  config,
+  pkgs,
+  inputs,
+  lib,
+  ...
+}: {
   imports = [
-    ./asdf.nix
+    # ./asdf.nix # temporary disable asdf, messing with my shit
     ./fetchtools.nix
     ./git.nix
     ./homeAutomation.nix
@@ -14,7 +20,7 @@
   ];
 
   homeManagerModules = {
-    asdf.enable = lib.mkDefault true;
+    # asdf.enable = lib.mkDefault true;
     git.enable = lib.mkDefault true;
     homeAutomation.enable = lib.mkDefault false;
     k9s.enable = lib.mkDefault true;
@@ -27,5 +33,4 @@
     tmuxSessioniser.enable = lib.mkDefault true;
     zsh.enable = lib.mkDefault true;
   };
-
 }
