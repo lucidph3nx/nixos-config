@@ -1,9 +1,6 @@
 { config, lib, pkgs, inputs, ... }:
 
 {
-  # my old neovim config had a one plugin per file structure
-  # any plugins which have additional config, I have given them their own file
-  # any plugins where i use the default, are just added below
   imports = [
     ./autopairs.nix
     ./colorizer.nix
@@ -28,8 +25,5 @@
     ./treesitter.nix
     ./undotree.nix
     ./vim-fugitive.nix
-  ];
-  programs.neovim.plugins = with pkgs.vimPlugins; [
-    markdown-preview-nvim # this doesnt seem to work...
   ];
 }
