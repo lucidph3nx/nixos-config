@@ -11,6 +11,7 @@
           url = "ssh://git@github.com:lucidph3nx/nixos-config.git";
           path = "${inputs.home-manager.home}/code/nixos-config-test";
         };
+      };
     };
   };
 }
