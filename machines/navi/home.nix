@@ -35,6 +35,7 @@
       "music"
       # these should be with the hm modules
       # but give compile errors on darwin
+      ".mozilla/firefox"
       ".local/state/zsh"
       ".config/nvim/spell"
       ".config/github-copilot"
