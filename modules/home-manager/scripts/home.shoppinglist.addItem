@@ -29,7 +29,7 @@ add_item_to_shopping_list() {
       echo "Item added successfully."
     else
       echo "Failed to add item. HTTP response code: $response"
-      notify-send --icon /home/ben/pictures/notion.svg "Notion" "Failed to add item. HTTP response code: $response"
+      notify-send "Notion" "Failed to add item. HTTP response code: $response"
     fi
   fi
 }

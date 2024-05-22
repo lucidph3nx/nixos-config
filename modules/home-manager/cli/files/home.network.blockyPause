@@ -25,7 +25,7 @@ echo $cleaned_response
 if [ "$cleaned_response" == "OK" ]; then
   notify-send --expire-time 5000 --icon /home/ben/pictures/blocky.svg "Blocky" "Blocking disabled for $duration"
 else
-  notify-send --icon /home/ben/pictures/blocky.svg "Blocky" "Error: $response"
+  notify-send "Blocky" "Error: $response"
 fi
 
 # kill the port-forward
