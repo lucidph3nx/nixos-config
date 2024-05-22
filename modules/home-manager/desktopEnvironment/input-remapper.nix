@@ -33,7 +33,7 @@
       '';
     };
     # xmodmap file
-    home.file.".config/input-remapper-2/xmodmap" = {
+    home.file.".config/input-remapper-2/xmodmap.json" = {
       source = ./files/input-remapper-xmodmap;
     };
     # startup command for sway
