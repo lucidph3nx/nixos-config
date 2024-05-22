@@ -1,16 +1,18 @@
-{ config, lib, pkgs, inputs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}: {
   options = {
     nixModules.sops.signingKeys.enable =
       lib.mkEnableOption "Set up signing keys";
   };
   config = lib.mkIf config.nixModules.sops.signingKeys.enable {
-    sops.secrets = 
-    let 
+    sops.secrets = let
       sopsFile = ../../../secrets/signingKeys.yaml;
-    in
-    {
+    in {
       "ssh/lucidph3nx-ed25519-signingkey" = {
         owner = "ben";
         mode = "0600";
@@ -24,7 +26,7 @@
         sopsFile = sopsFile;
       };
     };
-    system.activationScripts.signingKeysFolderPermissions = '' 
+    system.activationScripts.signingKeysFolderPermissions = ''
       mkdir -p /home/ben/.ssh
       chown ben:users /home/ben/.ssh
     '';

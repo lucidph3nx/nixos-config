@@ -1,16 +1,18 @@
-{ config, pkgs, inputs, lib, ... }:
-
 {
+  config,
+  pkgs,
+  inputs,
+  lib,
+  ...
+}: {
   options = {
     nixModules.sops.generalSecrets.enable =
       lib.mkEnableOption "Set up general Secrets";
   };
   config = lib.mkIf config.nixModules.sops.generalSecrets.enable {
-    sops.secrets = 
-      let 
-        sopsFile = ../../../secrets/secrets.yaml;
-      in
-      {
+    sops.secrets = let
+      sopsFile = ../../../secrets/secrets.yaml;
+    in {
       ben_hashed_password = {
         neededForUsers = true;
         sopsFile = sopsFile;

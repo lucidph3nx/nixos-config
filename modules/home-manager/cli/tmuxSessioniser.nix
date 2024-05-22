@@ -1,6 +1,10 @@
-{ config, pkgs, inputs, lib, ... }: 
-
 {
+  config,
+  pkgs,
+  inputs,
+  lib,
+  ...
+}: {
   options = {
     homeManagerModules.tmuxSessioniser.enable =
       lib.mkEnableOption "enables tmuxSessioniser";
@@ -33,7 +37,7 @@
         for folder in "''${specific_folders[@]}"; do
           find "$(eval echo $folder)" -mindepth 0 -maxdepth 0 -type d
         done
-      ''; 
+      '';
     };
     # zsh shortcut for projectSessioniser
     programs.zsh.initExtra = ''
@@ -45,8 +49,7 @@
     # Note: it opens the target in neovim
     home.file.".local/scripts/cli.tmux.projectSessioniser" = {
       executable = true;
-      text = 
-      let
+      text = let
         tmux = "${pkgs.tmux}/bin/tmux";
       in ''
         #!/bin/sh
@@ -103,7 +106,7 @@
 
         # new session if not in tmux and tmux is running
         if ! tmux has-session -t=$selected_name 2> /dev/null; then
-            ${tmux} new-session -ds $selected_name -c $selected 
+            ${tmux} new-session -ds $selected_name -c $selected
             if [[ -n $selected_file ]]; then
                 ${tmux} send-keys -t $selected_name "nvim '$selected_file'" C-m
             else
@@ -117,7 +120,7 @@
         else
           ${tmux} attach-session -t $selected_name
         fi
-      ''; 
+      '';
     };
   };
 }

@@ -1,16 +1,15 @@
-{pkgs, ...}:
-{
+{pkgs, ...}: {
   programs.neovim.plugins = [
     {
       plugin = pkgs.vimPlugins.undotree;
       type = "lua";
-      config = 
+      config =
         /*
         lua
         */
         ''
-        vim.keymap.set('n', '<leader>u',
-          vim.cmd.UndotreeToggle, { desc = '[U]ndo Tree' })
+          vim.keymap.set('n', '<leader>u',
+            vim.cmd.UndotreeToggle, { desc = '[U]ndo Tree' })
         '';
     }
   ];

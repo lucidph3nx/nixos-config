@@ -1,17 +1,16 @@
-{pkgs, ...}:
-{
+{pkgs, ...}: {
   programs.neovim.plugins = [
     {
       plugin = pkgs.vimPlugins.nvim-autopairs;
       type = "lua";
-      config = 
+      config =
         /*
         lua
         */
         ''
-        require('nvim-autopairs').setup()
-        -- don't close quotes
-        require('nvim-autopairs').remove_rule('"')
+          require('nvim-autopairs').setup()
+          -- don't close quotes
+          require('nvim-autopairs').remove_rule('"')
         '';
     }
   ];

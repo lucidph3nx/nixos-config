@@ -1,14 +1,18 @@
-{ config, lib, pkgs, inputs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}: {
   # Setting my abbreviations
   programs.neovim = {
-    extraConfig = 
+    extraConfig =
       /*
       vim
       */
       ''
-      ab ch - [ ]
+        ab ch - [ ]
       '';
   };
 }

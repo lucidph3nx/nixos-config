@@ -1,13 +1,18 @@
-{ pkgs, nixpkgs-stable, inputs, config, lib, ... }:
-
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      (import ./disko.nix { device = "/dev/vda";})
-      inputs.disko.nixosModules.default
-      ../../modules/nix
-    ];
+  pkgs,
+  nixpkgs-stable,
+  inputs,
+  config,
+  lib,
+  ...
+}: {
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    (import ./disko.nix {device = "/dev/vda";})
+    inputs.disko.nixosModules.default
+    ../../modules/nix
+  ];
 
   nixModules = {
     sops = {
@@ -78,7 +83,7 @@
     ];
   };
   # without these, you will get errors the first time after install
-  system.activationScripts.persistDirs = '' 
+  system.activationScripts.persistDirs = ''
     mkdir -p /persist/system/var/log
     mkdir -p /persist/system/var/lib/nixos
     mkdir -p /persist/home/ben
@@ -99,29 +104,33 @@
     isNormalUser = true;
     hashedPasswordFile = config.sops.secrets.ben_hashed_password.path;
     description = "ben";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = ["networkmanager" "wheel"];
     shell = pkgs.zsh;
   };
 
   # needed for impermanance in home-manager
-  programs.fuse.userAllowOther = true; 
+  programs.fuse.userAllowOther = true;
   # home-manager is awesome
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    extraSpecialArgs = { inherit inputs; inherit nixpkgs-stable;};
-	  users = {
+    extraSpecialArgs = {
+      inherit inputs;
+      inherit nixpkgs-stable;
+    };
+    users = {
       ben.imports = [
         ./home.nix
         ../../modules
       ];
-	  };
+    };
   };
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    awscli2 ssm-session-manager-plugin
+    awscli2
+    ssm-session-manager-plugin
     chromium
     p7zip
   ];
@@ -133,9 +142,8 @@
 
   fonts.fontDir.enable = true;
   fonts.packages = [
-    (pkgs.nerdfonts.override { fonts = [ "JetBrainsMono" ];})
+    (pkgs.nerdfonts.override {fonts = ["JetBrainsMono"];})
   ];
-
 
   programs.zsh.enable = true;
   programs.sway.enable = true;
@@ -163,7 +171,7 @@
   services.openssh.enable = true;
   # display manager
   services.greetd = {
-  	enable = true;
+    enable = true;
     restart = true;
     package = pkgs.greetd.tuigreet;
     settings = {
@@ -203,5 +211,4 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.11"; # Did you read the comment?
-
 }

@@ -1,6 +1,9 @@
-{ config, pkgs, inputs, ... }:
-
 {
+  config,
+  pkgs,
+  inputs,
+  ...
+}: {
   homeManagerModules = {
     firefox.enable = false; # doesnt work on nix-darwin currently
     vimiv.enable = false; # doesnt work on nix-darwin currently

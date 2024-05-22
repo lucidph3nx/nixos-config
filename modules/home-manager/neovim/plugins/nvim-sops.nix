@@ -1,8 +1,6 @@
 {pkgs, ...}:
-
 # merged but not yet showing in unstable
 # https://search.nixos.org/packages?channel=unstable&from=0&size=50&sort=relevance&type=packages&query=nvim-sops
-
 let
   nvim-sops = pkgs.vimUtils.buildVimPlugin {
     name = "nvim-sops";
@@ -13,26 +11,25 @@ let
       hash = "sha256-kppkZtdDQzsqOL+iAclc8Ziij8ZaC9r1m6SNKEu3fTs=";
     };
   };
-in 
-{
+in {
   programs.neovim.plugins = [
     {
       # plugin = pkgs.vimPlugins.nvim-sops;
       plugin = nvim-sops;
       type = "lua";
-      config = 
+      config =
         /*
         lua
         */
         ''
-        require('nvim_sops').setup {
-          enabled = true,
-          debug = true,
-        }
-        vim.keymap.set('n', '<leader>ef',
-          vim.cmd.SopsEncrypt, { desc = '[E]ncrypt [F]ile' })
-        vim.keymap.set('n', '<leader>df',
-          vim.cmd.SopsDecrypt, { desc = '[D]ecrypt [F]ile' })
+          require('nvim_sops').setup {
+            enabled = true,
+            debug = true,
+          }
+          vim.keymap.set('n', '<leader>ef',
+            vim.cmd.SopsEncrypt, { desc = '[E]ncrypt [F]ile' })
+          vim.keymap.set('n', '<leader>df',
+            vim.cmd.SopsDecrypt, { desc = '[D]ecrypt [F]ile' })
         '';
     }
   ];

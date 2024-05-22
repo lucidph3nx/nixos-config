@@ -1,6 +1,9 @@
-{ config, pkgs, lib, ... }:
-
 {
+  config,
+  pkgs,
+  lib,
+  ...
+}: {
   config = lib.mkIf pkgs.stdenv.isLinux {
     # set up the cusors and icon themes the way I like it
     home.pointerCursor = {
@@ -22,7 +25,7 @@
       };
       cursorTheme = {
         name = "breeze_cursors";
-      # this is the cursor I like, from plasma 6
+        # this is the cursor I like, from plasma 6
         package = pkgs.kdePackages.breeze;
       };
       gtk3 = {

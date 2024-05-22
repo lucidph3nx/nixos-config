@@ -1,9 +1,12 @@
-{ config, pkgs, lib, osConfig, ... }:
-
-let 
-  homeDir = config.home.homeDirectory;
-in
 {
+  config,
+  pkgs,
+  lib,
+  osConfig,
+  ...
+}: let
+  homeDir = config.home.homeDirectory;
+in {
   options = {
     homeManagerModules.zsh.enable =
       lib.mkEnableOption "enables zsh";

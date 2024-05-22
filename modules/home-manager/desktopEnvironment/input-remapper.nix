@@ -1,13 +1,16 @@
-{ config, pkgs, lib, ... }:
-
 {
+  config,
+  pkgs,
+  lib,
+  ...
+}: {
   options = {
     homeManagerModules.input-remapper.enable =
       lib.mkEnableOption "enables input-remapper";
   };
   config = lib.mkIf config.homeManagerModules.input-remapper.enable {
-    home.packages = with pkgs; [ input-remapper ];
-    
+    home.packages = with pkgs; [input-remapper];
+
     # input-remapper configuration
     home.file.".config/input-remapper-2/config.json" = {
       text = ''
@@ -47,33 +50,33 @@
     # DeathAdder V3 Pro - default
     home.file.".config/input-remapper-2/presets/Razer Razer DeathAdder V3 Pro/default.json" = {
       text = ''
-        [
-          {
-            "input_combination": [
-              {
-                "type": 1,
-                "code": 275,
-                "origin_hash": "75dcd3ec37be26ef3b32ef821e4c5fc7"
-              }
-            ],
-            "target_uinput": "keyboard",
-            "output_symbol": "key(XF86AudioLowerVolume)",
-            "mapping_type": "key_macro"
-          },
-          {
-            "input_combination": [
-              {
-                "type": 1,
-                "code": 276,
-                "origin_hash": "75dcd3ec37be26ef3b32ef821e4c5fc7"
-              }
-            ],
-            "target_uinput": "keyboard",
-            "output_symbol": "key(XF86AudioRaiseVolume)",
-            "mapping_type": "key_macro"
-          }
-      ]
-    '';
+          [
+            {
+              "input_combination": [
+                {
+                  "type": 1,
+                  "code": 275,
+                  "origin_hash": "75dcd3ec37be26ef3b32ef821e4c5fc7"
+                }
+              ],
+              "target_uinput": "keyboard",
+              "output_symbol": "key(XF86AudioLowerVolume)",
+              "mapping_type": "key_macro"
+            },
+            {
+              "input_combination": [
+                {
+                  "type": 1,
+                  "code": 276,
+                  "origin_hash": "75dcd3ec37be26ef3b32ef821e4c5fc7"
+                }
+              ],
+              "target_uinput": "keyboard",
+              "output_symbol": "key(XF86AudioRaiseVolume)",
+              "mapping_type": "key_macro"
+            }
+        ]
+      '';
     };
     # DeathAdder V3 Pro - apex-legends
     home.file.".config/input-remapper-2/presets/Razer Razer DeathAdder V3 Pro/apex-legends.json" = {

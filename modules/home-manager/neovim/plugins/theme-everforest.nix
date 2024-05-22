@@ -1,6 +1,4 @@
-{pkgs, ...}:
-
-let
+{pkgs, ...}: let
   everforest-nvim = pkgs.vimUtils.buildVimPlugin {
     name = "everforest-nvim";
     src = pkgs.fetchFromGitHub {
@@ -10,28 +8,27 @@ let
       hash = "sha256-qKyPqkcf420eMbgGNXmMgF3i9GZ71NpoqeK3+Gz0fzc=";
     };
   };
-in 
-{
+in {
   programs.neovim.plugins = [
     {
       plugin = everforest-nvim;
       type = "lua";
-      config = 
+      config =
         /*
         lua
         */
         ''
-        require('everforest').setup {
-          on_highlights = function(hl, palette)
-            -- markdown links are underlined
-            hl.TSTextReference = {
-              fg = palette.aqua,
-              bg = palette.none,
-              underline = true,
-            }
-          end
-        }
-        require("everforest").load()
+          require('everforest').setup {
+            on_highlights = function(hl, palette)
+              -- markdown links are underlined
+              hl.TSTextReference = {
+                fg = palette.aqua,
+                bg = palette.none,
+                underline = true,
+              }
+            end
+          }
+          require("everforest").load()
         '';
     }
   ];

@@ -1,6 +1,10 @@
-{ config, pkgs, inputs, lib, ... }:
-
 {
+  config,
+  pkgs,
+  inputs,
+  lib,
+  ...
+}: {
   options = {
     homeManagerModules.ssh.server.enable =
       lib.mkEnableOption "enables a client style ssh config intended for remote servers";
@@ -9,7 +13,7 @@
     programs.ssh = {
       enable = true;
       # TODO: design a module for servers
-#     # once I convert all my servers over to nixos ;)
+      #     # once I convert all my servers over to nixos ;)
     };
   };
 }

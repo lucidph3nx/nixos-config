@@ -1,6 +1,10 @@
-{ config, pkgs, inputs, lib, ... }: 
-
 {
+  config,
+  pkgs,
+  inputs,
+  lib,
+  ...
+}: {
   options = {
     homeManagerModules.homeAutomation.enable =
       lib.mkEnableOption "enables home automation scripts etc";
@@ -20,7 +24,7 @@
           -s \
           https://home-assistant.''${SECRET_DOMAIN}/api/states/sensor.office_sensor_humidity \
           | ${pkgs.jq}/bin/jq -r '.attributes | "\(.humidity)\(.unit_of_measurement)"'
-      ''; 
+      '';
     };
     # This script returns the current temperature in my office via home assistant
     home.file.".local/scripts/cli.home.office.getTemperature" = {
@@ -33,7 +37,7 @@
           -s \
           https://home-assistant.''${SECRET_DOMAIN}/api/states/sensor.office_sensor_temperature \
           | ${pkgs.jq}/bin/jq -r '.attributes | "\(.temperature)\(.unit_of_measurement)"'
-      ''; 
+      '';
     };
     # This script opens the blinds in the office
     home.file.".local/scripts/home.office.openBlinds" = {
@@ -45,7 +49,7 @@
           -H "Content-Type: application/json" \
           -d '{"entity_id": "cover.office_blinds"}' \
           https://home-assistant.''${SECRET_DOMAIN}/api/services/cover/open_cover
-      ''; 
+      '';
     };
     # This script closes the blinds in the office
     home.file.".local/scripts/home.office.closeBlinds" = {
@@ -57,7 +61,7 @@
           -H "Content-Type: application/json" \
           -d '{"entity_id": "cover.office_blinds"}' \
           https://home-assistant.''${SECRET_DOMAIN}/api/services/cover/close_cover
-      ''; 
+      '';
     };
     # This script closes only the LEFT blind in the office
     home.file.".local/scripts/home.office.closeBlindsLeft" = {
@@ -69,7 +73,7 @@
           -H "Content-Type: application/json" \
           -d '{"entity_id": "cover.office_left"}' \
           https://home-assistant.''${SECRET_DOMAIN}/api/services/cover/close_cover
-      ''; 
+      '';
     };
     # This script closes only the RIGHT blind in the office
     home.file.".local/scripts/home.office.closeBlindsRight" = {
@@ -81,22 +85,20 @@
           -H "Content-Type: application/json" \
           -d '{"entity_id": "cover.office_right"}' \
           https://home-assistant.''${SECRET_DOMAIN}/api/services/cover/close_cover
-      ''; 
+      '';
     };
     # relevant home automation keyboard shortcuts in sway
     wayland.windowManager.sway.config = lib.mkIf config.homeManagerModules.homeAutomation.enable {
-      keybindings = 
-      let
+      keybindings = let
         super = "Mod4";
         pageup = "Prior";
         pagedown = "Next";
         homeDir = config.home.homeDirectory;
-      in
-        {
+      in {
         "${super}+${pageup}" = "exec ${homeDir}/.local/scripts/home.office.openBlinds";
         "${super}+${pagedown}" = "exec ${homeDir}/.local/scripts/home.office.closeBlinds";
-        };
       };
+    };
     # This script turns off the hydroponics grow lights
     home.file.".local/scripts/home.hydroponics.turnOffGrowlights" = {
       executable = true;
@@ -107,7 +109,7 @@
           -H "Content-Type: application/json" \
           -d '{"entity_id": "switch.hydro_growlights"}' \
           https://home-assistant.''${SECRET_DOMAIN}/api/services/switch/turn_off
-      ''; 
+      '';
     };
     # This script turns off the hydroponics grow lights
     home.file.".local/scripts/home.hydroponics.turnOnGrowlights" = {
@@ -119,7 +121,7 @@
           -H "Content-Type: application/json" \
           -d '{"entity_id": "switch.hydro_growlights"}' \
           https://home-assistant.''${SECRET_DOMAIN}/api/services/switch/turn_on
-      ''; 
+      '';
     };
     # A script to pause the dns blocking via blocky for 10 min
     # TODO: figure out what I want to do with this

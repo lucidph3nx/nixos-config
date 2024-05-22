@@ -1,16 +1,18 @@
-{ config, lib, pkgs, inputs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}: {
   options = {
     nixModules.sops.kubeconfig.enable =
       lib.mkEnableOption "Set up kube config";
   };
   config = lib.mkIf config.nixModules.sops.kubeconfig.enable {
-    sops.secrets = 
-    let 
+    sops.secrets = let
       sopsFile = ../../../secrets/kubeconfig.yaml;
-    in
-    {
+    in {
       homekube = {
         owner = "ben";
         mode = "0600";

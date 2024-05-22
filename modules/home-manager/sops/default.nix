@@ -1,5 +1,10 @@
-{ config, pkgs, lib, inputs, ... }: 
-
+{
+  config,
+  pkgs,
+  lib,
+  inputs,
+  ...
+}:
 # NOTE: MACOS ONLY, use nix/sops.nix for nixos
 {
   imports = [
@@ -27,7 +32,7 @@
       defaultSopsFormat = "yaml";
       age = {
         keyFile = "/var/lib/sops-nix/key.txt";
-        sshKeyPaths = [ "/etc/ssh/nix-ed25519" ];
+        sshKeyPaths = ["/etc/ssh/nix-ed25519"];
         generateKey = true;
       };
     };

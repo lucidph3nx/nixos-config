@@ -1,6 +1,10 @@
-{ config, pkgs, inputs, lib, ... }:
-
 {
+  config,
+  pkgs,
+  inputs,
+  lib,
+  ...
+}: {
   options = {
     nixModules.sops.workSSH.enable =
       lib.mkEnableOption "work SSH secrets and config";
@@ -39,7 +43,7 @@
       sopsFile = ../../../secrets/worksshconfig;
       path = "/home/ben/.ssh/workconfig";
     };
-    system.activationScripts.workSSHFolderPermissions = '' 
+    system.activationScripts.workSSHFolderPermissions = ''
       mkdir -p /home/ben/.ssh
       chown ben:users /home/ben/.ssh
     '';

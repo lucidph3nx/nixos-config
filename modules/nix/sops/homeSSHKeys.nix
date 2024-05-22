@@ -1,16 +1,18 @@
-{ config, lib, pkgs, inputs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}: {
   options = {
     nixModules.sops.homeSSHKeys.enable =
       lib.mkEnableOption "Set up home SSH Keys";
   };
   config = lib.mkIf config.nixModules.sops.homeSSHKeys.enable {
-    sops.secrets = 
-    let 
+    sops.secrets = let
       sopsFile = ../../../secrets/homeSSHKeys.yaml;
-    in
-    {
+    in {
       "ssh/lucidph3nx-ed25519" = {
         owner = "ben";
         mode = "0600";

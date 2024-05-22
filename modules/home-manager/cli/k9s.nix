@@ -1,6 +1,10 @@
-{ config, pkgs, inputs, lib, ... }: 
-
 {
+  config,
+  pkgs,
+  inputs,
+  lib,
+  ...
+}: {
   options = {
     homeManagerModules.k9s.enable =
       lib.mkEnableOption "enables k9s";
@@ -18,7 +22,7 @@
           noExitOnCtrlC = true;
           ui = {
             enableMouse = false;
-            headless = true; 
+            headless = true;
             logoless = false;
             crumbsless = false;
             reactive = false;
@@ -26,7 +30,7 @@
           };
           skipLatestRevCheck = false;
           disablePodCounting = false;
-          shellPod= {
+          shellPod = {
             image = "busybox:1.35.0";
             namespace = "default";
             limits = {
@@ -72,16 +76,16 @@
       views.views = {
         "v1/pods" = {
           columns = [
-          "AGE"
-          "NAMESPACE"
-          "NAME"
-          "PF"
-          "READY"
-          "RESTARTS"
-          "STATUS"
-          "%CPU/L"
-          "%MEM/L"
-          "NODE"
+            "AGE"
+            "NAMESPACE"
+            "NAME"
+            "PF"
+            "READY"
+            "RESTARTS"
+            "STATUS"
+            "%CPU/L"
+            "%MEM/L"
+            "NODE"
           ];
         };
         "v1/nodes" = {

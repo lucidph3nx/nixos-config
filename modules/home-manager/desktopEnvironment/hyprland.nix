@@ -1,10 +1,12 @@
-{ config, pkgs, lib, ... }:
-
-let 
-homeDir = config.home.homeDirectory;
-theme = config.theme;
-in
 {
+  config,
+  pkgs,
+  lib,
+  ...
+}: let
+  homeDir = config.home.homeDirectory;
+  theme = config.theme;
+in {
   options = {
     homeManagerModules.hyprland = {
       enable = lib.mkEnableOption "enables hyprland";
@@ -30,8 +32,7 @@ in
       obsidian = "kitty ${homeDir}/.local/scripts/cli.tmux.projectSessioniser ${homeDir}/documents/obsidian/personal-vault";
       addtoshoppinglist = "home.shoppinglist.addItem";
       openshoppinglist = "firefox --new-window https://www.notion.so/ph3nx/Shopping-List-92d98ac3dc86460285a399c0b1176fc5";
-    in
-    {
+    in {
       enable = true;
       settings = {
         exec-once = [
@@ -78,13 +79,13 @@ in
         animations = {
           enabled = true;
           animation = [
-             "windows, 1, 2, myBezier"
-             "windowsOut, 1, 1, myBezier, popin 90%"
-             "windowsIn, 1, 1, myBezier, popin 90%"
-             "border, 1, 2, default"
-             "borderangle, 1, 50, linear, loop"
-             "fade, 1, 2, default"
-             "workspaces,0" # disable workspace animations
+            "windows, 1, 2, myBezier"
+            "windowsOut, 1, 1, myBezier, popin 90%"
+            "windowsIn, 1, 1, myBezier, popin 90%"
+            "border, 1, 2, default"
+            "borderangle, 1, 50, linear, loop"
+            "fade, 1, 2, default"
+            "workspaces,0" # disable workspace animations
           ];
         };
         dwindle = {
@@ -193,13 +194,13 @@ in
           "SUPER, mouse:273, resizewindow"
         ];
         env = [
-         "XDG_CURRENT_DESKTOP,Hyprland"
-         "XDG_SESSION_TYPE,wayland"
-         "XDG_SESSION_DESKTOP,Hyprland"
-         "GDK_BACKEND,wayland,x11"
-         "SDL_VIDEODRIVER,wayland"
-         "_JAVA_AWT_WM_NONREPARENTING,1"
-         "QT_QPA_PLATFORM,wayland"
+          "XDG_CURRENT_DESKTOP,Hyprland"
+          "XDG_SESSION_TYPE,wayland"
+          "XDG_SESSION_DESKTOP,Hyprland"
+          "GDK_BACKEND,wayland,x11"
+          "SDL_VIDEODRIVER,wayland"
+          "_JAVA_AWT_WM_NONREPARENTING,1"
+          "QT_QPA_PLATFORM,wayland"
         ];
       };
       systemd = {
@@ -242,25 +243,25 @@ in
     home.sessionPath = ["$HOME/.local/scripts"];
     home.file.".local/scripts/cli.system.setHyprGaps" = {
       executable = true;
-      text = 
-      /*
-      bash
-      */
-      ''
-        #!/bin/sh
-        width=$(hyprctl monitors -j | jq '.[0].width')
+      text =
+        /*
+        bash
+        */
+        ''
+          #!/bin/sh
+          width=$(hyprctl monitors -j | jq '.[0].width')
 
-        # Check if running in super-ultrawide
-        if [ $width -gt 5000 ]; then
-          hyprctl keyword workspace "w[t1], gapsout:5 $((width / 4))"
-          hyprctl keyword workspace "s[true], gapsout:50 $((width / 4))"
-        else
-          # unsetting is not possible, for now set to default
-          # https://github.com/hyprwm/Hyprland/issues/5691
-          hyprctl keyword workspace "w[t1], gapsout:5 5"
-          hyprctl keyword workspace "s[true], gapsout:50 50"
-        fi
-      '';
+          # Check if running in super-ultrawide
+          if [ $width -gt 5000 ]; then
+            hyprctl keyword workspace "w[t1], gapsout:5 $((width / 4))"
+            hyprctl keyword workspace "s[true], gapsout:50 $((width / 4))"
+          else
+            # unsetting is not possible, for now set to default
+            # https://github.com/hyprwm/Hyprland/issues/5691
+            hyprctl keyword workspace "w[t1], gapsout:5 5"
+            hyprctl keyword workspace "s[true], gapsout:50 50"
+          fi
+        '';
     };
   };
 }

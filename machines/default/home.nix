@@ -1,8 +1,10 @@
-{ config, pkgs, inputs, ... }:
-
 {
-  imports =
-  [
+  config,
+  pkgs,
+  inputs,
+  ...
+}: {
+  imports = [
     inputs.impermanence.nixosModules.home-manager.impermanence
   ];
   # my own modules
@@ -40,7 +42,7 @@
     ];
     allowOther = true;
   };
-  
+
   home.packages = with pkgs; [
     gimp # temp for troubleshooting
     picard

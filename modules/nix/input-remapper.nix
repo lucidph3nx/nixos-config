@@ -1,5 +1,9 @@
-{ config, pkgs, lib, ... }:
 {
+  config,
+  pkgs,
+  lib,
+  ...
+}: {
   options = {
     nixModules.input-remapper.enable =
       lib.mkEnableOption "Set up input-remapper nix module";
@@ -11,6 +15,6 @@
     security.sudo.extraConfig = ''
       ben ALL=(ALL) NOPASSWD: ${pkgs.input-remapper}/bin/input-remapper-control
     '';
-    users.users.ben.extraGroups = [ "input" ];
+    users.users.ben.extraGroups = ["input"];
   };
 }

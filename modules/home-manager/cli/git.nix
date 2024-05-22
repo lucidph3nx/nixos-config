@@ -1,9 +1,11 @@
-{ config, pkgs, lib, ... }:
-
-let 
-  homeDir = config.home.homeDirectory;
-in
 {
+  config,
+  pkgs,
+  lib,
+  ...
+}: let
+  homeDir = config.home.homeDirectory;
+in {
   options = {
     homeManagerModules.git.enable =
       lib.mkEnableOption "enables git";

@@ -1,6 +1,11 @@
-{ config, osConfig, pkgs, inputs, lib, ... }:
-
-let 
+{
+  config,
+  osConfig,
+  pkgs,
+  inputs,
+  lib,
+  ...
+}: let
   homeDir = config.home.homeDirectory;
   cloudflaredBlock = {
     proxyCommand = "${pkgs.cloudflared}/bin/cloudflared access ssh --hostname %h.$SECRET_DOMAIN";
@@ -8,8 +13,7 @@ let
     port = 22;
     identityFile = "${homeDir}/.ssh/lucidph3nx-ed25519";
   };
-in
-{
+in {
   options = {
     homeManagerModules.ssh.client.enable =
       lib.mkEnableOption "enables a client style ssh config intended for workstations";
@@ -17,14 +21,14 @@ in
       lib.mkEnableOption "Add my work ssh config";
   };
   config = lib.mkIf config.homeManagerModules.ssh.client.enable {
-    home.packages = with pkgs; [ cloudflared ];
+    home.packages = with pkgs; [cloudflared];
     programs.ssh = {
       enable = true;
-      includes = lib.mkIf config.homeManagerModules.ssh.client.workConfig.enable [ "workconfig" ];
+      includes = lib.mkIf config.homeManagerModules.ssh.client.workConfig.enable ["workconfig"];
       matchBlocks = {
         "*" = {
           # don't ask to check host key for new hosts
-          extraOptions  = {
+          extraOptions = {
             StrictHostKeyChecking = "accept-new";
           };
         };
@@ -44,7 +48,7 @@ in
           user = "ben";
           # until unifi supports ed25519
           identityFile = "${homeDir}/.ssh/lucidph3nx-rsa";
-          extraOptions  = {
+          extraOptions = {
             PubkeyAcceptedKeyTypes = "+ssh-rsa";
           };
         };

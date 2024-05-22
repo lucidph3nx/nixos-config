@@ -1,52 +1,55 @@
-{ config, pkgs, nixpkgs-stable, osConfig, lib, ... }:
-
-let 
-homeDir = config.home.homeDirectory;
-theme = config.theme;
-# Colours
-active = theme.green;
-inactive = theme.blue;
-foreground = theme.foreground;
-background = theme.bg0;
-warn = theme.orange;
-danger = theme.red;
-in
 {
+  config,
+  pkgs,
+  nixpkgs-stable,
+  osConfig,
+  lib,
+  ...
+}: let
+  homeDir = config.home.homeDirectory;
+  theme = config.theme;
+  # Colours
+  active = theme.green;
+  inactive = theme.blue;
+  foreground = theme.foreground;
+  background = theme.bg0;
+  warn = theme.orange;
+  danger = theme.red;
+in {
   options = {
     homeManagerModules.sway.enable =
       lib.mkEnableOption "enables sway";
   };
   config = lib.mkIf config.homeManagerModules.sway.enable {
     wayland.windowManager.sway = let
-        # bindings
-        super = "Mod4";
-        alt = "Mod1";
-        pageup = "Prior";
-        pagedown = "Next";
-        left = "h";
-        down = "j";
-        up = "k";
-        right = "l";
-        # scripts
-        screenshotutil = "${homeDir}/.local/scripts/application.grim.screenshotToClipboard";
-        emojipicker = "${homeDir}/.local/scripts/application.rofi.emojipicker";
-        runscripts = "${homeDir}/.local/scripts/application.scripts.launcher";
-        calculator = "${homeDir}/.local/scripts/application.rofi.calculator";
-        nvimsessionlauncher = "${homeDir}/.local/scripts/application.nvim.sessionLauncher";
-        applicationlauncher = "${homeDir}/.local/scripts/application.launcher";
-        # applications
-        terminal = "kitty";
-        browser = "firefox";
-        calendar = "firefox --new-window https://calendar.google.com";
-        home-assistant = "firefox --new-window https://home-assistant.$SECRET_DOMAIN";
-        plex = "firefox --new-window https://plex.$SECRET_DOMAIN";
-        filemanager = "lf";
-        musicplayer = "kitty ncmpcpp";
-        obsidian = "kitty ${homeDir}/.local/scripts/cli.tmux.projectSessioniser ${homeDir}/documents/obsidian/personal-vault";
-        addtoshoppinglist = "home.shoppinglist.addItem";
-        openshoppinglist = "firefox --new-window https://www.notion.so/ph3nx/Shopping-List-92d98ac3dc86460285a399c0b1176fc5";
-      in
-     {
+      # bindings
+      super = "Mod4";
+      alt = "Mod1";
+      pageup = "Prior";
+      pagedown = "Next";
+      left = "h";
+      down = "j";
+      up = "k";
+      right = "l";
+      # scripts
+      screenshotutil = "${homeDir}/.local/scripts/application.grim.screenshotToClipboard";
+      emojipicker = "${homeDir}/.local/scripts/application.rofi.emojipicker";
+      runscripts = "${homeDir}/.local/scripts/application.scripts.launcher";
+      calculator = "${homeDir}/.local/scripts/application.rofi.calculator";
+      nvimsessionlauncher = "${homeDir}/.local/scripts/application.nvim.sessionLauncher";
+      applicationlauncher = "${homeDir}/.local/scripts/application.launcher";
+      # applications
+      terminal = "kitty";
+      browser = "firefox";
+      calendar = "firefox --new-window https://calendar.google.com";
+      home-assistant = "firefox --new-window https://home-assistant.$SECRET_DOMAIN";
+      plex = "firefox --new-window https://plex.$SECRET_DOMAIN";
+      filemanager = "lf";
+      musicplayer = "kitty ncmpcpp";
+      obsidian = "kitty ${homeDir}/.local/scripts/cli.tmux.projectSessioniser ${homeDir}/documents/obsidian/personal-vault";
+      addtoshoppinglist = "home.shoppinglist.addItem";
+      openshoppinglist = "firefox --new-window https://www.notion.so/ph3nx/Shopping-List-92d98ac3dc86460285a399c0b1176fc5";
+    in {
       enable = true;
       config = {
         focus = {
@@ -175,9 +178,11 @@ in
             "Escape" = "mode default";
           };
         };
-        bars = [{
-          command = "${nixpkgs-stable.waybar}/bin/waybar";
-        }];
+        bars = [
+          {
+            command = "${nixpkgs-stable.waybar}/bin/waybar";
+          }
+        ];
         window = {
           border = 3;
           titlebar = false;
@@ -212,10 +217,10 @@ in
         defaultWorkspace = "workspace number 1";
         assigns = {
           "2" = [
-            { instance = "teams-for-linux"; }
-            { instance = "prospect mail"; }
-            { instance = "discord"; }
-            { instance = "webcord"; }
+            {instance = "teams-for-linux";}
+            {instance = "prospect mail";}
+            {instance = "discord";}
+            {instance = "webcord";}
           ];
         };
         floating = {
@@ -257,18 +262,20 @@ in
                 timeout 1800 'swaylock -f -c 000000' \
                 timeout 3600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
                 before-sleep 'swaylock -f -c 000000'
-              '';
+            '';
           }
           {
             # set smart gaps etc if super-ultrawide
             command = "${homeDir}/.local/scripts/cli.system.setSwayGaps";
             always = true;
           }
-          { # Autotiling Sway Extension
+          {
+            # Autotiling Sway Extension
             command = "autotiling";
             always = true;
           }
-          { # Notification Daemon
+          {
+            # Notification Daemon
             command = "swaync";
             always = true;
           }
@@ -329,9 +336,9 @@ in
       wl-clipboard
     ];
     # home.file = {
-      # ".config/sway/config".source              = ./files/sway-config;
-      # ".config/sway/navi/config".source         = ./files/sway-navi-config;
-      # ".config/sway/scripts/set_gaps.sh".source = ./files/sway-script-setgaps;
+    # ".config/sway/config".source              = ./files/sway-config;
+    # ".config/sway/navi/config".source         = ./files/sway-navi-config;
+    # ".config/sway/scripts/set_gaps.sh".source = ./files/sway-script-setgaps;
     # };
     # my scripts relevant to sway
     home.sessionPath = ["$HOME/.local/scripts"];

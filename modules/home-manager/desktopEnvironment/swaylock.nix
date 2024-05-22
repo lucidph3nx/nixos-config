@@ -1,8 +1,10 @@
-
-{ config, pkgs, lib, ... }:
-
-with config.theme;
 {
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+with config.theme; {
   options = {
     homeManagerModules.swaylock.enable =
       lib.mkEnableOption "enables swaylock";

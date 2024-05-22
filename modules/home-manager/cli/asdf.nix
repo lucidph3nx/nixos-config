@@ -1,6 +1,9 @@
-{ config, pkgs, lib, ... }:
-
 {
+  config,
+  pkgs,
+  lib,
+  ...
+}: {
   options = {
     homeManagerModules.asdf.enable =
       lib.mkEnableOption "enables asdf";
@@ -18,4 +21,3 @@
     '';
   };
 }
-

@@ -1,6 +1,10 @@
-{ config, lib, pkgs, inputs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}: {
   options = {
     homeManagerModules.sops.workSSH.enable =
       lib.mkEnableOption "work SSH secrets and config";

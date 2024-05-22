@@ -1,13 +1,15 @@
-{ config, pkgs, lib, ... }:
-
-with config.theme;
 {
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+with config.theme; {
   options = {
     homeManagerModules.tmux.enable =
       lib.mkEnableOption "enables tmux";
   };
   config = lib.mkIf config.homeManagerModules.tmux.enable {
-
     programs.tmux = {
       enable = true;
       extraConfig = ''
@@ -68,6 +70,6 @@ with config.theme;
         bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "xsel -i -p && xsel -o -p | xsel -i -b"
         bind-key p run "xsel -o | tmux load-buffer - ; tmux paste-buffer"
       '';
-    }; 
+    };
   };
 }

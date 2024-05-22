@@ -1,4 +1,10 @@
-{ config, pkgs, lib, inputs, ... }: {
+{
+  config,
+  pkgs,
+  lib,
+  inputs,
+  ...
+}: {
   imports = [
     ./generalSecrets.nix
     ./signingKeys.nix
@@ -24,7 +30,7 @@
         generateKey = true;
         # this needs to be the /persist path,
         # or else it wont be available when needed to create user passwords etc
-        sshKeyPaths = [ "/persist/system/etc/ssh/nix-ed25519" ];
+        sshKeyPaths = ["/persist/system/etc/ssh/nix-ed25519"];
       };
     };
   };

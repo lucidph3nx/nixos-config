@@ -1,6 +1,10 @@
-{ config, lib, pkgs, inputs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}: {
   options = {
     homeManagerModules.neovim.enable =
       lib.mkEnableOption "Set up Neovim";

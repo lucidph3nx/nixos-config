@@ -1,9 +1,12 @@
-{ pkgs, lib, ... }: {
+{
+  pkgs,
+  lib,
+  ...
+}: {
   imports = [
     ./home-manager
-  #   ./nix
-  #   ./nix-darwin
+    #   ./nix
+    #   ./nix-darwin
     ./colourScheme
   ];
-
 }

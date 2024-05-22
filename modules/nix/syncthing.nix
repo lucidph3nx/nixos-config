@@ -1,6 +1,9 @@
-{ config, pkgs, lib, ... }:
-
 {
+  config,
+  pkgs,
+  lib,
+  ...
+}: {
   options = {
     nixModules.syncthing.enable =
       lib.mkEnableOption "Set up syncthing";
@@ -18,8 +21,8 @@
       overrideDevices = true;
       settings = {
         devices = {
-          "k8s" = { id = "FZVNVGQ-6TJDJLG-DRWSAWW-AQLKQM7-U36GWON-7ZQ7CLF-32MBYFN-SFHWHAX"; };
-          "nas0" = { id = "7LANRKO-RRMWROL-PDMCTJX-WKSPOKO-LS3K35O-CJEMX7O-MHHIURW-GSF6FAS"; };
+          "k8s" = {id = "FZVNVGQ-6TJDJLG-DRWSAWW-AQLKQM7-U36GWON-7ZQ7CLF-32MBYFN-SFHWHAX";};
+          "nas0" = {id = "7LANRKO-RRMWROL-PDMCTJX-WKSPOKO-LS3K35O-CJEMX7O-MHHIURW-GSF6FAS";};
         };
         folders = {
           "obsidian" = lib.mkIf config.nixModules.syncthing.obsidian.enable {
@@ -42,22 +45,22 @@
     networking.firewall = {
       allowedTCPPorts = [
         # 8384 # This would be to make the web interface available on the network
-        22000 
+        22000
       ];
       allowedUDPPorts = [
         22000
         21027
       ];
     };
-    system.activationScripts.documentsFolder = lib.mkIf config.nixModules.syncthing.enable '' 
+    system.activationScripts.documentsFolder = lib.mkIf config.nixModules.syncthing.enable ''
       mkdir -p /home/ben/documents
       chown ben:users /home/ben/documents
     '';
-    system.activationScripts.obsidianFolder = lib.mkIf config.nixModules.syncthing.obsidian.enable '' 
+    system.activationScripts.obsidianFolder = lib.mkIf config.nixModules.syncthing.obsidian.enable ''
       mkdir -p /home/ben/documents/obsidian
       chown ben:users /home/ben/documents/obsidian
     '';
-    system.activationScripts.musicFolder = lib.mkIf config.nixModules.syncthing.music.enable '' 
+    system.activationScripts.musicFolder = lib.mkIf config.nixModules.syncthing.music.enable ''
       mkdir -p /home/ben/music
       chown ben:users /home/ben/music
     '';

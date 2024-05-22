@@ -1,11 +1,13 @@
-{ config, pkgs, lib, ... }:
-
-with config.theme;
-let
-  terminal = "${pkgs.kitty}/bin/kitty";
-in 
 {
-  imports = [ ../cli/tmuxSessioniser.nix ]; #needed for one of the rofi scripts
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+with config.theme; let
+  terminal = "${pkgs.kitty}/bin/kitty";
+in {
+  imports = [../cli/tmuxSessioniser.nix]; #needed for one of the rofi scripts
   options = {
     homeManagerModules.rofi.enable =
       lib.mkEnableOption "enables rofi";
@@ -18,10 +20,10 @@ in
       plugins = with pkgs; [
         (rofi-calc.override {
           rofi-unwrapped = rofi-wayland-unwrapped;
-         })
+        })
         (rofi-emoji.override {
           rofi-unwrapped = rofi-wayland-unwrapped;
-         })
+        })
       ];
       extraConfig = {
         steal-focus = true;
@@ -99,11 +101,9 @@ in
       source = ./scripts/application.launcher;
     };
     homeManagerModules.tmuxSessioniser.enable = true;
-    home.file.".local/scripts/application.nvim.sessionLauncher" = 
-    let
+    home.file.".local/scripts/application.nvim.sessionLauncher" = let
       nvimSessionLauncherStyle = ''inputbar { children: [entry]; border-color: ${blue};} entry { placeholder: "Select Project"; } element-icon { enabled: false; }'';
-    in 
-    {
+    in {
       executable = true;
       text = ''
         #!/bin/sh

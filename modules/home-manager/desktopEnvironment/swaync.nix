@@ -1,7 +1,10 @@
-{ config, pkgs, lib, ... }:
-
-with config.theme;
 {
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+with config.theme; {
   options = {
     homeManagerModules.swaync.enable =
       lib.mkEnableOption "enables swaync";

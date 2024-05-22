@@ -1,10 +1,12 @@
-{ pkgs, inputs, nixpkgs-stable, ... }:
-
 {
-  imports =
-  [
-      ../../modules/nix-darwin/yabai.nix
-      # ../../modules/nix-darwin/spacebar.nix
+  pkgs,
+  inputs,
+  nixpkgs-stable,
+  ...
+}: {
+  imports = [
+    ../../modules/nix-darwin/yabai.nix
+    # ../../modules/nix-darwin/spacebar.nix
   ];
 
   users.users.ben = {
@@ -13,11 +15,12 @@
 
   programs.zsh.enable = true;
   environment = {
-    shells = [ pkgs.bash pkgs.zsh ];
+    shells = [pkgs.bash pkgs.zsh];
     loginShell = pkgs.zsh;
     systemPackages = with pkgs; [
       arping
-      awscli2 ssm-session-manager-plugin
+      awscli2
+      ssm-session-manager-plugin
       azure-cli
       cloudflared
       direnv
@@ -46,7 +49,7 @@
   '';
   fonts.fontDir.enable = true;
   fonts.fonts = [
-    (pkgs.nerdfonts.override { fonts = [ "JetBrainsMono" ];})
+    (pkgs.nerdfonts.override {fonts = ["JetBrainsMono"];})
   ];
   security.sudo.extraConfig = ''
     ben ALL=(ALL:ALL) NOPASSWD: ALL
@@ -91,7 +94,7 @@
     };
   };
   homebrew = {
-    enable =  true;
+    enable = true;
     brews = [
       "int128/kubelogin/kubelogin"
     ];
@@ -110,7 +113,10 @@
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    extraSpecialArgs = { inherit inputs; inherit nixpkgs-stable;};
+    extraSpecialArgs = {
+      inherit inputs;
+      inherit nixpkgs-stable;
+    };
     users = {
       ben.imports = [
         ./home.nix

@@ -1,6 +1,10 @@
-{ config, pkgs, inputs, lib, ... }:
-
 {
+  config,
+  pkgs,
+  inputs,
+  lib,
+  ...
+}: {
   options = {
     homeManagerModules.zathura.enable =
       lib.mkEnableOption "enables zathura";
@@ -10,7 +14,7 @@
       enable = true;
     };
     xdg.mimeApps.defaultApplications = {
-      "application/pdf" = [ "org.pwmt.zathura.desktop" ];
+      "application/pdf" = ["org.pwmt.zathura.desktop"];
     };
   };
 }

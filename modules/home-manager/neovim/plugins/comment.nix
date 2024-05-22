@@ -1,15 +1,14 @@
-{pkgs, ...}:
-{
+{pkgs, ...}: {
   programs.neovim.plugins = [
     {
       plugin = pkgs.vimPlugins.comment-nvim;
       type = "lua";
-      config = 
+      config =
         /*
         lua
         */
         ''
-        require('Comment').setup {}
+          require('Comment').setup {}
         '';
     }
   ];

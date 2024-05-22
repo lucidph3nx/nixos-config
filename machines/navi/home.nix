@@ -1,8 +1,10 @@
-{ config, pkgs, inputs, ... }:
-
 {
-  imports = 
-  [
+  config,
+  pkgs,
+  inputs,
+  ...
+}: {
+  imports = [
     inputs.impermanence.nixosModules.home-manager.impermanence
   ];
   # my own modules
@@ -20,7 +22,7 @@
     homeDirectory = "/home/ben";
   };
   home.stateVersion = "23.11"; # Do Not Touch!
-  
+
   home.persistence."/persist/home/ben" = {
     allowOther = true;
     directories = [

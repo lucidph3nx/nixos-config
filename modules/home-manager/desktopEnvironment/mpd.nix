@@ -1,6 +1,9 @@
-{ config, pkgs, lib, ... }:
-
 {
+  config,
+  pkgs,
+  lib,
+  ...
+}: {
   options = {
     homeManagerModules.mpd = {
       enable = lib.mkEnableOption "enables mpd";
