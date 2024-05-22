@@ -56,6 +56,7 @@
       yt-dlp
       zsh
     ];
+    virtualisation.docker.enable = true;
     # nix helper
     programs.nh = {
       enable = true;
