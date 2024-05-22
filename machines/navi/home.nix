@@ -42,6 +42,7 @@
       ".config/Prospect Mail"
       ".asdf/installs"
       ".asdf/plugins"
+      ".config/Bitwarden CLI"
     ];
   };
 
