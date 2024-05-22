@@ -1,5 +1,8 @@
 { config, pkgs, lib, osConfig, ... }:
 
+let 
+  homeDir = config.home.homeDirectory;
+in
 {
   options = {
     homeManagerModules.zsh.enable =
@@ -12,7 +15,7 @@
       history = {
         size = 10000;
         expireDuplicatesFirst = true;
-        path = "$XDG_STATE_HOME/zsh/history";
+        path = "${homeDir}/.local/state/zsh/history";
       };
       autosuggestion.enable = true;
       syntaxHighlighting.enable = true;
