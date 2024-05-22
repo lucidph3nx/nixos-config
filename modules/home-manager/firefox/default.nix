@@ -33,6 +33,8 @@ in
             "browser.uidensity" = 1; # enable compact mode
             "browser.aboutConfig.showWarning" = false;
             "browser.tabs.firefox-view" = false;
+            "browser.download.folderList" = 2; # 2 = custom location
+            "browser.download.dir" = "${homeDir}/downloads";
             "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
             "ui.systemUsesDarkTheme" = 1; # force dark theme
             "extensions.pocket.enabled" = false;
