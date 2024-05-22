@@ -125,5 +125,8 @@ in {
     home.file.".local/scripts/application.scripts.launcher" = {
       source = ./scripts/application.scripts.launcher;
     };
+    home.file.".local/scripts/system.rofi.powermenu" = {
+      source = ./scripts/system.rofi.powermenu;
+    };
   };
 }
