@@ -38,6 +38,8 @@
       ".local/state/zsh"
       ".config/nvim/spell"
       ".config/github-copilot"
+      ".config/teams-for-linux"
+      ".config/Prospect Mail"
     ];
   };
 
