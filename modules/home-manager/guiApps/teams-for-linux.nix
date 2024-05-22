@@ -9,26 +9,26 @@
     home.packages = with pkgs; [ teams-for-linux ];
 
     # teams-for-linux does not seem to read config files that are symlinks
-    # home.file = {
-    #   ".config/teams-for-linux/config.json" = {
-    #     text = /* json */''
-    #       {
-    #         "spellCheckerLanguages":["en-NZ"],
-    #         "optInTeamsV2":"true",
-    #         "customCSSLocation":"/home/ben/.config/teams-for-linux/custom.css"
-    #       }
-    #     '';
-    #   };
-    # };
-    # home.file = {
-    #   ".config/teams-for-linux/custom.css" = {
-    #     text = /* css */''
-    #       html, body {
-    #         font-family: JetBrains Mono, monospace !important;
-    #       }
-    #     '';
-    #   };
-    # };
+    home.file = {
+      ".config/teams-for-linux/config.json" = {
+        text = /* js */''
+          {
+            "spellCheckerLanguages":["en-NZ"],
+            "optInTeamsV2":"true",
+            "customCSSLocation":"custom.css"
+          }
+        '';
+      };
+    };
+    home.file = {
+      ".config/teams-for-linux/custom.css" = {
+        text = /* css */''
+          html, body {
+            font-family: JetBrains Mono, monospace !important;
+          }
+        '';
+      };
+    };
 
     xdg.desktopEntries = lib.mkIf pkgs.stdenv.isLinux {
         teams-for-linux = {
