@@ -32,7 +32,7 @@
       defaultSopsFormat = "yaml";
       age = {
         keyFile = "/var/lib/sops-nix/key.txt";
-        sshKeyPaths = ["/etc/ssh/nix-ed25519"];
+        sshKeyPaths = ["${config.home.homeDirectory}/.ssh/nix-ed25519"];
         generateKey = true;
       };
     };
