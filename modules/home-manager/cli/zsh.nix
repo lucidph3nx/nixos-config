@@ -63,8 +63,5 @@
         eval "$(direnv hook zsh)"
       '';
     };
-    home.persistence = {
-      "/persist/home/ben".directories = [ ".local/state/zsh" ];
-    };
   };
 }

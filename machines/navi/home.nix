@@ -33,6 +33,11 @@
       "code"
       "documents"
       "music"
+      # these should be with the hm modules
+      # but give compile errors on darwin
+      ".local/state/zsh"
+      ".config/nvim/spell"
+      ".config/github-copilot"
     ];
   };
 

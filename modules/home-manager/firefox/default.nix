@@ -65,9 +65,5 @@ in
       "x-scheme-handler/http" = [ "firefox.desktop" ];
       "x-scheme-handler/https" = [ "firefox.desktop" ];
     };
-    # persist firefox directory
-    home.persistence = {
-      "/persist/home/ben".directories = [ ".mozilla/firefox" ];
-    };
   };
 }
