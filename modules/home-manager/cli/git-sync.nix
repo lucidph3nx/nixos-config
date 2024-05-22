@@ -8,7 +8,7 @@
       enable = true;
       repositories = {
         "nixos-config" = {
-          url = "ssh://git@github.com:lucidph3nx/nixos-config.git";
+          uri = "ssh://git@github.com:lucidph3nx/nixos-config.git";
           path = "${inputs.home-manager.home}/code/nixos-config-test";
         };
       };
