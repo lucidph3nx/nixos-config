@@ -7,6 +7,7 @@
     home.packages = with pkgs; [ 
       kubectl
       kubernetes-helm
+      kubelogin-oidc
       fluxcd
       krew
     ];
