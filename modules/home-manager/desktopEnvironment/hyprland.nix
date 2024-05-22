@@ -63,7 +63,7 @@ in
           # these substring functions are to remove the '#' from the hex color
           "col.active_border" = "rgba(${builtins.substring 1 6 (theme.green)}ff) rgba(${builtins.substring 1 6 (theme.blue)}ff) 45deg";
           "col.inactive_border" = "rgba(${builtins.substring 1 6 (theme.bg2)}ff)";
-          layout = "dwindle";
+          layout = "dwindle"; #TODO: figure out hy3
           cursor_inactive_timeout = 5;
         };
         decoration = {
