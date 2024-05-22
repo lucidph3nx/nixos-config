@@ -110,6 +110,11 @@ in {
           enable_swallow = true;
           swallow_regex = "^(kitty)$";
         };
+        windowrulev2 = [
+          "workspace 2 silent,class:(Prospect Mail)"
+          "workspace 2 silent,class:(teams-for-linux)"
+          "workspace 2 silent,class:(WebCord)"
+        ];
         monitor = [
           ",preferred,auto,auto"
           "HDMI-A-1,preferred,-2560x0,1"
