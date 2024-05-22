@@ -38,6 +38,7 @@
       blacklistadd https://monkeytype.com/
       " Search Urls
       setnull searchurls.github
+      set searchurls.gh https://github.com/search?q=
       set searchurls.hm https://home-manager-options.extranix.com/?query=
       set searchurls.nixpkgs https://search.nixos.org/packages?channel=unstable&from=0&size=50&sort=relevance&type=packages&query=
       set searchurls.nixopt https://search.nixos.org/options?channel=unstable&from=0&size=50&sort=relevance&type=packages&query=
