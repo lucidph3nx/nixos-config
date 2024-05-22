@@ -40,6 +40,8 @@
       ".config/github-copilot"
       ".config/teams-for-linux"
       ".config/Prospect Mail"
+      ".asdf/installs"
+      ".asdf/plugins"
     ];
   };
 
