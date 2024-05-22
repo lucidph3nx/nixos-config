@@ -2,6 +2,7 @@
   imports = [
     ./asdf.nix
     ./fetchtools.nix
+    ./git-sync.nix
     ./git.nix
     ./homeAutomation.nix
     ./k9s.nix
@@ -15,6 +16,7 @@
 
   homeManagerModules = {
     asdf.enable = lib.mkDefault true;
+    git-sync.enable = lib.mkDefault true;
     git.enable = lib.mkDefault true;
     homeAutomation.enable = lib.mkDefault false;
     k9s.enable = lib.mkDefault true;
