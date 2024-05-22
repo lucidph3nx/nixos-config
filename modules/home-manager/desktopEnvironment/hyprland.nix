@@ -209,7 +209,8 @@ in {
         ];
       };
       extraConfig = ''
-        # resize submap
+        # resize submap (with auto reset after 10 sec)
+        bind=SUPER,R,exec,sleep 10 && hyprctl dispatch submap reset
         bind=SUPER,R,submap,resize
         submap=resize
         binde=,h,resizeactive,-10 0
@@ -218,7 +219,8 @@ in {
         binde=,l,resizeactive,10 0
         bind=,escape,submap,reset
         submap=reset
-        # exit submap
+        # exit submap (with auto reset after 3 sec)
+        bind=SUPER SHIFT,E,exec,sleep 3 && hyprctl dispatch submap reset
         bind=SUPER SHIFT,E,submap,exit
         submap=exit
         # lock
