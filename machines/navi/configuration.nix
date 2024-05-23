@@ -149,7 +149,10 @@
   ];
 
   programs.zsh.enable = true;
-  programs.sway.enable = true;
+  programs.sway = {
+    enable = true;
+    extraPackages = []; # I don't need foot etc bundled
+  };
   programs.hyprland.enable = true;
   xdg.portal = {
     enable = true;
