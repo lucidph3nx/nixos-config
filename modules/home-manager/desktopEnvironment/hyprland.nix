@@ -30,7 +30,7 @@ in {
       filemanager = "kitty lf";
       musicplayer = "kitty ncmpcpp";
       obsidian = "kitty ${homeDir}/.local/scripts/cli.tmux.projectSessioniser ${homeDir}/documents/obsidian/personal-vault";
-      addtoshoppinglist = "home.shoppinglist.addItem";
+      addtoshoppinglist = "${homeDir}/.local/scripts/home.shoppinglist.addItem";
       openshoppinglist = "firefox --new-window https://www.notion.so/ph3nx/Shopping-List-92d98ac3dc86460285a399c0b1176fc5";
     in {
       enable = true;

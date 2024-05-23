@@ -1,5 +1,6 @@
 {pkgs, ...}: {
   programs.neovim.plugins = [
+    pkgs.vimPlugins.vim-rhubarb
     {
       plugin = pkgs.vimPlugins.vim-fugitive;
       type = "lua";
