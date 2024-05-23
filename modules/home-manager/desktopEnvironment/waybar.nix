@@ -22,7 +22,7 @@ in
     config = lib.mkIf config.homeManagerModules.waybar.enable {
       programs.waybar = {
         enable = true;
-        package = nixpkgs-stable.waybar;
+        package = pkgs.waybar;
         systemd.target = "sway-session.target";
         settings = {
           mainBar = {
