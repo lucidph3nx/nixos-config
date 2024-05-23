@@ -41,6 +41,7 @@ in {
           "hypridle"
           "waybar"
           "steam -silent" # couldn't figure out xdg-autostart
+          "${homeDir}/.local/scripts/game.inputRemapper.defaults"
         ];
         exec = [
           "pkill waybar && hyprctl dispatch exec waybar"
