@@ -114,6 +114,7 @@ in {
           # when opening another program from terminal, swallow the terminal
           enable_swallow = true;
           swallow_regex = "^(kitty)$";
+          swallow_exception_regex = "^(lf)$";
         };
         windowrulev2 = [
           "workspace 2 silent,class:(Prospect Mail)"
