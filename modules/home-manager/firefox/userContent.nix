@@ -74,36 +74,6 @@ with config.theme; {
           }
         }
 
-        /* squared customised proton mail */
-        @-moz-document url-prefix("https://mail.proton.me") {
-          * {
-            border-radius: 0px !important;
-          }
-
-          body {
-            font-family: JetBrains Mono, monospace !important;
-          }
-          :root, .ui-standard {
-            --primary: ${green} !important;
-            --primary-major-1: ${green} !important;
-            --primary-major-2: ${green} !important;
-            --primary-major-3: ${green} !important;
-            --interaction-norm: ${green} !important;
-            --interaction-norm-contrast: ${bg0} !important;
-            --interaction-norm-major-1: ${blue} !important;
-            --interaction-norm-major-2: ${blue} !important;
-            --interaction-norm-major-3: ${blue} !important;
-            --interaction-weak-minor-1: ${bg0} !important;
-            --interaction-weak-minor-2: ${bg_dim} !important;
-            --border-norm: ${bg3} !important;
-            --border-weak: ${bg2} !important;
-            --background-norm: ${bg0} !important;
-            --background-weak: ${bg_dim} !important;
-            --background-strong: ${bg1} !important;
-
-          }
-        }
-
         /* themed reddit */
         @-moz-document url-prefix("https://www.reddit.com") {
           :root {
