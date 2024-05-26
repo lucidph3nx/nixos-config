@@ -23,6 +23,10 @@ with config.theme; {
         # for kitty images in image.nvim
         set -gq allow-passthrough on
 
+        # prevent tmux from modifying colours
+        set -g default-terminal "xterm-kitty"
+        set -g terminal-overrides "xterm-kitty:Tc"
+
         # alternative prefix
         unbind C-b
         set -g prefix C-a
