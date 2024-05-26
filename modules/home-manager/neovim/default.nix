@@ -18,11 +18,9 @@
     ./plugins
   ];
   config = lib.mkIf config.homeManagerModules.neovim.enable {
-    home.sessionVariables.EDITOR = "nvim";
     programs.neovim = {
       enable = true;
       defaultEditor = true;
-      # package = pkgs.neovim-nightly;
     };
   };
 }
