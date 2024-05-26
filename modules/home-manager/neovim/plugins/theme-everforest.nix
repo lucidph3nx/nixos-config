@@ -4,8 +4,8 @@
     src = pkgs.fetchFromGitHub {
       owner = "neanias";
       repo = "everforest-nvim";
-      rev = "5e0e32a569fb464911342f0d421721cc1c94cf25";
-      hash = "sha256-qKyPqkcf420eMbgGNXmMgF3i9GZ71NpoqeK3+Gz0fzc=";
+      rev = "ed4ba26c911696d69cfda26014ec740861d324e1";
+      hash = "sha256-kVn6rUc26PtoqzKW/MNuks85sTLYx1lEE/l+7W0bDfg=";
     };
   };
 in {
