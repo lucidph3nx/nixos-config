@@ -18,17 +18,47 @@ in {
         lua
         */
         ''
-          require('everforest').setup {
+          local everforest = require('everforest')
+          everforest.setup {
             on_highlights = function(hl, palette)
-              -- markdown links are underlined
-              hl.TSTextReference = {
-                fg = palette.aqua,
+              -- obsidian.nvim colours
+              hl["ObsidianTodo"] = {
+                fg = palette.orange,
+                bg = palette.none,
+                bold = true,
+              }
+              hl["ObsidianDone"] = {
+                fg = palette.green,
+                bg = palette.none,
+                bold = true,
+              }
+              hl["ObsidianRightArrow"] = {
+                fg = palette.orange,
+                bg = palette.none,
+                bold = true,
+              }
+              hl["ObsidianTilde"] = {
+                fg = palette.red,
+                bg = palette.none,
+                bold = true,
+              }
+              hl["ObsidianRefText"] = {
+                fg = palette.blue,
                 bg = palette.none,
                 underline = true,
               }
+              hl["ObsidianExtLinkIcon"] = {
+                fg = palette.blue,
+                bg = palette.none,
+              }
+              hl["ObsidianTag"] = {
+                fg = palette.blue,
+                bg = palette.none,
+                italic = true,
+              }
             end
           }
-          require("everforest").load()
+          everforest.load()
         '';
     }
   ];

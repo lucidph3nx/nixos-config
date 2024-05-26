@@ -43,7 +43,12 @@
             end,
             open_app_foreground = true,
             disable_frontmatter = true,
+            -- don't use built in mappings
             mappings = {},
+            ui = {
+              -- don't use obsidian.nvim colours
+              hl_groups = {},
+            }
           }
           vim.opt.conceallevel = 2
           vim.keymap.set('n', '<leader>od',
