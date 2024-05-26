@@ -93,11 +93,22 @@
     chown -R ben:users /persist/home/ben
   '';
 
-  networking.hostName = "navi";
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
-  # Enable networking
-  networking.networkmanager.enable = true;
+  networking = {
+    hostName = "navi";
+    networkmanager.enable = true;
+    # wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+    hosts = {
+    };
+  };
+  # allow portforward of 443
+  security.wrappers = {
+    ssh = {
+      owner = "root";
+      group = "root";
+      capabilities = "cap_net_bind_service=+eip";
+      source = "${pkgs.openssh}/bin/ssh";
+    };
+  };
 
   # no password for sudo
   security.sudo.wheelNeedsPassword = false;
