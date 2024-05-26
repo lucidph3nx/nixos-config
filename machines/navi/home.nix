@@ -46,6 +46,7 @@
       ".config/teams-for-linux"
       ".config/Prospect Mail"
       ".config/obsidian"
+      ".terraform.d"
       ".asdf/installs"
       ".asdf/plugins"
       ".config/Bitwarden CLI"
