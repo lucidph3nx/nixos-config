@@ -8,6 +8,7 @@
   imports = [
     ./dragon-drop.nix
     ./kitty.nix
+    ./obsidian.nix
     ./prospect-mail.nix
     ./teams-for-linux.nix
     ./vimiv.nix
@@ -23,6 +24,7 @@
     homeManagerModules = {
       dragon-drop.enable = lib.mkDefault true;
       kitty.enable = lib.mkDefault true;
+      obsidian.enable = lib.mkDefault false;
       prospect-mail.enable = lib.mkDefault false;
       teams-for-linux.enable = lib.mkDefault false;
       vimiv.enable = lib.mkDefault true;
