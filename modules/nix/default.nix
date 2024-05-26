@@ -42,6 +42,7 @@
     environment.systemPackages = with pkgs; [
       bitwarden-cli
       curl
+      dig
       direnv
       eza
       fzf
