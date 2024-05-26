@@ -45,6 +45,7 @@
       ".config/github-copilot"
       ".config/teams-for-linux"
       ".config/Prospect Mail"
+      ".config/obsidian"
       ".asdf/installs"
       ".asdf/plugins"
       ".config/Bitwarden CLI"
