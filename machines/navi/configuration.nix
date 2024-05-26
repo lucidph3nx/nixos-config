@@ -157,6 +157,7 @@
   fonts.fontDir.enable = true;
   fonts.packages = [
     (pkgs.nerdfonts.override {fonts = ["JetBrainsMono"];})
+    pkgs.noto-fonts
   ];
 
   programs.zsh.enable = true;
