@@ -53,6 +53,7 @@
       jnv
       jq
       killall
+      openssl
       polkit
       polkit_gnome
       ripgrep
