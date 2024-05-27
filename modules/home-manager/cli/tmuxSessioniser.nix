@@ -113,7 +113,7 @@
           fi
 
           # new session if not in tmux and tmux is running
-          if ! tmux has-session -t=$selected_name 2> /dev/null; then
+          if ! ${tmux} has-session -t=$selected_name 2> /dev/null; then
               ${tmux} new-session -ds $selected_name -c $selected
               if [[ -n $selected_file ]]; then
                   ${tmux} send-keys -t $selected_name "nvim '$selected_file'" C-m
