@@ -58,6 +58,10 @@
             function()
               vim.cmd("ObsidianToday -1")
             end, { desc = '[O]bsidian [Y]esterday note' })
+          vim.keymap.set('n', '<leader>or',
+            function()
+              vim.cmd("ObsidianDailies -30 1")
+            end, { desc = '[O]bsidian [R]ecent' })
           vim.keymap.set('n', '<leader>on',
             vim.cmd.ObsidianNewNote, { desc = '[O]bsidian [N]ew note' })
           vim.keymap.set('n', '<leader>ot',
