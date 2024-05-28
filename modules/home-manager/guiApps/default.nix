@@ -6,6 +6,7 @@
   ...
 }: {
   imports = [
+    ./calibre.nix
     ./dragon-drop.nix
     ./kitty.nix
     ./obsidian.nix
@@ -22,6 +23,7 @@
   };
   config = lib.mkIf config.homeManagerModules.guiApps.enable {
     homeManagerModules = {
+      calibre.enable = lib.mkDefault false;
       dragon-drop.enable = lib.mkDefault true;
       kitty.enable = lib.mkDefault true;
       obsidian.enable = lib.mkDefault false;
