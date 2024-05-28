@@ -72,8 +72,11 @@
               exit 0
           fi
 
+          # cd into a log folder before starting
+          cd ~/tmuxlogs
+
           selected_name=$(basename "$selected" | tr . _)
-          tmux_running=$(pgrep ${tmux})
+          tmux_running=$(pgrep tmux)
 
           # set window title to be selected_name
           echo -ne "\033]0;''${selected_name}\007"
