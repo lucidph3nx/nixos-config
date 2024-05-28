@@ -47,6 +47,7 @@
       ".config/teams-for-linux"
       ".config/Prospect Mail"
       ".config/obsidian"
+      ".config/calibre"
       ".terraform.d"
       ".asdf/installs"
       ".asdf/plugins"
