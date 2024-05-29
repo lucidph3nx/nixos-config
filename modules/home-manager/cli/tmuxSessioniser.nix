@@ -54,7 +54,7 @@
     home.file.".local/scripts/cli.tmux.projectSessioniser" = {
       executable = true;
       text = let
-        tmux = "${pkgs.tmux}/bin/tmux -vv";
+        tmux = "${pkgs.tmux}/bin/tmux";
       in
         /*
         bash
@@ -71,9 +71,6 @@
           if [[ -z $selected ]]; then
               exit 0
           fi
-
-          # cd into a log folder before starting
-          cd ~/tmuxlogs
 
           selected_name=$(basename "$selected" | tr . _)
           tmux_running=$(pgrep tmux)
