@@ -12,6 +12,9 @@
   config = lib.mkIf config.homeManagerModules.mpv.enable {
     programs.mpv = {
       enable = true;
+      config = {
+        osc = "no";
+      };
       scripts = with pkgs.mpvScripts; [
         mpris
         thumbnail
