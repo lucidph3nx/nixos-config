@@ -225,6 +225,23 @@
     gamescopeSession.enable = false;
   };
   programs.gamemode.enable = true;
+  environment.sessionVariables = {
+    STEAM_EXTRA_COMPAT_TOOLS_PATHS = "/home/ben/.steam/root/compatibilitytools.d";
+  };
+
+  # experimental shutdown systemd service
+  # trying to prevent force shutdowns of tmux
+  systemd.services.shutdown-script = {
+    enable = true;
+    description = "Shutdown script";
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStop = ''
+        ${pkgs.tmux}/bin/tmux kill-server";
+      '';
+    };
+  };
 
   # device specific syncthing config
   sops.secrets.navi-cert-pem = {
