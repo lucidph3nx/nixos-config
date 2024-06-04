@@ -61,5 +61,10 @@ in {
       fsType = "nfs";
       options = ["x-systemd.automount"];
     };
+    fileSystems."/nfs/photos" = {
+      device = "${nasServerIP}:/volume1/photos";
+      fsType = "nfs";
+      options = ["x-systemd.automount"];
+    };
   };
 }
