@@ -143,11 +143,25 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     awscli2
-    ssm-session-manager-plugin
     chromium
+    exfat 
+    lsof
+    ntfs3g
     p7zip
+    parted
+    protontricks
+    protonup
     qpwgraph
+    ssm-session-manager-plugin
   ];
+hardware.openrazer = {
+  enable = true;
+  batteryNotifier = {
+    enable = true;
+    frequency = 60; #for testing
+    percentage = 90;  #for testing
+  };
+};
 
   environment.sessionVariables = {
     # for kube
