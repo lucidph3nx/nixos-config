@@ -13,15 +13,13 @@ in {
   flake-inputs = final: _: {
     inputs =
       builtins.mapAttrs
-      (
-        _: flake: let
-          legacyPackages = (flake.legacyPackages or {}).${final.system} or {};
-          packages = (flake.packages or {}).${final.system} or {};
-        in
-          if legacyPackages != {}
-          then legacyPackages
-          else packages
-      )
+      (_: flake: (flake.legacyPackages or flake.packages or {}).${final.system} or {})
       inputs;
+  };
+  # Overlays for various pkgs (e.g. broken, not updated)
+  modifications = final: prev: rec {
+    openrazer-daemon = prev.openrazer-daemon.overrideAttrs (oldAttrs: {
+      nativeBuildInputs = (oldAttrs.nativeBuildInputs or []) ++ [final.pkgs.gobject-introspection final.pkgs.wrapGAppsHook3 final.pkgs.python3Packages.wrapPython];
+    });
   };
 }
