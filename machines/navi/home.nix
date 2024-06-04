@@ -40,18 +40,20 @@
       "music"
       # these should be with the hm modules
       # but give compile errors on darwin
-      ".mozilla/firefox"
-      ".local/state/zsh"
-      ".config/nvim/spell"
-      ".config/github-copilot"
-      ".config/teams-for-linux"
-      ".config/Prospect Mail"
-      ".config/obsidian"
-      ".config/calibre"
-      ".terraform.d"
       ".asdf/installs"
       ".asdf/plugins"
       ".config/Bitwarden CLI"
+      ".config/Prospect Mail"
+      ".config/calibre"
+      ".config/github-copilot"
+      ".config/nvim/spell"
+      ".config/obsidian"
+      ".config/teams-for-linux"
+      ".local/state/zsh"
+      ".mozilla/firefox"
+      ".terraform.d"
+      # testing to figure out why syncthing errors so much
+      ".config/syncthing/index-v0.14.0.db"
     ];
   };
 
