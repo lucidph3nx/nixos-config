@@ -10,10 +10,9 @@
       lib.mkEnableOption "enables mpv";
   };
   config = lib.mkIf config.homeManagerModules.mpv.enable {
-    home.programs.mpv = {
+    programs.mpv = {
       enable = true;
-      package = pkgs.mpv;
-      scripts = with pkgs.mpvScipts; [
+      scripts = with pkgs.mpvScripts; [
         mpris
         thumbnail
         sponsorblock
