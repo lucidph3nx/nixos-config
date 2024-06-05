@@ -144,7 +144,7 @@
   environment.systemPackages = with pkgs; [
     awscli2
     chromium
-    exfat 
+    exfat
     gamescope
     lsof
     ntfs3g
@@ -250,7 +250,7 @@
   systemd.services.shutdown-script = {
     enable = true;
     description = "Shutdown script";
-    wantedBy = [ "multi-user.target" ];
+    wantedBy = ["multi-user.target"];
     serviceConfig = {
       Type = "oneshot";
       ExecStop = ''
