@@ -145,6 +145,7 @@
     awscli2
     chromium
     exfat 
+    gamescope
     lsof
     ntfs3g
     p7zip
@@ -237,6 +238,7 @@ hardware.openrazer = {
   programs.steam = {
     enable = true;
     gamescopeSession.enable = false;
+    protontricks.enable = true;
   };
   programs.gamemode.enable = true;
   environment.sessionVariables = {
