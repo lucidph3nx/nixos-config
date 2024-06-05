@@ -117,7 +117,7 @@
     isNormalUser = true;
     hashedPasswordFile = config.sops.secrets.ben_hashed_password.path;
     description = "ben";
-    extraGroups = ["networkmanager" "wheel"];
+    extraGroups = ["networkmanager" "wheel" "openrazer"];
     shell = pkgs.zsh;
   };
 
@@ -155,14 +155,14 @@
     qpwgraph
     ssm-session-manager-plugin
   ];
-hardware.openrazer = {
-  enable = true;
-  batteryNotifier = {
+  hardware.openrazer = {
     enable = true;
-    frequency = 60; #for testing
-    percentage = 90;  #for testing
+    batteryNotifier = {
+      enable = true;
+      frequency = 600;
+      percentage = 20;
+    };
   };
-};
 
   environment.sessionVariables = {
     # for kube
