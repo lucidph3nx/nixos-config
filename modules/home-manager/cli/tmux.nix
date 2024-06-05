@@ -16,6 +16,7 @@ with config.theme; {
       aggressiveResize = true;
       escapeTime = 10; # no delay for escape key, vim style
       prefix = "C-a";
+      terminal = "xterm-kitty";
       extraConfig = 
       /*
       tmux
