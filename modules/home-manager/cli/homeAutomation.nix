@@ -99,6 +99,16 @@
         "${super}+${pagedown}" = "exec ${homeDir}/.local/scripts/home.office.closeBlinds";
       };
     };
+    wayland.windowManager.hyprland.settings = lib.mkIf config.homeManagerModules.homeAutomation.enable {
+      bind = let
+        pageup = "Prior";
+        pagedown = "Next";
+        homeDir = config.home.homeDirectory;
+      in [
+        "SUPER, Prior, exec, ${homeDir}/.local/scripts/home.office.openBlinds"
+        "SUPER, Next, exec, ${homeDir}/.local/scripts/home.office.closeBlinds"
+      ];
+    };
     # This script turns off the hydroponics grow lights
     home.file.".local/scripts/home.hydroponics.turnOffGrowlights" = {
       executable = true;
