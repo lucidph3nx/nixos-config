@@ -18,6 +18,7 @@ in {
   };
   # Overlays for various pkgs (e.g. broken, not updated)
   modifications = final: prev: rec {
+    # https://github.com/NixOS/nixpkgs/pull/316717
     openrazer-daemon = prev.openrazer-daemon.overrideAttrs (oldAttrs: {
       nativeBuildInputs = (oldAttrs.nativeBuildInputs or []) ++ [final.pkgs.gobject-introspection final.pkgs.wrapGAppsHook3 final.pkgs.python3Packages.wrapPython];
     });
