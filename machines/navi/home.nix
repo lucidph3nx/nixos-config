@@ -18,6 +18,7 @@
     homeAutomation.enable = true;
     sway.enable = true;
     hyprland.enable = true;
+    waybar.displayportOnly = true;
     ssh.client.enable = true;
     ssh.client.workConfig.enable = true;
   };
