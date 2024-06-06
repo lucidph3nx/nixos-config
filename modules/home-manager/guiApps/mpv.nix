@@ -16,7 +16,7 @@
         osc = "no";
       };
       scripts = with pkgs.mpvScripts; [
-        mpris
+        (lib.mkIf pkgs.stdenv.isLinux mpris)
         thumbnail
         sponsorblock
       ];
