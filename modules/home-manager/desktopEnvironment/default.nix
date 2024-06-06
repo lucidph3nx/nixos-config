@@ -36,7 +36,10 @@
         sway.enable = lib.mkDefault true;
         swaylock.enable = lib.mkDefault true;
         swaync.enable = lib.mkDefault true;
-        waybar.enable = lib.mkDefault true;
+        waybar = {
+          enable = lib.mkDefault true;
+          displayportOnly = lib.mkDefault false;
+        };
       };
       home.file.".config/wallpaper.jpg".source = ./files/wallpaper.jpg;
     };

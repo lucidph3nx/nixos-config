@@ -9,14 +9,15 @@
   enableAudio = config.homeManagerModules.pipewire-utils.enable;
   enableHomeAutomation = config.homeManagerModules.homeAutomation.enable;
   enableMpd = config.homeManagerModules.mpd.enable;
+  enableHyprland = config.homeManagerModules.hyprland.enable;
+  enableSway = config.homeManagerModules.sway.enable;
   homeDir = config.home.homeDirectory;
 in
   with config.theme; {
     options = {
       homeManagerModules.waybar = {
         enable = lib.mkEnableOption "enables waybar";
-        # TODO: maybe an option here which enables the output = "DP-3" below
-        # also maybe switches the hyperland workspaces on?
+        displayportOnly = lib.mkEnableOption "only show waybar on DP-3";
       };
     };
     config = lib.mkIf config.homeManagerModules.waybar.enable {
@@ -29,13 +30,13 @@ in
             layer = "top";
             position = "top";
             height = 33;
-            # output = "DP-3";
+            output = lib.mkIf config.homeManagerModules.waybar.displayportOnly "DP-3";
             modules-left = [
-              "sway/workspaces"
-              "sway/scratchpad"
-              "sway/mode"
-              "hyprland/workspaces"
-              "hyprland/submap"
+              (lib.mkIf enableSway "sway/workspaces")
+              (lib.mkIf enableSway "sway/scratchpad")
+              (lib.mkIf enableSway "sway/mode")
+              (lib.mkIf enableHyprland "hyprland/workspaces")
+              (lib.mkIf enableHyprland "hyprland/submap")
               (lib.mkIf enableMpd "mpd")
             ];
             modules-center = [];
