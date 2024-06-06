@@ -143,9 +143,11 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     awscli2
+    azure-cli
     chromium
     exfat
     gamescope
+    kubelogin
     lsof
     ntfs3g
     p7zip
