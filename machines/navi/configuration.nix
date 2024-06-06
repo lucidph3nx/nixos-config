@@ -189,7 +189,7 @@
       xdg-desktop-portal-wlr
       xdg-desktop-portal-gtk
     ];
-    wlr.enable = true;
+    wlr.enable = lib.mkForce true; #TODO: figure out why hyprland conflicts with this
     config = {
       sway = {
         default = [
