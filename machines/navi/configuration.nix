@@ -152,6 +152,7 @@
     ntfs3g
     p7zip
     parted
+    polychromatic
     protontricks
     protonup
     qpwgraph
@@ -159,11 +160,12 @@
   ];
   hardware.openrazer = {
     enable = true;
-    batteryNotifier = {
-      enable = true;
-      frequency = 600;
-      percentage = 20;
-    };
+    # doesn't work, always sends notifications of 0%
+    # batteryNotifier = {
+    #   enable = true;
+    #   frequency = 600;
+    #   percentage = 20;
+    # };
   };
 
   environment.sessionVariables = {

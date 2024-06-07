@@ -11,6 +11,7 @@
   enableMpd = config.homeManagerModules.mpd.enable;
   enableHyprland = config.homeManagerModules.hyprland.enable;
   enableSway = config.homeManagerModules.sway.enable;
+  mouseBattery = config.homeManagerModules.waybar.mouseBattery;
   homeDir = config.home.homeDirectory;
 in
   with config.theme; {
@@ -18,6 +19,7 @@ in
       homeManagerModules.waybar = {
         enable = lib.mkEnableOption "enables waybar";
         displayportOnly = lib.mkEnableOption "only show waybar on DP-3";
+        mouseBattery = lib.mkEnableOption "show mouse battery via opernrazer";
       };
     };
     config = lib.mkIf config.homeManagerModules.waybar.enable {
@@ -42,6 +44,7 @@ in
             modules-center = [];
             modules-right = [
               "tray"
+              (lib.mkIf mouseBattery "custom/mouse-battery")
               (lib.mkIf enableAudio "custom/audio-cycle")
               (lib.mkIf enableAudio "pulseaudio")
               (lib.mkIf enableHomeAutomation "custom/office-temp")
@@ -115,9 +118,9 @@ in
               "on-click" = "${homeDir}/.local/scripts/system.audio.switchOutput";
             };
             "custom/clock" = {
+              "return-type" = "string";
               "interval" = 1;
               "exec" = "date +'%F %T'";
-              "tooltip-format" = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
             };
             "custom/notification" = {
               "tooltip" = false;
@@ -134,6 +137,12 @@ in
               "on-click" = "swaync-client -t -sw";
               "on-click-right" = "swaync-client -d -sw";
               "escape" = true;
+            };
+            "custom/mouse-battery" = lib.mkIf mouseBattery {
+              "return-type" = "string";
+              "interval" = 60;
+              "exec" = "polychromatic-cli -d mouse -k | grep Battery | sed 's/[^0-9]*//g'";
+              "format" = "󰍽 {}%";
             };
             "network" = {
               # don't show when on ethernet

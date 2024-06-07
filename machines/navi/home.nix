@@ -19,6 +19,7 @@
     sway.enable = true;
     hyprland.enable = true;
     waybar.displayportOnly = true;
+    waybar.mouseBattery = true;
     ssh.client.enable = true;
     ssh.client.workConfig.enable = true;
   };

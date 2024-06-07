@@ -39,6 +39,7 @@
         waybar = {
           enable = lib.mkDefault true;
           displayportOnly = lib.mkDefault false;
+          mouseBattery = lib.mkDefault false;
         };
       };
       home.file.".config/wallpaper.jpg".source = ./files/wallpaper.jpg;
