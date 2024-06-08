@@ -44,6 +44,7 @@
       curl
       dig
       direnv
+      dust
       eza
       fzf
       fzy
