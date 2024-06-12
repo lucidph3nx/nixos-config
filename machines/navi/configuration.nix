@@ -191,11 +191,11 @@
   hardware.openrazer = {
     enable = true;
     # doesn't work, always sends notifications of 0%
-    # batteryNotifier = {
-    #   enable = true;
-    #   frequency = 600;
-    #   percentage = 20;
-    # };
+    batteryNotifier = {
+      enable = false;
+      frequency = 600;
+      percentage = 20;
+    };
   };
 
   environment.sessionVariables = {
