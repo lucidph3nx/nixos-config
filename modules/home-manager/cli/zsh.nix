@@ -48,8 +48,6 @@ in {
         # sudo = "sudo -E -s";
         # color terminals for ssh targets that don't know kitty
         ssh = "TERM=xterm-color ssh";
-        # nixos rebuild switch
-        nixrs = "sudo nixos-rebuild switch";
         # eza instead of ls
         ls = "eza";
         l = "eza -la";
