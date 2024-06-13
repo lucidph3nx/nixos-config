@@ -14,6 +14,7 @@
       kubectl
       kubernetes-helm
       kubelogin-oidc
+      kubelogin
       fluxcd
       krew
     ];
