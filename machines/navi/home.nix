@@ -56,7 +56,6 @@
       ".config/nvim/spell"
       ".config/obsidian"
       ".config/teams-for-linux"
-      ".local/state/zsh"
       ".mozilla/firefox"
       ".terraform.d"
       # testing to figure out why syncthing errors so much
