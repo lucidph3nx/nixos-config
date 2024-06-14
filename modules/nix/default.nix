@@ -40,6 +40,7 @@
     };
     # packages that should always be installed by nix
     environment.systemPackages = with pkgs; [
+      age
       bitwarden-cli
       curl
       dig
