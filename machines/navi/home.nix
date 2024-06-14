@@ -32,9 +32,14 @@
   home.persistence."/persist/home/ben" = {
     allowOther = true;
     directories = [
-      ".local/share/Steam"
+      {
+        directory = ".local/share/Steam";
+        method = "symlink";
+      }
+      # ".local/share/Steam"
       ".local/share/mpd"
       ".local/share/nvim"
+      ".local/share/vulkan"
       ".local/state"
       ".ssh"
       "code"
