@@ -12,9 +12,25 @@ in {
       lib.mkEnableOption "enables zsh";
   };
   config = lib.mkIf config.homeManagerModules.zsh.enable {
+    # We set ZDOTDIR at system level, so we don't need
+    # to bootstrap the the zsh environment like this.
+    home.file.".zshenv".enable = false;
+
     programs.zsh = {
       enable = true;
-
+      dotDir = ".local/share/zsh";
+      # source the zcompdump from persist if it exists
+      # this is to speed up zsh startup in an impermanent environment
+      completionInit = let
+        dumpFile = "/persist${config.xdg.dataHome}/zsh/.zcompdump";
+      in ''
+        autoload -U compinit
+        if [[ -f ${dumpFile} ]]; then
+          compinit -d ${dumpFile}
+        else
+          compinit
+        fi
+      '';
       history = {
         size = 10000;
         expireDuplicatesFirst = true;
@@ -22,6 +38,7 @@ in {
       };
       autosuggestion.enable = true;
       syntaxHighlighting.enable = true;
+      # zprof.enable = true; # for troubleshooting startup
       plugins = [
         {
           name = "powerlevel10k";
