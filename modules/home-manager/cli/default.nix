@@ -7,7 +7,6 @@
 }: {
   imports = [
     # ./asdf.nix # temporary disable asdf, messing with my shit
-    ./fetchtools.nix
     ./git.nix
     ./homeAutomation.nix
     ./k9s.nix
@@ -27,8 +26,6 @@
     kubetools.enable = lib.mkDefault true;
     lf.enable = lib.mkDefault true;
     ncmpcpp.enable = lib.mkDefault true;
-    neofetch.enable = lib.mkDefault true;
-    pfetch.enable = lib.mkDefault true;
     tmux.enable = lib.mkDefault true;
     tmuxSessioniser.enable = lib.mkDefault true;
     zsh.enable = lib.mkDefault true;

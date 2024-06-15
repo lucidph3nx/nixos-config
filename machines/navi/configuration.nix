@@ -176,6 +176,7 @@
     azure-cli
     chromium
     exfat
+    fastfetch
     gamescope
     kubelogin
     lsof
