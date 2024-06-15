@@ -56,6 +56,7 @@
       jq
       killall
       openssl
+      pdftk
       polkit
       polkit_gnome
       ripgrep
