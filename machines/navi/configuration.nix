@@ -287,6 +287,11 @@
     STEAM_EXTRA_COMPAT_TOOLS_PATHS = "/home/ben/.steam/root/compatibilitytools.d";
   };
 
+  services.udisks2 = {
+    enable = true;
+    mountOnMedia = true;
+  };
+
   # experimental shutdown systemd service
   # trying to prevent force shutdowns of tmux
   systemd.services.shutdown-script = {

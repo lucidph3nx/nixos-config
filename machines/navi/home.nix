@@ -65,6 +65,23 @@
     ];
   };
 
+  services.udiskie = {
+    enable = true;
+    automount = true;
+    notify = true;
+    settings = {
+      program_options = {
+        menu = "flat";
+        file_manager = "xdg-open";
+      };
+      device_config = [
+       # ignore hardware os switch
+       { id_uuid = "55AA-6922"; ignore = true; }
+      ];
+    };
+    tray = "auto";
+  };
+
   home.packages = with pkgs; [
     gimp # temp for troubleshooting
     picard
@@ -74,6 +91,8 @@
   home.sessionVariables = {
     PAGER = "less";
   };
+
+  xdg.mimeApps.enable = true;
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
