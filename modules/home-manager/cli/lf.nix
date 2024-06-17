@@ -40,6 +40,7 @@
         map d
         map dd :cut
         map D :delete
+        map <enter> :open
       '';
     };
     xdg.desktopEntries = lib.mkIf pkgs.stdenv.isLinux {
@@ -51,6 +52,10 @@
         categories = ["ConsoleOnly" "System" "FileTools" "FileManager"];
         mimeType = ["inode/directory"];
       };
+    };
+    xdg.mimeApps.defaultApplications = {
+      "inode/directory" = ["lf.desktop"];
+      "inode/mount-point" = ["lf.desktop"];
     };
   };
 }
