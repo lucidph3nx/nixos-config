@@ -180,6 +180,7 @@
     gamescope
     kubelogin
     lsof
+    mangohud
     ntfs3g
     p7zip
     parted
