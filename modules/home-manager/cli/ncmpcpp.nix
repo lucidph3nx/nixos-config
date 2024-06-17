@@ -112,15 +112,18 @@ in {
             key = "u";
             command = "update_database";
           }
-          # wanted to unbind but couldnt figure out how
-          # at least they wont mess with volume anymore
+          # unbinds
           {
             key = "left";
-            command = "previous_column";
+            command = "dummy";
           }
           {
             key = "right";
-            command = "next_column";
+            command = "dummy";
+          }
+          {
+            key = "x";
+            command = "dummy";
           }
         ];
       };
