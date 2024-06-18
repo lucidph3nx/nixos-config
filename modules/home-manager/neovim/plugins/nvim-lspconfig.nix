@@ -1,7 +1,12 @@
 {pkgs, ...}: {
+  home.packages = with pkgs; [
+    terraform-ls
+    nil
+  ];
   programs.neovim.plugins = [
     # LSP and completions for injected langs
     pkgs.vimPlugins.otter-nvim
+    pkgs.vimPlugins.cmp-nvim-lsp
     # LSP
     {
       plugin = pkgs.vimPlugins.nvim-lspconfig;
