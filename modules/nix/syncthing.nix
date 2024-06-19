@@ -16,8 +16,12 @@
     services.syncthing = {
       enable = true;
       user = "ben";
-      dataDir = "/home/ben/documents";
-      configDir = "/home/ben/.config/syncthing";
+
+      # if you don't put the database and config somewhere stable
+      # syncthing will panic every startup and rebuild the database or maybe remove and re-add the folder?
+      # either way, its horrible and slow and this fixes it.
+      databaseDir = "/persist/cache/syncthing";
+      configDir = "/persist/home/ben/.config/syncthing";
       overrideDevices = true;
       settings = {
         devices = {
@@ -28,7 +32,7 @@
           "obsidian" = lib.mkIf config.nixModules.syncthing.obsidian.enable {
             id = "hgl5u-yejsp";
             devices = ["k8s"];
-            path = "/home/ben/documents/obsidian";
+            path = "/persist/home/ben/documents/obsidian";
           };
           "music" = lib.mkIf config.nixModules.syncthing.music.enable {
             id = "dmuif-nefck";

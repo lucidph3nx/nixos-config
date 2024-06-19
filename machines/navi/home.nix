@@ -58,10 +58,9 @@
       ".config/nvim/spell"
       ".config/obsidian"
       ".config/teams-for-linux"
+      ".config/syncthing"
       ".mozilla/firefox"
       ".terraform.d"
-      # testing to figure out why syncthing errors so much
-      ".config/syncthing/index-v0.14.0.db"
     ];
   };
 

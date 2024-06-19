@@ -94,6 +94,7 @@
       btrfs subvolume create /btrfs_tmp/root
       umount /btrfs_tmp
     '';
+  boot.kernel.sysctl."net.core.rmem_max" = 2500000;
 
   # things to persist
   fileSystems."/persist".neededForBoot = true;
