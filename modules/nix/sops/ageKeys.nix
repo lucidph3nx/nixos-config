@@ -20,6 +20,10 @@
         sopsFile = sopsFile;
       };
     };
+    system.activationScripts.homeSSHKeysFolderPermissions = ''
+      mkdir -p /home/ben/.config/sops/age
+      chown ben:users /home/ben/.config/sops/age
+    '';
     environment.sessionVariables = {
       SOPS_AGE_KEY_FILE = "/home/ben/.config/sops/age/keys.txt";
     };
