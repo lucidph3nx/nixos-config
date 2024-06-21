@@ -13,7 +13,7 @@
     sops.secrets = let
       sopsFile = ../../../secrets/ageKeys.yaml;
     in {
-      "personal" = {
+      "age/personal" = {
         owner = "ben";
         mode = "0600";
         path = "/home/ben/.config/sops/age/keys.txt";
