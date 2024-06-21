@@ -1,7 +1,10 @@
 {pkgs, ...}: {
   home.packages = with pkgs; [
-    terraform-ls
+    helm-ls
+    lua-language-server
     nil
+    terraform-ls
+    yaml-language-server
   ];
   programs.neovim.plugins = [
     # LSP and completions for injected langs
