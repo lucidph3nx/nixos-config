@@ -13,5 +13,8 @@
     home.packages = with pkgs; [
       vimiv-qt
     ];
+    xdg.mimeApps.defaultApplications = {
+      "image/jpeg" = ["vimiv.desktop"];
+    };
   };
 }
