@@ -6,15 +6,17 @@
   ...
 }: {
   imports = [
+    ./ageKeys.nix
     ./generalSecrets.nix
-    ./signingKeys.nix
     ./homeSSHKeys.nix
-    ./workSSH.nix
     ./kubeconfig.nix
+    ./signingKeys.nix
+    ./workSSH.nix
     inputs.sops-nix.nixosModules.sops
   ];
   config = {
     nixModules = {
+      sops.ageKeys.enable = lib.mkDefault false;
       sops.generalSecrets.enable = lib.mkDefault false;
       sops.signingKeys.enable = lib.mkDefault false;
       sops.homeSSHKeys.enable = lib.mkDefault false;
