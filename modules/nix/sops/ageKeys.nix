@@ -20,7 +20,7 @@
         sopsFile = sopsFile;
       };
     };
-    system.activationScripts.homeSSHKeysFolderPermissions = ''
+    system.activationScripts.homeAgeKeysFolderPermissions = ''
       mkdir -p /home/ben/.config/sops/age
       chown ben:users /home/ben/.config/sops/age
     '';
