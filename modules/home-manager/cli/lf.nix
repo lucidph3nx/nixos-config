@@ -36,10 +36,13 @@
         set previewer ${previewer}/bin/pv.sh
         set cleaner ${cleaner}/bin/clean.sh
 
-        # keybindings
+        # delete
         map d
         map dd :cut
-        map D :delete
+        %mkdir -p ~/.trash
+        cmd trash %set -f; mv $fx ~/.trash
+        map D :trash
+        # open
         map <enter> :open
       '';
     };
