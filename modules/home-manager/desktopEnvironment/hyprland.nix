@@ -68,11 +68,11 @@ in {
           "col.active_border" = "rgba(${builtins.substring 1 6 (theme.red)}ff) rgba(${builtins.substring 1 6 (theme.orange)}ff) rgba(${builtins.substring 1 6 (theme.yellow)}ff) rgba(${builtins.substring 1 6 (theme.green)}ff) rgba(${builtins.substring 1 6 (theme.aqua)}ff) rgba(${builtins.substring 1 6 (theme.blue)}ff) rgba(${builtins.substring 1 6 (theme.purple)}ff) 45deg";
           "col.inactive_border" = "rgba(${builtins.substring 1 6 (theme.bg2)}ff)";
           layout = "dwindle"; #TODO: figure out hy3
-          cursor_inactive_timeout = 5;
+          # cursor_inactive_timeout = 5;
         };
-        # cursor = {
-        #   inactive_timeout = 5;
-        # };
+        cursor = {
+          inactive_timeout = 5;
+        };
         decoration = {
           rounding = 0;
           blur.enabled = false;
