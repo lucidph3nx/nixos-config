@@ -65,6 +65,7 @@
         cr = "clusterroles";
         crb = "clusterrolebindings";
         dp = "deployments";
+        es = "externalsecrets";
         hr = "HelmRelease";
         jo = "jobs";
         ks = "kustomizations";
