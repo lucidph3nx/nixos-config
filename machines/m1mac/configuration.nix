@@ -96,7 +96,7 @@
   homebrew = {
     enable = true;
     brews = [
-      "int128/kubelogin/kubelogin"
+      # "int128/kubelogin/kubelogin"
     ];
     casks = [
       "1password"
