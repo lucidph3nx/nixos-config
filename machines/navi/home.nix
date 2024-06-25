@@ -10,6 +10,7 @@
   # my own modules
   homeManagerModules = {
     firefox.hideUrlbar = true;
+    libreoffice.enable = true;
     obsidian.enable = true;
     calibre.enable = true;
     prospect-mail.enable = true;
@@ -82,9 +83,9 @@
   };
 
   home.packages = with pkgs; [
+    cura
     gimp # temp for troubleshooting
     picard
-    cura
     # cinnamon.nemo
   ];
 
