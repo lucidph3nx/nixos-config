@@ -87,6 +87,30 @@
           https://home-assistant.''${SECRET_DOMAIN}/api/services/cover/close_cover
       '';
     };
+    # Turns on the heater in the office
+    home.file.".local/scripts/home.office.heaterOn" = {
+      executable = true;
+      text = ''
+        #!/bin/sh
+        ${pkgs.curl}/bin/curl -X POST \
+          -H "Authorization: Bearer ''${HASS_API_KEY}" \
+          -H "Content-Type: application/json" \
+          -d '{"entity_id": "switch.office_heater"}' \
+          https://home-assistant.''${SECRET_DOMAIN}/api/services/switch/turn_on
+      '';
+    };
+    # Turns off the heater in the office
+    home.file.".local/scripts/home.office.heaterOff" = {
+      executable = true;
+      text = ''
+        #!/bin/sh
+        ${pkgs.curl}/bin/curl -X POST \
+          -H "Authorization: Bearer ''${HASS_API_KEY}" \
+          -H "Content-Type: application/json" \
+          -d '{"entity_id": "switch.office_heater"}' \
+          https://home-assistant.''${SECRET_DOMAIN}/api/services/switch/turn_off
+      '';
+    };
     # relevant home automation keyboard shortcuts in sway
     wayland.windowManager.sway.config = lib.mkIf config.homeManagerModules.homeAutomation.enable {
       keybindings = let
