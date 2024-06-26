@@ -191,6 +191,7 @@
     protonup
     qpwgraph
     ssm-session-manager-plugin
+    nixpkgs-stable.shotcut
   ];
   hardware.openrazer = {
     enable = true;
