@@ -55,11 +55,12 @@
       ".config/Bitwarden CLI"
       ".config/Prospect Mail"
       ".config/calibre"
+      ".config/darktable"
       ".config/github-copilot"
       ".config/nvim/spell"
       ".config/obsidian"
-      ".config/teams-for-linux"
       ".config/syncthing"
+      ".config/teams-for-linux"
       ".mozilla/firefox"
       ".terraform.d"
     ];
@@ -84,8 +85,9 @@
 
   home.packages = with pkgs; [
     cura
-    gimp # temp for troubleshooting
+    gimp
     picard
+    darktable
     # cinnamon.nemo
   ];
 
