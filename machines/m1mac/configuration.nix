@@ -13,7 +13,12 @@
     home = "/Users/ben";
   };
 
-  programs.zsh.enable = true;
+  programs.zsh = {
+    enable = true;
+    shellInit = ''
+      export ZDOTDIR=$HOME/.local/share/zsh
+    '';
+  };
   environment = {
     shells = [pkgs.bash pkgs.zsh];
     loginShell = pkgs.zsh;
@@ -31,6 +36,7 @@
       gh
       gnupg
       gnutar
+      htop
       imagemagick
       jq
       p7zip
@@ -47,8 +53,7 @@
   nix.extraOptions = ''
     experimental-features = nix-command flakes
   '';
-  fonts.fontDir.enable = true;
-  fonts.fonts = [
+  fonts.packages = [
     (pkgs.nerdfonts.override {fonts = ["JetBrainsMono"];})
   ];
   security.sudo.extraConfig = ''
