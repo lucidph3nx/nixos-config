@@ -6,6 +6,7 @@
   ...
 }: let
   homeDir = config.home.homeDirectory;
+  persistDir = if pkgs.stdenv.isLinux then "/persist" else "";
 in {
   options = {
     homeManagerModules.zsh.enable =
@@ -22,7 +23,7 @@ in {
       # source the zcompdump from persist if it exists
       # this is to speed up zsh startup in an impermanent environment
       completionInit = let
-        dumpFile = "/persist${config.xdg.dataHome}/zsh/.zcompdump";
+        dumpFile = "${persistDir}${homeDir}/.local/share/zsh/.zcompdump";
       in ''
         autoload -U compinit
         if [[ -f ${dumpFile} ]]; then
