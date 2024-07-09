@@ -1,5 +1,7 @@
 {pkgs, ...}: {
   programs.neovim.plugins = [
+  pkgs.vimPlugins.nvim-snippets
+  pkgs.vimPlugins.friendly-snippets
   {
     plugin = pkgs.vimPlugins.cmp_luasnip;
     type = "lua";
