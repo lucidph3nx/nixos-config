@@ -16,8 +16,10 @@
     gtk = {
       enable = true;
       theme = {
-        name = "Adwaita-dark";
-        package = pkgs.gnome.gnome-themes-extra;
+        # name = "Adwaita-dark";
+        # package = pkgs.gnome.gnome-themes-extra;
+        name = "Everforest-Dark-BL";
+        package = pkgs.everforest-gtk-theme;
       };
       iconTheme = {
         name = "Papirus-Dark";
@@ -34,8 +36,11 @@
     };
     qt = {
       enable = true;
-      platformTheme.name = "adwaita";
-      style.name = "adwaita-dark";
+      platformTheme = "gnome";
+      style = {
+        name = "adwaita-dark";
+        package = pkgs.adwaita-qt;
+      };
     };
   };
 }
