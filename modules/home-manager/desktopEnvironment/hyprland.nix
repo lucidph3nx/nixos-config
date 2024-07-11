@@ -175,6 +175,7 @@ in {
           "SUPER, Space, exec, ${runscripts}"
           "SUPER, c, exec, ${calculator}"
           "SUPER, f, exec, ${nvimsessionlauncher}"
+          "SUPER SHIFT, F, fullscreen"
           # Notification Center
           "SUPER, n, exec, swaync-client -t -sw"
           "SUPER SHIFT, N, exec, swaync-client --close-all && swaync-client --close-panel"
