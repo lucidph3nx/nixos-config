@@ -133,28 +133,28 @@
         "SUPER, Next, exec, ${homeDir}/.local/scripts/home.office.closeBlinds"
       ];
     };
-    # This script turns off the hydroponics grow lights
-    home.file.".local/scripts/home.hydroponics.turnOffGrowlights" = {
+    # This script turns off the grow lights
+    home.file.".local/scripts/home.office.turnGrowlightsOff" = {
       executable = true;
       text = ''
         #!/bin/sh
         ${pkgs.curl}/bin/curl -X POST \
           -H "Authorization: Bearer ''${HASS_API_KEY}" \
           -H "Content-Type: application/json" \
-          -d '{"entity_id": "switch.hydro_growlights"}' \
-          https://home-assistant.''${SECRET_DOMAIN}/api/services/switch/turn_off
+          -d '{"entity_id": "automation.growlight_off"}' \
+          https://home-assistant.''${SECRET_DOMAIN}/api/services/automation/trigger
       '';
     };
-    # This script turns off the hydroponics grow lights
-    home.file.".local/scripts/home.hydroponics.turnOnGrowlights" = {
+    # This script turns on the grow lights
+    home.file.".local/scripts/home.office.turnGrowlightsOn" = {
       executable = true;
       text = ''
         #!/bin/sh
         ${pkgs.curl}/bin/curl -X POST \
           -H "Authorization: Bearer ''${HASS_API_KEY}" \
           -H "Content-Type: application/json" \
-          -d '{"entity_id": "switch.hydro_growlights"}' \
-          https://home-assistant.''${SECRET_DOMAIN}/api/services/switch/turn_on
+          -d '{"entity_id": "automation.growlight_timer"}' \
+          https://home-assistant.''${SECRET_DOMAIN}/api/services/automation/trigger
       '';
     };
     # A script to pause the dns blocking via blocky for 10 min
