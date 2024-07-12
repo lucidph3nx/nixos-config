@@ -1,5 +1,6 @@
 {
   config,
+  nixpkgs-stable,
   pkgs,
   inputs,
   ...
@@ -85,9 +86,11 @@
   };
 
   home.packages = with pkgs; [
-    cura
+    # https://github.com/NixOS/nixpkgs/issues/325896
+    nixpkgs-stable.cura
     gimp
-    picard
+    # another python issue, fix is merged to main, but not unstable
+    nixpkgs-stable.picard
     darktable
     # cinnamon.nemo
   ];

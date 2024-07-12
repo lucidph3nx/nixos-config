@@ -1,5 +1,6 @@
 {
   config,
+  nixpkgs-stable,
   pkgs,
   inputs,
   lib,
@@ -11,7 +12,8 @@
   };
   config = lib.mkIf config.homeManagerModules.vimiv.enable {
     home.packages = with pkgs; [
-      vimiv-qt
+      # https://github.com/NixOS/nixpkgs/issues/326048
+      nixpkgs-stable.vimiv-qt
     ];
     xdg.configFile = {
       "vimiv/vimiv.conf" = {
