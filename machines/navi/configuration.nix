@@ -179,6 +179,7 @@
     chromium
     exfat
     fastfetch
+    ffmpeg
     gamescope
     kubelogin
     lsof
