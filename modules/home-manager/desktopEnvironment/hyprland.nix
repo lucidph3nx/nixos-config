@@ -100,7 +100,6 @@ in {
           force_split = 2;
         };
         master = {
-          new_is_master = false;
           allow_small_split = true;
           special_scale_factor = ".80";
           mfact = ".45";
