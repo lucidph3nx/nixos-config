@@ -25,8 +25,7 @@
     systemPackages = with pkgs; [
       arping
       awscli2
-      ssm-session-manager-plugin
-      azure-cli
+      nixpkgs-stable.azure-cli
       cloudflared
       direnv
       docker
@@ -39,10 +38,12 @@
       htop
       imagemagick
       jq
+      openssh
       p7zip
       ripgrep
       rustup
       sops
+      ssm-session-manager-plugin
       tree
       tridactyl-native
       utm

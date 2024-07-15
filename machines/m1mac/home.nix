@@ -9,6 +9,7 @@
     webcord.enable = false; # doesnt work on nix-darwin currently
     vimiv.enable = false; # doesnt work on nix-darwin currently
     desktopEnvironment.enable = false; # desktop environments are for linux only
+    mpv.enable = false; # currently a broken package with swift
     sops = {
       enable = true;
       generalSecrets.enable = true;
