@@ -181,6 +181,7 @@
     fastfetch
     ffmpeg
     gamescope
+    jmtpfs # MTP for Android
     kubelogin
     lsof
     mangohud
