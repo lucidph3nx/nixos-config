@@ -10,6 +10,7 @@
     # LSP and completions for injected langs
     pkgs.vimPlugins.otter-nvim
     pkgs.vimPlugins.cmp-nvim-lsp
+    pkgs.vimPlugins.vim-helm
     # LSP
     {
       plugin = pkgs.vimPlugins.nvim-lspconfig;
