@@ -41,16 +41,16 @@ in {
       syntaxHighlighting.enable = true;
       # zprof.enable = true; # for troubleshooting startup
       plugins = [
-        # {
-        #   name = "powerlevel10k";
-        #   src = pkgs.zsh-powerlevel10k;
-        #   file = "share/zsh-powerlevel10k/powerlevel10k.zsh-theme";
-        # }
-        # {
-        #   name = "powerlevel10k-config";
-        #   src = lib.cleanSource ./files;
-        #   file = "p10k.zsh";
-        # }
+        {
+          name = "powerlevel10k";
+          src = pkgs.zsh-powerlevel10k;
+          file = "share/zsh-powerlevel10k/powerlevel10k.zsh-theme";
+        }
+        {
+          name = "powerlevel10k-config";
+          src = lib.cleanSource ./files;
+          file = "p10k.zsh";
+        }
       ];
       oh-my-zsh = {
         enable = true;
