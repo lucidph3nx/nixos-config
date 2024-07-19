@@ -93,10 +93,14 @@
     nixpkgs-stable.picard
     darktable
     # cinnamon.nemo
+    # retro gaming
+    mednafen
+    pcsx2
   ];
 
   home.sessionVariables = {
     PAGER = "less";
+    MEDNAFEN_HOME = "${config.xdg.configHome}/mednafen";
   };
 
   xdg.mimeApps.enable = true;
