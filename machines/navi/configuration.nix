@@ -187,6 +187,7 @@
     mangohud
     ntfs3g
     p7zip
+    p7zip
     parted
     polychromatic
     protontricks
@@ -231,14 +232,15 @@
     enable = true;
     extraPortals = with pkgs; [
       xdg-desktop-portal-wlr
-      xdg-desktop-portal-gtk
+      xdg-desktop-portal-hyprland
+      # xdg-desktop-portal-gtk
     ];
     wlr.enable = lib.mkForce true; #TODO: figure out why hyprland conflicts with this
     config = {
       sway = {
         default = [
           "wlr"
-          "gtk"
+          # "gtk"
         ];
       };
     };
