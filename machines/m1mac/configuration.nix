@@ -25,7 +25,7 @@
     systemPackages = with pkgs; [
       arping
       awscli2
-      nixpkgs-stable.azure-cli
+      azure-cli
       cloudflared
       direnv
       docker
