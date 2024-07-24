@@ -16,6 +16,7 @@
 
   nixModules = {
     sops = {
+      ageKeys.enable = true;
       generalSecrets.enable = true;
       signingKeys.enable = true;
       homeSSHKeys.enable = true;
@@ -145,8 +146,16 @@
     (pkgs.nerdfonts.override {fonts = ["JetBrainsMono"];})
   ];
 
-  programs.zsh.enable = true;
-  programs.sway.enable = true;
+  programs.zsh = {
+    enable = true;
+    shellInit = ''
+      export ZDOTDIR=$HOME/.local/share/zsh
+    '';
+  };
+  programs.sway = {
+    enable = true;
+    extraPackages = []; # I don't need foot etc bundled
+  };
   programs.hyprland.enable = true;
   xdg.portal = {
     enable = true;
