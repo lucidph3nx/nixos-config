@@ -65,6 +65,24 @@
           inputs.impermanence.nixosModules.impermanence
         ];
       };
+      odysseus = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        pkgs = import nixpkgs {
+          system = "x86_64-linux";
+          config.allowUnfree = true;
+        };
+        specialArgs = {inherit inputs outputs;};
+        modules = let
+          defaults = {pkgs, ...}: {
+            _module.args.nixpkgs-stable = import inputs.nixpkgs-stable {inherit (pkgs.stdenv.targetPlatform) system;};
+          };
+        in [
+          defaults
+          ./machines/default/configuration.nix
+          home-manager.nixosModules.default
+          inputs.impermanence.nixosModules.impermanence
+        ];
+      };
       navi = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         pkgs = import nixpkgs {
