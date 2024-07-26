@@ -90,7 +90,7 @@
     nixpkgs-stable.cura
     gimp
     # another python issue, fix is merged to main, but not unstable
-    nixpkgs-stable.picard
+    picard
     darktable
     # cinnamon.nemo
     # retro gaming
