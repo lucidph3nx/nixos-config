@@ -30,7 +30,7 @@
             lsp_blacklist = {},
           }
           vim.keymap.set('n', '<leader>to',
-            vim.cmd.SymbolesOutline, { desc = '[T]oggle [O]utline' })
+            vim.cmd.SymbolsOutline, { desc = '[T]oggle [O]utline' })
         '';
     }
   ];
