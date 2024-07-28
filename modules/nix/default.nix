@@ -61,6 +61,7 @@
       polkit_gnome
       ripgrep
       sops
+      unrar
       unzip
       xdg-utils
       yq
