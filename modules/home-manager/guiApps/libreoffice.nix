@@ -12,6 +12,9 @@
   config = lib.mkIf config.homeManagerModules.libreoffice.enable {
     home.packages = with pkgs; [
       libreoffice
+      # language
+      hunspell
+      hunspellDicts.en_GB-large
     ];
     xdg.mimeApps.defaultApplications = {
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document" = ["writer.desktop"];
