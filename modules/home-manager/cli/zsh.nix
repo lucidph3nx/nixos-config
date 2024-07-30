@@ -6,7 +6,10 @@
   ...
 }: let
   homeDir = config.home.homeDirectory;
-  persistDir = if pkgs.stdenv.isLinux then "/persist" else "";
+  persistDir =
+    if pkgs.stdenv.isLinux
+    then "/persist"
+    else "";
 in {
   options = {
     homeManagerModules.zsh.enable =

@@ -1,18 +1,18 @@
 {pkgs, ...}: {
   programs.neovim.plugins = [
-  pkgs.vimPlugins.nvim-snippets
-  pkgs.vimPlugins.friendly-snippets
-  {
-    plugin = pkgs.vimPlugins.cmp_luasnip;
-    type = "lua";
-    config = 
-    /*
-    lua
-    */
-    ''
-      require('cmp').setup()
-    '';
-  }
+    pkgs.vimPlugins.nvim-snippets
+    pkgs.vimPlugins.friendly-snippets
+    {
+      plugin = pkgs.vimPlugins.cmp_luasnip;
+      type = "lua";
+      config =
+        /*
+        lua
+        */
+        ''
+          require('cmp').setup()
+        '';
+    }
     {
       plugin = pkgs.vimPlugins.luasnip;
       type = "lua";

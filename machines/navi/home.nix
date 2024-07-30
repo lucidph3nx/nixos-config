@@ -80,8 +80,11 @@
         file_manager = "xdg-open";
       };
       device_config = [
-       # ignore hardware os switch
-       { id_uuid = "55AA-6922"; ignore = true; }
+        # ignore hardware os switch
+        {
+          id_uuid = "55AA-6922";
+          ignore = true;
+        }
       ];
     };
     tray = "auto";
