@@ -91,7 +91,6 @@
     # https://github.com/NixOS/nixpkgs/issues/325896
     nixpkgs-stable.cura
     gimp
-    # another python issue, fix is merged to main, but not unstable
     picard
     # broken build 2024-07-31, fixed in master
     # https://github.com/NixOS/nixpkgs/pull/331096
