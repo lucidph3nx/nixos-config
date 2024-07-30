@@ -74,7 +74,7 @@
       enable = true;
       clean.enable = true;
       clean.extraArgs = "--keep since 14d";
-      flake = /home/ben/code/nixos-config;
+      flake = "/home/ben/code/nixos-config";
     };
     # Set your time zone.
     time.timeZone = "Pacific/Auckland";
