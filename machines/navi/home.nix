@@ -92,7 +92,8 @@
     gimp
     # another python issue, fix is merged to main, but not unstable
     picard
-    darktable
+    # broken build 2024-07-31
+    nixpkgs-stable.darktable
     # cinnamon.nemo
     # retro gaming
     mednafen
