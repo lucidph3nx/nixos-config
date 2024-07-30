@@ -12,8 +12,7 @@
   };
   config = lib.mkIf config.homeManagerModules.vimiv.enable {
     home.packages = with pkgs; [
-      # https://github.com/NixOS/nixpkgs/issues/326048
-      nixpkgs-stable.vimiv-qt
+      vimiv-qt
     ];
     xdg.configFile = {
       "vimiv/vimiv.conf" = {
