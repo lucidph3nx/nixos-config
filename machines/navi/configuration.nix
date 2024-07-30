@@ -189,6 +189,7 @@
     p7zip
     p7zip
     parted
+    plexamp
     polychromatic
     protontricks
     protonup
