@@ -1,6 +1,7 @@
 {
   config,
   nixpkgs-stable,
+  nixpkgs-master,
   pkgs,
   inputs,
   ...
@@ -92,8 +93,9 @@
     gimp
     # another python issue, fix is merged to main, but not unstable
     picard
-    # broken build 2024-07-31
-    nixpkgs-stable.darktable
+    # broken build 2024-07-31, fixed in master
+    # https://github.com/NixOS/nixpkgs/pull/331096
+    nixpkgs-master.darktable
     # cinnamon.nemo
     # retro gaming
     mednafen

@@ -1,6 +1,7 @@
 {
   pkgs,
   nixpkgs-stable,
+  nixpkgs-master,
   inputs,
   config,
   lib,
@@ -118,6 +119,7 @@
     extraSpecialArgs = {
       inherit inputs;
       inherit nixpkgs-stable;
+      inherit nixpkgs-master;
     };
     users = {
       ben.imports = [
