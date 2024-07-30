@@ -7,6 +7,8 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     # stable repo for some packages
     nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-23.11";
+    # master branch, for some packages
+    nixpkgs-master.url = "github:nixos/nixpkgs/master";
 
     # disk formatting
     disko = {
@@ -57,6 +59,7 @@
         modules = let
           defaults = {pkgs, ...}: {
             _module.args.nixpkgs-stable = import inputs.nixpkgs-stable {inherit (pkgs.stdenv.targetPlatform) system;};
+            _module.args.nixpkgs-master = import inputs.nixpkgs-master {inherit (pkgs.stdenv.targetPlatform) system;};
           };
         in [
           defaults
@@ -75,6 +78,7 @@
         modules = let
           defaults = {pkgs, ...}: {
             _module.args.nixpkgs-stable = import inputs.nixpkgs-stable {inherit (pkgs.stdenv.targetPlatform) system;};
+            _module.args.nixpkgs-master = import inputs.nixpkgs-master {inherit (pkgs.stdenv.targetPlatform) system;};
           };
         in [
           defaults
@@ -93,6 +97,7 @@
         modules = let
           defaults = {pkgs, ...}: {
             _module.args.nixpkgs-stable = import inputs.nixpkgs-stable {inherit (pkgs.stdenv.targetPlatform) system;};
+            _module.args.nixpkgs-master = import inputs.nixpkgs-master {inherit (pkgs.stdenv.targetPlatform) system;};
           };
         in [
           defaults
@@ -113,6 +118,7 @@
         modules = let
           defaults = {pkgs, ...}: {
             _module.args.nixpkgs-stable = import inputs.nixpkgs-stable {inherit (pkgs.stdenv.targetPlatform) system;};
+            _module.args.nixpkgs-master = import inputs.nixpkgs-master {inherit (pkgs.stdenv.targetPlatform) system;};
           };
         in [
           defaults
