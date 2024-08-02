@@ -21,9 +21,7 @@ jobs:
           nix_path: nixpkgs=channel:nixos-unstable
       - uses: cachix/cachix-action@v15
         with:
-          authToken: ${{ secrets.CACHIX_TOKEN }}
-          extraPullNames: nix-community
-          name: thiagokokada-nix-configs
+          name: nix-community
       - name: Update flake.lock
         run: |
           git config user.name "${{ github.actor }}"
