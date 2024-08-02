@@ -26,4 +26,3 @@ jobs:
         run: |-
           nix build --print-build-logs '.#nixosConfigurations.navi.config.system.build.toplevel'
           nix build --print-build-logs '.#nixosConfigurations.default.config.system.build.toplevel'
-          nix build --print-build-logs '.#nixosConfigurations.odysseus.config.system.build.toplevel'
