@@ -11,31 +11,31 @@ jobs:
       contents: write
     steps:
       # removes a bunch of unneeded ubuntu packages
-      - uses: jlumbroso/free-disk-space@v1.3.1
-        with:
-          swap-storage: false
-          tool-cache: true
+      # - uses: jlumbroso/free-disk-space@v1.3.1
+      #   with:
+      #     swap-storage: false
+      #     tool-cache: true
       - uses: actions/checkout@v4
       # install nix
-      - uses: cachix/install-nix-action@v27
-        with:
-          extra_nix_config: |-
-            accept-flake-config = true
-            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-          nix_path: nixpkgs=channel:nixos-unstable
-      - uses: cachix/cachix-action@v15
-        with:
-          authToken: ${{ secrets.CACHIX_TOKEN }}
-          extraPullNames: nix-community
-          name: thiagokokada-nix-configs
-      - name: Update flake.lock
-        run: |
-          git config user.name "${{ github.actor }}"
-          git config user.email "${{ github.actor }}@users.noreply.github.com"
-          nix flake update --commit-lock-file
-      - name: 'Build NixOS configs for: navi'
-        run: |-
-          nix build --print-build-logs '.#nixosConfigurations.navi.config.system.build.toplevel'
+      # - uses: cachix/install-nix-action@v27
+      #   with:
+      #     extra_nix_config: |-
+      #       accept-flake-config = true
+      #       access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+      #     nix_path: nixpkgs=channel:nixos-unstable
+      # - uses: cachix/cachix-action@v15
+      #   with:
+      #     authToken: ${{ secrets.CACHIX_TOKEN }}
+      #     extraPullNames: nix-community
+      #     name: thiagokokada-nix-configs
+      # - name: Update flake.lock
+      #   run: |
+      #     git config user.name "${{ github.actor }}"
+      #     git config user.email "${{ github.actor }}@users.noreply.github.com"
+      #     nix flake update --commit-lock-file
+      # - name: 'Build NixOS configs for: navi'
+      #   run: |-
+      #     nix build --print-build-logs '.#nixosConfigurations.navi.config.system.build.toplevel'
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
