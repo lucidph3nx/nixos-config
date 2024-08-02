@@ -95,9 +95,7 @@
     nixpkgs-stable.cura
     gimp
     picard
-    # broken build 2024-07-31, fixed in master
-    # https://github.com/NixOS/nixpkgs/pull/331096
-    nixpkgs-master.darktable
+    darktable
     # cinnamon.nemo
     # retro gaming
     mednafen
