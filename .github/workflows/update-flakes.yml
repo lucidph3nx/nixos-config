@@ -46,7 +46,7 @@ jobs:
           git checkout -b flake-updates
           git add testfile
           git commit -m "test commit"
-          git push
+          git push --set-upstream origin flake-updates
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
