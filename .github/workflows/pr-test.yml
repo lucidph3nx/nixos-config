@@ -1,0 +1,21 @@
+name: update-test
+"on":
+  workflow_dispatch: null
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Update TestFile
+        run: |
+          date --iso-8601=seconds > TESTFILE
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: update authors
+          title: Update TESTFILE
+          body: Credit new contributors by updating TESTFILE
+          branch: update-testfile
