@@ -1,11 +1,9 @@
-name: update-flakes
+name: build-and-cache
 "on":
-  schedule:
-    - cron: 20 4 * * 0,2,4,6
-  workflow_dispatch: null
-
+  - push
+  - workflow_dispatch
 jobs:
-  update-flakes:
+  build-linux:
     runs-on: ubuntu-latest
     steps:
       - uses: jlumbroso/free-disk-space@v1.3.1
@@ -24,23 +22,8 @@ jobs:
           authToken: ${{ secrets.CACHIX_TOKEN }}
           extraPullNames: nix-community
           name: lucidph3nx-nixos-config
-      - name: Update flake.lock
-        run: |
-          git config user.name "${{ github.actor }}"
-          git config user.email "${{ github.actor }}@users.noreply.github.com"
-          nix flake update --commit-lock-file
-      - name: 'Build NixOS configs for: navi'
+      - name: 'Build NixOS configs for: navi, default, odysseus'
         run: |-
           nix build --print-build-logs '.#nixosConfigurations.navi.config.system.build.toplevel'
           nix build --print-build-logs '.#nixosConfigurations.default.config.system.build.toplevel'
           nix build --print-build-logs '.#nixosConfigurations.odysseus.config.system.build.toplevel'
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
-        with:
-          body: |
-            ## Run report
-
-            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          branch: flake-updates
-          delete-branch: true
-          title: Update flake.lock
