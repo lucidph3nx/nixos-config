@@ -1,6 +1,14 @@
+name: update-flakes
+"on":
+  schedule:
+    - cron: 20 4 * * 0,2,4,6
+  workflow_dispatch: null
+
 jobs:
   update-flakes:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       # removes a bunch of unneeded ubuntu packages
       - uses: jlumbroso/free-disk-space@v1.3.1
@@ -38,8 +46,3 @@ jobs:
           branch: flake-updates
           delete-branch: true
           title: Update flake.lock
-name: update-flakes
-"on":
-  schedule:
-    - cron: 20 4 * * 0,2,4,6
-  workflow_dispatch: null
