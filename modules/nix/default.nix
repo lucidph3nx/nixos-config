@@ -42,6 +42,7 @@
     environment.systemPackages = with pkgs; [
       age
       bitwarden-cli
+      cachix
       curl
       dig
       direnv
