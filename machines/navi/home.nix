@@ -43,6 +43,7 @@
       ".local/share/nvim"
       ".local/share/vulkan"
       ".local/share/zsh"
+      ".local/share/nix/"
       ".local/state"
       ".cache"
       ".ssh"
