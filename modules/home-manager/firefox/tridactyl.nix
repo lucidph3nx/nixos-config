@@ -46,7 +46,7 @@
         set searchurls.hm https://home-manager-options.extranix.com/?query=
         set searchurls.nixpkgs https://search.nixos.org/packages?channel=unstable&from=0&size=50&sort=relevance&type=packages&query=
         set searchurls.nixopt https://search.nixos.org/options?channel=unstable&from=0&size=50&sort=relevance&type=packages&query=
-        set searchurls.sx https://searx.perennialte.ch/search?q=
+        set searchurls.sx https://search.tinfoilforest.nz/search?q=
         set searchurls.nw https://www.newworld.co.nz/shop/search?q=
       '';
   };
