@@ -21,9 +21,7 @@ in {
         (rofi-calc.override {
           rofi-unwrapped = rofi-wayland-unwrapped;
         })
-        (rofi-emoji.override {
-          rofi-unwrapped = rofi-wayland-unwrapped;
-        })
+        rofi-emoji-wayland
       ];
       extraConfig = {
         steal-focus = true;
