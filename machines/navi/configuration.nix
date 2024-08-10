@@ -253,11 +253,13 @@
   services.dbus.implementation = "broker";
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
+
   # display manager
   services.greetd = {
     enable = true;
     restart = true;
     package = pkgs.greetd.tuigreet;
+    vt = 7; # which tty to use, if 1 is used, the login screen can be overwritten by systemd startup messages
     settings = {
       default_session = {
         command = "${pkgs.greetd.tuigreet}/bin/tuigreet --remember --time --time-format '%Y-%m-%d %H:%M:%S' --cmd Hyprland";
@@ -265,6 +267,7 @@
       };
     };
   };
+
   # sound
   services.pipewire = {
     enable = true;
