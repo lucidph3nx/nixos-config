@@ -43,4 +43,3 @@ jobs:
           branch: flake-updates
           delete-branch: true
           title: Update flake.lock
-          assignees: lucidph3nx
