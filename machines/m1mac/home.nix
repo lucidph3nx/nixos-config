@@ -5,6 +5,7 @@
   ...
 }: {
   homeManagerModules = {
+    asdf.enable = true;
     firefox.enable = false; # doesnt work on nix-darwin currently
     webcord.enable = false; # doesnt work on nix-darwin currently
     vimiv.enable = false; # doesnt work on nix-darwin currently

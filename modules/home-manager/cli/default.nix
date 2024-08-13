@@ -6,7 +6,7 @@
   ...
 }: {
   imports = [
-    # ./asdf.nix # temporary disable asdf, messing with my shit
+    ./asdf.nix
     ./git.nix
     ./homeAutomation.nix
     ./k9s.nix
@@ -19,7 +19,7 @@
   ];
 
   homeManagerModules = {
-    # asdf.enable = lib.mkDefault true;
+    asdf.enable = lib.mkDefault false;
     git.enable = lib.mkDefault true;
     homeAutomation.enable = lib.mkDefault false;
     k9s.enable = lib.mkDefault true;
