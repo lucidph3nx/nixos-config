@@ -5,7 +5,42 @@
 }: {
   programs.neovim.plugins = [
     {
-      plugin = pkgs.vimPlugins.nvim-treesitter.withAllGrammars;
+      plugin = pkgs.vimPlugins.nvim-treesitter.withPlugins (treesitter-plugins:
+        with treesitter-plugins; [
+          bash
+          clojure
+          cmake
+          css
+          dockerfile
+          gitcommit
+          gitignore
+          graphql
+          hcl
+          helm
+          html
+          javascript
+          jq
+          json
+          json5
+          jsonc
+          latex
+          mermaid
+          lua
+          markdown
+          nginx
+          nix
+          python
+          rust
+          scala
+          ssh_config
+          sql
+          terraform
+          tmux
+          toml
+          typescript
+          vim
+          yaml
+        ]);
       type = "lua";
       config =
         /*
