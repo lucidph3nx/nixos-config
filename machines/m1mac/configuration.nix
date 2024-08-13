@@ -2,12 +2,15 @@
   pkgs,
   inputs,
   nixpkgs-stable,
+  nixpkgs-master,
   ...
 }: {
   imports = [
     ../../modules/nix-darwin/yabai.nix
     # ../../modules/nix-darwin/spacebar.nix
   ];
+
+  nix.settings.trusted-users = ["ben" "root"];
 
   users.users.ben = {
     home = "/Users/ben";
@@ -122,6 +125,7 @@
     extraSpecialArgs = {
       inherit inputs;
       inherit nixpkgs-stable;
+      inherit nixpkgs-master;
     };
     users = {
       ben.imports = [
