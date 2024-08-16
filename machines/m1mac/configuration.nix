@@ -106,6 +106,7 @@
     enable = true;
     brews = [
       # "int128/kubelogin/kubelogin"
+      "node"
     ];
     casks = [
       "1password"

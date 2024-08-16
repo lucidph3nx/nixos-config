@@ -3,7 +3,7 @@
   lib,
   ...
 }: {
-  home.packages = with pkgs; [
+  home.packages = with pkgs; lib.mkIf pkgs.stdenv.isLinux [
     nodejs_20
   ];
   programs.neovim.plugins = [
