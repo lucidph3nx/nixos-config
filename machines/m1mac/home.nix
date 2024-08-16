@@ -41,6 +41,9 @@
     PAGER = "less";
     KUBECONFIG = "${config.sops.secrets.workkube.path}";
   };
+  home.sessionPath = [
+    "/opt/homebrew/bin"
+  ];
   home.file = {
     ".config/karabiner/karabiner.json".source = ./files/karabiner.json;
     ".config/yabai/mac-focus-space-SIP.sh".source = ./files/mac-focus-space-SIP.sh;
