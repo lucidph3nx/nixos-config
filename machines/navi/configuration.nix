@@ -176,18 +176,14 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    awscli2
-    azure-cli
     chromium
     exfat
     fastfetch
     ffmpeg
     gamescope
-    kubelogin
     lsof
     mangohud
     ntfs3g
-    p7zip
     p7zip
     parted
     plexamp
@@ -195,7 +191,6 @@
     protontricks
     protonup
     qpwgraph
-    ssm-session-manager-plugin
     shotcut
   ];
   hardware.openrazer = {
