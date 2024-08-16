@@ -50,7 +50,7 @@
       tree
       tridactyl-native
       utm
-      yq
+      yq-go
       zsh
     ];
   };
