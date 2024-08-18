@@ -43,6 +43,7 @@
       age
       bitwarden-cli
       cachix
+      chromium
       curl
       dig
       direnv
@@ -57,6 +58,7 @@
       jq
       killall
       openssl
+      p7zip
       pdftk
       polkit
       polkit_gnome

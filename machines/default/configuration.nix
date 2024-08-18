@@ -128,10 +128,8 @@
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-  environment.systemPackages = with pkgs; [
-    chromium
-    p7zip
-  ];
+  # environment.systemPackages = with pkgs; [
+  # ];
 
   environment.sessionVariables = {
     # for kube

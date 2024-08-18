@@ -176,7 +176,6 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    chromium
     exfat
     fastfetch
     ffmpeg
@@ -184,7 +183,6 @@
     lsof
     mangohud
     ntfs3g
-    p7zip
     parted
     plexamp
     polychromatic
