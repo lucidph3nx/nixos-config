@@ -5,7 +5,7 @@
   ...
 }: {
   services.yabai = {
-    enable = true;
+    enable = false;
     config = {
       layout = "bsp";
       # padding and gaps
@@ -35,7 +35,7 @@
     '';
   };
   services.skhd = {
-    enable = true;
+    enable = false;
     package = pkgs.skhd;
     skhdConfig = ''
       # Reload yabai

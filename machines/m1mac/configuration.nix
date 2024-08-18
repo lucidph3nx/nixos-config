@@ -107,6 +107,7 @@
     brews = [
       # "int128/kubelogin/kubelogin"
       "node"
+      "nikitabobko/tap/aerospace"
     ];
     casks = [
       "1password"
