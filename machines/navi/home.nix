@@ -38,6 +38,7 @@
         directory = ".local/share/Steam";
         method = "symlink";
       }
+      ".local/share/Anki2"
       ".local/share/mpd"
       ".local/share/nvim"
       ".local/share/vulkan"
