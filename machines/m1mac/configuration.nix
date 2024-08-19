@@ -100,6 +100,8 @@
       AppleMeasurementUnits = "Centimeters";
       AppleMetricUnits = 1;
       AppleTemperatureUnit = "Celsius";
+      NSWindowShouldDragOnGesture = true;
+      NSAutomaticWindowAnimationsEnabled = false;
     };
   };
   homebrew = {
