@@ -107,16 +107,19 @@
     brews = [
       # "int128/kubelogin/kubelogin"
       "node"
-      "nikitabobko/tap/aerospace"
+      "borders" # JankyBorders
+    ];
+    taps = [
+      "FelixKratz/formulae" # JankyBorders
     ];
     casks = [
+      "nikitabobko/tap/aerospace"
       "1password"
       "1password-cli"
       "bitwarden"
       "firefox"
       "raycast"
       "scroll-reverser"
-      "spaceman"
     ];
   };
 
