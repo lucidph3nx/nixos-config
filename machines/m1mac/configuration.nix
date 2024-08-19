@@ -27,7 +27,7 @@
     loginShell = pkgs.zsh;
     systemPackages = with pkgs; [
       arping
-      awscli2
+      # nixpkgs-stable.awscli2
       azure-cli
       cloudflared
       direnv
