@@ -6,7 +6,7 @@
   ...
 }: {
   imports = [
-    ../../modules/nix-darwin/yabai.nix
+    # ../../modules/nix-darwin/yabai.nix
     # ../../modules/nix-darwin/spacebar.nix
   ];
 
