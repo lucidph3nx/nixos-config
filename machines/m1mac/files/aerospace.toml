@@ -79,8 +79,8 @@ cmd-shift-j = 'move down'
 cmd-shift-k = 'move up'
 cmd-shift-l = 'move right'
 
-cmd-v = 'split vertical'
-cmd-b = 'split horizontal'
+cmd-shift-v = 'split vertical'
+cmd-shift-b = 'split horizontal'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#workspace
 cmd-1 = 'workspace 1'
