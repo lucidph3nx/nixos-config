@@ -37,7 +37,6 @@
           "music" = lib.mkIf config.nixModules.syncthing.music.enable {
             id = "dmuif-nefck";
             devices = ["nas0"];
-            # path = "/home/ben/music";
             path = "/persist/home/ben/music";
           };
         };
