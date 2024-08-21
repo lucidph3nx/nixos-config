@@ -39,11 +39,12 @@
         method = "symlink";
       }
       ".local/share/Anki2"
+      ".local/share/lutris"
       ".local/share/mpd"
+      ".local/share/nix"
       ".local/share/nvim"
       ".local/share/vulkan"
       ".local/share/zsh"
-      ".local/share/nix"
       ".local/state"
       ".cache"
       ".ssh"
