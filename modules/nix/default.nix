@@ -5,13 +5,16 @@
   ...
 }: {
   imports = [
+    ./input-remapper.nix
+    ./localisation.nix
+    ./nfs-mounts.nix
+    ./polkit.nix
     ./sops
     ./syncthing.nix
-    ./nfs-mounts.nix
-    ./input-remapper.nix
   ];
   config = {
     nixModules = {
+      polkit.enable = lib.mkDefault true;
       syncthing = {
         enable = lib.mkDefault false;
         obsidian.enable = lib.mkDefault false;
@@ -22,22 +25,6 @@
       };
       nfs-mounts.enable = lib.mkDefault false;
     };
-    security.polkit.enable = true;
-    systemd = {
-      user.services.polkit-gnome-authentication-agent-1 = {
-        description = "polkit-gnome-authentication-agent-1";
-        wantedBy = ["graphical-session.target"];
-        wants = ["graphical-session.target"];
-        after = ["graphical-session.target"];
-        serviceConfig = {
-          Type = "simple";
-          ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
-          Restart = "on-failure";
-          RestartSec = 1;
-          TimeoutStopSec = 10;
-        };
-      };
-    };
     # nix options for all systems
     nix.settings = {
       experimental-features = ["nix-command" "flakes"];
@@ -46,8 +33,8 @@
         "https://lucidph3nx-nixos-config.cachix.org"
       ];
       trusted-public-keys = [
-      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-      "lucidph3nx-nixos-config.cachix.org-1:gXiGMMDnozkXCjvOs9fOwKPZNIqf94ZA/YksjrKekHE="
+        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+        "lucidph3nx-nixos-config.cachix.org-1:gXiGMMDnozkXCjvOs9fOwKPZNIqf94ZA/YksjrKekHE="
       ];
     };
     # packages that should always be installed by nix
@@ -72,8 +59,6 @@
       openssl
       p7zip
       pdftk
-      polkit
-      polkit_gnome
       ripgrep
       sops
       unrar
@@ -84,29 +69,19 @@
       zsh
     ];
     virtualisation.docker.enable = true;
+    # zsh bootstrap
+    programs.zsh = {
+      enable = true;
+      shellInit = ''
+        export ZDOTDIR=$HOME/.local/share/zsh
+      '';
+    };
     # nix helper
     programs.nh = {
       enable = true;
       clean.enable = true;
       clean.extraArgs = "--keep since 14d";
       flake = "/home/ben/code/nixos-config";
-    };
-    # Set your time zone.
-    time.timeZone = "Pacific/Auckland";
-
-    # Select internationalisation properties.
-    i18n.defaultLocale = "en_NZ.UTF-8";
-
-    i18n.extraLocaleSettings = {
-      LC_ADDRESS = "en_NZ.UTF-8";
-      LC_IDENTIFICATION = "en_NZ.UTF-8";
-      LC_MEASUREMENT = "en_NZ.UTF-8";
-      LC_MONETARY = "en_NZ.UTF-8";
-      LC_NAME = "en_NZ.UTF-8";
-      LC_NUMERIC = "en_NZ.UTF-8";
-      LC_PAPER = "en_NZ.UTF-8";
-      LC_TELEPHONE = "en_NZ.UTF-8";
-      LC_TIME = "en_NZ.UTF-8";
     };
     # XDG env vars
     environment.sessionVariables = {
