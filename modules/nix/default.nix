@@ -67,7 +67,7 @@
       unrar
       unzip
       xdg-utils
-      yq
+      yq-go
       yt-dlp
       zsh
     ];
