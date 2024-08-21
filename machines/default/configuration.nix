@@ -138,12 +138,6 @@
     (pkgs.nerdfonts.override {fonts = ["JetBrainsMono"];})
   ];
 
-  programs.zsh = {
-    enable = true;
-    shellInit = ''
-      export ZDOTDIR=$HOME/.local/share/zsh
-    '';
-  };
   programs.sway = {
     enable = true;
     extraPackages = []; # I don't need foot etc bundled
