@@ -101,7 +101,6 @@
   environment.persistence."/persist/system" = {
     hideMounts = true;
     directories = [
-      "/var/cache/tuigreet" # for remembering last user with tuigreet
       "/var/log"
       "/var/lib/bluetooth"
       "/var/lib/nixos"
@@ -127,7 +126,6 @@
   networking = {
     hostName = "navi";
     networkmanager.enable = true;
-    # wireless.enable = true;  # Enables wireless support via wpa_supplicant.
     hosts = {
     };
   };
@@ -193,12 +191,8 @@
   ];
   hardware.openrazer = {
     enable = true;
-    # doesn't work, always sends notifications of 0%
-    batteryNotifier = {
-      enable = false;
-      frequency = 600;
-      percentage = 20;
-    };
+    # doesn't work, always sends notifications of 0%, probably the devices fault
+    batteryNotifier.enable = false;
   };
 
   environment.sessionVariables = {
@@ -229,7 +223,6 @@
       sway = {
         default = [
           "wlr"
-          # "gtk"
         ];
       };
     };
@@ -239,20 +232,6 @@
   services.dbus.implementation = "broker";
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
-
-  # display manager
-  services.greetd = {
-    enable = true;
-    restart = true;
-    package = pkgs.greetd.tuigreet;
-    vt = 7; # which tty to use, if 1 is used, the login screen can be overwritten by systemd startup messages
-    settings = {
-      default_session = {
-        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --remember --time --time-format '%Y-%m-%d %H:%M:%S' --cmd Hyprland";
-        user = "greeter";
-      };
-    };
-  };
 
   # sound
   services.pipewire = {

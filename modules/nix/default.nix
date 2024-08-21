@@ -6,6 +6,7 @@
 }: {
   imports = [
     ./cli-tools.nix
+    ./greetd.nix
     ./gui-tools.nix
     ./input-remapper.nix
     ./localisation.nix
@@ -16,6 +17,7 @@
   ];
   config = {
     nixModules = {
+      greetd.enable = lib.mkDefault true;
       polkit.enable = lib.mkDefault true;
       cli-tools.enable = lib.mkDefault true;
       gui-tools.enable = lib.mkDefault true;

@@ -69,7 +69,6 @@
   environment.persistence."/persist/system" = {
     hideMounts = true;
     directories = [
-      "/var/cache/tuigreet" # for remembering last user with tuigreet
       "/var/log"
       "/var/lib/bluetooth"
       "/var/lib/nixos"
@@ -168,18 +167,6 @@
   services.dbus.implementation = "broker";
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
-  # display manager
-  services.greetd = {
-    enable = true;
-    restart = true;
-    package = pkgs.greetd.tuigreet;
-    settings = {
-      default_session = {
-        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --remember --time --time-format '%Y-%m-%d %H:%M:%S' --cmd sway";
-        user = "greeter";
-      };
-    };
-  };
   # cups for printing
   services.printing.enable = true;
 
