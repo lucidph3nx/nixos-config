@@ -3,9 +3,10 @@
   lib,
   ...
 }: {
-  home.packages = with pkgs; lib.mkIf pkgs.stdenv.isLinux [
-    nodejs_20
-  ];
+  home.packages = with pkgs;
+    lib.mkIf pkgs.stdenv.isLinux [
+      nodejs_20
+    ];
   programs.neovim.plugins = [
     {
       plugin = pkgs.vimPlugins.copilot-lua;
