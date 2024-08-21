@@ -5,6 +5,8 @@
   ...
 }: {
   imports = [
+    ./cli-tools.nix
+    ./gui-tools.nix
     ./input-remapper.nix
     ./localisation.nix
     ./nfs-mounts.nix
@@ -15,6 +17,8 @@
   config = {
     nixModules = {
       polkit.enable = lib.mkDefault true;
+      cli-tools.enable = lib.mkDefault true;
+      gui-tools.enable = lib.mkDefault true;
       syncthing = {
         enable = lib.mkDefault false;
         obsidian.enable = lib.mkDefault false;
@@ -37,37 +41,6 @@
         "lucidph3nx-nixos-config.cachix.org-1:gXiGMMDnozkXCjvOs9fOwKPZNIqf94ZA/YksjrKekHE="
       ];
     };
-    # packages that should always be installed by nix
-    environment.systemPackages = with pkgs; [
-      age
-      bitwarden-cli
-      cachix
-      chromium
-      curl
-      dig
-      direnv
-      dust
-      eza
-      fzf
-      fzy
-      gh
-      htop
-      imagemagick
-      jnv
-      jq
-      killall
-      openssl
-      p7zip
-      pdftk
-      ripgrep
-      sops
-      unrar
-      unzip
-      xdg-utils
-      yq-go
-      yt-dlp
-      zsh
-    ];
     virtualisation.docker.enable = true;
     # zsh bootstrap
     programs.zsh = {
