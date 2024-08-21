@@ -10,8 +10,6 @@
     # ../../modules/nix-darwin/spacebar.nix
   ];
 
-  nix.settings.trusted-users = ["ben" "root"];
-
   users.users.ben = {
     home = "/Users/ben";
   };

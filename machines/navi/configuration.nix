@@ -34,8 +34,6 @@
     nfs-mounts.enable = true;
   };
 
-  nix.settings.experimental-features = ["nix-command" "flakes"];
-
   # Bootloader.
   boot.loader.grub = {
     enable = true;
@@ -153,7 +151,6 @@
     extraGroups = ["networkmanager" "wheel" "openrazer"];
     shell = pkgs.zsh;
   };
-  nix.settings.trusted-users = ["ben" "root"];
 
   # needed for impermanance in home-manager
   programs.fuse.userAllowOther = true;

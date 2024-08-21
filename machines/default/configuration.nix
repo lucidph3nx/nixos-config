@@ -31,8 +31,6 @@
     nfs-mounts.enable = false; # not whitelisted on nas
   };
 
-  nix.settings.experimental-features = ["nix-command" "flakes"];
-
   # Bootloader.
   boot.loader.grub.enable = true;
   boot.loader.grub.efiSupport = true;
@@ -107,8 +105,6 @@
     extraGroups = ["networkmanager" "wheel"];
     shell = pkgs.zsh;
   };
-  nix.settings.trusted-users = ["ben" "root"];
-
   # needed for impermanance in home-manager
   programs.fuse.userAllowOther = true;
   # home-manager is awesome
