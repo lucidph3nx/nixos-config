@@ -109,6 +109,7 @@
     extraGroups = ["networkmanager" "wheel"];
     shell = pkgs.zsh;
   };
+  nix.settings.trusted-users = ["ben" "root"];
 
   # needed for impermanance in home-manager
   programs.fuse.userAllowOther = true;
