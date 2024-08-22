@@ -19,6 +19,7 @@
       enable = true;
       restart = true;
       package = pkgs.greetd.tuigreet;
+      vt = 7; # the tty to run greetd on, changed so that systemd startup doesnt overwrite tuigreet
       settings = {
         default_session = {
           command = "${pkgs.greetd.tuigreet}/bin/tuigreet --remember --time --time-format '%Y-%m-%d %H:%M:%S' --cmd sway";
