@@ -181,6 +181,7 @@ in {
           # application shortcuts
           "ALT, Return, exec, ${terminal}"
           "AlT, Space, exec, ${applicationlauncher}"
+          "ALT, a, exec, anki"
           "ALT, b, exec, ${browser}"
           "ALT, c, exec, ${calendar}"
           "ALT, h, exec, ${home-assistant}"
