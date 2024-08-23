@@ -7,6 +7,12 @@
   options = {
     nixModules.greetd.enable =
       lib.mkEnableOption "Add greetd/tuigreet setup";
+    nixModules.greetd.command =
+      lib.mkOption {
+        type = with lib.types; string;
+        default = "Hyprland";
+        description = "Command to run as default session in greetd";
+      };
   };
   config = lib.mkIf config.nixModules.greetd.enable {
     environment.persistence."/persist/system" = {
@@ -22,7 +28,7 @@
       vt = 7; # the tty to run greetd on, changed so that systemd startup doesnt overwrite tuigreet
       settings = {
         default_session = {
-          command = "${pkgs.greetd.tuigreet}/bin/tuigreet --remember --time --time-format '%Y-%m-%d %H:%M:%S' --cmd sway";
+          command = "${pkgs.greetd.tuigreet}/bin/tuigreet --remember --time --time-format '%Y-%m-%d %H:%M:%S' --cmd ${config.nixModules.greetd.command}";
           user = "greeter";
         };
       };
