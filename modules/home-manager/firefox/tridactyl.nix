@@ -48,6 +48,7 @@
         set searchurls.nixopt https://search.nixos.org/options?channel=unstable&from=0&size=50&sort=relevance&type=packages&query=
         set searchurls.sx https://search.tinfoilforest.nz/search?q=
         set searchurls.nw https://www.newworld.co.nz/shop/search?q=
+        set searchurls.reo https://maoridictionary.co.nz/search?idiom=&phrase=&proverb=&loan=&histLoanWords=&keywords=
       '';
   };
 }
