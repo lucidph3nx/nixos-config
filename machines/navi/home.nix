@@ -92,6 +92,7 @@
 
   home.packages = with pkgs; [
     # https://github.com/NixOS/nixpkgs/issues/325896
+    # I also seem to need to run it with QT_QPA_PLATFORM=xcb
     nixpkgs-stable.cura
     gimp
     picard
