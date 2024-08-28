@@ -22,6 +22,11 @@
     # master branch, for some packages
     nixpkgs-master.url = "github:nixos/nixpkgs/master";
 
+    # a separate nixpkgs for use in nix-darwin, its paintful to update nixos, then find out later that the mac is broken
+    # currently pinned to this due to 
+    # https://github.com/LnL7/nix-darwin/issues/1041
+    darwinpkgs.url = "github:nixos/nixpkgs/d52b09ef434d2decf75114f4f9593148c997ff52";
+
     # disk formatting
     disko = {
       url = "github:nix-community/disko";
@@ -40,7 +45,7 @@
     # Macos Modules
     darwin = {
       url = "github:lnl7/nix-darwin";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "darwinpkgs";
     };
 
     home-manager = {
@@ -53,6 +58,7 @@
   outputs = {
     self,
     nixpkgs,
+    darwinpkgs,
     home-manager,
     darwin,
     ...
@@ -70,8 +76,8 @@
         specialArgs = {inherit inputs outputs;};
         modules = let
           defaults = {pkgs, ...}: {
-            _module.args.nixpkgs-stable = import inputs.nixpkgs-stable {inherit (pkgs.stdenv.targetPlatform) system;};
-            _module.args.nixpkgs-master = import inputs.nixpkgs-master {inherit (pkgs.stdenv.targetPlatform) system;};
+            _module.args.pkgs-stable = import inputs.nixpkgs-stable {inherit (pkgs.stdenv.targetPlatform) system;};
+            _module.args.pkgs-master = import inputs.nixpkgs-master {inherit (pkgs.stdenv.targetPlatform) system;};
           };
         in [
           defaults
@@ -89,8 +95,8 @@
         specialArgs = {inherit inputs outputs;};
         modules = let
           defaults = {pkgs, ...}: {
-            _module.args.nixpkgs-stable = import inputs.nixpkgs-stable {inherit (pkgs.stdenv.targetPlatform) system;};
-            _module.args.nixpkgs-master = import inputs.nixpkgs-master {inherit (pkgs.stdenv.targetPlatform) system;};
+            _module.args.pkgs-stable = import inputs.nixpkgs-stable {inherit (pkgs.stdenv.targetPlatform) system;};
+            _module.args.pkgs-master = import inputs.nixpkgs-master {inherit (pkgs.stdenv.targetPlatform) system;};
           };
         in [
           defaults
@@ -108,8 +114,8 @@
         specialArgs = {inherit inputs outputs;};
         modules = let
           defaults = {pkgs, ...}: {
-            _module.args.nixpkgs-stable = import inputs.nixpkgs-stable {inherit (pkgs.stdenv.targetPlatform) system;};
-            _module.args.nixpkgs-master = import inputs.nixpkgs-master {inherit (pkgs.stdenv.targetPlatform) system;};
+            _module.args.pkgs-stable = import inputs.nixpkgs-stable {inherit (pkgs.stdenv.targetPlatform) system;};
+            _module.args.pkgs-master = import inputs.nixpkgs-master {inherit (pkgs.stdenv.targetPlatform) system;};
           };
         in [
           defaults
@@ -122,15 +128,15 @@
     darwinConfigurations = {
       m1mac = darwin.lib.darwinSystem {
         system = "aarch64-darwin";
-        pkgs = import nixpkgs {
+        pkgs = import darwinpkgs {
           system = "aarch64-darwin";
           config.allowUnfree = true;
         };
         specialArgs = {inherit inputs outputs;};
         modules = let
           defaults = {pkgs, ...}: {
-            _module.args.nixpkgs-stable = import inputs.nixpkgs-stable {inherit (pkgs.stdenv.targetPlatform) system;};
-            _module.args.nixpkgs-master = import inputs.nixpkgs-master {inherit (pkgs.stdenv.targetPlatform) system;};
+            _module.args.pkgs-stable = import inputs.nixpkgs-stable {inherit (pkgs.stdenv.targetPlatform) system;};
+            _module.args.pkgs-master = import inputs.nixpkgs-master {inherit (pkgs.stdenv.targetPlatform) system;};
           };
         in [
           defaults

@@ -1,8 +1,8 @@
 {
   pkgs,
   inputs,
-  nixpkgs-stable,
-  nixpkgs-master,
+  pkgs-stable,
+  pkgs-master,
   ...
 }: {
   imports = [
@@ -25,7 +25,7 @@
     loginShell = pkgs.zsh;
     systemPackages = with pkgs; [
       arping
-      # nixpkgs-stable.awscli2
+      # pkgs-stable.awscli2
       azure-cli
       cloudflared
       direnv
@@ -129,8 +129,8 @@
     useUserPackages = true;
     extraSpecialArgs = {
       inherit inputs;
-      inherit nixpkgs-stable;
-      inherit nixpkgs-master;
+      inherit pkgs-stable;
+      inherit pkgs-master;
     };
     users = {
       ben.imports = [
