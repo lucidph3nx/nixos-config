@@ -1,7 +1,7 @@
 {
   config,
   pkgs,
-  nixpkgs-stable,
+  pkgs-stable,
   osConfig,
   lib,
   ...
@@ -180,7 +180,7 @@ in {
         };
         bars = [
           {
-            command = "${nixpkgs-stable.waybar}/bin/waybar";
+            command = "${pkgs-stable.waybar}/bin/waybar";
           }
         ];
         window = {

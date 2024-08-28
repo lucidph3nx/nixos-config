@@ -1,6 +1,5 @@
 {
   config,
-  nixpkgs-stable,
   pkgs,
   lib,
   ...
