@@ -79,11 +79,14 @@ in {
         v = "nvim";
         # youtube music download script
         ytm-download = "yt-dlp  --add-metadata --format m4a --youtube-skip-dash-manifest -i -o '~/music/%(artist)s/%(album)s/%(title)s.%(ext)s' --sponsorblock-remove 'music_offtopic'";
+        # git pull
+        gP = "git pull";
       };
       initExtra = ''
         # Custom keybindings
         bindkey -s ^v "nvim\n"
         bindkey -s ^p "python\n"
+        bindkey -s ^o "cli.tmux.projectSessioniser ~/documents/obsidian/personal-vault\n"
         # utils
         eval "$(direnv hook zsh)"
       '';
