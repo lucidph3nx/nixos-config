@@ -137,39 +137,39 @@
     KUBECONFIG = "${config.sops.secrets.homekube.path}";
   };
 
-  fonts.fontDir.enable = true;
-  fonts.packages = [
-    (pkgs.nerdfonts.override {fonts = ["JetBrainsMono"];})
-  ];
+  # fonts.fontDir.enable = true;
+  # fonts.packages = [
+  #   (pkgs.nerdfonts.override {fonts = ["JetBrainsMono"];})
+  # ];
 
-  programs.sway = {
-    enable = true;
-    extraPackages = []; # I don't need foot etc bundled
-  };
-  programs.hyprland.enable = true;
-  xdg.portal = {
-    enable = true;
-    extraPortals = with pkgs; [
-      xdg-desktop-portal-wlr
-      xdg-desktop-portal-gtk
-    ];
-    wlr.enable = true;
-    config = {
-      sway = {
-        default = [
-          "wlr"
-          "gtk"
-        ];
-      };
-    };
-  };
+  # programs.sway = {
+  #   enable = true;
+  #   extraPackages = []; # I don't need foot etc bundled
+  # };
+  # programs.hyprland.enable = true;
+  # xdg.portal = {
+  #   enable = true;
+  #   extraPortals = with pkgs; [
+  #     xdg-desktop-portal-wlr
+  #     xdg-desktop-portal-gtk
+  #   ];
+  #   wlr.enable = true;
+  #   config = {
+  #     sway = {
+  #       default = [
+  #         "wlr"
+  #         "gtk"
+  #       ];
+  #     };
+  #   };
+  # };
 
   # List services that you want to enable:
   services.dbus.implementation = "broker";
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
   # cups for printing
-  services.printing.enable = true;
+  # services.printing.enable = true;
 
   # device specific syncthing config
   sops.secrets.default-cert-pem = {

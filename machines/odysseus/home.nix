@@ -9,11 +9,12 @@
   ];
   # my own modules
   homeManagerModules = {
-    firefox.enable = true; # testing removing and readding
-    firefox.hideUrlbar = true;
-    prospect-mail.enable = true;
-    teams-for-linux.enable = true;
-    # Enable home automation stuff as device should be in the home
+    guiApps.enable = false; # console only vm
+    # firefox.enable = true; # testing removing and readding
+    # firefox.hideUrlbar = true;
+    # prospect-mail.enable = true;
+    # teams-for-linux.enable = true;
+    # # Enable home automation stuff as device should be in the home
     homeAutomation.enable = true;
     ssh.client.enable = true;
     ssh.client.workConfig.enable = true;
