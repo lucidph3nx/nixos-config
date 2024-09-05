@@ -210,13 +210,15 @@
     enable = true;
     extraPackages = []; # I don't need foot etc bundled
   };
-  programs.hyprland.enable = true;
+  programs.hyprland = {
+    enable = true;
+    # waiting for https://nixpk.gs/pr-tracker.html?pr=338836
+    portalPackage = pkgs-master.xdg-desktop-portal-hyprland;
+  };
   xdg.portal = {
     enable = true;
     extraPortals = with pkgs; [
       xdg-desktop-portal-wlr
-      xdg-desktop-portal-hyprland
-      # xdg-desktop-portal-gtk
     ];
     wlr.enable = lib.mkForce true; #TODO: figure out why hyprland conflicts with this
     config = {
