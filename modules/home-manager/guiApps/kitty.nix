@@ -22,6 +22,7 @@ with config.theme; {
         confirm_os_window_close 0
         background_opacity 1.0
         enable_audio_bell no
+        paste_actions no-op
 
         foreground                      ${foreground}
         background                      ${bg0}
