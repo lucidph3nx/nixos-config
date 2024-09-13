@@ -37,7 +37,7 @@ in {
           current_item_prefix = "$(green)$r";
           current_item_suffix = "$/r$(end)";
           current_item_inactive_column_prefix = "$5$r";
-          media_library_primary_tag = "artist";
+          media_library_primary_tag = "album_artist";
         };
         bindings = [
           {
