@@ -59,6 +59,7 @@
       ".config/calibre"
       ".config/darktable"
       ".config/github-copilot"
+      ".config/MusicBrainz" #picard
       ".config/nvim/spell"
       ".config/obsidian"
       ".config/Plexamp"
