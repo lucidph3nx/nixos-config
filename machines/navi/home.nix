@@ -64,7 +64,6 @@
       ".config/obsidian"
       ".config/Plexamp"
       ".config/syncthing"
-      ".config/teams-for-linux"
       ".mozilla/firefox"
       ".terraform.d"
     ];
