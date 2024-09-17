@@ -101,6 +101,7 @@
   environment.persistence."/persist/system" = {
     hideMounts = true;
     directories = [
+      "/var/lib/ollama"
       "/var/log"
       "/var/lib/bluetooth"
       "/var/lib/nixos"
@@ -296,6 +297,12 @@
   };
   services.syncthing.cert = config.sops.secrets.navi-cert-pem.path;
   services.syncthing.key = config.sops.secrets.navi-key-pem.path;
+
+  services.ollama = {
+    enable = true;
+    acceleration = "rocm";
+    rocmOverrideGfx = "10.3.0";
+  };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
