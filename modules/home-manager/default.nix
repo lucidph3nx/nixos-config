@@ -12,7 +12,6 @@
     ./scripts
     ./sops
     ./sshConfig
-    ./syncthing.nix
   ];
   config = {
     homeManagerModules = {
@@ -21,7 +20,6 @@
       guiApps.enable = lib.mkDefault true;
       neovim.enable = lib.mkDefault true;
       sops.enable = lib.mkDefault false;
-      syncthing.enable = lib.mkDefault true;
     };
   };
 }

@@ -5,7 +5,6 @@ Does anybody even read the readme for nix repos? the code speaks for itself.
 ## Highlights
 - Multiple Nix configurations
     - NixOS desktop & test VM
-    - [Nix Darwin](https://github.com/LnL7/nix-darwin) for my work MacBook
 - Both Nix, Nix Darwin and Home Manager configurations rolled into a single setup
 - [Impermanence](https://github.com/nix-community/impermanence)
 - Initial disk formatting and setup (btrfs) with [disko](https://github.com/nix-community/disko)
@@ -14,3 +13,4 @@ Does anybody even read the readme for nix repos? the code speaks for itself.
 - A homespun theming system based on [everforest](https://github.com/sainnhe/everforest)
 - Due to the above, I am able to do remote installs using [nixos-anywhere](https://github.com/nix-community/nixos-anywhere)
 
+My [nix-darwin](https://github.com/LnL7/nix-darwin) configuration has moved to [nixdarwin-config](https://github.com/lucidph3nx/nixdarwin-config)

@@ -6,7 +6,6 @@
   imports = [
     ./home-manager
     #   ./nix
-    #   ./nix-darwin
     ./colourScheme
   ];
 }
