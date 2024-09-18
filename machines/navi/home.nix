@@ -11,11 +11,12 @@
   ];
   # my own modules
   homeManagerModules = {
+    anki.enable = true;
+    calibre.enable = true;
+    darktable.enable = true;
     firefox.hideUrlbar = true;
     libreoffice.enable = true;
     obsidian.enable = true;
-    calibre.enable = true;
-    darktable.enable = true;
     picard.enable = true;
     plexamp.enable = true;
     # Enable home automation stuff as device should be in the home
@@ -40,7 +41,6 @@
         directory = ".local/share/Steam";
         method = "symlink";
       }
-      ".local/share/Anki2"
       ".local/share/lutris"
       ".local/share/nix"
       ".local/share/nvim"
