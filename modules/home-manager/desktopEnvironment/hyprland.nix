@@ -120,6 +120,11 @@ in {
           "workspace 2 silent,class:(Prospect Mail)"
           "workspace 2 silent,class:(teams-for-linux)"
           "workspace 2 silent,class:(WebCord)"
+          "float, class:(Waydroid)"
+          "center, class:(Waydroid)"
+        ];
+        windowrule = [
+          "size, 480 800 class:(Waydroid)"
         ];
         monitor = [
           ",preferred,auto,auto"
@@ -160,6 +165,8 @@ in {
           "SUPER SHIFT, 8, movetoworkspacesilent, 8"
           "SUPER SHIFT, 9, movetoworkspacesilent, 9"
           "SUPER SHIFT, 0, movetoworkspacesilent, 0"
+          # floating
+          "SUPER SHIFT, space, togglefloating"
           # example special workspace TODO more
           "SUPER, X, togglespecialworkspace, magic"
           "SUPER SHIFT, X, movetoworkspacesilent, special:magic"
