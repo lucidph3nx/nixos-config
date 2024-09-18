@@ -1,12 +1,11 @@
 {
   config,
-  pkgs,
-  inputs,
   lib,
   ...
 }: {
   imports = [
     ./calibre.nix
+    ./darktable.nix
     ./dragon-drop.nix
     ./kitty.nix
     ./libreoffice.nix
@@ -26,6 +25,7 @@
   config = lib.mkIf config.homeManagerModules.guiApps.enable {
     homeManagerModules = {
       calibre.enable = lib.mkDefault false;
+      darktable.enable = lib.mkDefault false;
       dragon-drop.enable = lib.mkDefault true;
       kitty.enable = lib.mkDefault true;
       libreoffice.enable = lib.mkDefault false;

@@ -15,6 +15,7 @@
     libreoffice.enable = true;
     obsidian.enable = true;
     calibre.enable = true;
+    darktable.enable = true;
     # Enable home automation stuff as device should be in the home
     homeAutomation.enable = true;
     sway.enable = true;
@@ -50,14 +51,12 @@
       "code"
       "documents"
       "music"
-      "pictures/darktable"
       # these should be with the hm modules
       # but give compile errors on darwin
       ".asdf/installs"
       ".asdf/plugins"
       ".config/Bitwarden CLI"
       ".config/calibre"
-      ".config/darktable"
       ".config/github-copilot"
       ".config/MusicBrainz" #picard
       ".config/nvim/spell"
@@ -95,7 +94,6 @@
     pkgs-stable.cura
     gimp
     picard
-    darktable
     # cinnamon.nemo
     # retro gaming
     mednafen
