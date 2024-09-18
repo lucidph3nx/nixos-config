@@ -189,7 +189,6 @@
     mangohud
     ntfs3g
     parted
-    plexamp
     polychromatic
     protontricks
     protonup
