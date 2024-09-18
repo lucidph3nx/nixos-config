@@ -54,4 +54,9 @@
         '';
     }
   ];
+  home.persistence."/persist/home/ben" = {
+    directories = [
+      ".config/github-copilot"
+    ];
+  };
 }

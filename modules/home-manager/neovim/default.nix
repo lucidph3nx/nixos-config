@@ -22,5 +22,10 @@
       enable = true;
       defaultEditor = true;
     };
+    home.persistence."/persist/home/ben" = {
+      directories = [
+        ".config/nvim/spell"
+      ];
+    };
   };
 }
