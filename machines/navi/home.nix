@@ -63,7 +63,6 @@
       ".config/obsidian"
       ".config/Plexamp"
       ".config/syncthing"
-      ".mozilla/firefox"
       ".terraform.d"
     ];
   };
