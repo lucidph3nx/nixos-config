@@ -1,12 +1,8 @@
 {
-  config,
-  pkgs,
-  inputs,
   lib,
   ...
 }: {
   imports = [
-    ./asdf.nix
     ./bitwardencli.nix
     ./git.nix
     ./homeAutomation.nix
@@ -20,7 +16,6 @@
   ];
 
   homeManagerModules = {
-    asdf.enable = lib.mkDefault false;
     bitwardencli.enable = lib.mkDefault true;
     git.enable = lib.mkDefault true;
     homeAutomation.enable = lib.mkDefault false;
