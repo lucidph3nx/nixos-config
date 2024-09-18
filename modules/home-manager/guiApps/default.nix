@@ -11,6 +11,7 @@
     ./libreoffice.nix
     ./mpv.nix
     ./obsidian.nix
+    ./plexamp.nix
     ./prospect-mail.nix
     ./teams-for-linux.nix
     ./vimiv.nix
@@ -31,6 +32,7 @@
       libreoffice.enable = lib.mkDefault false;
       mpv.enable = lib.mkDefault true;
       obsidian.enable = lib.mkDefault false;
+      plexamp.enable = lib.mkDefault false;
       prospect-mail.enable = lib.mkDefault false;
       teams-for-linux.enable = lib.mkDefault false;
       vimiv.enable = lib.mkDefault true;

@@ -16,6 +16,7 @@
     obsidian.enable = true;
     calibre.enable = true;
     darktable.enable = true;
+    plexamp.enable = true;
     # Enable home automation stuff as device should be in the home
     homeAutomation.enable = true;
     sway.enable = true;
@@ -58,7 +59,6 @@
       ".config/github-copilot"
       ".config/MusicBrainz" #picard
       ".config/nvim/spell"
-      ".config/Plexamp"
       ".config/syncthing"
       ".terraform.d"
     ];
