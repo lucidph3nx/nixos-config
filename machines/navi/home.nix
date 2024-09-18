@@ -15,18 +15,17 @@
     calibre.enable = true;
     darktable.enable = true;
     firefox.hideUrlbar = true;
+    homeAutomation.enable = true;
+    hyprland.enable = true;
     libreoffice.enable = true;
     obsidian.enable = true;
     picard.enable = true;
     plexamp.enable = true;
-    # Enable home automation stuff as device should be in the home
-    homeAutomation.enable = true;
-    sway.enable = true;
-    hyprland.enable = true;
-    waybar.displayportOnly = true;
-    waybar.mouseBattery = true;
     ssh.client.enable = true;
     ssh.client.workConfig.enable = true;
+    sway.enable = true;
+    waybar.displayportOnly = true;
+    waybar.mouseBattery = true;
   };
   home = {
     username = "ben";
@@ -93,9 +92,4 @@
     PAGER = "less";
     MEDNAFEN_HOME = "${config.xdg.configHome}/mednafen";
   };
-
-  xdg.mimeApps.enable = true;
-
-  # Let Home Manager install and manage itself.
-  programs.home-manager.enable = true;
 }

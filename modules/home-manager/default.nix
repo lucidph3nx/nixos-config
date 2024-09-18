@@ -21,5 +21,8 @@
       neovim.enable = lib.mkDefault true;
       sops.enable = lib.mkDefault false;
     };
+    xdg.mimeApps.enable = true;
+    # Let Home Manager install and manage itself.
+    programs.home-manager.enable = true;
   };
 }

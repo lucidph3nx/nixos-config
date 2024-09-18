@@ -50,7 +50,4 @@
     # KUBECONFIG = "/home/ben/.config/kube/config-home";
     PAGER = "less";
   };
-
-  # Let Home Manager install and manage itself.
-  programs.home-manager.enable = true;
 }
