@@ -38,7 +38,6 @@
         swaync.enable = lib.mkDefault true;
         waybar = {
           enable = lib.mkDefault true;
-          displayportOnly = lib.mkDefault false;
           mouseBattery = lib.mkDefault false;
         };
       };

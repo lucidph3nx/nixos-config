@@ -17,7 +17,6 @@ in
     options = {
       homeManagerModules.waybar = {
         enable = lib.mkEnableOption "enables waybar";
-        displayportOnly = lib.mkEnableOption "only show waybar on DP-3";
         mouseBattery = lib.mkEnableOption "show mouse battery via opernrazer";
       };
     };
@@ -31,7 +30,6 @@ in
             layer = "top";
             position = "top";
             height = 37;
-            output = lib.mkIf config.homeManagerModules.waybar.displayportOnly "DP-3";
             modules-left = [
               (lib.mkIf enableSway "sway/workspaces")
               (lib.mkIf enableSway "sway/scratchpad")

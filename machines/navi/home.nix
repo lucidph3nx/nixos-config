@@ -24,7 +24,6 @@
     ssh.client.enable = true;
     ssh.client.workConfig.enable = true;
     sway.enable = true;
-    waybar.displayportOnly = true;
     waybar.mouseBattery = true;
   };
   home = {
