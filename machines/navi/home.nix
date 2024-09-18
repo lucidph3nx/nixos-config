@@ -55,7 +55,6 @@
       ".asdf/installs"
       ".asdf/plugins"
       ".config/Bitwarden CLI"
-      ".config/calibre"
       ".config/github-copilot"
       ".config/MusicBrainz" #picard
       ".config/nvim/spell"
