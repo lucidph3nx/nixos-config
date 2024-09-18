@@ -5,16 +5,16 @@
   ...
 }: {
   options = {
-    homeManagerModules.calibre.enable =
-      lib.mkEnableOption "enables calibre";
+    homeManagerModules.picard.enable =
+      lib.mkEnableOption "enables picard";
   };
-  config = lib.mkIf config.homeManagerModules.calibre.enable {
+  config = lib.mkIf config.homeManagerModules.picard.enable {
     home.packages = with pkgs; [
-      calibre
+      picard
     ];
     home.persistence."/persist/home/ben" = {
       directories = [
-        ".config/calibre"
+        ".config/MusicBrainz"
       ];
     };
   };

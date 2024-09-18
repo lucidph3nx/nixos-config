@@ -16,6 +16,7 @@
     obsidian.enable = true;
     calibre.enable = true;
     darktable.enable = true;
+    picard.enable = true;
     plexamp.enable = true;
     # Enable home automation stuff as device should be in the home
     homeAutomation.enable = true;
@@ -56,7 +57,6 @@
       ".asdf/plugins"
       ".config/Bitwarden CLI"
       ".config/github-copilot"
-      ".config/MusicBrainz" #picard
       ".config/nvim/spell"
       ".config/syncthing"
       ".terraform.d"
@@ -88,7 +88,6 @@
     # I also seem to need to run it with QT_QPA_PLATFORM=xcb
     pkgs-stable.cura
     gimp
-    picard
     # cinnamon.nemo
     # retro gaming
     mednafen
