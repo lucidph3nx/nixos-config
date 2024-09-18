@@ -1,6 +1,5 @@
 {
   config,
-  pkgs,
   lib,
   ...
 }: {
@@ -37,6 +36,11 @@
     # needed for playerctl to access mpd
     services.mpdris2 = {
       enable = true;
+    };
+    home.persistence."/persist/home/ben" = {
+      directories = [
+        ".local/share/mpd"
+      ];
     };
   };
 }
