@@ -58,7 +58,6 @@
       ".config/github-copilot"
       ".config/MusicBrainz" #picard
       ".config/nvim/spell"
-      ".config/obsidian"
       ".config/Plexamp"
       ".config/syncthing"
       ".terraform.d"
