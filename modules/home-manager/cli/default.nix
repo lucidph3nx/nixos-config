@@ -7,6 +7,7 @@
 }: {
   imports = [
     ./asdf.nix
+    ./bitwardencli.nix
     ./git.nix
     ./homeAutomation.nix
     ./k9s.nix
@@ -20,6 +21,7 @@
 
   homeManagerModules = {
     asdf.enable = lib.mkDefault false;
+    bitwardencli.enable = lib.mkDefault true;
     git.enable = lib.mkDefault true;
     homeAutomation.enable = lib.mkDefault false;
     k9s.enable = lib.mkDefault true;

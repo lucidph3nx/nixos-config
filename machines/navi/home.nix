@@ -55,7 +55,6 @@
       # but give compile errors on darwin
       ".asdf/installs"
       ".asdf/plugins"
-      ".config/Bitwarden CLI"
       ".config/github-copilot"
       ".config/nvim/spell"
       ".config/syncthing"

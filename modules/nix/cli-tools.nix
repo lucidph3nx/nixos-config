@@ -11,7 +11,6 @@
   config = lib.mkIf config.nixModules.cli-tools.enable {
     environment.systemPackages = with pkgs; [
       age
-      bitwarden-cli
       cachix
       curl
       dig
