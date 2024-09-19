@@ -272,20 +272,6 @@
     mountOnMedia = true;
   };
 
-  # experimental shutdown systemd service
-  # trying to prevent force shutdowns of tmux
-  systemd.services.shutdown-script = {
-    enable = true;
-    description = "Shutdown script";
-    wantedBy = ["multi-user.target"];
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStop = ''
-        ${pkgs.tmux}/bin/tmux kill-server";
-      '';
-    };
-  };
-
   # device specific syncthing config
   sops.secrets.navi-cert-pem = {
     owner = "ben";
