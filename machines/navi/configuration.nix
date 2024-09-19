@@ -217,8 +217,6 @@
   };
   programs.hyprland = {
     enable = true;
-    # waiting for https://nixpk.gs/pr-tracker.html?pr=338836
-    portalPackage = pkgs-master.xdg-desktop-portal-hyprland;
   };
   xdg.portal = {
     enable = true;
