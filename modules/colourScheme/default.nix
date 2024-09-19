@@ -5,7 +5,7 @@
 }: {
   # change themes here
   imports = [
-    # ./everforest.nix
-    ./onedark.nix
+    ./everforest.nix
+    # ./onedark.nix
   ];
 }
