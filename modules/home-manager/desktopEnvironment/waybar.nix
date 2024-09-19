@@ -168,15 +168,7 @@ in
           /* for hyprland its active instead of focused*/
           #workspaces button.active {
             color: ${bg0};
-            /* subtle animation */
-            background: linear-gradient(45deg, ${orange}, ${yellow}, ${green}, ${aqua}, ${blue}, ${purple});
-            background-size: 200% 200%;
-            animation: rainbowgradient 10s ease infinite;
-          }
-          @keyframes rainbowgradient {
-              0%{background-position:0% 50%}
-              50%{background-position:100% 50%}
-              100%{background-position:0% 50%}
+            background-color: ${green};
           }
           #workspaces button.focused {
             background-color: ${green};
