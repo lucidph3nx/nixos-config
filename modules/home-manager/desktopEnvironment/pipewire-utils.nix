@@ -49,6 +49,7 @@
                   ["Razer BlackShark V2 Pro"]="󰋋"
                   ["Razer Nari"]="󰋋"
                   ["ALC1220 Analog"]="󰓃"
+                  ["FiiO K7"]="󰤽"
                   # Add more entries here as needed
               )
               echo ''${alt_lookup[$text]}
