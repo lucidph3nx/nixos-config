@@ -27,9 +27,8 @@
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    impermanence = {
-      url = "github:nix-community/impermanence";
-    };
+    impermanence.url = "github:nix-community/impermanence";
+    nixos-hardware.url = "github:NixOS/nixos-hardware/master";
 
     # sops
     sops-nix = {
@@ -48,6 +47,7 @@
     self,
     nixpkgs,
     home-manager,
+    nixos-hardware,
     ...
   } @ inputs: let
     inherit (self) outputs;
@@ -110,6 +110,26 @@
           ./machines/navi/configuration.nix
           home-manager.nixosModules.default
           inputs.impermanence.nixosModules.impermanence
+        ];
+      };
+      surface = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        pkgs = import nixpkgs {
+          system = "x86_64-linux";
+          config.allowUnfree = true;
+        };
+        specialArgs = {inherit inputs outputs;};
+        modules = let
+          defaults = {pkgs, ...}: {
+            _module.args.pkgs-stable = import inputs.nixpkgs-stable {inherit (pkgs.stdenv.targetPlatform) system;};
+            _module.args.pkgs-master = import inputs.nixpkgs-master {inherit (pkgs.stdenv.targetPlatform) system;};
+          };
+        in [
+          defaults
+          ./machines/default/configuration.nix
+          home-manager.nixosModules.default
+          inputs.impermanence.nixosModules.impermanence
+          nixos-hardware.nixosModules.microsoft-surface-pro-intel
         ];
       };
     };
