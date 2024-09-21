@@ -9,9 +9,10 @@
   ];
   # my own modules
   homeManagerModules = {
-    firefox.enable = true; # testing removing and readding
     firefox.hideUrlbar = true;
-    # Enable home automation stuff as device should be in the home
+    hyprland.enable = true;
+    sway.enable = true;
+    obsidian.enable = true;
     homeAutomation.enable = true;
     ssh.client.enable = true;
     ssh.client.workConfig.enable = true;
@@ -24,15 +25,15 @@
 
   home.persistence."/persist/home/ben" = {
     directories = [
-      "code"
+      ".local/share/nix"
+      ".local/share/nvim"
+      ".local/state"
+      ".cache"
       ".ssh"
-      # these should be with the hm modules
-      # but give compile errors on darwin
-      ".mozilla/firefox"
-      ".local/state/zsh"
-      ".config/nvim/spell"
-      ".config/github-copilot"
-      ".config/teams-for-linux"
+      "code"
+      "documents"
+      "music"
+      ".config/syncthing"
     ];
     files = [
       # ".zsh_history"
