@@ -92,9 +92,6 @@
   networking.hostName = "surface";
   networking.wireless.enable = true;
 
-  # Enable networking
-  networking.networkmanager.enable = true;
-
   # no password for sudo
   security.sudo.wheelNeedsPassword = false;
   # Define a user account. Don't forget to set a password with ‘passwd’.
