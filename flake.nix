@@ -126,7 +126,7 @@
           };
         in [
           defaults
-          ./machines/default/configuration.nix
+          ./machines/surface/configuration.nix
           home-manager.nixosModules.default
           inputs.impermanence.nixosModules.impermanence
           nixos-hardware.nixosModules.microsoft-surface-pro-intel
