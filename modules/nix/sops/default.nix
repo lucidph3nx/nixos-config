@@ -11,6 +11,7 @@
     ./homeSSHKeys.nix
     ./kubeconfig.nix
     ./signingKeys.nix
+    ./wireless.nix
     ./workSSH.nix
     inputs.sops-nix.nixosModules.sops
   ];
@@ -22,6 +23,7 @@
       sops.homeSSHKeys.enable = lib.mkDefault false;
       sops.workSSH.enable = lib.mkDefault false;
       sops.kubeconfig.enable = lib.mkDefault false;
+      sops.wireless.enable = lib.mkDefault false;
     };
     # sops defaults
     sops = {

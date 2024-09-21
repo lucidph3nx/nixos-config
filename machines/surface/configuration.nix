@@ -21,6 +21,7 @@
       homeSSHKeys.enable = true;
       workSSH.enable = true;
       kubeconfig.enable = true;
+      wireless.enable = true;
     };
     syncthing = {
       enable = true;
@@ -90,7 +91,10 @@
   '';
 
   networking.hostName = "surface";
-  networking.wireless.enable = true;
+  networking.wireless = {
+    enable = true;
+    secretsFile = config.sops.secrets.wireless.path;
+  };
 
   # no password for sudo
   security.sudo.wheelNeedsPassword = false;
