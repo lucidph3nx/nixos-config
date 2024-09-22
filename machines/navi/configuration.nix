@@ -246,6 +246,16 @@
       enable = true;
       support32Bit = true;
     };
+    wireplumber.extraConfig = {
+      # 100% volume
+      "10-default-volume" = {
+        "wireplumber.settings"."device.routes.default-sink-volume" = 1.0;
+      };
+      # FiiO K7 as default sink
+      "10-default-sink" = {
+        "wireplumber.settings"."default.configured.audio.sink" = "alsa_output.usb-GuangZhou_FiiO_Electronics_Co._Ltd_FiiO_K7-00.analog-stereo";
+      };
+    };
   };
   security.rtkit.enable = true;
 
