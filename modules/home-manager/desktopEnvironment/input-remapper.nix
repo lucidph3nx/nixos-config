@@ -60,7 +60,7 @@
                 }
               ],
               "target_uinput": "keyboard",
-              "output_symbol": "key(XF86AudioLowerVolume)",
+              "output_symbol": "key(XF86AudioPlay)",
               "mapping_type": "key_macro"
             },
             {
@@ -72,7 +72,7 @@
                 }
               ],
               "target_uinput": "keyboard",
-              "output_symbol": "key(XF86AudioRaiseVolume)",
+              "output_symbol": "hold_keys(Super_L)",
               "mapping_type": "key_macro"
             }
         ]

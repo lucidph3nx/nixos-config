@@ -5,7 +5,7 @@
   ...
 }: let
   browserNewWindow = "firefox --new-window";
-  enableAudio = config.homeManagerModules.pipewire-utils.enable;
+  # enableAudio = config.homeManagerModules.pipewire-utils.enable;
   enableHomeAutomation = config.homeManagerModules.homeAutomation.enable;
   enableMpd = config.homeManagerModules.mpd.enable;
   enableHyprland = config.homeManagerModules.hyprland.enable;
@@ -42,8 +42,9 @@ in
             modules-right = [
               "tray"
               (lib.mkIf mouseBattery "custom/mouse-battery")
-              (lib.mkIf enableAudio "custom/audio-cycle")
-              (lib.mkIf enableAudio "pulseaudio")
+              # (lib.mkIf enableAudio "custom/audio-cycle")
+              # (lib.mkIf enableAudio "pulseaudio")
+              "custom/audio-enabled"
               (lib.mkIf enableHomeAutomation "custom/office-temp")
               (lib.mkIf enableHomeAutomation "custom/office-humidity")
               "custom/notification"
@@ -101,18 +102,23 @@ in
               "icon-size" = 18;
               "spacing" = 12;
             };
-            "pulseaudio" = lib.mkIf enableAudio {
-              "format" = "{volume}%";
-              "on-click" = "qpwgraph";
-            };
-            "custom/audio-cycle" = lib.mkIf enableAudio {
-              "return-type" = "json";
-              "exec-on-event" = true;
+            # "pulseaudio" = lib.mkIf enableAudio {
+            #   "format" = "{volume}%";
+            #   "on-click" = "qpwgraph";
+            # };
+            # "custom/audio-cycle" = lib.mkIf enableAudio {
+            #   "return-type" = "json";
+            #   "exec-on-event" = true;
+            #   "interval" = 1;
+            #   "format" = "{alt}";
+            #   "exec" = "${homeDir}/.local/scripts/cli.audio.getOutput";
+            #   "exec-if" = "sleep 0.5"; # Give enough time for script to get output
+            #   "on-click" = "${homeDir}/.local/scripts/system.audio.switchOutput";
+            # };
+            "custom/audio-enabled" = {
+              "return-type" = "string";
               "interval" = 1;
-              "format" = "{alt}";
-              "exec" = "${homeDir}/.local/scripts/cli.audio.getOutput";
-              "exec-if" = "sleep 0.5"; # Give enough time for script to get output
-              "on-click" = "${homeDir}/.local/scripts/system.audio.switchOutput";
+              "exec" = "${homeDir}/.local/scripts/cli.audio.outputEnabled";
             };
             "custom/clock" = {
               "return-type" = "string";
