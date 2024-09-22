@@ -96,7 +96,10 @@
       surface = mkSystem {
         system = "x86_64-linux";
         configFile = "surface";
-        extraModules = [ nixos-hardware.nixosModules.microsoft-surface-common ];
+        extraModules = [
+            nixos-hardware.nixosModules.microsoft-surface-common
+            nixos-hardware.nixosModules.microsoft-surface-pro-intel
+          ];
       };
     };
   };
