@@ -157,6 +157,24 @@
           https://home-assistant.''${SECRET_DOMAIN}/api/services/automation/trigger
       '';
     };
+    home.file.".local/scripts/home.mouse.batteryIndicator" = {
+      executable = true;
+      text =
+        /*
+        bash
+        */
+        ''
+          #!/bin/sh
+          battery_level=$(${pkgs.polychromatic}/bin/polychromatic-cli -d mouse -k | grep Battery | sed 's/[^0-9]*//g')
+          low_battery=20
+          # if equal to 0, disregard
+          if [ "$battery_level" -eq 0 ]; then
+            exit
+          elif [ "$battery_level" -lt $low_battery ]; then
+            echo "󰍽 $battery_level%"
+          fi
+        '';
+    };
     # A script to pause the dns blocking via blocky for 10 min
     # TODO: figure out what I want to do with this
     # at the time of writing, blocky isnt working anyway

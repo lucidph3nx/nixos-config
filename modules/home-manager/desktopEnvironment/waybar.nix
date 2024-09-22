@@ -144,8 +144,9 @@ in
             "custom/mouse-battery" = lib.mkIf mouseBattery {
               "return-type" = "string";
               "interval" = 60;
-              "exec" = "polychromatic-cli -d mouse -k | grep Battery | sed 's/[^0-9]*//g'";
-              "format" = "󰍽 {}%";
+              "exec" = "${homeDir}/.local/scripts/home.mouse.batteryIndicator";
+              # "exec" = "polychromatic-cli -d mouse -k | grep Battery | sed 's/[^0-9]*//g'";
+              # "format" = "󰍽 {}%";
             };
             "network" = {
               # don't show when on ethernet
@@ -249,6 +250,10 @@ in
           }
           #pulseaudio {
               padding-left: 0px;
+          }
+          #custom-mouse-battery {
+            color: ${bg0};
+            background-color: ${red};
           }
           label:focus {
             background-color: ${bg0};
