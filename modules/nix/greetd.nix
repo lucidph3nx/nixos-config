@@ -9,7 +9,7 @@
       lib.mkEnableOption "Add greetd/tuigreet setup";
     nixModules.greetd.command =
       lib.mkOption {
-        type = with lib.types; str;
+        type = lib.types.str;
         default = "Hyprland";
         description = "Command to run as default session in greetd";
       };
