@@ -12,7 +12,7 @@
       format = "binary";
       owner = "ben";
       mode = "0600";
-      sopsFile = ../../../secrets/wireless.conf;
+      sopsFile = ../../../secrets/networkmanagerenv;
     };
   };
 }
