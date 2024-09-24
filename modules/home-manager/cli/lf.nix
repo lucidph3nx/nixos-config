@@ -40,7 +40,7 @@
         map d
         map dd :cut
         # quit
-        map q :quit
+        cmd q :quit
         %mkdir -p ~/.trash
         cmd trash %set -f; mv $fx ~/.trash
         map D :trash
