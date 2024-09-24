@@ -172,10 +172,10 @@
             text=""
             tooltip=""
             class="error"
-          elif [ "$battery_level" -eq 100 ]; then
-            text="󰍽 $battery_level% 󰂅"
-            tooltip="Mouse battery full, please unplug"
-            class="full"
+          # elif [ "$battery_level" -eq 100 ]; then
+          #   text="󰍽 $battery_level% 󰂅"
+          #   tooltip="Mouse battery full, please unplug"
+          #   class="full"
           elif [ "$battery_level" -lt $low_battery ]; then
             text="󰍽 $battery_level%"
             tooltip="Mouse battery low, please plug in"
