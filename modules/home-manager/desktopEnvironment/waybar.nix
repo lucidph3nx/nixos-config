@@ -142,11 +142,11 @@ in
               "escape" = true;
             };
             "custom/mouse-battery" = lib.mkIf mouseBattery {
-              "return-type" = "string";
+              "return-type" = "json";
               "interval" = 60;
               "exec" = "${homeDir}/.local/scripts/home.mouse.batteryIndicator";
               # "exec" = "polychromatic-cli -d mouse -k | grep Battery | sed 's/[^0-9]*//g'";
-              # "format" = "󰍽 {}%";
+              "format" = "{}";
             };
             "network" = {
               # don't show when on ethernet
@@ -251,9 +251,13 @@ in
           #pulseaudio {
               padding-left: 0px;
           }
-          #custom-mouse-battery {
+          #custom-mouse-battery.low {
             color: ${bg0};
             background-color: ${red};
+          }
+          #custom-mouse-battery.full {
+            color: ${bg0};
+            background-color: ${blue};
           }
           label:focus {
             background-color: ${bg0};

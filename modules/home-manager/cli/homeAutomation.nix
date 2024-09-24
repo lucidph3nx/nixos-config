@@ -169,10 +169,26 @@
           low_battery=20
           # if equal to 0, disregard
           if [ "$battery_level" -eq 0 ]; then
-            exit
+            text=""
+            tooltip=""
+            class="error"
+          elif [ "$battery_level" -eq 100 ]; then
+            text="󰍽 $battery_level% 󰂅"
+            tooltip="Mouse battery full, please unplug"
+            class="full"
           elif [ "$battery_level" -lt $low_battery ]; then
-            echo "󰍽 $battery_level%"
+            text="󰍽 $battery_level%"
+            tooltip="Mouse battery low, please plug in"
+            class="low"
+          else
+            text=""
+            tooltip=""
+            class="hidden"
           fi
+          # Format the output as JSON
+          output=$(printf '{"text": "%s", "tooltip": "%s", "class": "%s"}' "$text" "$tooltip" "$class")
+          echo "$output"
+
         '';
     };
     # A script to pause the dns blocking via blocky for 10 min
