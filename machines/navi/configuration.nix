@@ -300,21 +300,21 @@
   services.syncthing.cert = config.sops.secrets.navi-cert-pem.path;
   services.syncthing.key = config.sops.secrets.navi-key-pem.path;
 
-  services.ollama = {
-    enable = true;
-    acceleration = "rocm";
-    rocmOverrideGfx = "10.3.0";
-    loadModels = [
-      "llama3:latest"
-    ];
-    home = "/var/lib/ollama";
-  };
-  users.groups.ollama = {};
-  users.users.ollama = {
-    group = "ollama";
-    isSystemUser = true;
-  };
-  systemd.services.ollama.after = ["var-lib-ollama.mount"];
+  # services.ollama = {
+  #   enable = true;
+  #   acceleration = "rocm";
+  #   rocmOverrideGfx = "10.3.0";
+  #   loadModels = [
+  #     "llama3:latest"
+  #   ];
+  #   home = "/var/lib/ollama";
+  # };
+  # users.groups.ollama = {};
+  # users.users.ollama = {
+  #   group = "ollama";
+  #   isSystemUser = true;
+  # };
+  # systemd.services.ollama.after = ["var-lib-ollama.mount"];
 
   virtualisation.waydroid.enable = true;
 
