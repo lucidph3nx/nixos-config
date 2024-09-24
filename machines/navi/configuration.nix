@@ -255,6 +255,10 @@
       "10-default-sink" = {
         "wireplumber.settings"."default.configured.audio.sink" = "alsa_output.usb-GuangZhou_FiiO_Electronics_Co._Ltd_FiiO_K7-00.analog-stereo";
       };
+      # AT2020USB-XLR as default source
+      "10-default-source" = {
+        "wireplumber.settings"."default.configured.audio.source" = "alsa_input.usb-AT_AT2020USB-X_202011110001-00.mono-fallback";
+      };
     };
   };
   security.rtkit.enable = true;
