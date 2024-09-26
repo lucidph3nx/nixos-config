@@ -19,7 +19,7 @@
     ./nvim-cmp.nix
     ./nvim-lspconfig.nix
     ./nvim-sops.nix
-    ./nvim-tree.nix
+    # ./nvim-tree.nix
     ./obsidian.nix
     ./oil.nix
     ./symbols-outline.nix
