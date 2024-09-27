@@ -124,6 +124,8 @@
   system.activationScripts.persistDirs = ''
     mkdir -p /persist/system/var/log
     mkdir -p /persist/system/var/lib/nixos
+    mkdir -p /persist/cache
+    chown -R ben:users /persist/cache
     mkdir -p /persist/home/ben
     mkdir -p /persist/home/ben/.ssh
     mkdir -p /persist/home/ben/.local/share/Steam
