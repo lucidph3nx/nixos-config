@@ -69,14 +69,6 @@ in
               "tooltip" = true;
               "tooltip-format" = "{app}: {title}";
             };
-            "wlr/taskbar" = {
-              "format" = "{icon}";
-              "icon-size" = 16;
-              "tooltip-format" = "{title}";
-              "on-click" = "activate";
-              "on-click-middle" = "minimize";
-              "on-click-right" = "close";
-            };
             "mpd" = lib.mkIf enableMpd {
               "format" = "{stateIcon} {artist} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S}) ";
               "format-disconnected" = "";
