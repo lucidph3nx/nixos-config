@@ -1,5 +1,0 @@
-#!/bin/sh
-
-session="work-ssh"
-
-tmux kill-session -t $session

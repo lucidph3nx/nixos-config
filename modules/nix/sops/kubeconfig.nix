@@ -16,19 +16,7 @@
       homekube = {
         owner = "ben";
         mode = "0600";
-        path = "/home/ben/.config/kube/config-home";
-        sopsFile = sopsFile;
-      };
-      workkube = {
-        owner = "ben";
-        mode = "0600";
-        path = "/home/ben/.config/kube/config-work";
-        sopsFile = sopsFile;
-      };
-      wfhkube = {
-        owner = "ben";
-        mode = "0600";
-        path = "/home/ben/.config/kube/config-wfh";
+        path = "/home/ben/.config/kube/config";
         sopsFile = sopsFile;
       };
     };

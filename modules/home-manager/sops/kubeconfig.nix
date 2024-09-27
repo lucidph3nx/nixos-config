@@ -14,15 +14,7 @@
       sopsFile = ../../../secrets/kubeconfig.yaml;
     in {
       homekube = {
-        path = "${config.home.homeDirectory}/.config/kube/config-home";
-        sopsFile = sopsFile;
-      };
-      workkube = {
-        path = "${config.home.homeDirectory}/.config/kube/config-work";
-        sopsFile = sopsFile;
-      };
-      wfhkube = {
-        path = "${config.home.homeDirectory}/kube/config-wfh";
+        path = "${config.home.homeDirectory}/.config/kube/config";
         sopsFile = sopsFile;
       };
     };

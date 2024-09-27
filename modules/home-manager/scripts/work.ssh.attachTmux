@@ -1,5 +1,0 @@
-#!/bin/sh
-
-session="work-ssh"
-
-kitty tmux attach-session -t $session

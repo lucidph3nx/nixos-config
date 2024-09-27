@@ -20,7 +20,6 @@
       generalSecrets.enable = true;
       signingKeys.enable = true;
       homeSSHKeys.enable = true;
-      workSSH.enable = true;
       kubeconfig.enable = true;
       wireless.enable = true;
     };

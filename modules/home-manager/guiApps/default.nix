@@ -14,8 +14,6 @@
     ./obsidian.nix
     ./picard.nix
     ./plexamp.nix
-    ./prospect-mail.nix
-    ./teams-for-linux.nix
     ./vimiv.nix
     ./webcord.nix
     ./zathura.nix
@@ -37,8 +35,6 @@
       obsidian.enable = lib.mkDefault false;
       picard.enable = lib.mkDefault false;
       plexamp.enable = lib.mkDefault false;
-      prospect-mail.enable = lib.mkDefault false;
-      teams-for-linux.enable = lib.mkDefault false;
       vimiv.enable = lib.mkDefault true;
       webcord.enable = lib.mkDefault true;
       zathura.enable = lib.mkDefault true;

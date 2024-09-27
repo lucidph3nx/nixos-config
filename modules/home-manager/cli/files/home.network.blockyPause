@@ -7,7 +7,7 @@ blocky="/home/ben/.local/bin/blocky"
 duration="10m"
 
 # port-forward primary, TODO: include secondary dns
-KUBECONFIG=/home/ben/.config/kube/config-home \
+KUBECONFIG=/home/ben/.config/kube/config \
 kubectl port-forward svc/blocky-primary 4000:4000 -n networking > /dev/null &
 # Store the process ID of the background task
 PORT_FORWARD_PID=$!

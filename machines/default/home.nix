@@ -14,7 +14,6 @@
     # Enable home automation stuff as device should be in the home
     homeAutomation.enable = true;
     ssh.client.enable = true;
-    ssh.client.workConfig.enable = true;
   };
   home = {
     username = "ben";

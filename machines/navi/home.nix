@@ -22,7 +22,6 @@
     picard.enable = true;
     plexamp.enable = true;
     ssh.client.enable = true;
-    ssh.client.workConfig.enable = true;
     sway.enable = true;
     waybar.mouseBattery = true;
   };
