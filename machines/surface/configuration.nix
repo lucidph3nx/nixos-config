@@ -29,6 +29,7 @@
       obsidian.enable = true;
       music.enable = false; # too large for a vm
     };
+    greetd.command = "Hyprland";
     # should be on home network
     nfs-mounts.enable = false; # not whitelisted on nas
   };
