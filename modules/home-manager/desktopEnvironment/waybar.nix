@@ -149,6 +149,14 @@ in
             "network" = {
               # don't show when on ethernet
               "format-ethernet" = "";
+              "format-wifi" = "󱚽";
+              "tooltip-format-wifi" = "{essid} ({signalStrength}%)";
+            };
+            "battery" = {
+              "format-icons" = ["󱊡" "󱊢" "󱊣"];
+              "format-charging" = "󰂄";
+              "format" = "{capacity}% {icon}";
+              "interval" = "30";
             };
           };
         };
