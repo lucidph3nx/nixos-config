@@ -12,12 +12,18 @@
   enableSway = config.homeManagerModules.sway.enable;
   mouseBattery = config.homeManagerModules.waybar.mouseBattery;
   homeDir = config.home.homeDirectory;
+  fontsize = config.homeManagerModules.waybar.fontSize;
 in
   with config.theme; {
     options = {
       homeManagerModules.waybar = {
         enable = lib.mkEnableOption "enables waybar";
         mouseBattery = lib.mkEnableOption "show mouse battery via opernrazer";
+        fontSize = lib.mkOption {
+          type = lib.types.str;
+          default = "18px";
+          description = "set the font size for waybar";
+        };
       };
     };
     config = lib.mkIf config.homeManagerModules.waybar.enable {
@@ -159,8 +165,9 @@ in
             border: none;
             border-radius: 0;
             font-family: JetBrainsMono Nerd Font, monospace;
-            font-size: 18px;
+            font-size: ${fontsize};
             font-weight: 500;
+            min-height: 0;
           }
           window#waybar {
             background-color: ${bg0};
