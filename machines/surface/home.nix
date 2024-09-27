@@ -16,6 +16,7 @@
     homeAutomation.enable = true;
     ssh.client.enable = true;
     ssh.client.workConfig.enable = true;
+    waybar.fontSize = "14px";
   };
   home = {
     username = "ben";
