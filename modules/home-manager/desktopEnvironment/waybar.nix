@@ -35,7 +35,7 @@ in
           mainBar = {
             layer = "top";
             position = "top";
-            height = 37;
+            height = 25;
             modules-left = [
               (lib.mkIf enableSway "sway/workspaces")
               (lib.mkIf enableSway "sway/scratchpad")
