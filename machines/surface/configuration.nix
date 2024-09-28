@@ -11,6 +11,8 @@
     ./hardware-configuration.nix
     (import ./disko.nix {device = "/dev/nvme0n1";})
     inputs.disko.nixosModules.default
+    inputs.nixos-hardware.nixosModules.microsoft-surface-pro-intel
+    inputs.nixos-hardware.nixosModules.microsoft-surface-common
     ../../modules/nix
   ];
 
@@ -160,6 +162,8 @@
   environment.systemPackages = with pkgs; [
     fastfetch
     ffmpeg
+    qpwgraph
+    lm_sensors
   ];
 
   environment.sessionVariables = {
@@ -216,6 +220,20 @@
   services.dbus.implementation = "broker";
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
+
+  # sound
+  services.pipewire = {
+    enable = true;
+    pulse.enable = true;
+    alsa = {
+      enable = true;
+      support32Bit = true;
+    };
+    audio.enable = true;
+    wireplumber.enable = true;
+  };
+  security.rtkit.enable = true;
+
   # cups for printing
   services.printing.enable = true;
 

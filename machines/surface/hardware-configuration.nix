@@ -12,9 +12,13 @@
     (modulesPath + "/profiles/qemu-guest.nix")
   ];
 
-  boot.initrd.availableKernelModules = ["ahci" "xhci_pci" "virtio_pci" "sr_mod" "virtio_blk"];
-  boot.initrd.kernelModules = [];
+  boot.initrd.availableKernelModules = [ "xhci_pci" "nvme" "usb_storage" "usbhid" "sd_mod"];
+  boot.initrd.kernelModules = [ ];
   boot.kernelModules = ["kvm-intel" "v4l2loopback"];
+  boot.kernelParams = [
+    # stop screen flickering
+    "i915.enable_psr=0"
+  ];
   boot.extraModulePackages = [];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
