@@ -10,7 +10,6 @@
     ./guiApps
     ./neovim
     ./scripts
-    ./sops
     ./sshConfig
   ];
   config = {
@@ -19,7 +18,6 @@
       firefox.enable = lib.mkDefault true;
       guiApps.enable = lib.mkDefault true;
       neovim.enable = lib.mkDefault true;
-      sops.enable = lib.mkDefault false;
     };
     xdg.mimeApps.enable = true;
     # Let Home Manager install and manage itself.
