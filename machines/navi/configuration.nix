@@ -10,7 +10,7 @@
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
-    (import ./disko.nix {device = "/dev/nvme1n1";})
+    (import ./disko.nix {device = "/dev/nvme0n1";})
     inputs.disko.nixosModules.default
     ../../modules/nix
   ];
