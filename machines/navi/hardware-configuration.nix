@@ -26,4 +26,37 @@
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+
+  # create the folder for the steam mount and make sure its chowned
+  system.activationScripts.steamMountSetup = ''
+    mkdir -p /home/ben/.local/share
+    chown -R ben:users /home/ben/.local
+  '';
+  # mount other drives
+  # nvme drive for steam
+  fileSystems."/home/ben/.local/share/Steam" = {
+    device = "/dev/disk/by-uuid/7983ec6a-00d7-44cb-8a0a-d801ec32a6fe";
+    fsType = "ext4";
+    options = [
+      "auto"
+      "x-systemd.requires-mounts-for=/persist/home/ben"
+      "X-mount.owner=ben"
+      "X-mount.group=users"
+      "X-fstrim.notrim"
+      "x-gvfs-hide"
+    ];
+  };
+  # ssd for music
+  fileSystems."/home/ben/music" = {
+    device = "/dev/disk/by-uuid/04e6d89a-9c98-413b-88d5-95c586586990";
+    fsType = "ext4";
+    options = [
+      "auto"
+      "x-systemd.requires-mounts-for=/persist/home/ben"
+      "X-mount.owner=ben"
+      "X-mount.group=users"
+      "X-fstrim.notrim"
+      "x-gvfs-hide"
+    ];
+  };
 }

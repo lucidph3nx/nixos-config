@@ -34,10 +34,10 @@
   home.persistence."/persist/home/ben" = {
     allowOther = true;
     directories = [
-      {
-        directory = ".local/share/Steam";
-        method = "symlink";
-      }
+      # {
+      #   directory = ".local/share/Steam";
+      #   method = "symlink";
+      # }
       ".local/share/lutris"
       ".local/share/nix"
       ".local/share/nvim"
@@ -47,7 +47,6 @@
       ".ssh"
       "code"
       "documents"
-      "music"
       # these should be with the hm modules
       # but give compile errors on darwin
       ".config/syncthing"
