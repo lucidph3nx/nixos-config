@@ -38,7 +38,7 @@
     enable = true;
     efiSupport = true;
     efiInstallAsRemovable = true;
-    useOSProber = true;
+    # useOSProber = true; # temp disable osprober
   };
 
   # Hardware switch
