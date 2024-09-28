@@ -29,7 +29,7 @@
     username = "ben";
     homeDirectory = "/home/ben";
   };
-  home.stateVersion = "23.11"; # Do Not Touch!
+  home.stateVersion = "24.05"; # Do Not Touch!
 
   home.persistence."/persist/home/ben" = {
     allowOther = true;

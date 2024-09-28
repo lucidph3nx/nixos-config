@@ -26,4 +26,4 @@ chmod 600 "$temp/persist/system/etc/ssh/nix-ed25519"
 chmod 600 "$temp/persist/system/etc/ssh/nix-ed25519.pub"
 
 # Install NixOS to the host system with our secrets
-nix run github:nix-community/nixos-anywhere -- --extra-files "$temp" --flake '.#surface' nixos@10.93.149.61
+nix run github:nix-community/nixos-anywhere -- --extra-files "$temp" --flake '.#navi' nixos@10.93.149.57

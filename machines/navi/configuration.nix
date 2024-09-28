@@ -10,7 +10,7 @@
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
-    (import ./disko.nix {device = "/dev/sdb";})
+    (import ./disko.nix {device = "/dev/nvme0n1";})
     inputs.disko.nixosModules.default
     ../../modules/nix
   ];
@@ -325,5 +325,5 @@
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "23.11"; # Did you read the comment?
+  system.stateVersion = "24.05"; # Did you read the comment?
 }
