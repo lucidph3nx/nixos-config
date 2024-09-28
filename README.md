@@ -5,7 +5,7 @@ Does anybody even read the readme for nix repos? the code speaks for itself.
 ## Highlights
 - Multiple Nix configurations
     - NixOS desktop & test VM
-- Both Nix, Nix Darwin and Home Manager configurations rolled into a single setup
+- Both Nix, and Home Manager configurations rolled into a single set up
 - [Impermanence](https://github.com/nix-community/impermanence)
 - Initial disk formatting and setup (btrfs) with [disko](https://github.com/nix-community/disko)
 - Secret encryption and management with [sops-nix](https://github.com/Mic92/sops-nix)
