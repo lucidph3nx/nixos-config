@@ -24,6 +24,8 @@ in {
           user_interface = "alternative";
           visualizer_output_name = "my_fifo";
           visualizer_in_stereo = "yes";
+          # this seemeded to stop worrking in the 0.10 update
+          # https://github.com/NixOS/nixpkgs/pull/343282
           # visualizer_type = "spectrum"; # not sure why this stopped working (2024-09-29) investigate later
           main_window_color = 5;
           color1 = 3;
