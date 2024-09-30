@@ -24,7 +24,7 @@ in {
           user_interface = "alternative";
           visualizer_output_name = "my_fifo";
           visualizer_in_stereo = "yes";
-          visualizer_type = "spectrum";
+          # visualizer_type = "spectrum"; # not sure why this stopped working (2024-09-29) investigate later
           main_window_color = 5;
           color1 = 3;
           color2 = 2;
