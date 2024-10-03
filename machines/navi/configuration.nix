@@ -194,6 +194,7 @@
     protonup
     qpwgraph
     shotcut
+    usbutils
   ];
   hardware.openrazer = {
     enable = true;
