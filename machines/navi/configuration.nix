@@ -38,30 +38,30 @@
     enable = true;
     efiSupport = true;
     efiInstallAsRemovable = true;
-    # useOSProber = true; # temp disable osprober
+    # useOSProber = true; # no other boot partitions for now
   };
 
-  # Hardware switch
-  boot.loader.grub.extraConfig =
-    /*
-    bash
-    */
-    ''
-      # Look for hardware switch device by its hard-coded filesystem ID
-      search --no-floppy --fs-uuid --set hdswitch 55AA-6922
-      # If found, read dynamic config file and select appropriate entry for each position
-      if [ "''${hdswitch}" ] ; then
-        source ($hdswitch)/switch_position_grub.cfg
-
-        if [ "''${os_hw_switch}" == 0 ] ; then
-          # Boot Linux
-          set default=0
-        elif [ "''${os_hw_switch}" == 1 ] ; then
-          # Boot Windows
-          set default=2
-        fi
-      fi
-    '';
+  # Hardware switch - also disabled, no other boot partitions for now
+  # boot.loader.grub.extraConfig =
+  #   /*
+  #   bash
+  #   */
+  #   ''
+  #     # Look for hardware switch device by its hard-coded filesystem ID
+  #     search --no-floppy --fs-uuid --set hdswitch 55AA-6922
+  #     # If found, read dynamic config file and select appropriate entry for each position
+  #     if [ "''${hdswitch}" ] ; then
+  #       source ($hdswitch)/switch_position_grub.cfg
+  #
+  #       if [ "''${os_hw_switch}" == 0 ] ; then
+  #         # Boot Linux
+  #         set default=0
+  #       elif [ "''${os_hw_switch}" == 1 ] ; then
+  #         # Boot Windows
+  #         set default=2
+  #       fi
+  #     fi
+  #   '';
 
   # Wipe the disk on each boot
   boot.initrd.postDeviceCommands =
