@@ -21,6 +21,7 @@
     obsidian.enable = true;
     picard.enable = true;
     plexamp.enable = true;
+    thunderbird.enable = true;
     ssh.client.enable = true;
     sway.enable = true;
     waybar.mouseBattery = true;
