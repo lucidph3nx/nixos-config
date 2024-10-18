@@ -50,6 +50,10 @@ with config.theme; {
           body {
             font-family: JetBrains Mono, monospace !important;
           }
+          /* background*/
+          :root {
+            --yt-spec-base-background ${bg_dim} !important;
+          }
         }
 
         /* squared customised github */
