@@ -37,7 +37,8 @@ in {
       settings = {
         exec-once = [
           "swaync"
-          "swaybg -i ${homeDir}/.config/wallpaper.jpg --mode fill"
+          "swaybg -i ${homeDir}/.config/wallpaper_everforest.png --mode fill"
+          # "swaybg --color ${builtins.substring 1 6 (theme.bg_dim)}"
           "hypridle"
           "waybar"
           "steam -silent" # couldn't figure out xdg-autostart

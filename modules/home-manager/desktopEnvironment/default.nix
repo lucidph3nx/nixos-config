@@ -41,6 +41,6 @@
           mouseBattery = lib.mkDefault false;
         };
       };
-      home.file.".config/wallpaper.jpg".source = ./files/wallpaper.jpg;
+      home.file.".config/wallpaper_everforest.png".source = ./files/wallpaper_everforest.png;
     };
 }
