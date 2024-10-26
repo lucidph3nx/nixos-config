@@ -15,9 +15,7 @@
     };
     gtk = {
       enable = true;
-      theme = {
-        # name = "Adwaita-dark";
-        # package = pkgs.gnome.gnome-themes-extra;
+      theme = lib.mkIf (config.theme.type == "dark") {
         name = "Everforest-Dark-BL";
         package = pkgs.everforest-gtk-theme;
       };
@@ -30,15 +28,18 @@
         # this is the cursor I like, from plasma 6
         package = pkgs.kdePackages.breeze;
       };
-      gtk3 = {
+      gtk3 = lib.mkIf (config.theme.type == "dark") {
         extraConfig.gtk-application-prefer-dark-theme = true;
       };
     };
     qt = {
       enable = true;
       platformTheme.name = "adwaita";
-      style = {
+      style = if config.theme.type == "dark" then {
         name = "adwaita-dark";
+        package = pkgs.adwaita-qt;
+      } else {
+        name = "adwaita";
         package = pkgs.adwaita-qt;
       };
     };

@@ -10,7 +10,10 @@ with lib; let
   themeType = types.submodule {
     options = {
       name = mkOption {type = types.str;};
+      type = mkOption {type = types.str;};
       foreground = mkOption {type = types.str;};
+      primary = mkOption {type = types.str;};
+      secondary = mkOption {type = types.str;};
       red = mkOption {type = types.str;};
       orange = mkOption {type = types.str;};
       yellow = mkOption {type = types.str;};
@@ -45,6 +48,8 @@ in {
       default = {
         name = "default";
         foreground = "#24292f";
+        primary = "#0366d6";
+        secondary = "#116329";
         red = "#cf222e";
         orange = "#fb8f44";
         yellow = "#4d2d00";

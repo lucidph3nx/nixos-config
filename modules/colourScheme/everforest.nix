@@ -8,7 +8,10 @@
 
   theme = {
     name = "everforest";
+    type = "dark";
     foreground = "#d3c6aa";
+    primary = "#a7c080";
+    secondary = "#7fbbb3";
     red = "#e67e80";
     orange = "#e69875";
     yellow = "#dbbc7f";

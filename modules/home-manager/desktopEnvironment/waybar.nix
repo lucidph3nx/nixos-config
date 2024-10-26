@@ -182,10 +182,10 @@ in
           /* for hyprland its active instead of focused*/
           #workspaces button.active {
             color: ${bg0};
-            background-color: ${green};
+            background-color: ${primary};
           }
           #workspaces button.focused {
-            background-color: ${green};
+            background-color: ${secondary};
             color: ${bg0};
           }
           #workspaces button.urgent {
@@ -196,7 +196,7 @@ in
             transition-duration: 0s;
             box-shadow: inherit;
             text-shadow: inherit;
-            background: ${blue};
+            background: ${secondary};
             color: ${bg0};
           }
           #workspaces button {
@@ -245,7 +245,7 @@ in
             margin-left: 0;
             margin-right: 0;
             color: ${bg0};
-            background-color: ${green};
+            background-color: ${primary};
           }
           @keyframes blink {
             to {

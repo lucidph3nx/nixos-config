@@ -39,7 +39,7 @@ in {
             "browser.download.dir" = "${homeDir}/downloads";
             "browser.urlbar.update2.engineAliasRefresh" = true; # allow search engine updates
             "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-            "ui.systemUsesDarkTheme" = 1; # force dark theme
+            "ui.systemUsesDarkTheme" = if config.theme.type == "dark" then 1 else 0;
             "extensions.pocket.enabled" = false;
 
             # dubious performance enhancements

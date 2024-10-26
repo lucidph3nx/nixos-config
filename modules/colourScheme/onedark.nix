@@ -8,7 +8,10 @@
 
   theme = {
     name = "onedark";
+    type = "dark";
     foreground = "#abb2bf";
+    primary = "#98c379";
+    secondary = "#61afef";
     red = "#e86671";
     orange = "#d19a66";
     yellow = "#e5c07b";

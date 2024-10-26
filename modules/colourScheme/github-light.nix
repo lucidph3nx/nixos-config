@@ -8,7 +8,10 @@
 
   theme = {
     name = "github-light";
+    type = "light";
     foreground = "#24292f";
+    primary = "#0366d6";
+    secondary = "#116329";
     red = "#cf222e";
     orange = "#fb8f44";
     yellow = "#4d2d00";

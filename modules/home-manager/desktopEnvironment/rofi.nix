@@ -85,7 +85,7 @@ in {
         size: 35px;
       }
       element selected {
-        background-color: ${grey2};
+        background-color: ${primary};
       }
       element-text selected {
         color: ${bg_visual};

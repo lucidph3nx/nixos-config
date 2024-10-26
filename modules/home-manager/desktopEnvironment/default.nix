@@ -42,5 +42,6 @@
         };
       };
       home.file.".config/wallpaper_everforest.png".source = ./files/wallpaper_everforest.png;
+      home.file.".config/wallpaper_github_light.png".source = ./files/wallpaper_github_light.png;
     };
 }
