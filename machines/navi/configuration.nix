@@ -195,6 +195,7 @@
     protonup
     qpwgraph
     shotcut
+    solvespace
     usbutils
   ];
   hardware.openrazer = {
