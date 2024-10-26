@@ -7,6 +7,7 @@
   imports = [./schema.nix];
 
   theme = {
+    name = "everforest";
     foreground = "#d3c6aa";
     red = "#e67e80";
     orange = "#e69875";

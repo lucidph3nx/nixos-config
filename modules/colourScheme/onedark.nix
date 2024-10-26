@@ -7,6 +7,7 @@
   imports = [./schema.nix];
 
   theme = {
+    name = "onedark";
     foreground = "#abb2bf";
     red = "#e86671";
     orange = "#d19a66";
