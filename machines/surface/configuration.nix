@@ -188,14 +188,6 @@
       xdg-desktop-portal-gtk
     ];
     wlr.enable = true;
-    config = {
-      sway = {
-        default = [
-          "wlr"
-          "gtk"
-        ];
-      };
-    };
   };
 
   # remap caps to esc and control

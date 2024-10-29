@@ -228,13 +228,6 @@
       xdg-desktop-portal-wlr
     ];
     wlr.enable = lib.mkForce true; #TODO: figure out why hyprland conflicts with this
-    config = {
-      sway = {
-        default = [
-          "wlr"
-        ];
-      };
-    };
   };
 
   # List services that you want to enable:

@@ -149,14 +149,6 @@
       xdg-desktop-portal-gtk
     ];
     wlr.enable = true;
-    config = {
-      sway = {
-        default = [
-          "wlr"
-          "gtk"
-        ];
-      };
-    };
   };
 
   # List services that you want to enable:
