@@ -238,7 +238,7 @@ in {
         bind=SUPER SHIFT,E,submap,exit
         submap=exit
         # lock
-        binde=,l,exec, swaylock
+        binde=,l,exec, hyprlock
         # logout
         bind=SHIFT,L,exec, loginctl terminate-user $USER
         # shutdown
@@ -260,13 +260,13 @@ in {
       enable = true;
       settings = {
         general = {
-          lock_cmd = "hyprctl dispatch exec swaylock";
+          lock_cmd = "hyprctl dispatch exec hyprlock";
         };
         listener = [
           {
             # lock screen after 30 minutes inactivity
             timeout = 1800;
-            on-timeout = "hyprctl dispatch exec swaylock";
+            on-timeout = "hyprctl dispatch exec hyprlock";
           }
           {
             # turn off screen after 1 hour of inactivity

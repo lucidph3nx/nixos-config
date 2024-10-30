@@ -17,6 +17,7 @@
     firefox.hideUrlbar = true;
     homeAutomation.enable = true;
     hyprland.enable = true;
+    hyprlock.enable = true;
     libreoffice.enable = true;
     obsidian.enable = true;
     picard.enable = true;
