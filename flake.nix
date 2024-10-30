@@ -14,8 +14,6 @@
   };
 
   inputs = {
-    # Our primary nixpkgs repo. Modify with caution.
-    # nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     # stable repo for some packages
     nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-24.05";
@@ -27,9 +25,7 @@
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # https://github.com/nix-community/impermanence/pull/214
-    # impermanence.url = "github:nix-community/impermanence";
-    impermanence.url = "github:nix-community/impermanence/63f4d0443e32b0dd7189001ee1894066765d18a5";
+    impermanence.url = "github:nix-community/impermanence";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
 
     # sops
