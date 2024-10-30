@@ -130,8 +130,7 @@ in {
         ];
         monitor = [
           ",preferred,auto,auto"
-          "HDMI-A-1,preferred,-2560x0,1"
-          "DP-3,highrr,0x0,1"
+          "DP-3,highrr,5120x1440,1"
         ];
         bind = [
           # Motions
