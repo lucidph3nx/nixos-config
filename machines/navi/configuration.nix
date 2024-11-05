@@ -313,7 +313,11 @@
   # };
   # systemd.services.ollama.after = ["var-lib-ollama.mount"];
 
-  virtualisation.waydroid.enable = true;
+  virtualisation = {
+    waydroid.enable = true;
+    # libvirtd.enable = true;
+  };
+  # programs.virt-manager.enable = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
