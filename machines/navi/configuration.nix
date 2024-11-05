@@ -41,6 +41,10 @@
     # useOSProber = true; # no other boot partitions for now
   };
 
+  # https://github.com/nix-community/impermanence/issues/229
+  boot.initrd.systemd.suppressedUnits = [ "systemd-machine-id-commit.service" ];
+  systemd.suppressedSystemUnits = [ "systemd-machine-id-commit.service" ];
+
   # Hardware switch - also disabled, no other boot partitions for now
   # boot.loader.grub.extraConfig =
   #   /*
