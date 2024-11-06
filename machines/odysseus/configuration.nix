@@ -10,8 +10,9 @@
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
-    (import ./disko.nix {device = "/dev/vda";})
+    (import ./disko.nix {device = "/dev/disk/by-uuid/e87aa80c-e930-4418-9566-0bef87774e51";})
     inputs.disko.nixosModules.default
+    inputs.nixos-apple-silicon.nixosModules.apple-silicon-support
     ../../modules/nix
   ];
 
@@ -32,6 +33,25 @@
     # should be on home network
     nfs-mounts.enable = false; # not whitelisted on nas
   };
+
+  nixpkgs.overlays = [
+    inputs.nixos-apple-silicon.overlays.apple-silicon-overlay
+    (final: prev: { mesa = final.mesa-asahi-edge; })
+  ];
+
+  hardware = {
+    asahi = {
+      peripheralFirmwareDirectory = ./firmware;
+      useExperimentalGPUDriver = true;
+      experimentalGPUInstallMode = "driver";
+      setupAsahiSound = true;
+      withRust = true;
+    };
+    graphics.enable = true;
+  };
+  boot.consoleLogLevel = 0;
+  boot.kernelParams = ["apple_dcp.show_notch=1"];
+  boot.loader.efi.canTouchEfiVariables = false;
 
   # Bootloader.
   boot.loader.grub.enable = true;
@@ -94,7 +114,10 @@
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Enable networking
-  networking.networkmanager.enable = true;
+  networking.wireless.iwd = {
+    enable = true;
+    settings.General.EnableNetworkConfiguration = true;
+  };
 
   # no password for sudo
   security.sudo.wheelNeedsPassword = false;
@@ -188,5 +211,5 @@
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "23.11"; # Did you read the comment?
+  system.stateVersion = "24.05"; # Did you read the comment?
 }
