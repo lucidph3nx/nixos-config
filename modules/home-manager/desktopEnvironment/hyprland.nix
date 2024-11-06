@@ -10,6 +10,11 @@ in {
   options = {
     homeManagerModules.hyprland = {
       enable = lib.mkEnableOption "enables hyprland";
+      wallpaperResolution = lib.mkOption {
+        type = lib.types.str;
+        default = "5120x1440";
+        description = "Resolution of the wallpaper";
+      };
     };
   };
   config = lib.mkIf config.homeManagerModules.hyprland.enable {
@@ -35,10 +40,10 @@ in {
     in {
       enable = true;
       settings = {
-        exec-once = [
+        exec-once = let resolution = config.homeManagerModules.hyprland.wallpaperResolution in [
           "swaync"
-          (lib.mkIf (config.theme.name == "everforest") "swaybg -i ${homeDir}/.config/wallpaper_everforest.png --mode fill")
-          (lib.mkIf (config.theme.name == "github-light") "swaybg -i ${homeDir}/.config/wallpaper_github_light.png --mode fill")
+          (lib.mkIf (config.theme.name == "everforest") "swaybg -i ${homeDir}/.config/wallpaper_everforest-${resolution}.png --mode fill")
+          (lib.mkIf (config.theme.name == "github-light") "swaybg -i ${homeDir}/.config/wallpaper_github_light-${resolution}.png --mode fill")
           # "swaybg --color ${builtins.substring 1 6 (theme.bg_dim)}"
           "hypridle"
           "waybar"

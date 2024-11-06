@@ -15,6 +15,7 @@
     # prospect-mail.enable = true;
     # teams-for-linux.enable = true;
     # # Enable home automation stuff as device should be in the home
+    hyprland.wallpaperResolution = "1680x1050";
     homeAutomation.enable = true;
     ssh.client.enable = true;
   };
