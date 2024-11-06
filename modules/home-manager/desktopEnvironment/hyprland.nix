@@ -40,7 +40,7 @@ in {
     in {
       enable = true;
       settings = {
-        exec-once = let resolution = config.homeManagerModules.hyprland.wallpaperResolution in [
+        exec-once = let resolution = config.homeManagerModules.hyprland.wallpaperResolution; in [
           "swaync"
           (lib.mkIf (config.theme.name == "everforest") "swaybg -i ${homeDir}/.config/wallpaper_everforest-${resolution}.png --mode fill")
           (lib.mkIf (config.theme.name == "github-light") "swaybg -i ${homeDir}/.config/wallpaper_github_light-${resolution}.png --mode fill")
