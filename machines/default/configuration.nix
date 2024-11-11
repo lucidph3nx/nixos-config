@@ -14,7 +14,6 @@
     ../../modules/nix
   ];
 
-  impermanence.enable = true;
   nixModules = {
     sops = {
       generalSecrets.enable = true;
