@@ -5,6 +5,7 @@
   ...
 }: {
   imports = [
+    inputs.impermanence.nixosModules.home-manager.impermanence
   ];
   # my own modules
   homeManagerModules = {
