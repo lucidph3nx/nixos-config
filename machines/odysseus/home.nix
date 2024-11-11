@@ -23,7 +23,50 @@
     username = "ben";
     homeDirectory = "/home/ben";
   };
-  home.stateVersion = "23.11"; # Do Not Touch!
+  home.stateVersion = "24.05"; # Do Not Touch!
+
+    home.persistence."/persist/home/ben" = {
+    allowOther = true;
+    directories = [
+      # {
+      #   directory = ".local/share/Steam";
+      #   method = "symlink";
+      # }
+      ".local/share/lutris"
+      ".local/share/nix"
+      ".local/share/nvim"
+      ".local/share/vulkan"
+      ".local/state"
+      ".cache"
+      ".ssh"
+      "code"
+      "documents"
+      # these should be with the hm modules
+      # but give compile errors on darwin
+      ".config/syncthing"
+      ".terraform.d"
+    ];
+  };
+
+  services.udiskie = {
+    enable = true;
+    automount = true;
+    notify = true;
+    settings = {
+      program_options = {
+        menu = "flat";
+        file_manager = "xdg-open";
+      };
+      device_config = [
+        # ignore hardware os switch
+        {
+          id_uuid = "55AA-6922";
+          ignore = true;
+        }
+      ];
+    };
+    tray = "auto";
+  };
 
   # home.packages = with pkgs; [
   #   gimp # temp for troubleshooting
