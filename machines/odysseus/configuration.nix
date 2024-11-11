@@ -55,6 +55,47 @@
   boot.loader.grub.efiSupport = true;
   boot.loader.grub.efiInstallAsRemovable = true;
 
+  # https://github.com/nix-community/impermanence/issues/229
+  boot.initrd.systemd.suppressedUnits = [ "systemd-machine-id-commit.service" ];
+  systemd.suppressedSystemUnits = [ "systemd-machine-id-commit.service" ];
+
+  boot.kernel.sysctl."net.core.rmem_max" = 2500000;
+
+  # things to persist
+  fileSystems."/persist".neededForBoot = true;
+  environment.persistence."/persist/system" = {
+    hideMounts = true;
+    directories = [
+      {
+        directory = "/var/lib/private/ollama";
+        user = "ollama";
+        group = "ollama";
+        mode = "700";
+      }
+      "/var/lib/waydroid"
+      "/var/log"
+      "/var/lib/bluetooth"
+      "/var/lib/nixos"
+      "/var/lib/sops-nix"
+      "/var/lib/systemd/coredump"
+      "/etc/NetworkManager/system-connections"
+      "/etc/ssh"
+    ];
+    files = [
+      "/etc/machine-id"
+    ];
+  };
+  # without these, you will get errors the first time after install
+  system.activationScripts.persistDirs = ''
+    mkdir -p /persist/system/var/log
+    mkdir -p /persist/system/var/lib/nixos
+    mkdir -p /persist/cache
+    chown -R ben:users /persist/cache
+    mkdir -p /persist/home/ben
+    mkdir -p /persist/home/ben/.ssh
+    mkdir -p /persist/home/ben/.local/share/Steam
+    chown -R ben:users /persist/home/ben
+  '';
 
   networking.hostName = "odysseus"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
