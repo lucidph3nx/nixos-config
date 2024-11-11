@@ -15,8 +15,8 @@
     ../../modules/nix
   ];
 
+  impermanence.enable = true;
   nixModules = {
-    impermanence.enable = true;
     sops = {
       ageKeys.enable = true;
       generalSecrets.enable = true;

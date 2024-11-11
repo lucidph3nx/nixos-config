@@ -16,7 +16,8 @@
     ./syncthing.nix
   ];
   options = {
-    impermanence.enable = lib.mkEnableOption "enable impermanence";
+    impermanence.enable = 
+      lib.mkEnableOption "enable impermanence";
   };
   config = {
     nixModules = {

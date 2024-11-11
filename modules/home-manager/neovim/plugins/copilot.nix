@@ -1,7 +1,6 @@
 {
-  config,
+  osConfig,
   pkgs,
-  inputs,
   lib,
   ...
 }: {
@@ -56,7 +55,7 @@
       ];
       home.packages = [pkgs.nodejs_20];
     }
-    (lib.mkIf (config.nixModules.impermanence.enable) {
+    (lib.mkIf (osConfig.impermanence.enable) {
       home.persistence = {
         "/persist/home/ben" = {
           directories = [

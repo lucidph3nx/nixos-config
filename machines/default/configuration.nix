@@ -14,8 +14,8 @@
     ../../modules/nix
   ];
 
+  impermanence.enable = true;
   nixModules = {
-    impermanence.enable = true;
     sops = {
       generalSecrets.enable = true;
       signingKeys.enable = true;
