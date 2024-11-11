@@ -56,7 +56,7 @@
       ];
       home.packages = [pkgs.nodejs_20];
     }
-    (lib.mkIf (inputs.impermanence != null) {
+    (lib.mkIf (config.nixModules.impermanence.enable) {
       home.persistence = {
         "/persist/home/ben" = {
           directories = [

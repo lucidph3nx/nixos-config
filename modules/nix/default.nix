@@ -17,6 +17,8 @@
   ];
   config = {
     nixModules = {
+      # prevent impermanence from running on all systems
+      impermanence.enable = lib.mkDefault true;
       greetd.enable = lib.mkDefault true;
       polkit.enable = lib.mkDefault true;
       cli-tools.enable = lib.mkDefault true;

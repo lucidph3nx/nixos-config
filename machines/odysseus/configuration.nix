@@ -4,7 +4,6 @@
   pkgs-master,
   inputs,
   config,
-  lib,
   ...
 }: {
   imports = [
@@ -15,6 +14,7 @@
   ];
 
   nixModules = {
+    impermanence.enable = false;
     sops = {
       ageKeys.enable = true;
       generalSecrets.enable = true;
