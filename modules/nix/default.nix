@@ -15,6 +15,9 @@
     ./sops
     ./syncthing.nix
   ];
+  options = {
+    impermanence.enable = lib.mkEnableOption "enable impermanence";
+  };
   config = {
     nixModules = {
       # prevent impermanence from running on all systems
