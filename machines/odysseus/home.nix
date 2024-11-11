@@ -5,7 +5,6 @@
   ...
 }: {
   imports = [
-    inputs.impermanence.nixosModules.home-manager.impermanence
   ];
   # my own modules
   homeManagerModules = {
@@ -24,25 +23,6 @@
     homeDirectory = "/home/ben";
   };
   home.stateVersion = "23.11"; # Do Not Touch!
-
-  home.persistence."/persist/home/ben" = {
-    directories = [
-      "code"
-      ".ssh"
-      # these should be with the hm modules
-      # but give compile errors on darwin
-      ".mozilla/firefox"
-      ".local/state/zsh"
-      ".config/nvim/spell"
-      ".config/github-copilot"
-      ".config/teams-for-linux"
-      ".config/Prospect Mail"
-    ];
-    files = [
-      # ".zsh_history"
-    ];
-    allowOther = true;
-  };
 
   # home.packages = with pkgs; [
   #   gimp # temp for troubleshooting
