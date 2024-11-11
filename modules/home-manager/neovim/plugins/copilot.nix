@@ -1,5 +1,6 @@
 {
   pkgs,
+  inputs,
   lib,
   ...
 }: {
@@ -54,9 +55,11 @@
         '';
     }
   ];
-  home.persistence."/persist/home/ben" = {
-    directories = [
-      ".config/github-copilot"
-    ];
+  home.persistence = lib.mkIf (inputs.impermanence != null) {
+    "/persist/home/ben" = {
+      directories = [
+        ".config/github-copilot"
+      ];
+    };
   };
 }
