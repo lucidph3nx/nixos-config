@@ -17,7 +17,7 @@
     # teams-for-linux.enable = true;
     # # Enable home automation stuff as device should be in the home
     hyprland.wallpaperResolution = "1680x1050";
-    homeAutomation.enable = true;
+    homeAutomation.enable = false;
     ssh.client.enable = true;
   };
   home = {
