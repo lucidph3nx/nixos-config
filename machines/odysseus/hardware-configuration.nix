@@ -29,6 +29,12 @@
     fsType = "ext4";
   };
 
+  fileSystems."/persist" = {
+    device = "/nix/persist";
+    fsType = "none";
+    options = [ "bind" ];
+  };
+
   fileSystems."/boot" = {
     device = "/dev/disk/by-uuid/282E-1B10";
     fsType = "vfat";
