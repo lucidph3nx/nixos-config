@@ -9,6 +9,7 @@
   ];
   # my own modules
   homeManagerModules = {
+    desktopEnvironment.enable = false;
     guiApps.enable = false; # console only vm
     # firefox.enable = true; # testing removing and readding
     # firefox.hideUrlbar = true;
