@@ -10,7 +10,7 @@
   };
   config = lib.mkIf config.nixModules.gui-tools.enable {
     environment.systemPackages = with pkgs; [
-      chromium
+      # chromium
     ];
   };
 }
