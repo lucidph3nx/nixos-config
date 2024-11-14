@@ -210,15 +210,19 @@
     enable = true;
     keyboards.main = {
       devices = ["/dev/input/by-path/platform-i8042-serio-0-event-kbd"];
-      config = ''
-        (defsrc
-          caps)
+      config =
+        /*
+        lisp
+        */
+        ''
+          (defsrc
+            caps)
 
-        (deflayermap (default-layer)
-          ;; tap caps lock as esc, hold as left control
-          caps (tap-hold-press 150 150 esc lctl)
-        )
-      '';
+          (deflayermap (default-layer)
+            ;; tap caps lock as esc, hold as left control
+            caps (tap-hold-release 200 150 esc lctl)
+          )
+        '';
     };
   };
 

@@ -25,6 +25,7 @@
           jsonc
           latex
           mermaid
+          commonlisp
           lua
           markdown
           nginx
