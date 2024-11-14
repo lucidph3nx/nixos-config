@@ -16,6 +16,8 @@
   ];
 
   nixModules = {
+    externalAudio.enable = true; # using external dac
+    deviceLocation = "office";
     sops = {
       ageKeys.enable = true;
       generalSecrets.enable = true;

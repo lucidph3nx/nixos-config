@@ -1,12 +1,14 @@
 {
   config,
+  osConfig,
   pkgs,
   lib,
   ...
 }: let
   browserNewWindow = "firefox --new-window";
-  # enableAudio = config.homeManagerModules.pipewire-utils.enable;
+  externalAudio = osConfig.nixModules.externalAudio.enable;
   enableHomeAutomation = config.homeManagerModules.homeAutomation.enable;
+  location = osConfig.nixModules.deviceLocation;
   enableMpd = config.homeManagerModules.mpd.enable;
   enableHyprland = config.homeManagerModules.hyprland.enable;
   enableSway = config.homeManagerModules.sway.enable;
@@ -48,11 +50,10 @@ in
             modules-right = [
               "tray"
               (lib.mkIf mouseBattery "custom/mouse-battery")
-              # (lib.mkIf enableAudio "custom/audio-cycle")
-              # (lib.mkIf enableAudio "pulseaudio")
-              "custom/audio-enabled"
-              (lib.mkIf enableHomeAutomation "custom/office-temp")
-              (lib.mkIf enableHomeAutomation "custom/office-humidity")
+              (lib.mkIf (externalAudio == false) "pulseaudio")
+              (lib.mkIf externalAudio "custom/audio-enabled")
+              (lib.mkIf (enableHomeAutomation && location == "office") "custom/office-temp")
+              (lib.mkIf (enableHomeAutomation && location == "office") "custom/office-humidity")
               "custom/notification"
               "network"
               "battery"
@@ -100,10 +101,11 @@ in
               "icon-size" = 18;
               "spacing" = 12;
             };
-            # "pulseaudio" = lib.mkIf enableAudio {
-            #   "format" = "{volume}%";
-            #   "on-click" = "qpwgraph";
-            # };
+            "pulseaudio" = lib.mkIf (externalAudio == false) {
+              "format" = "󰕾 {volume}%";
+              "format-muted" = "󰖁 {volume}%";
+              "on-click" = "qpwgraph";
+            };
             # "custom/audio-cycle" = lib.mkIf enableAudio {
             #   "return-type" = "json";
             #   "exec-on-event" = true;
@@ -154,9 +156,9 @@ in
             };
             "battery" = {
               "format-icons" = ["󱊡" "󱊢" "󱊣"];
-              "format-charging" = "󰂄";
+              "format-charging" = "{capacity}% 󰂄";
               "format" = "{capacity}% {icon}";
-              "interval" = "30";
+              "interval" = "5";
             };
           };
         };
@@ -254,9 +256,6 @@ in
           }
           #tray {
             background: ${bg0};
-          }
-          #pulseaudio {
-              padding-left: 0px;
           }
           #custom-mouse-battery.low {
             color: ${bg0};

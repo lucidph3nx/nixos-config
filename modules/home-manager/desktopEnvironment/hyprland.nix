@@ -1,5 +1,6 @@
 {
   config,
+  osConfig,
   pkgs,
   lib,
   ...
@@ -42,6 +43,8 @@ in {
       obsidian = "kitty ${homeDir}/.local/scripts/cli.tmux.projectSessioniser ${homeDir}/documents/obsidian/personal-vault";
       addtoshoppinglist = "${homeDir}/.local/scripts/home.shoppinglist.addItem";
       openshoppinglist = "firefox --new-window https://www.notion.so/ph3nx/Shopping-List-92d98ac3dc86460285a399c0b1176fc5";
+      # configuration
+      enableAudioControls = (osConfig.nixModules.externalAudio.enable == false);
     in {
       enable = true;
       settings = {
@@ -128,7 +131,7 @@ in {
           # when opening another program from terminal, swallow the terminal
           enable_swallow = true;
           swallow_regex = "^(kitty)$";
-          swallow_exception_regex = "^(lf)$";
+          swallow_exception_regex = "^(lf|wev)$";
         };
         windowrulev2 = [
           "workspace 2 silent,class:(Prospect Mail)"
@@ -212,8 +215,8 @@ in {
           "ALT, o, exec, ${obsidian}"
           # media controls
           ", XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
-          # ", XF86AudioRaiseVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+"
-          # ", XF86AudioLowerVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%-"
+          (lib.mkIf enableAudioControls ", XF86AudioRaiseVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+")
+          (lib.mkIf enableAudioControls ", XF86AudioLowerVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%-")
           ", XF86AudioPlay, exec, ${pkgs.playerctl}/bin/playerctl play-pause"
           ", XF86AudioStop, exec, ${pkgs.playerctl}/bin/playerctl stop"
           ", XF86AudioNext, exec, ${pkgs.playerctl}/bin/playerctl next"

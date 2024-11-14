@@ -16,8 +16,15 @@
     ./syncthing.nix
   ];
   options = {
-    impermanence.enable = 
-      lib.mkEnableOption "enable impermanence";
+    nixModules.externalAudio.enable = lib.mkEnableOption {
+      default = false;
+      description = "machine is using external audio control, disable things like volume controls";
+    };
+    nixModules.deviceLocation = lib.mkOption {
+      default = "none";
+      description = "physical location of the machine, for showing local variables like temp humidity";
+      type = lib.types.str;
+    };
   };
   config = {
     nixModules = {
