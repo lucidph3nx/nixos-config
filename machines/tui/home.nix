@@ -67,6 +67,10 @@
     tray = "auto";
   };
 
+  wayland.windowManager.hyprland.settings.monitor = [
+    "eDP-1,2880x1800@120.00000,0x0,1.5"
+  ];
+
   home.packages = with pkgs; [
     gimp
     # cinnamon.nemo

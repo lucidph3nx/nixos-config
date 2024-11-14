@@ -135,7 +135,6 @@ in {
         ];
         monitor = [
           ",preferred,auto,auto"
-          "DP-3,highrr,5120x1440,1"
         ];
         bind = [
           # Motions
