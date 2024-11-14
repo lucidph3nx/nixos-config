@@ -28,6 +28,7 @@
       syncthing = {
         enable = lib.mkDefault false;
         obsidian.enable = lib.mkDefault false;
+        calibre.enable = lib.mkDefault false;
         music.enable = lib.mkDefault false;
       };
       input-remapper = {

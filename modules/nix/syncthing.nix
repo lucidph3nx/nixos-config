@@ -9,6 +9,8 @@
       lib.mkEnableOption "Set up syncthing";
     nixModules.syncthing.obsidian.enable =
       lib.mkEnableOption "Set up syncthing obsidian folder";
+    nixModules.syncthing.calibre.enable =
+      lib.mkEnableOption "Set up syncthing calibre folder";
     nixModules.syncthing.music.enable =
       lib.mkEnableOption "Set up syncthing music folder";
     nixModules.syncthing.music.path = 
@@ -40,11 +42,15 @@
             devices = ["k8s"];
             path = "/persist/home/ben/documents/obsidian";
           };
+          "calibre" = lib.mkIf config.nixModules.syncthing.calibre.enable {
+            id = "bny6u-oz6gf";
+            devices = ["nas0"];
+            path = "/persist/home/ben/documents/calibre";
+          };
           "music" = lib.mkIf config.nixModules.syncthing.music.enable {
             id = "dmuif-nefck";
             devices = ["nas0"];
             path = config.nixModules.syncthing.music.path;
-            # path = "/persist/home/ben/music";
           };
         };
         options.urAccepted = -1;
