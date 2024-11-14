@@ -16,6 +16,7 @@
     firefox.hideUrlbar = true;
     homeAutomation.enable = true;
     hyprland.enable = true;
+    hyprland.wallpaperResolution = "2880x1800";
     hyprlock.enable = true;
     libreoffice.enable = true;
     obsidian.enable = true;

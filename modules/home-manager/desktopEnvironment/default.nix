@@ -46,5 +46,7 @@
       home.file.".config/wallpaper_everforest-1680x1050.png".source = ./files/wallpaper_everforest-1680x1050.png;
       home.file.".config/wallpaper_everforest-5120x1440.png".source = ./files/wallpaper_everforest-5120x1440.png;
       home.file.".config/wallpaper_github_light-5120x1440.png".source = ./files/wallpaper_github_light-5120x1440.png;
+      home.file.".config/wallpaper_everforest-2880x1800.png".source = ./files/wallpaper_everforest-2880x1800.png;
+      home.file.".config/wallpaper_github_light-2880x1800.png".source = ./files/wallpaper_github_light-2880x1800.png;
     };
 }
