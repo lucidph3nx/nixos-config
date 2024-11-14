@@ -26,7 +26,10 @@
     syncthing = {
       enable = true;
       obsidian.enable = true;
-      music.enable = true;
+      music = {
+        enable = true;
+        path = "/home/ben/music";
+      };
     };
     input-remapper.enable = true;
     # should be on home network

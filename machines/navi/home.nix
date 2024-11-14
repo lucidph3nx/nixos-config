@@ -87,6 +87,10 @@
     pcsx2
   ];
 
+  wayland.windowManager.hyprland.settings.monitor = [
+    "DP-3,highrr,5120x1440,1"
+  ];
+
   home.sessionVariables = {
     PAGER = "less";
     MEDNAFEN_HOME = "${config.xdg.configHome}/mednafen";

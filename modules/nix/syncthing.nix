@@ -11,6 +11,12 @@
       lib.mkEnableOption "Set up syncthing obsidian folder";
     nixModules.syncthing.music.enable =
       lib.mkEnableOption "Set up syncthing music folder";
+    nixModules.syncthing.music.path = 
+      lib.mkOption {
+        type = lib.types.str; 
+        default = "/persist/home/ben/music/";
+        description = "location to sync music to";
+      };
   };
   config = lib.mkIf config.nixModules.syncthing.enable {
     services.syncthing = {
@@ -37,7 +43,8 @@
           "music" = lib.mkIf config.nixModules.syncthing.music.enable {
             id = "dmuif-nefck";
             devices = ["nas0"];
-            path = "/home/ben/music";
+            path = config.nixModules.syncthing.music.path;
+            # path = "/persist/home/ben/music";
           };
         };
         options.urAccepted = -1;
