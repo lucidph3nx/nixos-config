@@ -9,9 +9,17 @@ in {
   options = {
     homeManagerModules.hyprlock.enable =
       lib.mkEnableOption "enables hyprlock";
+    homeManagerModules.hyprlock.oled =
+      lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Enable OLED specific settings";
+      };
   };
   config = lib.mkIf config.homeManagerModules.hyprlock.enable {
-    programs.hyprlock = {
+    programs.hyprlock = let
+      oled = config.homeManagerModules.hyprlock.oled;
+      in {
       enable = true;
       settings = {
         hide_cursor = true;
@@ -20,7 +28,8 @@ in {
         background = [
           {
             monitor = "";
-            path = "${homeDir}/.config/wallpaper_${theme.name}.png";
+            path = (lib.mkIf (oled == false) "${homeDir}/.config/wallpaper_${theme.name}.png");
+            color = (lib.mkIf (oled == true) "rgba(0,0,0,1)");
             blur_passes = 0;
           }
         ];

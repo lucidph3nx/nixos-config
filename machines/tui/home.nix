@@ -15,9 +15,16 @@
     darktable.enable = true;
     firefox.hideUrlbar = true;
     homeAutomation.enable = true;
-    hyprland.enable = true;
-    hyprland.wallpaperResolution = "2880x1800";
-    hyprlock.enable = true;
+    hyprland = {
+      enable = true;
+      wallpaperResolution = "2880x1800";
+      lockTimeout = 300;
+      screenTimeout = 600;
+    };
+    hyprlock = {
+      enable = true;
+      oled = true;
+    };
     libreoffice.enable = true;
     obsidian.enable = true;
     picard.enable = true;

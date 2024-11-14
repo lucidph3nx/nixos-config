@@ -174,6 +174,7 @@
     shotcut
     solvespace
     usbutils
+    wev
   ];
   hardware.openrazer = {
     enable = true;

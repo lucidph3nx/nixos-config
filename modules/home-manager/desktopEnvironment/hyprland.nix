@@ -21,6 +21,18 @@ in {
         default = "5120x1440";
         description = "Resolution of the wallpaper";
       };
+      lockTimeout = lib.mkOption {
+        type = lib.types.int;
+        # default 30 minutes
+        default = 1800;
+        description = "time before locking the screen";
+      };
+      screenTimeout = lib.mkOption {
+        type = lib.types.int;
+        # default 1 hour
+        default = 3600;
+        description = "time before turning off the screen";
+      };
     };
   };
   config = lib.mkIf config.homeManagerModules.hyprland.enable {
@@ -221,6 +233,8 @@ in {
           ", XF86AudioStop, exec, ${pkgs.playerctl}/bin/playerctl stop"
           ", XF86AudioNext, exec, ${pkgs.playerctl}/bin/playerctl next"
           ", XF86AudioPrev, exec, ${pkgs.playerctl}/bin/playerctl previous"
+          ", XF86MonBrightnessUp, exec, ${pkgs.brightnessctl}/bin/brightnessctl s +10%"
+          ", XF86MonBrightnessDown, exec, ${pkgs.brightnessctl}/bin/brightnessctl s 10%-"
         ];
         bindm = [
           "SUPER, mouse:272, movewindow"
@@ -270,7 +284,10 @@ in {
         # pkgs.hyprlandPlugins.hy3
       ];
     };
-    services.hypridle = {
+    services.hypridle = let
+        lockTimeout = config.homeManagerModules.hyprland.lockTimeout;
+        screenTimeout = config.homeManagerModules.hyprland.screenTimeout;
+      in {
       enable = true;
       settings = {
         general = {
@@ -279,12 +296,12 @@ in {
         listener = [
           {
             # lock screen after 30 minutes inactivity
-            timeout = 1800;
+            timeout = lockTimeout;
             on-timeout = "hyprctl dispatch exec hyprlock";
           }
           {
             # turn off screen after 1 hour of inactivity
-            timeout = 3600;
+            timeout = screenTimeout;
             on-timeout = "hyprctl dispatch dpms off";
             on-resume = "hyprctl dispatch dpms on";
           }
