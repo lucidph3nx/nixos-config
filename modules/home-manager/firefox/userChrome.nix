@@ -131,6 +131,26 @@ with config.theme; {
         #customizationui-widget-panel { margin: 0 !important; }
         #unified-extensions-panel { margin: 0 !important; }
 
+        /* --- style statuspanel -------------------------------- */
+         #statuspanel[mirror],
+         #statuspanel:not([mirror]) {
+           left: auto !important;
+           right: 0px !important;
+           top: 0px !important;
+           bottom: auto !important;
+        }
+
+        #statuspanel-label:not([mirror]),
+        #statuspanel-label[mirror] {
+           border-left-style: solid!important;
+           border-top-left-radius: 0.3em!important;
+           margin-left: 1em!important;
+
+           border-right-style: none!important;
+           border-top-right-radius: 0em!important;
+           margin-right: 0em!important;
+        }
+
         /* --- UNIFIED EXTENSIONS BUTTON ------------------------ */
 
         /* make extension icons smaller */
