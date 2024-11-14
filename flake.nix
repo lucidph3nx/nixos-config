@@ -104,6 +104,10 @@
             nixos-hardware.nixosModules.microsoft-surface-pro-intel
           ];
       };
+      tui = mkSystem {
+        system = "x86_64-linux";
+        configFile = "tui";
+      };
     };
   };
 }
