@@ -13,7 +13,7 @@
   homeManagerModules = {
     calibre.enable = true;
     darktable.enable = true;
-    firefox.hideUrlbar = false;
+    firefox.hideUrlbar = true;
     homeAutomation.enable = true;
     hyprland.enable = true;
     hyprlock.enable = true;
