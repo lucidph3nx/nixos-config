@@ -35,11 +35,13 @@
   };
 
   # Bootloader.
-  boot.loader.grub = {
-    enable = true;
-    efiSupport = true;
-    efiInstallAsRemovable = true;
-  };
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+  # boot.loader.grub = {
+  #   enable = false;
+  #   efiSupport = true;
+  #   efiInstallAsRemovable = true;
+  # };
 
   # https://github.com/nix-community/impermanence/issues/229
   boot.initrd.systemd.suppressedUnits = ["systemd-machine-id-commit.service"];
