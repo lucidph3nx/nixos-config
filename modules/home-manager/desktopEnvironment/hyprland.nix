@@ -44,6 +44,7 @@ in {
       calculator = "${homeDir}/.local/scripts/application.rofi.calculator";
       nvimsessionlauncher = "${homeDir}/.local/scripts/application.nvim.sessionLauncher";
       applicationlauncher = "${homeDir}/.local/scripts/application.launcher";
+      toggleTouchpad = "${homeDir}/.local/scripts/system.inputs.toggleTouchpad";
       # applications
       terminal = "kitty";
       browser = "firefox";
@@ -84,6 +85,10 @@ in {
           repeat_rate = "60";
           follow_mouse = 2;
           sensitivity = 0;
+          touchpad = {
+            # feels right for a touchpad
+            natural_scroll = true;
+          };
         };
         general = {
           gaps_in = 5;
@@ -235,6 +240,8 @@ in {
           ", XF86AudioPrev, exec, ${pkgs.playerctl}/bin/playerctl previous"
           ", XF86MonBrightnessUp, exec, ${pkgs.brightnessctl}/bin/brightnessctl s +10%"
           ", XF86MonBrightnessDown, exec, ${pkgs.brightnessctl}/bin/brightnessctl s 10%-"
+          # on my asus laptop, one of the function keys presses Super_L+p for some reason for touchpad disable
+          "SUPER, p, exec, ${toggleTouchpad}"
         ];
         bindm = [
           "SUPER, mouse:272, movewindow"
@@ -336,6 +343,31 @@ in {
             # https://github.com/hyprwm/Hyprland/issues/5691
             hyprctl keyword workspace "w[t1], gapsout:5 5"
             hyprctl keyword workspace "s[true], gapsout:50 50"
+          fi
+        '';
+    };
+    home.file.".local/scripts/system.inputs.toggleTouchpad" = {
+      executable = true;
+      text =
+        /*
+        bash
+        */
+        ''
+          #!/bin/sh
+          export STATUS_FILE="$XDG_RUNTIME_DIR/touchpad_status"
+          if ! [ -f "$STATUS_FILE" ]; then
+            # disable touchpad
+            hyprctl keyword 'device[asup1415:00-093a:300c-touchpad]:enabled' false > /dev/null
+            touch "$STATUS_FILE"
+            echo "disabled" > "$STATUS_FILE"
+          elif [ "$(cat $STATUS_FILE)" = "enabled" ]; then
+            # disable touchpad
+            hyprctl keyword 'device[asup1415:00-093a:300c-touchpad]:enabled' false > /dev/null
+            echo "disabled" > "$STATUS_FILE"
+          elif [ "$(cat $STATUS_FILE)" = "disabled" ]; then
+            # enable touchpad
+            hyprctl keyword 'device[asup1415:00-093a:300c-touchpad]:enabled' true > /dev/null
+            echo "enabled" > "$STATUS_FILE"
           fi
         '';
     };
