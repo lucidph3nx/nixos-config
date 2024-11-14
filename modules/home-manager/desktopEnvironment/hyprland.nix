@@ -10,6 +10,11 @@ in {
   options = {
     homeManagerModules.hyprland = {
       enable = lib.mkEnableOption "enables hyprland";
+      disableWorkspaceAnimations = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "disables workspace animations";
+      };
       wallpaperResolution = lib.mkOption {
         type = lib.types.str;
         default = "5120x1440";
@@ -98,7 +103,9 @@ in {
             "border, 1, 2, default"
             "borderangle, 1, 50, linear, loop"
             "fade, 1, 2, default"
-            "workspaces,0" # disable workspace animations
+            (lib.mkIf (config.homeManagerModules.hyprland.disableWorkspaceAnimations != true)
+              "workspaces,1,1, myBezier") 
+            # "workspaces,0" # disable workspace animations
           ];
         };
         dwindle = {

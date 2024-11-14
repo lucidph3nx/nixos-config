@@ -16,7 +16,10 @@
     darktable.enable = true;
     firefox.hideUrlbar = true;
     homeAutomation.enable = true;
-    hyprland.enable = true;
+    hyprland = {
+      enable = true;
+      disableWorkspaceAnimations = true;
+    };
     hyprlock.enable = true;
     libreoffice.enable = true;
     obsidian.enable = true;
