@@ -41,8 +41,8 @@
   };
 
   # https://github.com/nix-community/impermanence/issues/229
-  boot.initrd.systemd.suppressedUnits = [ "systemd-machine-id-commit.service" ];
-  systemd.suppressedSystemUnits = [ "systemd-machine-id-commit.service" ];
+  boot.initrd.systemd.suppressedUnits = ["systemd-machine-id-commit.service"];
+  systemd.suppressedSystemUnits = ["systemd-machine-id-commit.service"];
 
   # Wipe the disk on each boot
   boot.initrd.postDeviceCommands =
@@ -128,7 +128,7 @@
     isNormalUser = true;
     hashedPasswordFile = config.sops.secrets.ben_hashed_password.path;
     description = "ben";
-    extraGroups = ["networkmanager" "wheel" "openrazer"];
+    extraGroups = ["networkmanager" "wheel" "uinput" "openrazer"];
     shell = pkgs.zsh;
   };
 
@@ -204,6 +204,23 @@
     wlr.enable = lib.mkForce true; #TODO: figure out why hyprland conflicts with this
   };
 
+  # key remapping
+  services.kanata = {
+    enable = true;
+    keyboards.main = {
+      devices = ["/dev/input/by-path/platform-i8042-serio-0-event-kbd"];
+      config = ''
+        (defsrc
+          caps)
+
+        (deflayermap (default-layer)
+          ;; tap caps lock as esc, hold as left control
+          caps (tap-hold-press 150 150 esc lctl)
+        )
+      '';
+    };
+  };
+
   # List services that you want to enable:
   services.dbus.implementation = "broker";
   # Enable the OpenSSH daemon.
@@ -216,20 +233,6 @@
     alsa = {
       enable = true;
       support32Bit = true;
-    };
-    wireplumber.extraConfig = {
-      # 100% volume
-      "10-default-volume" = {
-        "wireplumber.settings"."device.routes.default-sink-volume" = 1.0;
-      };
-      # FiiO K7 as default sink
-      "10-default-sink" = {
-        "wireplumber.settings"."default.configured.audio.sink" = "alsa_output.usb-GuangZhou_FiiO_Electronics_Co._Ltd_FiiO_K7-00.analog-stereo";
-      };
-      # AT2020USB-XLR as default source
-      "10-default-source" = {
-        "wireplumber.settings"."default.configured.audio.source" = "alsa_input.usb-AT_AT2020USB-X_202011110001-00.mono-fallback";
-      };
     };
   };
   security.rtkit.enable = true;
