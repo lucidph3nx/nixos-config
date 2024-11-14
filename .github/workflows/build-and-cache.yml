@@ -22,7 +22,8 @@ jobs:
           authToken: ${{ secrets.CACHIX_TOKEN }}
           extraPullNames: nix-community
           name: lucidph3nx-nixos-config
-      - name: 'Build NixOS configs for: navi, default, odysseus'
+      - name: 'Build NixOS configs for: navi, default, tui'
         run: |-
           nix build --print-build-logs '.#nixosConfigurations.navi.config.system.build.toplevel'
           nix build --print-build-logs '.#nixosConfigurations.default.config.system.build.toplevel'
+          nix build --print-build-logs '.#nixosConfigurations.tui.config.system.build.toplevel'
