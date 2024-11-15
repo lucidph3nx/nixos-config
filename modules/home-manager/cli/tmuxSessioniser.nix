@@ -26,11 +26,11 @@
 
           locations=(
             "~/code"
-            "~/.config"
+            # "~/.config"
           )
           specific_folders=(
-            "~/.local/scripts/"
-            "~/.ssh/"
+            # "~/.local/scripts/"
+            # "~/.ssh/"
             "~/documents/obsidian/personal-vault/"
             "~/documents/obsidian/jarden-vault/"
           )
