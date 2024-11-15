@@ -211,17 +211,37 @@
     enable = true;
     keyboards.main = {
       devices = ["/dev/input/by-path/platform-i8042-serio-0-event-kbd"];
+      extraDefCfg = ''
+            process-unmapped-keys yes
+        '';
       config =
         /*
         lisp
         */
         ''
           (defsrc
-            caps)
-
-          (deflayermap (default-layer)
-            ;; tap caps lock as esc, hold as left control
-            caps (tap-hold-release 150 100 esc lctl)
+            caps a s d f j k l ;
+            ;;caps a ;
+          )
+          (defvar
+            tap-time 150
+            hold-time 200
+          )
+          (defalias
+          ;; tap caps lock as esc, hold as left control
+          escctrl (tap-hold-release $tap-time $hold-time esc lctl)
+          mod-a (tap-hold-release $tap-time $hold-time a lmet)
+          mod-s (tap-hold-release $tap-time $hold-time s lalt)
+          mod-d (tap-hold-release $tap-time $hold-time d lsft)
+          mod-f (tap-hold-release $tap-time $hold-time f lctl)
+          mod-j (tap-hold-release $tap-time $hold-time j rctl)
+          mod-k (tap-hold-release $tap-time $hold-time k rsft)
+          mod-l (tap-hold-release $tap-time $hold-time l ralt)
+          mod-; (tap-hold-release $tap-time $hold-time ; lmet) ;; note, I map rmet to a maori char mod key in hyprland
+          )
+          (deflayer base
+            @escctrl @mod-a @mod-s @mod-d @mod-f @mod-j @mod-k @mod-l @mod-;
+            ;;@escctrl @mod-a @mod-;
           )
         '';
     };
