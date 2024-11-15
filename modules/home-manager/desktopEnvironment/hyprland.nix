@@ -90,6 +90,9 @@ in {
             natural_scroll = true;
           };
         };
+        gestures = {
+          workspace_swipe = true;
+        };
         general = {
           gaps_in = 5;
           gaps_out = 5;
