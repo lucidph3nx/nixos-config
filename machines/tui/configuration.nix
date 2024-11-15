@@ -220,8 +220,8 @@
         */
         ''
           (defsrc
-            caps a s d f j k l ;
-            ;;caps a ;
+            ;;caps a s d f j k l ;
+            caps
           )
           (defvar
             tap-time 150
@@ -240,8 +240,8 @@
           mod-; (tap-hold-release $tap-time $hold-time ; lmet) ;; note, I map rmet to a maori char mod key in hyprland
           )
           (deflayer base
-            @escctrl @mod-a @mod-s @mod-d @mod-f @mod-j @mod-k @mod-l @mod-;
-            ;;@escctrl @mod-a @mod-;
+            ;;@escctrl @mod-a @mod-s @mod-d @mod-f @mod-j @mod-k @mod-l @mod-;
+            @escctrl
           )
         '';
     };
