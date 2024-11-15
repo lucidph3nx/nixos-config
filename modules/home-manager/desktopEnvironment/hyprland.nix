@@ -115,7 +115,9 @@ in {
         decoration = {
           rounding = 0;
           blur.enabled = false;
-          drop_shadow = "no";
+          shadow = {
+            enabled = false;
+          };
         };
         bezier = [
           "myBezier,0.05,0.9,0.1,1.0"
