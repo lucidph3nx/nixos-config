@@ -70,6 +70,10 @@ in {
           "waybar"
           "steam -silent" # couldn't figure out xdg-autostart
           "${homeDir}/.local/scripts/game.inputRemapper.defaults"
+          # default to 70% brightness
+          "${pkgs.brightnessctl}/bin/brightnessctl s 70%"
+          # default to keyboard backlight off
+          "${pkgs.brightnessctl}/bin/brightnessctl --device='asus::kbd_backlight' set 0"
         ];
         exec = [
           "pkill waybar && hyprctl dispatch exec waybar"
