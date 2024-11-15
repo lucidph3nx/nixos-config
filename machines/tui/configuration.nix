@@ -221,7 +221,7 @@
 
           (deflayermap (default-layer)
             ;; tap caps lock as esc, hold as left control
-            caps (tap-hold-release 200 150 esc lctl)
+            caps (tap-hold-release 150 100 esc lctl)
           )
         '';
     };
