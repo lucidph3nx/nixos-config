@@ -12,7 +12,7 @@
             workspaces = {
               {
                 name = "personal",
-                path = '~/documents/obsidian/personal-vault',
+                path = '~/documents/obsidian',
               },
             },
             note_id_func = function(title)

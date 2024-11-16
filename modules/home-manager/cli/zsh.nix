@@ -81,7 +81,7 @@ in {
         # Custom keybindings
         bindkey -s ^v "nvim\n"
         bindkey -s ^p "python\n"
-        bindkey -s ^o "cli.tmux.projectSessioniser ~/documents/obsidian/personal-vault\n"
+        bindkey -s ^o "cli.tmux.projectSessioniser ~/documents/obsidian\n"
         # utils
         eval "$(direnv hook zsh)"
       '';

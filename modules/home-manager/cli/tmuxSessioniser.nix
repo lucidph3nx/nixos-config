@@ -31,8 +31,7 @@
           specific_folders=(
             # "~/.local/scripts/"
             # "~/.ssh/"
-            "~/documents/obsidian/personal-vault/"
-            "~/documents/obsidian/jarden-vault/"
+            "~/documents/obsidian/"
           )
 
           for location in "''${locations[@]}"; do
