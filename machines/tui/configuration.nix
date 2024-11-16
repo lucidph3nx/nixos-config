@@ -16,6 +16,7 @@
   ];
 
   nixModules = {
+    isLaptop = true;
     sops = {
       ageKeys.enable = true;
       generalSecrets.enable = true;

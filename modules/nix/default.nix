@@ -25,6 +25,10 @@
       description = "physical location of the machine, for showing local variables like temp humidity";
       type = lib.types.str;
     };
+    nixModules.isLaptop = lib.mkEnableOption {
+      default = false;
+      description = "machine is a laptop, enable things like battery monitoring";
+    };
   };
   config = {
     nixModules = {

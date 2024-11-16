@@ -71,9 +71,9 @@ in {
           "steam -silent" # couldn't figure out xdg-autostart
           "${homeDir}/.local/scripts/game.inputRemapper.defaults"
           # default to 70% brightness
-          "${pkgs.brightnessctl}/bin/brightnessctl s 70%"
+          (lib.mkIf osConfig.nixModules.isLaptop "${pkgs.brightnessctl}/bin/brightnessctl s 70%")
           # default to keyboard backlight off
-          "${pkgs.brightnessctl}/bin/brightnessctl --device='asus::kbd_backlight' set 0"
+          (lib.mkIf osConfig.nixModules.isLaptop "${pkgs.brightnessctl}/bin/brightnessctl --device='asus::kbd_backlight' set 0")
         ];
         exec = [
           "pkill waybar && hyprctl dispatch exec waybar"
@@ -95,7 +95,7 @@ in {
           };
         };
         gestures = {
-          workspace_swipe = true;
+          workspace_swipe = (lib.mkIf osConfig.nixModules.isLaptop true);
         };
         general = {
           gaps_in = 5;
@@ -247,10 +247,10 @@ in {
           ", XF86AudioStop, exec, ${pkgs.playerctl}/bin/playerctl stop"
           ", XF86AudioNext, exec, ${pkgs.playerctl}/bin/playerctl next"
           ", XF86AudioPrev, exec, ${pkgs.playerctl}/bin/playerctl previous"
-          ", XF86MonBrightnessUp, exec, ${pkgs.brightnessctl}/bin/brightnessctl s +10%"
-          ", XF86MonBrightnessDown, exec, ${pkgs.brightnessctl}/bin/brightnessctl s 10%-"
+          (lib.mkIf osConfig.nixModules.isLaptop ", XF86MonBrightnessUp, exec, ${pkgs.brightnessctl}/bin/brightnessctl s +10%")
+          (lib.mkIf osConfig.nixModules.isLaptop ", XF86MonBrightnessDown, exec, ${pkgs.brightnessctl}/bin/brightnessctl s 10%-")
           # on my asus laptop, one of the function keys presses Super_L+p for some reason for touchpad disable
-          "SUPER, p, exec, ${toggleTouchpad}"
+          (lib.mkIf osConfig.nixModules.isLaptop "SUPER, p, exec, ${toggleTouchpad}")
         ];
         bindm = [
           "SUPER, mouse:272, movewindow"
@@ -355,7 +355,7 @@ in {
           fi
         '';
     };
-    home.file.".local/scripts/system.inputs.toggleTouchpad" = {
+    home.file.".local/scripts/system.inputs.toggleTouchpad" = lib.mkIf osConfig.nixModules.isLaptop {
       executable = true;
       text =
         /*
