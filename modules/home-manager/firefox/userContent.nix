@@ -50,9 +50,28 @@ with config.theme; {
           body {
             font-family: JetBrains Mono, monospace !important;
           }
-          /* background*/
-          :root {
-            --yt-spec-base-background ${bg_dim} !important;
+          html[dark], [dark] {
+            --yt-spec-base-background: ${bg_dim} !important;
+            --yt-spec-raised-background: ${bg0} !important;
+            --yt-spec-menu-background: ${bg0} !important;
+            --yt-spec-static-overlay-text-primary: ${foreground} !important;
+            --yt-spec-static-overlay-text-secondary: ${grey2} !important;
+            --yt-spec-text-primary: ${foreground} !important;
+            --yt-spec-text-secondary: ${grey2} !important;
+            --ytd-searchbox-background: ${bg_dim} !important;
+            --ytd-searchbox-legacy-border-color: ${bg0} !important;
+          }
+          .yt-spec-button-shape-next--call-to-action.yt-spec-button-shape-next--text {
+            color: ${green} !important;
+          }
+          ytd-app {
+            --ytd-mini-guide-width: 0px !important;
+          }
+          ytd-mini-guide-renderer {
+            display: none !important;
+          }
+          #contents {
+            margin-left: 0px !important;
           }
         }
 
@@ -113,6 +132,15 @@ with config.theme; {
           .give-gold-button,
           .goldvertisement,
           .embed-comment,
+          .premium-banner-outer,
+          .sidebox,
+          .account-activity-box,
+          .share,
+          .link-save-button,
+          .hide-button,
+          .report-button,
+          .crosspost-button,
+          .noCtrlF,
           .promoted,
           .nub {
             display: none !important;
@@ -133,8 +161,8 @@ with config.theme; {
           }
           /* main table links */
           .res-nightmode .link, .res-nightmode .helpcenter-form .section-content {
-            background-color: var(--system-theme-bg1) !important;
-            border-color: var(--system-theme-bg0) !important;
+            background-color: var(--system-theme-bg0) !important;
+            border-color: var(--system-theme-bg_dim) !important;
             border-style: solid !important;
             border-width: 1px !important;
             padding: 6px !important;
@@ -157,8 +185,9 @@ with config.theme; {
 
           /* post rank */
           .rank {
+            font-size: large !important;
             text-align: center !important;
-            width: 40px !important;
+            width: 30px !important;
             color: var(--system-theme-green) !important;
             margin-top: auto !important;
             margin-bottom: auto !important;
@@ -166,10 +195,13 @@ with config.theme; {
           }
           /* votes */
           .midcol {
+            font-size: medium !important;
             width: 60px !important;
             flex-shrink: 0 !important;
             margin-top: auto !important;
             margin-bottom: auto !important;
+            margin-left: 0px !important;
+            margin-right: 0px !important;
           }
           .score.unvoted,
           .score.dislikes,
