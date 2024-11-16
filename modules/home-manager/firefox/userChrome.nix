@@ -43,6 +43,8 @@ with config.theme; {
           --toolbar-bgcolor: ${bg0} !important;
           --tab-font: 'Jetbrains Mono';
           --urlbar-font: 'Jetbrains Mono';
+          --statuspannel-bg: ${bg_dim};
+          --statuspannel-fg: ${foreground};
 
           /* try increasing if you encounter problems */
           --urlbar-height-setting: 24px;
@@ -138,17 +140,21 @@ with config.theme; {
            right: 0px !important;
            top: 0px !important;
            bottom: auto !important;
+           border-radius: 0px !important;
+           padding-top: 0px !important;
         }
 
         #statuspanel-label:not([mirror]),
         #statuspanel-label[mirror] {
-           border-left-style: solid!important;
-           border-top-left-radius: 0.3em!important;
-           margin-left: 1em!important;
+           color: var(--statuspannel-fg) !important;
+           background-color: var(--statuspannel-bg) !important;
+           border-left-style: none !important;
+           border-top-left-radius: 0px !important;
+           margin-left: 1em !important;
 
-           border-right-style: none!important;
-           border-top-right-radius: 0em!important;
-           margin-right: 0em!important;
+           border-right-style: none !important;
+           border-top-right-radius: 0px !important;
+           margin-right: 0em !important;
         }
 
         /* --- UNIFIED EXTENSIONS BUTTON ------------------------ */
