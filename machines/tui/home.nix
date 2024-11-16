@@ -10,6 +10,7 @@
     inputs.impermanence.nixosModules.home-manager.impermanence
   ];
   # my own modules
+  setTheme = "onedark";
   homeManagerModules = {
     calibre.enable = true;
     darktable.enable = true;

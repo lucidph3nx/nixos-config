@@ -6,7 +6,7 @@
 }: {
   imports = [./schema.nix];
 
-  theme = {
+  theme = lib.mkIf (config.setTheme == "everforest") {
     name = "everforest";
     type = "dark";
     foreground = "#d3c6aa";

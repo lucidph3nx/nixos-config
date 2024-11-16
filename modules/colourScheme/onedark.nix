@@ -6,7 +6,7 @@
 }: {
   imports = [./schema.nix];
 
-  theme = {
+  theme = lib.mkIf (config.setTheme == "onedark") {
     name = "onedark";
     type = "dark";
     foreground = "#abb2bf";

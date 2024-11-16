@@ -47,6 +47,7 @@ in {
       type = themeType;
       default = {
         name = "default";
+        type = "light";
         foreground = "#24292f";
         primary = "#0366d6";
         secondary = "#116329";
