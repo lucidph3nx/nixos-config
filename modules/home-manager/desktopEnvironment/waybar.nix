@@ -15,6 +15,7 @@
   mouseBattery = config.homeManagerModules.waybar.mouseBattery;
   homeDir = config.home.homeDirectory;
   fontsize = config.homeManagerModules.waybar.fontSize;
+  isLaptop = osConfig.nixModules.isLaptop;
 in
   with config.theme; {
     options = {
@@ -46,7 +47,9 @@ in
               (lib.mkIf enableHyprland "hyprland/submap")
               (lib.mkIf enableMpd "mpd")
             ];
-            modules-center = [];
+            modules-center = [
+              "hyprland/window"
+            ];
             modules-right = [
               "tray"
               (lib.mkIf mouseBattery "custom/mouse-battery")
@@ -56,7 +59,7 @@ in
               (lib.mkIf (enableHomeAutomation && location == "office") "custom/office-humidity")
               "custom/notification"
               "network"
-              "battery"
+              (lib.mkIf isLaptop "battery")
               "custom/clock"
             ];
             "sway/workspaces" = {
@@ -69,6 +72,12 @@ in
               "format-icons" = ["" "󰎝"];
               "tooltip" = true;
               "tooltip-format" = "{app}: {title}";
+            };
+            "hyprland/window" = {
+              "format" = "{title}";
+              "rewrite" = {
+                "(.*) — Mozilla Firefox" = "$1";
+              };
             };
             "mpd" = lib.mkIf enableMpd {
               "format" = "{stateIcon} {artist} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S}) ";
