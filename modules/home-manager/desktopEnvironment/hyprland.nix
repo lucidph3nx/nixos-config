@@ -74,6 +74,7 @@ in {
           (lib.mkIf osConfig.nixModules.isLaptop "${pkgs.brightnessctl}/bin/brightnessctl s 70%")
           # default to keyboard backlight off
           (lib.mkIf osConfig.nixModules.isLaptop "${pkgs.brightnessctl}/bin/brightnessctl --device='asus::kbd_backlight' set 0")
+          ".local/scripts/cli.hyprland.switchWorkspaceOnWindowClose"
         ];
         exec = [
           "pkill waybar && hyprctl dispatch exec waybar"
@@ -378,6 +379,29 @@ in {
             hyprctl keyword 'device[asup1415:00-093a:300c-touchpad]:enabled' true > /dev/null
             echo "enabled" > "$STATUS_FILE"
           fi
+        '';
+    };
+    home.file.".local/scripts/cli.hyprland.switchWorkspaceOnWindowClose" = {
+      executable = true;
+      text =
+        /*
+        bash
+        */
+        ''
+          #!/bin/sh
+          function handle {
+            if [[ "$1" == closewindow* ]]; then
+              echo "Close Window detected"
+
+              windows_count=$(hyprctl activeworkspace -j | jq '.windows')
+              if [[ "$windows_count" -eq 0 ]]; then
+                echo $windows_count
+                echo "Empty workspace detected"
+                hyprctl dispatch workspace m-1
+              fi
+            fi
+          }
+          ${pkgs.socat}/bin/socat - "UNIX-CONNECT:$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock" | while read -r line; do handle "$line"; done
         '';
     };
   };
