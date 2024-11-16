@@ -45,11 +45,9 @@ with config.theme; {
         @-moz-document url-prefix("https://www.youtube.com") {
           * {
             border-radius: 0px !important;
-          }
-
-          body {
             font-family: JetBrains Mono, monospace !important;
           }
+
           html[dark], [dark] {
             --yt-spec-base-background: ${bg_dim} !important;
             --yt-spec-raised-background: ${bg0} !important;
