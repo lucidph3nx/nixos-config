@@ -6,13 +6,15 @@
 }: {
   options = {
     nixModules.greetd.enable =
-      lib.mkEnableOption "Add greetd/tuigreet setup";
-    nixModules.greetd.command =
-      lib.mkOption {
-        type = lib.types.str;
-        default = "Hyprland";
-        description = "Command to run as default session in greetd";
+      lib.mkEnableOption "Add greetd/tuigreet setup"
+      // {
+        default = true;
       };
+    nixModules.greetd.command = lib.mkOption {
+      type = lib.types.str;
+      default = "Hyprland";
+      description = "Command to run as default session in greetd";
+    };
   };
   config = lib.mkIf config.nixModules.greetd.enable {
     environment.persistence."/persist/system" = {

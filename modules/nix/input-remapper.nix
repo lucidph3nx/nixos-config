@@ -6,7 +6,10 @@
 }: {
   options = {
     nixModules.input-remapper.enable =
-      lib.mkEnableOption "Set up input-remapper nix module";
+      lib.mkEnableOption "Set up input-remapper nix module"
+      // {
+        default = false;
+      };
   };
   config = lib.mkIf config.nixModules.input-remapper.enable {
     services.input-remapper = {

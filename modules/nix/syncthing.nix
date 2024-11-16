@@ -6,19 +6,30 @@
 }: {
   options = {
     nixModules.syncthing.enable =
-      lib.mkEnableOption "Set up syncthing";
-    nixModules.syncthing.obsidian.enable =
-      lib.mkEnableOption "Set up syncthing obsidian folder";
-    nixModules.syncthing.calibre.enable =
-      lib.mkEnableOption "Set up syncthing calibre folder";
-    nixModules.syncthing.music.enable =
-      lib.mkEnableOption "Set up syncthing music folder";
-    nixModules.syncthing.music.path = 
-      lib.mkOption {
-        type = lib.types.str; 
-        default = "/persist/home/ben/music/";
-        description = "location to sync music to";
+      lib.mkEnableOption "Set up syncthing"
+      // {
+        default = false;
       };
+    nixModules.syncthing.obsidian.enable =
+      lib.mkEnableOption "Set up syncthing obsidian folder"
+      // {
+        default = false;
+      };
+    nixModules.syncthing.calibre.enable =
+      lib.mkEnableOption "Set up syncthing calibre folder"
+      // {
+        default = false;
+      };
+    nixModules.syncthing.music.enable =
+      lib.mkEnableOption "Set up syncthing music folder"
+      // {
+        default = false;
+      };
+    nixModules.syncthing.music.path = lib.mkOption {
+      type = lib.types.str;
+      default = "/persist/home/ben/music/";
+      description = "location for music folder";
+    };
   };
   config = lib.mkIf config.nixModules.syncthing.enable {
     services.syncthing = {

@@ -6,7 +6,10 @@
 }: {
   options = {
     nixModules.cli-tools.enable =
-      lib.mkEnableOption "Add default cli tools";
+      lib.mkEnableOption "Add default cli tools"
+      // {
+        default = true;
+      };
   };
   config = lib.mkIf config.nixModules.cli-tools.enable {
     environment.systemPackages = with pkgs; [

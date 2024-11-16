@@ -6,7 +6,10 @@
 }: {
   options = {
     nixModules.polkit.enable =
-      lib.mkEnableOption "Set up polkit";
+      lib.mkEnableOption "Set up polkit"
+      // {
+        default = true;
+      };
   };
   config = lib.mkIf config.nixModules.polkit.enable {
     environment.systemPackages = with pkgs; [

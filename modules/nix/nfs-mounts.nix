@@ -8,7 +8,10 @@
 in {
   options = {
     nixModules.nfs-mounts.enable =
-      lib.mkEnableOption "Set up local NFS mounts";
+      lib.mkEnableOption "Set up local NFS mounts (local machines only)"
+      // {
+        default = false;
+      };
   };
   config = lib.mkIf config.nixModules.nfs-mounts.enable {
     fileSystems."/nfs/3d" = {

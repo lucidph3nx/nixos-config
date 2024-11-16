@@ -31,22 +31,6 @@
     };
   };
   config = {
-    nixModules = {
-      greetd.enable = lib.mkDefault true;
-      polkit.enable = lib.mkDefault true;
-      cli-tools.enable = lib.mkDefault true;
-      gui-tools.enable = lib.mkDefault true;
-      syncthing = {
-        enable = lib.mkDefault false;
-        obsidian.enable = lib.mkDefault false;
-        calibre.enable = lib.mkDefault false;
-        music.enable = lib.mkDefault false;
-      };
-      input-remapper = {
-        enable = lib.mkDefault false;
-      };
-      nfs-mounts.enable = lib.mkDefault false;
-    };
     # nix options for all systems
     nix.settings = {
       experimental-features = ["nix-command" "flakes"];
