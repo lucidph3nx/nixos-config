@@ -159,6 +159,7 @@
     fastfetch
     ffmpeg
     gamescope
+    inkscape
     lsof
     lutris-unwrapped
     mangohud
