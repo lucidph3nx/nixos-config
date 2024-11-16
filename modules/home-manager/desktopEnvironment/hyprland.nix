@@ -68,7 +68,7 @@ in {
           # "swaybg --color ${builtins.substring 1 6 (theme.bg_dim)}"
           "hypridle"
           "waybar"
-          "steam -silent" # couldn't figure out xdg-autostart
+          (lib.mkIf (osConfig.nixModules.isLaptop == false) "steam -silent") # couldn't figure out xdg-autostart
           "${homeDir}/.local/scripts/game.inputRemapper.defaults"
           # default to 70% brightness
           (lib.mkIf osConfig.nixModules.isLaptop "${pkgs.brightnessctl}/bin/brightnessctl s 70%")
