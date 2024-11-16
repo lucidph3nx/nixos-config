@@ -31,8 +31,6 @@
       music.enable = true;
     };
     input-remapper.enable = true;
-    # should be on home network
-    nfs-mounts.enable = true;
   };
 
   # Bootloader.
