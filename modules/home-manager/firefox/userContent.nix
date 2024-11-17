@@ -52,15 +52,18 @@ with config.theme; {
           .Container--blue,
           .App-container, .App-primary,
           .Nav-scroller,
+          .Map-cartography,
           .sticky-headers,
           .sticky-bar-context-handler,
           .Nav--secondary .Container,
           .sticky-bar-context-primary-section {
             background-color: ${bg0} !important;
           }
+          .Nav-toggle,
           .Nav--primary {
             background-color: ${bg1} !important;
           }
+          #InitialPageLoader,
           .Main {
             background-color: ${bg_dim} !important;
           }
@@ -71,10 +74,55 @@ with config.theme; {
           #Container--blue {
             background-color: ${bg0} !important;
           }
+
+          .Map .Map--primary .Map--static,
           .Nav--secondary .Container::before,
           .Nav--secondary .Container::after,
+          .Container-inner.SearchContainer::before,
+          .Container-inner.SearchContainer.SearchContainer--blue-solid::before,
+          .Container-inner.SearchContainer.SearchContainer--blue-solid::after,
+          .Container--secondary,
           .Container--blue--gradient {
             background: none !important;
+          }
+          div[data-module-name="favourite-summary-mod"] {
+            display: none !important;
+          }
+          .SearchBar .domRef > .u-flex .u-flexAlignItemsCenter,
+          .Footer-section--promo {
+            display: none !important;
+          }
+          .Footer-section--global {
+            background-color: ${bg_dim} !important;
+          }
+          .pageLoader-animation {
+            background: ${bg0} !important;
+          }
+          .Nav--secondary .Nav-menu-list-item.is-active a,
+          .Nav-menu-list-item.is-active a {
+            color: ${bg0} !important;
+            background-color: ${primary} !important;
+            box-shadow: none !important;
+          }
+          .Nav-menu-list-item a {
+            color: ${foreground} !important;
+          }
+          .SearchBar-actions-icon {
+            color: ${primary} !important;
+          }
+          .SearchBar-actions-find:focus,
+          .SearchBar-actions-find:hover {
+            background: none !important;
+          }
+          .SearchBar-actions-find {
+            border-color: ${primary} !important;
+            box-shadow: none !important;
+            color: ${foreground} !important;
+            margin-right: 0px !important;
+          }
+          .SearchBar {
+            background-color: ${bg0} !important;
+            box-shadow: none !important;
           }
 
         }
