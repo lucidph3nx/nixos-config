@@ -16,9 +16,9 @@
     darktable.enable = true;
     firefox.hideUrlbar = true;
     homeAutomation.enable = true;
+    wallpaper.resolution = "2880x1800";
     hyprland = {
       enable = true;
-      wallpaperResolution = "2880x1800";
       lockTimeout = 300;
       screenTimeout = 600;
     };

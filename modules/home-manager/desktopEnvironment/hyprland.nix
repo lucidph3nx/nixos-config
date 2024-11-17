@@ -16,11 +16,6 @@ in {
         default = false;
         description = "disables workspace animations";
       };
-      wallpaperResolution = lib.mkOption {
-        type = lib.types.str;
-        default = "5120x1440";
-        description = "Resolution of the wallpaper";
-      };
       lockTimeout = lib.mkOption {
         type = lib.types.int;
         # default 30 minutes
@@ -61,7 +56,7 @@ in {
     in {
       enable = true;
       settings = {
-        exec-once = let resolution = config.homeManagerModules.hyprland.wallpaperResolution; in [
+        exec-once = let resolution = config.homeManagerModules.wallpaper.resolution; in [
           "swaync"
           (lib.mkIf config.homeManagerModules.wallpaper.enable "swaybg -i ${homeDir}/.config/wallpaper-${resolution}.png --mode fill")
           # (lib.mkIf (config.theme.name == "everforest") "swaybg -i ${homeDir}/.config/wallpaper_everforest-${resolution}.png --mode fill")
