@@ -15,8 +15,8 @@
     # firefox.hideUrlbar = true;
     # prospect-mail.enable = true;
     # teams-for-linux.enable = true;
+    # hyprland.wallpaperResolution = "1680x1050";
     # # Enable home automation stuff as device should be in the home
-    hyprland.wallpaperResolution = "1680x1050";
     homeAutomation.enable = false;
     ssh.client.enable = true;
   };
