@@ -40,6 +40,44 @@ with config.theme; {
             font-family: JetBrains Mono, monospace !important;
           }
         }
+        @-moz-document url-prefix("https://www.metservice.com") {
+          * {
+            border-radius: 0px !important;
+            text-rendering: auto !important;
+            font-family: JetBrains Mono, monospace !important;
+          }
+          html {
+            background-color: ${bg1} !important;
+          }
+          .Container--blue,
+          .App-container, .App-primary,
+          .Nav-scroller,
+          .sticky-headers,
+          .sticky-bar-context-handler,
+          .Nav--secondary .Container,
+          .sticky-bar-context-primary-section {
+            background-color: ${bg0} !important;
+          }
+          .Nav--primary {
+            background-color: ${bg1} !important;
+          }
+          .Main {
+            background-color: ${bg_dim} !important;
+          }
+          #Nav,
+          #Nav--primary,
+          #Nav--secondary,
+          #Container-inner,
+          #Container--blue {
+            background-color: ${bg0} !important;
+          }
+          .Nav--secondary .Container::before,
+          .Nav--secondary .Container::after,
+          .Container--blue--gradient {
+            background: none !important;
+          }
+
+        }
 
         /* squared customised youtube */
         @-moz-document url-prefix("https://www.youtube.com") {
