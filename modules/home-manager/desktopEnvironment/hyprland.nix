@@ -389,11 +389,14 @@ in {
             if [[ "$1" == closewindow* ]]; then
               echo "Close Window detected"
 
-              windows_count=$(hyprctl activeworkspace -j | jq '.windows')
-              if [[ "$windows_count" -eq 0 ]]; then
-                echo $windows_count
-                echo "Empty workspace detected"
-                hyprctl dispatch workspace m-1
+              active_workspace=$(hyprctl activeworkspace -j | jq '.id')
+              if [[ "$active_workspace" -ne 1 ]]; then
+                windows_count=$(hyprctl activeworkspace -j | jq '.windows')
+                if [[ "$windows_count" -eq 0 ]]; then
+                  echo $windows_count
+                  echo "Empty workspace detected"
+                  hyprctl dispatch workspace m-1
+                fi
               fi
             fi
           }
