@@ -10,6 +10,7 @@
     inputs.impermanence.nixosModules.home-manager.impermanence
   ];
   # my own modules
+  # setTheme = "github-light";
   setTheme = "onedark";
   homeManagerModules = {
     calibre.enable = true;

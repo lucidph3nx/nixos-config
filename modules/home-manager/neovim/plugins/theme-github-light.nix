@@ -13,6 +13,7 @@
       hash = "sha256-EreIuni6/XR0428rO4Lbi2usIreOyPWKm7kJJA2Nwqo=";
     };
   };
+  theme = config.theme;
 in {
   programs.neovim.plugins = lib.mkIf (config.theme.name == "github-light") [
     {
@@ -23,7 +24,46 @@ in {
         lua
         */
         ''
-          require('github-theme').setup()
+          require('github-theme').setup({
+            groups = {
+              all = {
+                ObsidianTodo = {
+                  fg = '${theme.blue}',
+                  bg = 'none',
+                  bold = true
+                },
+                ObsidianDone = {
+                  fg = '${theme.green}',
+                  bg = 'none',
+                  bold = true
+                },
+                ObsidianRightArrow = {
+                  fg = '${theme.blue}',
+                  bg = 'none',
+                  bold = true
+                },
+                ObsidianTilde = {
+                  fg = '${theme.orange}',
+                  bg = 'none',
+                  bold = true
+                },
+                ObsidianRefText = {
+                  fg = '${theme.blue}',
+                  bg = 'none',
+                  bold = true
+                },
+                ObsidianExtLinkIcon = {
+                  fg = '${theme.blue}',
+                  bg = 'none',
+                },
+                ObsidianTag = {
+                  fg = '${theme.blue}',
+                  bg = 'none',
+                  italic = true
+                }
+              }
+            }
+          })
           vim.cmd('colorscheme github_light')
         '';
     }
