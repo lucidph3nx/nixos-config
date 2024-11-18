@@ -12,6 +12,7 @@
     services.mpd = {
       enable = true;
       musicDirectory = "/home/ben/music";
+      network.listenAddress = "any";
       extraConfig = ''
         db_file            "~/.local/share/mpd/database"
         log_file           "syslog"

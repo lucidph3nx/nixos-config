@@ -47,8 +47,8 @@
   };
 
   # https://github.com/nix-community/impermanence/issues/229
-  boot.initrd.systemd.suppressedUnits = [ "systemd-machine-id-commit.service" ];
-  systemd.suppressedSystemUnits = [ "systemd-machine-id-commit.service" ];
+  boot.initrd.systemd.suppressedUnits = ["systemd-machine-id-commit.service"];
+  systemd.suppressedSystemUnits = ["systemd-machine-id-commit.service"];
 
   # Hardware switch - also disabled, no other boot partitions for now
   # boot.loader.grub.extraConfig =
@@ -327,6 +327,11 @@
     # libvirtd.enable = true;
   };
   # programs.virt-manager.enable = true;
+  networking.firewall = {
+    allowedTCPPorts = [
+      6600 #mpd
+    ];
+  };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
