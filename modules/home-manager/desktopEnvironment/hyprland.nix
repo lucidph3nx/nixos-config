@@ -131,7 +131,8 @@ in {
             "fade, 1, 2, default"
             (lib.mkIf (config.homeManagerModules.hyprland.disableWorkspaceAnimations != true)
               "workspaces,1,1, myBezier") 
-            # "workspaces,0" # disable workspace animations
+            (lib.mkIf (config.homeManagerModules.hyprland.disableWorkspaceAnimations == true)
+              "workspaces,0")
           ];
         };
         dwindle = {
