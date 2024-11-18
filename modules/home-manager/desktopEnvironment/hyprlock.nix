@@ -39,7 +39,7 @@ in {
             text = ''cmd[update:1000] echo $(date +'%T')'';
             color = "rgba(${builtins.substring 1 6 (theme.foreground)}ff)";
             font_size = 95;
-            font_family = "JetBrains Mono";
+            font_family = "JetBrainsMono Nerd Font";
             position = "0, 100";
             halign = "center";
             valign = "center";
@@ -49,7 +49,7 @@ in {
             text = ''cmd[update:1000] echo $(date +'%F')'';
             color = "rgba(${builtins.substring 1 6 (theme.foreground)}ff)";
             font_size = 22;
-            font_family = "JetBrains Mono";
+            font_family = "JetBrainsMono Nerd Font";
             position = "0, 0";
             halign = "center";
             valign = "center";
