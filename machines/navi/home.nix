@@ -11,6 +11,7 @@
   ];
   # my own modules
   homeManagerModules = {
+    ags.enable = true;
     anki.enable = true;
     calibre.enable = true;
     darktable.enable = true;
