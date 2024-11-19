@@ -7,6 +7,7 @@
 }: {
   imports = [
     ./additionalTheming.nix
+    ./ags
     ./hyprland.nix
     ./hyprlock.nix
     ./input-remapper.nix
