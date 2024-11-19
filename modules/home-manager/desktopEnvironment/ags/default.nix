@@ -5,6 +5,7 @@
   config,
   ...
 }: {
+  imports = [inputs.ags.homeManagerModules.default];
   options = {
     homeManagerModules.ags.enable =
       lib.mkEnableOption "Enable AGS"
@@ -13,7 +14,6 @@
       };
   };
   config = lib.mkIf config.homeManagerModules.ags.enable {
-    imports = [inputs.ags.homeManagerModules.default];
 
     home.packages = [pkgs.networkmanagerapplet];
 
