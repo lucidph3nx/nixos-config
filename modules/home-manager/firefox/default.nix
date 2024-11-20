@@ -43,6 +43,10 @@ in {
             "ui.systemUsesDarkTheme" = if config.theme.type == "dark" then 1 else 0;
             "extensions.pocket.enabled" = false;
 
+            # disable some gestures
+            "browser.gesture.swipe.left" = "";
+            "browser.gesture.swipe.right" = "";
+
             # dubious performance enhancements
             "network.buffer.cache.size" = 524288; # 512KB (default is 32 kB)
             "network.http.max-connections" = 1800; # default is 900
