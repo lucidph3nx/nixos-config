@@ -266,6 +266,9 @@
   # cups for printing
   services.printing.enable = true;
 
+  # power management
+  services.power-profiles-daemon.enable = true;
+
   # gaming
   hardware.graphics = {
     enable = true;
