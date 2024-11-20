@@ -12,7 +12,7 @@
     services.mpd = {
       enable = true;
       musicDirectory = "/home/ben/music";
-      network.listenAddress = "any";
+      network.listenAddress = "0.0.0.0";
       extraConfig = ''
         db_file            "~/.local/share/mpd/database"
         log_file           "syslog"
@@ -37,6 +37,7 @@
     # needed for playerctl to access mpd
     services.mpdris2 = {
       enable = true;
+      mpd.host = "0.0.0.0";
     };
     home.persistence."/persist/home/ben" = {
       directories = [
