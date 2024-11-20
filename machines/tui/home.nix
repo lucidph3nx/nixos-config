@@ -20,8 +20,9 @@
     wallpaper.resolution = "2880x1800";
     hyprland = {
       enable = true;
-      lockTimeout = 300;
-      screenTimeout = 600;
+      lockTimeout = 300; # lock after 5 minutes
+      screenTimeout = 600; # screen off after 10 minutes
+      suspendTimeout = 900; # suspend after 15 minutes
     };
     hyprlock = {
       enable = true;

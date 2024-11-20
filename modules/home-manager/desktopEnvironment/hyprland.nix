@@ -28,6 +28,12 @@ in {
         default = 3600;
         description = "time before turning off the screen";
       };
+      suspendTimeout = lib.mkOption {
+        type = lib.types.int;
+        # default 2 hours
+        default = 7200;
+        description = "time before suspending the system";
+      };
     };
   };
   config = lib.mkIf config.homeManagerModules.hyprland.enable {
@@ -221,6 +227,8 @@ in {
           "SUPER, c, exec, ${calculator}"
           "SUPER, f, exec, ${nvimsessionlauncher}"
           "SUPER SHIFT, F, fullscreen"
+          "SUPER, s, exec, systemctl suspend"
+          ", switch:on[Lid Switch], exec, systemctl suspend"
           # Notification Center
           "SUPER, n, exec, swaync-client -t -sw"
           "SUPER SHIFT, N, exec, swaync-client --close-all && swaync-client --close-panel"
@@ -301,6 +309,7 @@ in {
     services.hypridle = let
         lockTimeout = config.homeManagerModules.hyprland.lockTimeout;
         screenTimeout = config.homeManagerModules.hyprland.screenTimeout;
+        suspendTimeout = config.homeManagerModules.hyprland.suspendTimeout;
       in {
       enable = true;
       settings = {
@@ -309,15 +318,17 @@ in {
         };
         listener = [
           {
-            # lock screen after 30 minutes inactivity
             timeout = lockTimeout;
             on-timeout = "hyprctl dispatch exec hyprlock";
           }
           {
-            # turn off screen after 1 hour of inactivity
             timeout = screenTimeout;
             on-timeout = "hyprctl dispatch dpms off";
             on-resume = "hyprctl dispatch dpms on";
+          }
+          {
+            timeout = suspendTimeout;
+            on-timeout = "systemctl suspend";
           }
         ];
       };
