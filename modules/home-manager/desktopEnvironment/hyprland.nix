@@ -228,6 +228,8 @@ in {
           "SUPER, f, exec, ${nvimsessionlauncher}"
           "SUPER SHIFT, F, fullscreen"
           "SUPER, s, exec, systemctl suspend"
+          "SUPER, i, exec, ${homeDir}/.local/scripts/cli.system.inhibitIdle toggle"
+          ", switch:on[Lid Switch], exec, systemctl suspend"
           # Notification Center
           "SUPER, n, exec, swaync-client -t -sw"
           "SUPER SHIFT, N, exec, swaync-client --close-all && swaync-client --close-panel"
@@ -416,6 +418,68 @@ in {
           }
           ${pkgs.socat}/bin/socat - "UNIX-CONNECT:$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock" | while read -r line; do handle "$line"; done
         '';
+    };
+    home.file.".local/scripts/cli.system.inhibitIdle" = {
+      executable = true;
+      text =
+        /*
+        bash
+        */
+        ''
+          #!/bin/sh
+          LOCKFILE="/tmp/systemd_inhibit.lock"
+
+          start_inhibit() {
+              systemd-inhibit --what=idle --why="Preventing idle for a task" sleep infinity &
+              echo $! > "$LOCKFILE"
+          }
+
+          stop_inhibit() {
+              if [[ -f "$LOCKFILE" ]]; then
+                  kill "$(cat "$LOCKFILE")"
+                  rm -f "$LOCKFILE"
+              fi
+          }
+
+          status_inhibit() {
+              if [[ -f "$LOCKFILE" ]]; then
+                  echo "Inhibit Active"
+              else
+                  echo "Inhibit Inactive"
+              fi
+          }
+
+          case $1 in
+              start)
+                  if [[ -f "$LOCKFILE" ]]; then
+                      echo "Inhibit already running."
+                  else
+                      start_inhibit
+                      echo "Inhibit started."
+                  fi
+                  ;;
+              stop)
+                  stop_inhibit
+                  echo "Inhibit stopped."
+                  ;;
+              status)
+                  status_inhibit
+                  ;;
+              toggle)
+                  if [[ -f "$LOCKFILE" ]]; then
+                      stop_inhibit
+                      echo "Inhibit toggled off."
+                  else
+                      start_inhibit
+                      echo "Inhibit toggled on."
+                  fi
+                  ;;
+              *)
+                  echo "Usage: $0 {start|stop|status|toggle}"
+                  exit 1
+                  ;;
+          esac
+      '';
     };
   };
 }
