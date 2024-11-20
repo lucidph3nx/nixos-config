@@ -60,6 +60,7 @@ in
               "custom/notification"
               "network"
               (lib.mkIf isLaptop "battery")
+              "custom/inhibitidle"
               "custom/clock"
             ];
             "sway/workspaces" = {
@@ -128,6 +129,12 @@ in
               "return-type" = "string";
               "interval" = 1;
               "exec" = "${homeDir}/.local/scripts/cli.audio.outputEnabled";
+            };
+            "custom/inhibitidle" = {
+              "return-type" = "json";
+              "interval" = 1;
+              "exec" = "${homeDir}/.local/scripts/cli.system.inhibitIdle statusjson";
+              "format" = "{}";
             };
             "custom/clock" = {
               "return-type" = "string";
@@ -265,6 +272,10 @@ in
           }
           #tray {
             background: ${bg0};
+          }
+          #custom-inhibitidle.active {
+            color: ${bg0};
+            background-color: ${red};
           }
           #custom-mouse-battery.low {
             color: ${bg0};

@@ -465,6 +465,13 @@ in {
               status)
                   status_inhibit
                   ;;
+              statusjson)
+                  if [[ -f "$LOCKFILE" ]]; then
+                      echo '{"text": "IDLE INHIBIT", "class": "active"}'
+                  else
+                      echo '{"text": "", "class": "inactive"}'
+                  fi
+                  ;;
               toggle)
                   if [[ -f "$LOCKFILE" ]]; then
                       stop_inhibit
