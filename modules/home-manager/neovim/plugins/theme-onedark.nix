@@ -29,27 +29,27 @@ in {
               ObsidianTodo = {
                 fg = '${theme.purple}',
                 bg = 'none',
-                bold = true
+                fmt = "bold",
               },
               ObsidianDone = {
                 fg = '${theme.green}',
                 bg = 'none',
-                bold = true
+                fmt = "bold",
               },
               ObsidianRightArrow = {
                 fg = '${theme.purple}',
                 bg = 'none',
-                bold = true
+                fmt = "bold",
               },
               ObsidianTilde = {
                 fg = '${theme.orange}',
                 bg = 'none',
-                bold = true
+                fmt = "bold",
               },
               ObsidianRefText = {
                 fg = '${theme.blue}',
                 bg = 'none',
-                bold = true
+                fmt = "underline",
               },
               ObsidianExtLinkIcon = {
                 fg = '${theme.blue}',
@@ -58,7 +58,7 @@ in {
               ObsidianTag = {
                 fg = '${theme.blue}',
                 bg = 'none',
-                italic = true
+                fmt = "italic",
               },
 
             }
