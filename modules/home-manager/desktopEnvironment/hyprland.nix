@@ -228,7 +228,6 @@ in {
           "SUPER, f, exec, ${nvimsessionlauncher}"
           "SUPER SHIFT, F, fullscreen"
           "SUPER, s, exec, systemctl suspend"
-          ", switch:on[Lid Switch], exec, systemctl suspend"
           # Notification Center
           "SUPER, n, exec, swaync-client -t -sw"
           "SUPER SHIFT, N, exec, swaync-client --close-all && swaync-client --close-panel"
@@ -261,6 +260,9 @@ in {
         bindm = [
           "SUPER, mouse:272, movewindow"
           "SUPER, mouse:273, resizewindow"
+        ];
+        bindl = [
+          ", switch:on:Lid Switch, exec, systemctl suspend"
         ];
         env = [
           "XDG_CURRENT_DESKTOP,Hyprland"
