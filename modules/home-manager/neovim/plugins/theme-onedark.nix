@@ -49,7 +49,7 @@ in {
               ObsidianRefText = {
                 fg = '${theme.blue}',
                 bg = 'none',
-                fmt = "underline",
+                -- fmt = "underline",
               },
               ObsidianExtLinkIcon = {
                 fg = '${theme.blue}',
