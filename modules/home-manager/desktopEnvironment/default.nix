@@ -46,5 +46,8 @@
           mouseBattery = lib.mkDefault false;
         };
       };
+      home.packages = with pkgs; [
+        wtype
+      ];
     };
 }
