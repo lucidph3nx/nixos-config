@@ -57,31 +57,39 @@
   } @ inputs: let
     inherit (self) outputs;
     # Reusable function for creating system configurations
-    mkSystem = { system, configFile, extraModules ? [], extraConfig ? {} }: let
-      lib = nixpkgs.lib;  # Inherit lib from nixpkgs
-    in nixpkgs.lib.nixosSystem {
-      inherit system;
-      pkgs = import nixpkgs {
+    mkSystem = {
+      system,
+      configFile,
+      extraModules ? [],
+      extraConfig ? {},
+    }: let
+      lib = nixpkgs.lib; # Inherit lib from nixpkgs
+    in
+      nixpkgs.lib.nixosSystem {
         inherit system;
-        config = lib.mkMerge [
-          { allowUnfree = true; }
-          extraConfig  # Merge any extra configuration like rocmSupport
-        ];
-      };
-      specialArgs = { inherit inputs outputs; };
-      modules = let
-        defaults = { pkgs, ... }: {
-          # allow modules to use stable and master packages as needed
-          _module.args.pkgs-stable = import inputs.nixpkgs-stable { inherit (pkgs.stdenv.targetPlatform) system; };
-          _module.args.pkgs-master = import inputs.nixpkgs-master { inherit (pkgs.stdenv.targetPlatform) system; };
+        pkgs = import nixpkgs {
+          inherit system;
+          config = lib.mkMerge [
+            {allowUnfree = true;}
+            extraConfig # Merge any extra configuration like rocmSupport
+          ];
         };
-      in [
-        defaults
-        ./machines/${configFile}/configuration.nix
-        home-manager.nixosModules.default
-        inputs.impermanence.nixosModules.impermanence
-      ] ++ extraModules;
-    };
+        specialArgs = {inherit inputs outputs;};
+        modules = let
+          defaults = {pkgs, ...}: {
+            # allow modules to use stable and master packages as needed
+            _module.args.pkgs-stable = import inputs.nixpkgs-stable {inherit (pkgs.stdenv.targetPlatform) system;};
+            _module.args.pkgs-master = import inputs.nixpkgs-master {inherit (pkgs.stdenv.targetPlatform) system;};
+          };
+        in
+          [
+            defaults
+            ./machines/${configFile}/configuration.nix
+            home-manager.nixosModules.default
+            inputs.impermanence.nixosModules.impermanence
+          ]
+          ++ extraModules;
+      };
   in {
     overlays = import ./overlays {inherit inputs outputs;};
     nixosConfigurations = {
@@ -96,15 +104,15 @@
       navi = mkSystem {
         system = "x86_64-linux";
         configFile = "navi";
-        extraConfig = { rocmSupport = true; };
+        extraConfig = {rocmSupport = true;};
       };
       surface = mkSystem {
         system = "x86_64-linux";
         configFile = "surface";
         extraModules = [
-            nixos-hardware.nixosModules.microsoft-surface-common
-            nixos-hardware.nixosModules.microsoft-surface-pro-intel
-          ];
+          nixos-hardware.nixosModules.microsoft-surface-common
+          nixos-hardware.nixosModules.microsoft-surface-pro-intel
+        ];
       };
       tui = mkSystem {
         system = "x86_64-linux";

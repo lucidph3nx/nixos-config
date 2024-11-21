@@ -12,8 +12,8 @@
     (modulesPath + "/profiles/qemu-guest.nix")
   ];
 
-  boot.initrd.availableKernelModules = [ "xhci_pci" "nvme" "usb_storage" "usbhid" "sd_mod"];
-  boot.initrd.kernelModules = [ ];
+  boot.initrd.availableKernelModules = ["xhci_pci" "nvme" "usb_storage" "usbhid" "sd_mod"];
+  boot.initrd.kernelModules = [];
   boot.kernelModules = ["kvm-intel" "v4l2loopback"];
   boot.kernelParams = [
     # stop screen flickering

@@ -584,7 +584,7 @@ with config.theme; {
             --color-sidebar-font: ${foreground} !important;
             --color-sidebar-background: ${bg0} !important;
             --color-backtotop-font: ${foreground} !important;
-            --color-backtotop-border: ${bg0} !important; 
+            --color-backtotop-border: ${bg0} !important;
             --color-backtotop-background: ${bg_dim} !important;
             --color-btn-background: ${primary} !important;
             --color-btn-font: ${bg0} !important;

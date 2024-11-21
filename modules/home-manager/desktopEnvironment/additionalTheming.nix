@@ -35,13 +35,16 @@
     qt = {
       enable = true;
       platformTheme.name = "adwaita";
-      style = if config.theme.type == "dark" then {
-        name = "adwaita-dark";
-        package = pkgs.adwaita-qt;
-      } else {
-        name = "adwaita";
-        package = pkgs.adwaita-qt;
-      };
+      style =
+        if config.theme.type == "dark"
+        then {
+          name = "adwaita-dark";
+          package = pkgs.adwaita-qt;
+        }
+        else {
+          name = "adwaita";
+          package = pkgs.adwaita-qt;
+        };
     };
   };
 }

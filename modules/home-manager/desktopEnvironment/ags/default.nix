@@ -14,7 +14,6 @@
       };
   };
   config = lib.mkIf config.homeManagerModules.ags.enable {
-
     home.packages = [pkgs.networkmanagerapplet];
 
     programs.ags = {

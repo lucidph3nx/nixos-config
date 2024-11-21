@@ -50,7 +50,6 @@
               echo "󰖁"
           fi
         '';
-
     };
     home.file.".local/scripts/cli.audio.getOutput" = {
       executable = true;

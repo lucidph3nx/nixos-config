@@ -26,7 +26,7 @@
   };
   home.stateVersion = "24.05"; # Do Not Touch!
 
-    home.persistence."/persist/home/ben" = {
+  home.persistence."/persist/home/ben" = {
     allowOther = true;
     directories = [
       # {

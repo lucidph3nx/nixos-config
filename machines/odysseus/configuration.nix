@@ -33,7 +33,7 @@
 
   nixpkgs.overlays = [
     inputs.nixos-apple-silicon.overlays.apple-silicon-overlay
-    (final: prev: { mesa = final.mesa-asahi-edge; })
+    (final: prev: {mesa = final.mesa-asahi-edge;})
   ];
 
   hardware = {
@@ -56,8 +56,8 @@
   boot.loader.grub.efiInstallAsRemovable = true;
 
   # https://github.com/nix-community/impermanence/issues/229
-  boot.initrd.systemd.suppressedUnits = [ "systemd-machine-id-commit.service" ];
-  systemd.suppressedSystemUnits = [ "systemd-machine-id-commit.service" ];
+  boot.initrd.systemd.suppressedUnits = ["systemd-machine-id-commit.service"];
+  systemd.suppressedSystemUnits = ["systemd-machine-id-commit.service"];
 
   boot.kernel.sysctl."net.core.rmem_max" = 2500000;
 

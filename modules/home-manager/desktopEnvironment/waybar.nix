@@ -303,62 +303,62 @@ in
           }
         '';
       };
-    home.file.".local/scripts/cli.mpd.nowPlaying" = {
-      executable = true;
-      text =
-        /*
-        bash
-        */
-        ''
-        #!/bin/sh
+      home.file.".local/scripts/cli.mpd.nowPlaying" = {
+        executable = true;
+        text =
+          /*
+          bash
+          */
+          ''
+            #!/bin/sh
 
-        # Fetch the mpc output and split it into three parts
-        json=$(mpc -f '{"name":"%name%", "artist":"%artist%", "album":"%album%", "title":"%title%", "time":"%time%"}' | head -n 1)
-        status=$(mpc status | sed -n '2p')  # Second line contains the playback status and timing info
-        player=$(mpc status | sed -n '3p') # Third line contains volume, repeat, random, etc.
+            # Fetch the mpc output and split it into three parts
+            json=$(mpc -f '{"name":"%name%", "artist":"%artist%", "album":"%album%", "title":"%title%", "time":"%time%"}' | head -n 1)
+            status=$(mpc status | sed -n '2p')  # Second line contains the playback status and timing info
+            player=$(mpc status | sed -n '3p') # Third line contains volume, repeat, random, etc.
 
-        # Parse the metadata with jq
-        artist=$(echo "$json" | jq -r '.artist' 2>/dev/null)
-        name=$(echo "$json" | jq -r '.name' 2>/dev/null)
-        title=$(echo "$json" | jq -r '.title' 2>/dev/null)
+            # Parse the metadata with jq
+            artist=$(echo "$json" | jq -r '.artist' 2>/dev/null)
+            name=$(echo "$json" | jq -r '.name' 2>/dev/null)
+            title=$(echo "$json" | jq -r '.title' 2>/dev/null)
 
-        # Use name if artist is not available
-        if [ -n "$artist" ]; then
-            display_artist="$artist"
-        else
-            display_artist="$name"
-        fi
+            # Use name if artist is not available
+            if [ -n "$artist" ]; then
+                display_artist="$artist"
+            else
+                display_artist="$name"
+            fi
 
-        # Parse the playback status
-        playing=$(echo "$status" | grep -oP '^\[.*\]')
-        elapsed_time=$(echo "$status" | grep -oP '\d+:\d+' | head -n 1)
-        total_time=$(echo "$status" | grep -oP '\d+:\d+' | tail -n 1)
+            # Parse the playback status
+            playing=$(echo "$status" | grep -oP '^\[.*\]')
+            elapsed_time=$(echo "$status" | grep -oP '\d+:\d+' | head -n 1)
+            total_time=$(echo "$status" | grep -oP '\d+:\d+' | tail -n 1)
 
-        # Determine the now playing icon
-        if echo "$playing" | grep -q "\[playing\]"; then
-            play_icon=""
-        elif echo "$playing" | grep -q "\[paused\]"; then
-            play_icon=""
-        else
-            play_icon="" # Default icon for stopped
-        fi
+            # Determine the now playing icon
+            if echo "$playing" | grep -q "\[playing\]"; then
+                play_icon=""
+            elif echo "$playing" | grep -q "\[paused\]"; then
+                play_icon=""
+            else
+                play_icon="" # Default icon for stopped
+            fi
 
-        if [ "$total_time" != "0:00" ] && [ -n "$total_time" ]; then
-            time_info=" ($elapsed_time/$total_time)"
-        else
-            time_info=""
-        fi
+            if [ "$total_time" != "0:00" ] && [ -n "$total_time" ]; then
+                time_info=" ($elapsed_time/$total_time)"
+            else
+                time_info=""
+            fi
 
-        # Format the output
-        if [ -n "$display_artist" ] && [ -n "$title" ]; then
-            now_playing="$play_icon $display_artist - $title$time_info 󰝚"
-        else
-            now_playing=""
-        fi
+            # Format the output
+            if [ -n "$display_artist" ] && [ -n "$title" ]; then
+                now_playing="$play_icon $display_artist - $title$time_info 󰝚"
+            else
+                now_playing=""
+            fi
 
-        # Output the friendly now playing message
-        echo "$now_playing"
-        '';
+            # Output the friendly now playing message
+            echo "$now_playing"
+          '';
       };
     };
   }
