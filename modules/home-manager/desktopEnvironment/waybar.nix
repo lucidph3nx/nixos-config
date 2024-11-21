@@ -45,7 +45,7 @@ in
               (lib.mkIf enableSway "sway/mode")
               (lib.mkIf enableHyprland "hyprland/workspaces")
               (lib.mkIf enableHyprland "hyprland/submap")
-              (lib.mkIf enableMpd "mpd")
+              (lib.mkIf enableMpd "custom/mpd")
             ];
             modules-center = [
               "hyprland/window"
@@ -80,19 +80,24 @@ in
                 "(.*) — Mozilla Firefox" = "$1";
               };
             };
-            "mpd" = lib.mkIf enableMpd {
-              "unknown-tag" = "";
-              "format" = "{stateIcon} {artist} - {title} ({elapsedTime:%M:%S}) ";
-              "format-disconnected" = "";
-              "format-stopped" = "";
-              "interval" = 10;
-              "state-icons" = {
-                "paused" = "";
-                "playing" = "";
-              };
-              "tooltip-format" = "MPD (connected)";
-              "tooltip-format-disconnected" = "MPD (disconnected)";
-              "on-click" = "kitty ncmpcpp";
+            # "mpd" = lib.mkIf enableMpd {
+            #   "unknown-tag" = "";
+            #   "format" = "{stateIcon} {artist} - {title} ({elapsedTime:%M:%S}) ";
+            #   "format-disconnected" = "";
+            #   "format-stopped" = "";
+            #   "interval" = 10;
+            #   "state-icons" = {
+            #     "paused" = "";
+            #     "playing" = "";
+            #   };
+            #   "tooltip-format" = "MPD (connected)";
+            #   "tooltip-format-disconnected" = "MPD (disconnected)";
+            #   "on-click" = "kitty ncmpcpp";
+            # };
+            "custom/mpd" = lib.mkIf enableMpd {
+              "return-type" = "string";
+              "interval" = 1;
+              "exec" = "${homeDir}/.local/scripts/cli.mpd.nowPlaying";
             };
             "custom/office-temp" = lib.mkIf enableHomeAutomation {
               "return-type" = "string";
@@ -239,7 +244,7 @@ in
             background-color: ${red};
             color: ${bg0};
           }
-          #mpd {
+          #custom-mpd {
             padding-right: 10px;
             padding-left: 10px;
           }
@@ -296,6 +301,63 @@ in
             color: ${green};
             text-shadow: none;
           }
+        '';
+      };
+    home.file.".local/scripts/cli.mpd.nowPlaying" = {
+      executable = true;
+      text =
+        /*
+        bash
+        */
+        ''
+        #!/bin/sh
+
+        # Fetch the mpc output and split it into three parts
+        json=$(mpc -f '{"name":"%name%", "artist":"%artist%", "album":"%album%", "title":"%title%", "time":"%time%"}' | head -n 1)
+        status=$(mpc status | sed -n '2p')  # Second line contains the playback status and timing info
+        player=$(mpc status | sed -n '3p') # Third line contains volume, repeat, random, etc.
+
+        # Parse the metadata with jq
+        artist=$(echo "$json" | jq -r '.artist' 2>/dev/null)
+        name=$(echo "$json" | jq -r '.name' 2>/dev/null)
+        title=$(echo "$json" | jq -r '.title' 2>/dev/null)
+
+        # Use name if artist is not available
+        if [ -n "$artist" ]; then
+            display_artist="$artist"
+        else
+            display_artist="$name"
+        fi
+
+        # Parse the playback status
+        playing=$(echo "$status" | grep -oP '^\[.*\]')
+        elapsed_time=$(echo "$status" | grep -oP '\d+:\d+' | head -n 1)
+        total_time=$(echo "$status" | grep -oP '\d+:\d+' | tail -n 1)
+
+        # Determine the now playing icon
+        if echo "$playing" | grep -q "\[playing\]"; then
+            play_icon=""
+        elif echo "$playing" | grep -q "\[paused\]"; then
+            play_icon=""
+        else
+            play_icon="" # Default icon for stopped
+        fi
+
+        if [ "$total_time" != "0:00" ] && [ -n "$total_time" ]; then
+            time_info=" ($elapsed_time/$total_time)"
+        else
+            time_info=""
+        fi
+
+        # Format the output
+        if [ -n "$display_artist" ] && [ -n "$title" ]; then
+            now_playing="$play_icon $display_artist - $title$time_info 󰝚"
+        else
+            now_playing=""
+        fi
+
+        # Output the friendly now playing message
+        echo "$now_playing"
         '';
       };
     };
