@@ -16,19 +16,34 @@ in {
         default = false;
         description = "disables workspace animations";
       };
-      lockTimeout = lib.mkOption {
+      lockTimeout.enable = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "whether to lock the screen due to idle";
+      };
+      lockTimeout.duration = lib.mkOption {
         type = lib.types.int;
         # default 30 minutes
         default = 1800;
         description = "time before locking the screen";
       };
-      screenTimeout = lib.mkOption {
+      screenTimeout.enable = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "whether to turn off the screen due to idle";
+      };
+      screenTimeout.duration = lib.mkOption {
         type = lib.types.int;
         # default 1 hour
         default = 3600;
         description = "time before turning off the screen";
       };
-      suspendTimeout = lib.mkOption {
+      suspendTimeout.enable = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "whether to suspend the system due to idle";
+      };
+      suspendTimeout.duration = lib.mkOption {
         type = lib.types.int;
         # default 2 hours
         default = 7200;
@@ -58,11 +73,13 @@ in {
       addtoshoppinglist = "${homeDir}/.local/scripts/home.shoppinglist.addItem";
       openshoppinglist = "firefox --new-window https://www.notion.so/ph3nx/Shopping-List-92d98ac3dc86460285a399c0b1176fc5";
       # configuration
-      enableAudioControls = (osConfig.nixModules.externalAudio.enable == false);
+      enableAudioControls = osConfig.nixModules.externalAudio.enable == false;
     in {
       enable = true;
       settings = {
-        exec-once = let resolution = config.homeManagerModules.wallpaper.resolution; in [
+        exec-once = let
+          resolution = config.homeManagerModules.wallpaper.resolution;
+        in [
           "swaync"
           (lib.mkIf config.homeManagerModules.wallpaper.enable "swaybg -i ${homeDir}/.config/wallpaper-${resolution}.png --mode fill")
           # (lib.mkIf (config.theme.name == "everforest") "swaybg -i ${homeDir}/.config/wallpaper_everforest-${resolution}.png --mode fill")
@@ -98,7 +115,7 @@ in {
           };
         };
         gestures = {
-          workspace_swipe = (lib.mkIf osConfig.nixModules.isLaptop true);
+          workspace_swipe = lib.mkIf osConfig.nixModules.isLaptop true;
         };
         general = {
           gaps_in = 5;
@@ -136,7 +153,7 @@ in {
             "borderangle, 1, 50, linear, loop"
             "fade, 1, 2, default"
             (lib.mkIf (config.homeManagerModules.hyprland.disableWorkspaceAnimations != true)
-              "workspaces,1,1, myBezier") 
+              "workspaces,1,1, myBezier")
             (lib.mkIf (config.homeManagerModules.hyprland.disableWorkspaceAnimations == true)
               "workspaces,0")
           ];
@@ -227,9 +244,9 @@ in {
           "SUPER, c, exec, ${calculator}"
           "SUPER, f, exec, ${nvimsessionlauncher}"
           "SUPER SHIFT, F, fullscreen"
-          "SUPER, s, exec, systemctl suspend"
+          "SUPER, s, exec, ${homeDir}/.local/scripts/cli.system.suspend"
           "SUPER, i, exec, ${homeDir}/.local/scripts/cli.system.inhibitIdle toggle"
-          ", switch:on[Lid Switch], exec, systemctl suspend"
+          ", switch:on:Lid Switch, exec, ${homeDir}/.local/scripts/cli.system.suspend"
           # Notification Center
           "SUPER, n, exec, swaync-client -t -sw"
           "SUPER SHIFT, N, exec, swaync-client --close-all && swaync-client --close-panel"
@@ -251,6 +268,8 @@ in {
           (lib.mkIf enableAudioControls ", XF86AudioRaiseVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+")
           (lib.mkIf enableAudioControls ", XF86AudioLowerVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%-")
           ", XF86AudioPlay, exec, ${pkgs.playerctl}/bin/playerctl play-pause"
+          ", Pause, exec, ${pkgs.playerctl}/bin/playerctl play-pause"
+          ", Scroll_Lock, exec, ${pkgs.playerctl}/bin/playerctl stop" # this is fn+k on my asus laptop
           ", XF86AudioStop, exec, ${pkgs.playerctl}/bin/playerctl stop"
           ", XF86AudioNext, exec, ${pkgs.playerctl}/bin/playerctl next"
           ", XF86AudioPrev, exec, ${pkgs.playerctl}/bin/playerctl previous"
@@ -311,29 +330,33 @@ in {
       ];
     };
     services.hypridle = let
-        lockTimeout = config.homeManagerModules.hyprland.lockTimeout;
-        screenTimeout = config.homeManagerModules.hyprland.screenTimeout;
-        suspendTimeout = config.homeManagerModules.hyprland.suspendTimeout;
-      in {
+      lockTimeout = config.homeManagerModules.hyprland.lockTimeout.enable;
+      screenTimeout = config.homeManagerModules.hyprland.screenTimeout.enable;
+      suspendTimeout = config.homeManagerModules.hyprland.suspendTimeout.enable;
+      lockTimeoutDuration = config.homeManagerModules.hyprland.lockTimeout.duration;
+      screenTimeoutDuration = config.homeManagerModules.hyprland.screenTimeout.duration;
+      suspendTimeoutDuration = config.homeManagerModules.hyprland.suspendTimeout.duration;
+    in {
       enable = true;
       settings = {
         general = {
           lock_cmd = "hyprctl dispatch exec hyprlock";
         };
         listener = [
-          {
-            timeout = lockTimeout;
+          (lib.mkIf lockTimeout {
+            timeout = lockTimeoutDuration;
             on-timeout = "hyprctl dispatch exec hyprlock";
-          }
-          {
-            timeout = screenTimeout;
+          })
+          (lib.mkIf screenTimeout {
+            timeout = screenTimeoutDuration;
             on-timeout = "hyprctl dispatch dpms off";
             on-resume = "hyprctl dispatch dpms on";
-          }
-          {
-            timeout = suspendTimeout;
+          })
+          (lib.mkIf suspendTimeout {
+            timeout = suspendTimeoutDuration;
             on-timeout = "systemctl suspend";
-          }
+            on-resume = "hyprctl dispatch exec hyprlock";
+          })
         ];
       };
     };
@@ -419,6 +442,18 @@ in {
           ${pkgs.socat}/bin/socat - "UNIX-CONNECT:$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock" | while read -r line; do handle "$line"; done
         '';
     };
+    home.file.".local/scripts/cli.system.suspend" = {
+      executable = true;
+      text =
+        /*
+        bash
+        */
+        ''
+          #!/bin/sh
+          hyprctl dispatch exec hyprlock &&
+          systemctl suspend
+        '';
+    };
     home.file.".local/scripts/cli.system.inhibitIdle" = {
       executable = true;
       text =
@@ -486,7 +521,7 @@ in {
                   exit 1
                   ;;
           esac
-      '';
+        '';
     };
   };
 }
