@@ -21,7 +21,10 @@
     services.blocky = {
       enable = true;
       settings = {
-        port = "127.0.0.1:53";
+        ports = {
+          dns = "127.0.0.1:53";
+          http = "127.0.0.1:4000";
+        };
         bootstrapDns = {
           upstream = "https://one.one.one.one/dns-query";
           ips = ["1.1.1.1" "1.0.0.1"];

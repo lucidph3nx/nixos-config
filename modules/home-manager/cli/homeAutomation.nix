@@ -188,15 +188,7 @@
           # Format the output as JSON
           output=$(printf '{"text": "%s", "tooltip": "%s", "class": "%s"}' "$text" "$tooltip" "$class")
           echo "$output"
-
         '';
-    };
-    # A script to pause the dns blocking via blocky for 10 min
-    # TODO: figure out what I want to do with this
-    # at the time of writing, blocky isnt working anyway
-    home.file.".local/scripts/home.network.blockyPause" = {
-      executable = true;
-      source = ./files/home.network.blockyPause;
     };
   };
 }

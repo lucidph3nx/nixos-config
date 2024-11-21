@@ -1,6 +1,7 @@
 {lib, ...}: {
   imports = [
     ./bitwardencli.nix
+    ./blocky.nix
     ./git.nix
     ./homeAutomation.nix
     ./k9s.nix
