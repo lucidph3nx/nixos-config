@@ -1,5 +1,6 @@
 {
   config,
+  pkgs,
   lib,
   ...
 }: {
@@ -9,6 +10,9 @@
     };
   };
   config = lib.mkIf config.homeManagerModules.mpd.enable {
+    home.packages = with pkgs; [
+      mpc # for commandline control
+    ];
     services.mpd = {
       enable = true;
       musicDirectory = "/home/ben/music";
