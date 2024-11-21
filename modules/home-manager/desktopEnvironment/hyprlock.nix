@@ -22,9 +22,11 @@ in {
       in {
       enable = true;
       settings = {
-        hide_cursor = true;
-        no_fade_in = true;
-        no_fade_out = true;
+        general = {
+          hide_cursor = true;
+          no_fade_in = true;
+          no_fade_out = true;
+        };
         background = [
           {
             monitor = "";
