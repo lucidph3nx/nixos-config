@@ -5,6 +5,7 @@
   ...
 }: {
   imports = [
+    ./blocky.nix
     ./cli-tools.nix
     ./greetd.nix
     ./gui-tools.nix
