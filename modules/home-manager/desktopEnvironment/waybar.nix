@@ -81,7 +81,8 @@ in
               };
             };
             "mpd" = lib.mkIf enableMpd {
-              "format" = "{stateIcon} {artist} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S}) ";
+              "unknown-tag" = "";
+              "format" = "{stateIcon} {artist} - {title} ({elapsedTime:%M:%S}) ";
               "format-disconnected" = "";
               "format-stopped" = "";
               "interval" = 10;
