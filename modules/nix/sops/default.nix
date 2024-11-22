@@ -20,7 +20,6 @@
       sops.signingKeys.enable = lib.mkDefault false;
       sops.homeSSHKeys.enable = lib.mkDefault false;
       sops.kubeconfig.enable = lib.mkDefault false;
-      sops.wireless.enable = lib.mkDefault false;
     };
     # sops defaults
     sops = {
