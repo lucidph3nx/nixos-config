@@ -94,39 +94,7 @@
   '';
 
   networking.hostName = "surface";
-  networking.networkmanager = {
-    enable = true;
-    ensureProfiles = {
-      profiles = {
-        tinfoilforest = {
-          connection = {
-            id = "tinfoilforest";
-            interface-name = "wlp2s0";
-            type = "wifi";
-            uuid = "ad8d2ce5-59a3-441b-8587-65836bb7869c";
-          };
-          ipv4 = {
-            method = "auto";
-          };
-          ipv6 = {
-            addr-gen-mode = "default";
-            method = "auto";
-          };
-          proxy = {};
-          wifi = {
-            mode = "infrastructure";
-            ssid = "tinfoilforest";
-          };
-          wifi-security = {
-            auth-alg = "open";
-            key-mgmt = "wpa-psk";
-            psk = "$HOMEWIFIPASSWORD";
-          };
-        };
-      };
-      environmentFiles = [config.sops.secrets.wireless.path];
-    };
-  };
+  networking.networkmanager.enable = true;
 
   # no password for sudo
   security.sudo.wheelNeedsPassword = false;
