@@ -16,7 +16,7 @@
         -- Make line numbers default
         set.nu = true
         -- highlight the line of a cursor
-        set.cursorline = true
+        --set.cursorline = true
         -- spellcheck language
         set.spelllang = 'en_nz,mi'
 
