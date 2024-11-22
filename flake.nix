@@ -34,11 +34,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nixos-apple-silicon = {
-      url = "github:zzywysm/nixos-asahi";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     home-manager = {
       # url = "github:nix-community/home-manager/release-23.11";
       url = "github:nix-community/home-manager/master";
@@ -96,10 +91,6 @@
       default = mkSystem {
         system = "x86_64-linux";
         configFile = "default";
-      };
-      odysseus = mkSystem {
-        system = "aarch64-linux";
-        configFile = "odysseus";
       };
       navi = mkSystem {
         system = "x86_64-linux";
