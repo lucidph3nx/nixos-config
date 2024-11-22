@@ -277,6 +277,8 @@ in {
           (lib.mkIf osConfig.nixModules.isLaptop ", XF86MonBrightnessDown, exec, ${pkgs.brightnessctl}/bin/brightnessctl s 10%-")
           # on my asus laptop, one of the function keys presses Super_L+p for some reason for touchpad disable
           (lib.mkIf osConfig.nixModules.isLaptop "SUPER, p, exec, ${toggleTouchpad}")
+          # print screen
+          ", Print, exec, ${homeDir}/.local/scripts/application.grim.fullScreenshotToFile"
         ];
         bindm = [
           "SUPER, mouse:272, movewindow"

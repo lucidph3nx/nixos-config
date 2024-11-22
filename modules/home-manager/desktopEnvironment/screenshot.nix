@@ -25,6 +25,7 @@ in {
       executable = true;
       text = ''
         #!/bin/sh
+        mkdir -p "$HOME/pictures/screenshots"
         ${pkgs.grim}/bin/grim -g "$(${pkgs.slurp}/bin/slurp -c "${theme.green}FF" -b '${theme.bg0}80')" "$HOME/pictures/screenshots/$(date '+%y%m%d_%H-%M-%S').png"
       '';
     };
@@ -32,6 +33,8 @@ in {
       executable = true;
       text = ''
         #!/bin/sh
+        sleep 0.2 # wait for the ui to move if done from command palette
+        mkdir -p "$HOME/pictures/screenshots"
         ${pkgs.grim}/bin/grim "$HOME/pictures/screenshots/$(date '+%y%m%d_%H-%M-%S').png"
       '';
     };
