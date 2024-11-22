@@ -68,7 +68,6 @@ in {
         ls = "eza";
         l = "eza -la";
         tree = "eza --tree -la";
-        ff = "fastfetch";
         # ripgrep instead of grep
         grep = "rg";
         # nvim

@@ -191,7 +191,6 @@
   environment.systemPackages = with pkgs; [
     cheese
     exfat
-    fastfetch
     ffmpeg
     gamescope
     lsof

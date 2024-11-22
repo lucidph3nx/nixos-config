@@ -151,7 +151,6 @@
     brightnessctl
     cheese
     exfat
-    fastfetch
     ffmpeg
     gamescope
     inkscape
