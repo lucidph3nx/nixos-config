@@ -60,13 +60,13 @@ in {
              xmlns:svg="http://www.w3.org/2000/svg">
             <sodipodi:namedview
                id="namedview1"
-               pagecolor="#ffffff"
-               bordercolor="#000000"
+               pagecolor="${colourbg}"
+               bordercolor="${colourbg}"
                borderopacity="0.25"
                inkscape:showpageshadow="2"
                inkscape:pageopacity="0.0"
                inkscape:pagecheckerboard="0"
-               inkscape:deskcolor="#d1d1d1"
+               inkscape:deskcolor="${colourbg}"
                inkscape:document-units="mm"
                inkscape:zoom="0.30921515"
                inkscape:cx="1112.494"
@@ -147,13 +147,13 @@ in {
              xmlns:svg="http://www.w3.org/2000/svg">
             <sodipodi:namedview
                id="namedview1"
-               pagecolor="#ffffff"
-               bordercolor="#000000"
+               pagecolor="${colourbg}"
+               bordercolor="${colourbg}"
                borderopacity="0.25"
                inkscape:showpageshadow="2"
                inkscape:pageopacity="0.0"
                inkscape:pagecheckerboard="0"
-               inkscape:deskcolor="#d1d1d1"
+               inkscape:deskcolor="${colourbg}"
                inkscape:document-units="mm"
                inkscape:zoom="0.24519795"
                inkscape:cx="2465.355"
