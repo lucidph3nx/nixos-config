@@ -17,6 +17,9 @@
     darktable.enable = true;
     firefox.hideUrlbar = true;
     homeAutomation.enable = true;
+    wallpaper = {
+      variant = "enso";
+    };
     hyprland = {
       enable = true;
       disableWorkspaceAnimations = true;
