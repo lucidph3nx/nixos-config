@@ -16,6 +16,19 @@
     programs.fastfetch = {
       enable = true;
       settings = {
+        logo = {
+          source = "nixos";
+          color = {
+            "1" = "blue";
+            "2" = "green";
+          };
+        };
+        display = {
+          color = {
+            keys = "green";
+            title = "blue";
+          };
+        };
         modules = [
           "title"
           "separator"
@@ -26,12 +39,7 @@
           "packages"
           "shell"
           "display"
-          "de"
           "wm"
-          "wmtheme"
-          "theme"
-          "icons"
-          "font"
           "cursor"
           "terminal"
           "terminalfont"
@@ -40,13 +48,12 @@
           "memory"
           "swap"
           "disk"
-          "localip"
           "battery"
           "poweradapter"
           "locale"
           "break"
           "colors"
-        ]
+        ];
       };
     };
     programs.zsh.shellAliases = {
