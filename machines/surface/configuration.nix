@@ -23,7 +23,6 @@
       signingKeys.enable = true;
       homeSSHKeys.enable = true;
       kubeconfig.enable = true;
-      wireless.enable = true;
     };
     syncthing = {
       enable = true;
