@@ -219,21 +219,5 @@
     programs.zsh.initExtra = ''
       bindkey -s ^k "k9s\n"
     '';
-    # my scripts relevant to k9s
-    home.sessionPath = ["$HOME/.local/scripts"];
-    home.file.".local/scripts/application.k9s.openHomeKube" = lib.mkIf config.homeManagerModules.guiApps.enable {
-      executable = true;
-      text = ''
-        #!/bin/sh
-        ${pkgs.kitty}/bin/kitty ${pkgs.k9s}/bin/k9s --kubeconfig /home/ben/.config/kube/config-home
-      '';
-    };
-    home.file.".local/scripts/application.k9s.openWorkKube" = lib.mkIf config.homeManagerModules.guiApps.enable {
-      executable = true;
-      text = ''
-        #!/bin/sh
-        ${pkgs.kitty}/bin/kitty ${pkgs.k9s}/bin/k9s --kubeconfig /home/ben/.config/kube/config-work
-      '';
-    };
   };
 }
