@@ -11,7 +11,6 @@
     ./homeSSHKeys.nix
     ./kubeconfig.nix
     ./signingKeys.nix
-    ./wireless.nix
     inputs.sops-nix.nixosModules.sops
   ];
   config = {
