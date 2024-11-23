@@ -203,10 +203,21 @@
   # key remapping
   services.keyd = {
     enable = true;
-    keyboards.main = {
+    keyboards = {
+      main = {
       settings = {
         main = {
           capslock = "overload(control,esc)";
+        };
+      };
+      };
+      mouse = {
+        ids = ["1532:00b7:aa6166ef"]; # Razer Deathadder V3 Pro
+        settings = {
+          main = {
+            mouse1 = "volumedown";
+            mouse2 = "volumeup";
+          };
         };
       };
     };
