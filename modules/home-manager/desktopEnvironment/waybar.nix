@@ -356,6 +356,8 @@ in
                 now_playing=""
             fi
 
+            # replace ampersands with html entities
+            now_playing=$(echo "$now_playing" | sed 's/&/\&amp;/g')
             # Output the friendly now playing message
             echo "$now_playing"
           '';
