@@ -205,11 +205,11 @@
     enable = true;
     keyboards = {
       main = {
-      settings = {
-        main = {
-          capslock = "overload(control,esc)";
+        settings = {
+          main = {
+            capslock = "overload(control,esc)";
+          };
         };
-      };
       };
       mouse = {
         ids = ["1532:00b7:aa6166ef"]; # Razer Deathadder V3 Pro
@@ -240,7 +240,18 @@
   security.rtkit.enable = true;
 
   # cups for printing
-  services.printing.enable = true;
+  services.printing = {
+    enable = true;
+    drivers = [
+      pkgs.brlaser
+    ];
+  };
+  # printer autoddiscovery
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    openFirewall = true;
+  };
 
   # power management
   services.power-profiles-daemon.enable = true;
@@ -259,6 +270,7 @@
   environment.sessionVariables = {
     STEAM_EXTRA_COMPAT_TOOLS_PATHS = "/home/ben/.steam/root/compatibilitytools.d";
   };
+
 
   services.udisks2 = {
     enable = true;
