@@ -73,8 +73,20 @@
         modules = let
           defaults = {pkgs, ...}: {
             # allow modules to use stable and master packages as needed
-            _module.args.pkgs-stable = import inputs.nixpkgs-stable {inherit (pkgs.stdenv.targetPlatform) system;};
-            _module.args.pkgs-master = import inputs.nixpkgs-master {inherit (pkgs.stdenv.targetPlatform) system;};
+            _module.args.pkgs-stable = import inputs.nixpkgs-stable {
+              inherit (pkgs.stdenv.targetPlatform) system;
+              config = lib.mkMerge [
+                {allowUnfree = true;}
+                extraConfig
+              ];
+            };
+            _module.args.pkgs-master = import inputs.nixpkgs-master {
+              inherit (pkgs.stdenv.targetPlatform) system;
+              config = lib.mkMerge [
+                {allowUnfree = true;}
+                extraConfig
+              ];
+            };
           };
         in
           [
