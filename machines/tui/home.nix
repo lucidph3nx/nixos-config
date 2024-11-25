@@ -61,6 +61,7 @@
         method = "symlink";
       }
       ".local/share/lutris"
+      ".local/share/PrismLauncher"
       ".local/share/nix"
       ".local/share/nvim"
       ".local/share/vulkan"
@@ -96,6 +97,7 @@
 
   home.packages = with pkgs; [
     gimp
+    pkgs-stable.prismlauncher # open source minecraft launcher
     # cinnamon.nemo
   ];
 
