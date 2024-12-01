@@ -134,7 +134,7 @@
 
   fonts.fontDir.enable = true;
   fonts.packages = [
-    (pkgs.nerdfonts.override {fonts = ["JetBrainsMono"];})
+    pkgs.nerd-fonts.jetbrains-mono
   ];
 
   programs.sway = {
