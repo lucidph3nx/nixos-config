@@ -19,12 +19,30 @@ with config.theme; {
         css
         */
         ''
-          #nav-bar {
-            min-height: 0 !important;
-            max-height: 0 !important;
-            height: 0 !important;
-            --moz-transform: scaleY(0) !important;
-            transform: scaleY(0) !important;
+          #nav-bar,
+          #urlbar {
+            transform: translateY(calc(0px - var(--urlbar-height-setting)));
+            opacity: 0;
+          }
+          #navigator-toolbox {
+            min-height: var(--tab-min-height) !important;
+            height: var(--tab-min-height) !important;
+          }
+          #navigator-toolbox:focus-within {
+            min-height: calc(var(--urlbar-height-setting) + var(--tab-min-height)) !important;
+            height: calc(var(--urlbar-height-setting) + var(--tab-min-height)) !important;
+            transform: translateY(calc(0px - var(--tab-min-height)));
+          }
+          #TabsToolbar {
+            transform: translateY(var(--tab-min-height));
+          }
+          #nav-bar:focus-within {
+            transform: translateY(var(--tab-min-height));
+            opacity: 1;
+          }
+          #urlbar:focus-within {
+            transform: translateY(0);
+            opacity: 1;
           }
         '';
     in
@@ -311,20 +329,6 @@ with config.theme; {
           if config.homeManagerModules.firefox.hideUrlbar
           then hideUrlBar
           else ""
-        }
-
-        /* show on focus */
-        #nav-bar:focus-within {
-          --moz-transform: scale(1) !important;
-          transform: scale(1) !important;
-          max-height: var(--urlbar-height-setting) !important;
-          height: var(--urlbar-height-setting) !important;
-          min-height: var(--urlbar-height-setting) !important;
-        }
-
-        #navigator-toolbox:focus-within > .browser-toolbar {
-          transform: translateY(0);
-          opacity: 1;
         }
       '';
   };
