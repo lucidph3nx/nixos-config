@@ -25,8 +25,10 @@ with config.theme; {
             opacity: 0;
           }
           #navigator-toolbox {
-            min-height: var(--tab-min-height) !important;
-            height: var(--tab-min-height) !important;
+            /* min-height: var(--tab-min-height) !important; */
+            /* height: var(--tab-min-height) !important; */
+            min-height: 0 !important;
+            height: auto !important;
           }
           #navigator-toolbox:focus-within {
             min-height: calc(var(--urlbar-height-setting) + var(--tab-min-height)) !important;
@@ -36,7 +38,12 @@ with config.theme; {
           #TabsToolbar {
             transform: translateY(var(--tab-min-height));
           }
+          #nav-bar {
+            min-height: 0px !important;
+            height: 0px;
+          }
           #nav-bar:focus-within {
+            min-height: var(--urlbar-height-setting) !important;
             transform: translateY(var(--tab-min-height));
             opacity: 1;
           }
@@ -86,6 +93,9 @@ with config.theme; {
 
         /* Hide dropdown that appears when you type in search bar */
         .autocomplete-history-popup, panel[type=autocomplete-richlistbox], panel[type=autocomplete] {
+          display: none !important;
+        }
+        .urlbarView {
           display: none !important;
         }
 
