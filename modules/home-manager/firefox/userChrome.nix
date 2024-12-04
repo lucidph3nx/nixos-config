@@ -25,10 +25,8 @@ with config.theme; {
             opacity: 0;
           }
           #navigator-toolbox {
-            /* min-height: var(--tab-min-height) !important; */
-            /* height: var(--tab-min-height) !important; */
-            min-height: 0 !important;
-            height: auto !important;
+            min-height: var(--tab-min-height) !important;
+            height: var(--tab-min-height) !important;
           }
           #navigator-toolbox:focus-within {
             min-height: calc(var(--urlbar-height-setting) + var(--tab-min-height)) !important;
@@ -37,10 +35,6 @@ with config.theme; {
           }
           #TabsToolbar {
             transform: translateY(var(--tab-min-height));
-          }
-          #nav-bar {
-            min-height: 0px !important;
-            height: 0px;
           }
           #nav-bar:focus-within {
             min-height: var(--urlbar-height-setting) !important;
@@ -73,7 +67,7 @@ with config.theme; {
 
           /* try increasing if you encounter problems */
           --urlbar-height-setting: 24px;
-          --tab-min-height: 25px !important;
+          --tab-min-height: 32px !important;
 
           /* I don't recommend you touch this unless you know what you're doing */
           --arrowpanel-menuitem-padding: 2px !important;
@@ -136,7 +130,7 @@ with config.theme; {
           padding-top: 0 !important;
           padding-bottom: 0 !important;
           font-family: var(--urlbar-font, 'monospace');
-          font-size: 11px;
+          font-size: 12px;
         }
 
         #urlbar {
@@ -245,9 +239,10 @@ with config.theme; {
         }
 
         /* Hide tab if only one tab */
-        #tabbrowser-tabs .tabbrowser-tab:only-of-type,
-        #tabbrowser-tabs .tabbrowser-tab:only-of-type + #tabbrowser-arrowscrollbox-periphery{ display: none !important; }
-        #tabbrowser-tabs, #tabbrowser-arrowscrollbox { min-height: 0 !important; }
+        /* TODO: fix this */
+        /* #tabbrowser-tabs .tabbrowser-tab:only-of-type, */
+        /* #tabbrowser-tabs .tabbrowser-tab:only-of-type + #tabbrowser-arrowscrollbox-periphery{ display: none !important; } */
+        /* #tabbrowser-tabs, #tabbrowser-arrowscrollbox { min-height: 0 !important; } */
 
         /* Change color of normal tabs */
         tab:not([selected="true"]) {
@@ -280,6 +275,9 @@ with config.theme; {
           --tab-label-mask-size: 1em !important;
           /* fix pinned tab behaviour on overflow */
           overflow-clip-margin: 0px !important;
+        }
+        .tab-content {
+          max-height: var(--tab-min-height) !important;
         }
 
         /* Tab: selected colors */
