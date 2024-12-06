@@ -195,6 +195,8 @@
     gamescope
     lsof
     lutris-unwrapped
+    wineWowPackages.waylandFull
+    freetype # fonts needed for wine
     mangohud
     ntfs3g
     parted
@@ -210,6 +212,10 @@
     enable = true;
     # doesn't work, always sends notifications of 0%, probably the devices fault
     batteryNotifier.enable = false;
+  };
+  hardware.amdgpu.amdvlk = {
+    enable = true;
+    support32Bit.enable = true;
   };
 
   environment.sessionVariables = {
