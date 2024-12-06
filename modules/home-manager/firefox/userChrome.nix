@@ -37,7 +37,6 @@ with config.theme; {
             transform: translateY(var(--tab-min-height));
           }
           #nav-bar:focus-within {
-            min-height: var(--urlbar-height-setting) !important;
             transform: translateY(var(--tab-min-height));
             opacity: 1;
           }
@@ -52,7 +51,6 @@ with config.theme; {
       */
       ''
         :root {
-          font-family: 'JetBrainsMono Nerd Font', monospace !important;
           --tab-active-bg-color: ${bg2};
           --tab-inactive-bg-color: ${bg0};
           --tab-active-fg-fallback-color: ${foreground};		/* color of text in an active tab without a container */
@@ -67,7 +65,7 @@ with config.theme; {
 
           /* try increasing if you encounter problems */
           --urlbar-height-setting: 24px;
-          --tab-min-height: 32px !important;
+          --tab-min-height: 16px !important;
 
           /* I don't recommend you touch this unless you know what you're doing */
           --arrowpanel-menuitem-padding: 2px !important;
@@ -82,17 +80,6 @@ with config.theme; {
 
         /* --- GENERAL DEBLOAT ---------------------------------- */
 
-        /* Bottom left page loading status or url preview */
-        /* #statuspanel { display: none !important; } */
-
-        /* Hide dropdown that appears when you type in search bar */
-        .autocomplete-history-popup, panel[type=autocomplete-richlistbox], panel[type=autocomplete] {
-          display: none !important;
-        }
-        .urlbarView {
-          display: none !important;
-        }
-
         /* remove radius from right-click popup */
         menupopup, panel { --panel-border-radius: 0px !important; }
         menu, menuitem, menucaption { border-radius: 0px !important; }
@@ -103,20 +90,22 @@ with config.theme; {
 
         /* --- DEBLOAT NAVBAR ----------------------------------- */
 
-        /* #back-button { display: none; } */
-        /* #forward-button { display: none; } */
-        #reload-button { display: none; }
-        #stop-button { display: none; }
         #home-button { display: none; }
         #library-button { display: none; }
         #fxa-toolbar-menu-button { display: none; }
         /* empty space before and after the url bar */
         #customizableui-special-spring1, #customizableui-special-spring2 { display: none; }
+        .private-browsing-indicator-with-label { display: none; }
 
         /* --- STYLE NAVBAR ------------------------------------ */
 
         /* remove padding between toolbar buttons */
         toolbar .toolbarbutton-1 { padding: 0 0 !important; }
+
+        /* add it back to the downloads button, otherwise it's too close to the urlbar */
+        #downloads-button {
+          margin-left: 2px !important;
+        }
 
         /* add padding to the right of the last button so that it doesn't touch the edge of the window */
         #PanelUI-menu-button {
@@ -130,7 +119,7 @@ with config.theme; {
           padding-top: 0 !important;
           padding-bottom: 0 !important;
           font-family: var(--urlbar-font, 'monospace');
-          font-size: 12px;
+          font-size: 11px;
         }
 
         #urlbar {
@@ -150,12 +139,12 @@ with config.theme; {
         }
 
         /* keep pop-up menus from overlapping with navbar */
-        #widget-overflow { margin: 0 !important; }
-        #appMenu-popup { margin: 0 !important; }
-        #customizationui-widget-panel { margin: 0 !important; }
-        #unified-extensions-panel { margin: 0 !important; }
+        #widget-overflow { margin: 4px !important; }
+        #customizationui-widget-panel { margin: 4px !important; }
+        #unified-extensions-panel { margin-top: 4px !important; }
+        #appMenu-popup { margin-top: 4px !important; }
 
-        /* --- style statuspanel -------------------------------- */
+        /* --- STYLE STATUSPANEL -------------------------------- */
          #statuspanel[mirror],
          #statuspanel:not([mirror]) {
            left: auto !important;
@@ -199,10 +188,6 @@ with config.theme; {
           padding: 3px 0px !important;
         }
 
-        #unified-extensions-view .unified-extensions-item-menu-button {
-          margin-inline-end: 0 !important;
-        }
-
         #unified-extensions-view .toolbarbutton-icon {
           padding: 0 !important;
         }
@@ -212,6 +197,14 @@ with config.theme; {
           white-space: nowrap !important;
         }
 
+        #unified-extensions-panel .unified-extensions-item {
+          margin-block: 0 !important;
+        }
+
+        .toolbar-menupopup :is(menu, menuitem), .subview-subheader, panelview
+        .toolbarbutton-1, .subviewbutton, .widget-overflow-list .toolbarbutton-1 {
+          padding: 4px !important;
+        }
         /* --- DEBLOAT URLBAR ----------------------------------- */
 
         #pocket-button { display: none; }
@@ -223,43 +216,65 @@ with config.theme; {
         #urlbar-go-button { display: none; }
 
         /* remove container indicator from urlbar */
-        /* #userContext-label, #userContext-indicator { display: none !important;} */
         #userContext-indicator { display: none !important;}
+
+        /* --- HIDE TABS IF ONLY ONE TAB ------------------------ */
+        
+        /* TODO: fix this, I've tried a bunch of things and can't get it to work */
+        /* #tabbrowser-tabs .tabbrowser-tab:only-of-type, */
+        /* #tabbrowser-tabs .tabbrowser-tab:only-of-type + #tabbrowser-arrowscrollbox-periphery{ display: none !important; } */
+        /* #tabbrowser-tabs, #tabbrowser-arrowscrollbox { min-height: 0 !important; } */
+        /* code taken from here https://github.com/MrOtherGuy/firefox-csshacks/blob/master/chrome/hide_tabs_with_one_tab.css */
+        /* #tabbrowser-tabs, */
+        /* #tabbrowser-arrowscrollbox{ */
+        /*     min-height: 0 !important; */
+        /* } */
+        /* .tabbrowser-tab:only-of-type, */
+        /* .tabbrowser-tab[first-visible-tab="true"][last-visible-tab="true"]{ */
+        /*   visibility: collapse; */
+        /*   min-height: 0 !important; */
+        /*   height: 0; */
+        /* } */
 
         /* --- STYLE TAB TOOLBAR -------------------------------- */
 
         #titlebar {
-          --proton-tab-block-margin: 0px !important;
-          --tab-block-margin: 0px !important;
+        	--proton-tab-block-margin: 0px !important;
+        	--tab-block-margin: 0px !important;
         }
 
         #TabsToolbar, .tabbrowser-tab {
-          max-height: var(--tab-min-height) !important;
-          font-size: 11px !important;
+        	max-height: var(--tab-min-height) !important;
+        	font-size: 11px !important;
         }
-
-        /* Hide tab if only one tab */
-        /* TODO: fix this */
-        /* #tabbrowser-tabs .tabbrowser-tab:only-of-type, */
-        /* #tabbrowser-tabs .tabbrowser-tab:only-of-type + #tabbrowser-arrowscrollbox-periphery{ display: none !important; } */
-        /* #tabbrowser-tabs, #tabbrowser-arrowscrollbox { min-height: 0 !important; } */
 
         /* Change color of normal tabs */
         tab:not([selected="true"]) {
-          background-color: var(--tab-inactive-bg-color) !important;
-          color: var(--identity-icon-color, var(--tab-inactive-fg-fallback-color)) !important;
+        	background-color: var(--tab-inactive-bg-color) !important;
+        	color: var(--identity-icon-color, var(--tab-inactive-fg-fallback-color)) !important;
         }
 
         tab {
-          font-family: var(--tab-font, monospace);
-          font-weight: bold;
-          border: none !important;
+        	font-family: var(--tab-font, monospace);
+        	font-weight: bold;
+        	border: none !important;
+        	padding-top: 0 !important;
+        }
+
+        .tab-content {
+        	padding: 0 0 0 var(--tab-inline-padding);
+        }
+
+        .tab-background {
+        	margin-block: 0 !important;
+        	min-height: var(--tab-min-height);
+        	outline-offset: 0 !important;
         }
 
         /* safari style tab width */
         .tabbrowser-tab[fadein] {
-          max-width: 100vw !important;
-          border: none
+        	max-width: 100vw !important;
+        	border: none
         }
 
         /* Hide close button on tabs */
@@ -269,26 +284,23 @@ with config.theme; {
         /* .tab-icon-stack:not([pinned]) { display: none !important; } */
 
         .tabbrowser-tab {
-          /* remove border between tabs */
-          padding-inline: 0px !important;
-          /* reduce fade effect of tab text */
-          --tab-label-mask-size: 1em !important;
-          /* fix pinned tab behaviour on overflow */
-          overflow-clip-margin: 0px !important;
-        }
-        .tab-content {
-          max-height: var(--tab-min-height) !important;
+        	/* remove border between tabs */
+        	padding-inline: 0px !important;
+        	/* reduce fade effect of tab text */
+        	--tab-label-mask-size: 1em !important;
+        	/* fix pinned tab behaviour on overflow */
+        	overflow-clip-margin: 0px !important;
         }
 
         /* Tab: selected colors */
         #tabbrowser-tabs .tabbrowser-tab[selected] .tab-content {
-          background: var(--tab-active-bg-color) !important;
-          color: var(--identity-icon-color, var(--tab-active-fg-fallback-color)) !important;
+        	background: var(--tab-active-bg-color) !important;
+        	color: var(--identity-icon-color, var(--tab-active-fg-fallback-color)) !important;
         }
 
         /* Tab: hovered colors */
         #tabbrowser-tabs .tabbrowser-tab:hover:not([selected]) .tab-content {
-          background: var(--tab-active-bg-color) !important;
+        	background: var(--tab-active-bg-color) !important;
         }
 
         /* hide window controls */
@@ -306,7 +318,7 @@ with config.theme; {
         #tabbrowser-tabs[haspinnedtabs]:not([positionpinnedtabs]) >
         #tabbrowser-arrowscrollbox >
         .tabbrowser-tab:nth-child(1 of :not([pinned], [hidden])) {
-          margin-inline-start: 0px !important;
+        	margin-inline-start: 0px !important;
         }
 
         /* remove dropdown menu button which displays all tabs on overflow */
@@ -314,7 +326,11 @@ with config.theme; {
 
         /* fix displaying of pinned tabs on overflow */
         #tabbrowser-tabs:not([secondarytext-unsupported]) .tab-label-container {
-          height: var(--tab-min-height) !important;
+        	height: var(--tab-min-height) !important;
+        }
+
+        #tabbrowser-tabs {
+        	min-height: var(--tab-min-height) !important;
         }
 
         /* remove overflow scroll buttons */
@@ -322,14 +338,13 @@ with config.theme; {
 
         /* remove new tab button */
         #tabs-newtab-button {
-          display: none !important;
+        	display: none !important;
         }
 
         /* hide private browsing indicator */
         #private-browsing-indicator-with-label {
-          display: none;
+        	display: none;
         }
-
         /* --- AUTOHIDE NAVBAR ---------------------------------- */
 
         /* hide navbar unless focused */
