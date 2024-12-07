@@ -50,6 +50,35 @@
               hl_groups = {},
             }
           }
+
+          -- custom commands for previous and next daily note
+          local offset_daily = function(offset)
+              local filename = vim.fn.expand("%:t:r")
+              local year, month, day = filename:match("(%d+)-(%d+)-(%d+)")
+              local date = os.time({ year = year, month = month, day = day })
+              local client = require("obsidian").get_client()
+              local note = client:_daily(date + (offset * 3600 * 24))
+              client:open_note(note)
+          end
+
+          vim.api.nvim_create_user_command("ObsidianPrevDay", function(_)
+              offset_daily(-1)
+          end, {
+              bang = false,
+              bar = false,
+              register = false,
+              desc = "Create and switch to the previous daily note based on current buffer",
+          })
+
+          vim.api.nvim_create_user_command("ObsidianNextDay", function(_)
+              offset_daily(1)
+          end, {
+              bang = false,
+              bar = false,
+              register = false,
+              desc = "Create and switch to the next daily note based on current buffer",
+          })
+
           vim.opt.conceallevel = 2
           vim.keymap.set('n', '<leader>od',
             vim.cmd.ObsidianToday, { desc = '[O]bsidian [D]aily note for Today' })
@@ -62,8 +91,12 @@
             function()
               vim.cmd("ObsidianDailies -30 1")
             end, { desc = '[O]bsidian [R]ecent' })
+          -- keybindings for custom commands
           vim.keymap.set('n', '<leader>on',
-            vim.cmd.ObsidianNewNote, { desc = '[O]bsidian [N]ew note' })
+            vim.cmd.ObsidianNextDay, { desc = '[O]bsidian [N]ext Daily Note' })
+          vim.keymap.set('n', '<leader>op',
+            vim.cmd.ObsidianPrevDay, { desc = '[O]bsidian [P]revious Daily Note' })
+
           vim.keymap.set('n', '<leader>ot',
             vim.cmd.ObsidianTemplate, { desc = '[O]bsidian [T]emplate' })
           vim.keymap.set('n', '<leader>oo',
