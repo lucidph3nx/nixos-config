@@ -4,6 +4,7 @@
     lua-language-server
     nil
     terraform-ls
+    typescript-language-server
     yaml-language-server
   ];
   programs.neovim.plugins = [
