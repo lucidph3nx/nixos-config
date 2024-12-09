@@ -157,6 +157,11 @@ with config.theme; {
           #contents {
             margin-left: 0px !important;
           }
+          /* hide sugested videos section */
+          #secondary {
+            display: none !important;
+          }
+          /* note, this will mess with the video format unless you apply a cookie like this `document.cookie = 'wide=1; expires='+new Date('3099').toUTCString()+'; path=/';` */
         }
 
         /* squared customised github */
