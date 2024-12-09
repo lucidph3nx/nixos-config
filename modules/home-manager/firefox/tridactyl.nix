@@ -27,12 +27,12 @@
         " Quickmarks
         quickmark c calendar.google.com
         quickmark g github.com
-        quickmark i instagram.com
+        quickmark i about:blank " instagram.com
         quickmark j https://jardengroup.atlassian.net/jira/software/c/projects/PLAT/boards/191
         quickmark m messenger.com
-        quickmark r reddit.com
+        quickmark r about:blank " reddit.com
         quickmark w https://www.metservice.com/towns-cities/locations/wellington
-        quickmark y youtube.com
+        quickmark y about:blank " youtube.com
         " Editor
         set editorcmd kitty --class qute-editor -e nvim
         " Theme
