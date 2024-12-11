@@ -31,6 +31,7 @@
       openssl
       p7zip
       pdftk
+      python3Full
       ripgrep
       sops
       unrar
