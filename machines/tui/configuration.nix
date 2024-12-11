@@ -32,6 +32,7 @@
       music.enable = true;
     };
     input-remapper.enable = true;
+    nfs-mounts.enable = true;
   };
 
   # Bootloader.
