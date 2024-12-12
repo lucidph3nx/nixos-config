@@ -268,7 +268,7 @@ def get_battery_info():
 
     # Check if battery exists
     if not os.path.exists(battery_path):
-        return json.dumps({"error": "Battery not found"})
+        return {"capacity": 0, "status": "No Battery", "low": False}
 
     # Read the capacity and status from the sysfs interface
     try:
