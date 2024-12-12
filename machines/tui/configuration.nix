@@ -254,9 +254,6 @@
     openFirewall = true;
   };
 
-  # power management
-  services.power-profiles-daemon.enable = true;
-
   # gaming
   hardware.graphics = {
     enable = true;

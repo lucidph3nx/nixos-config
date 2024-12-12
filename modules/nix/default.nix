@@ -44,6 +44,9 @@
         "lucidph3nx-nixos-config.cachix.org-1:gXiGMMDnozkXCjvOs9fOwKPZNIqf94ZA/YksjrKekHE="
       ];
     };
+    # power management
+    services.power-profiles-daemon.enable = true;
+
     virtualisation.docker.enable = true;
     # zsh bootstrap
     programs.zsh = {
