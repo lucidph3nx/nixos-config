@@ -3,9 +3,11 @@
 import json
 import subprocess
 import re
+import os
+import requests
 
-
-def get_pipewire_audio_info():
+def get_pipewire_audio_info(host):
+    hostname = host.get("name", "unknown")
     """Fetch current audio output sync information from PipeWire."""
     try:
         # Run the pw-dump command to get PipeWire info
@@ -52,7 +54,7 @@ def get_pipewire_audio_info():
                     ["wpctl", "get-volume", str(node.get("id"))],
                     capture_output=True,
                     text=True,
-                    check=True
+                    check=True,
                 )
                 # parse "Volume: 0.35" to get the volume percentage
                 volume_percent = float(volume.stdout.split(":")[1].strip()) * 100
@@ -77,7 +79,7 @@ def get_pipewire_audio_info():
                     ["wpctl", "get-volume", str(node.get("id"))],
                     capture_output=True,
                     text=True,
-                    check=True
+                    check=True,
                 )
                 # parse "Volume: 0.35" to get the volume percentage
                 volume_percent = float(volume.stdout.split(":")[1].strip()) * 100
@@ -94,6 +96,7 @@ def get_pipewire_audio_info():
     except json.JSONDecodeError:
         print("Error decoding JSON from pw-dump.")
         return []
+
 
 def get_network_status():
     """Fetch current network status using NetworkManager and return only the default network."""
@@ -248,35 +251,157 @@ def get_host_info():
                 host_info["operating_system"] = line.split(":")[1].strip()
 
         # Return the host information
-        return {"host": host_info}
+        return host_info
 
     except subprocess.CalledProcessError as e:
         print(f"Error calling hostnamectl: {e}")
         return {
-            "host": {
-                "name": "unknown",
-                "kernel": "unknown",
-                "architecture": "unknown",
-                "operating_system": "unknown",
-            }
+            "name": "unknown",
+            "kernel": "unknown",
+            "architecture": "unknown",
+            "operating_system": "unknown",
         }
 
 
-def main():
-    host_info = get_host_info()
-    audio = get_pipewire_audio_info()
-    network = get_network_status()
-    mouse = get_mouse_battery_status()
+def get_battery_info():
+    battery_path = "/sys/class/power_supply/BAT0"
 
-    # Produce a simplified JSON output
-    output = {
-        "host": host_info,
-        "audio": audio,
-        "network": network,
-        "mouse": mouse,
+    # Check if battery exists
+    if not os.path.exists(battery_path):
+        return json.dumps({"error": "Battery not found"})
+
+    # Read the capacity and status from the sysfs interface
+    try:
+        with open(os.path.join(battery_path, "capacity"), "r") as f:
+            capacity = int(f.read().strip())
+        with open(os.path.join(battery_path, "status"), "r") as f:
+            status = f.read().strip().lower()
+
+        # Determine if the battery is low
+        low = capacity < 20
+
+        # Return the data as JSON
+        battery_info = {"capacity": capacity, "status": status, "low": low}
+        return battery_info
+
+    except FileNotFoundError as e:
+        return json.dumps({"error": f"File not found: {str(e)}"})
+    except ValueError as e:
+        return json.dumps({"error": f"Invalid value: {str(e)}"})
+
+def get_power_profile():
+    # use powerprofilesctl to get the current power profile
+    try:
+        result = subprocess.run(
+            ["powerprofilesctl", "get"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return result.stdout.strip()
+    except subprocess.CalledProcessError as e:
+        print(f"Error calling powerprofilesctl: {e}")
+        return "unknown"
+
+def get_idle_inhibit_status():
+    # use powerprofilesctl to get the current idle inhibit status
+    try:
+        result = subprocess.run(
+            ["cli.system.inhibitIdle", "status"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return result.stdout.strip()
+    except subprocess.CalledProcessError as e:
+        print(f"Error calling cli.system.inhibitIdle: {e}")
+        return "unknown"
+
+def get_notifications():
+    # use swaync-client to get the current notifications
+    try:
+        result = subprocess.run(
+            ["swaync-client", "--count"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        # return count and has_notifications as a json object
+        return {
+            "count": int(result.stdout.strip()),
+            "has_notifications": bool(int(result.stdout.strip())),
+        }
+    except subprocess.CalledProcessError as e:
+        print(f"Error calling swaync-client: {e}")
+        return "unknown"
+
+def get_office_temperature():
+    # get the home-assistant api key from env $HASS_API_KEY
+    HASS_API_KEY = os.getenv("HASS_API_KEY")
+    SECRET_DOMAIN = os.getenv("SECRET_DOMAIN")
+
+    url = f"https://home-assistant.{SECRET_DOMAIN}/api/states/sensor.office_sensor_temperature"
+    headers = {
+        "Authorization": f"Bearer {HASS_API_KEY}",
+        "Content-Type": "application/json"
     }
 
-    print(json.dumps(output, indent=2))
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        data = json.loads(response.text)
+        temperature = data['attributes']['temperature']
+        unit = data['attributes']['unit_of_measurement']
+        return (f" {temperature}{unit}")
+    else:
+        print(f"Error getting office temperature: {response.status_code}")
+        return "unknown"
+
+def get_office_humidity():
+    # get the home-assistant api key from env $HASS_API_KEY
+    HASS_API_KEY = os.getenv("HASS_API_KEY")
+    SECRET_DOMAIN = os.getenv("SECRET_DOMAIN")
+
+    url = f"https://home-assistant.{SECRET_DOMAIN}/api/states/sensor.office_sensor_humidity"
+    headers = {
+        "Authorization": f"Bearer {HASS_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        data = json.loads(response.text)
+        temperature = data['attributes']['humidity']
+        unit = data['attributes']['unit_of_measurement']
+        return (f" {temperature}{unit}")
+    else:
+        print(f"Error getting office humidity: {response.status_code}")
+        return "unknown"
+
+def main():
+    # Produce a simplified JSON output
+    host_info = get_host_info()
+    output = {
+        "host": host_info,
+        "audio": get_pipewire_audio_info(host_info),
+        "network": get_network_status(),
+        "power": {
+            "mouse": get_mouse_battery_status(),
+            "battery": get_battery_info(),
+            "profile": get_power_profile(),
+            "idle_inhibit": get_idle_inhibit_status(),
+        },
+        "notifications": get_notifications(),
+        "environment": {
+            "office": {
+                "temperature": get_office_temperature(),
+                "humidity": get_office_humidity(),
+            }
+        },
+    }
+
+    print(json.dumps(output, indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":

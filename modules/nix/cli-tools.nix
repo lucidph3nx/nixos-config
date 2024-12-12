@@ -31,7 +31,9 @@
       openssl
       p7zip
       pdftk
-      python3Full
+      (python3.withPackages (python312Packages: [
+        python312Packages.requests
+      ]))
       ripgrep
       sops
       unrar
