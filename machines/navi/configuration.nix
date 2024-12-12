@@ -275,17 +275,31 @@
           {
             "matches" = [
               {
-                # disable, not a output device (microphone)
-                "device.name" = "alsa_output.usb-AT_AT2020USB-X_202011110001-00.analog-stereo";
+                # disable, not a output device
+                "node.name" = "alsa_output.usb-AT_AT2020USB-X_202011110001-00.analog-stereo";
               }
-            ];
-            "actions" = [
               {
-                "update-props" = {
-                  "device.disabled" = true;
-                };
+                # Bult in output disable, nothing plugged in
+                "node.name" = "alsa_output.pci-0000_00_1f.3.iec958-stereo";
+              }
+              {
+                # HDMI output disable, never used
+                "node.name" = "alsa_output.pci-0000_03_00.1.hdmi-stereo-extra4";
+              }
+              {
+                # disable, webcam should never be used for audio
+                "node.name" = "alsa_input.usb-046d_Logitech_StreamCam_F2867D05-02.analog-stereo";
+              }
+              {
+                # Bult in input disable, nothing plugged in
+                "node.name" = "alsa_input.pci-0000_00_1f.3.analog-stereo";
               }
             ];
+            "actions" = {
+                "update-props" = {
+                  "node.disabled" = true;
+                };
+            };
           }
         ];
       };
