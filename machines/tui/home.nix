@@ -11,7 +11,7 @@
   ];
   # my own modules
   # setTheme = "github-light";
-  setTheme = "onedark";
+  setTheme = "everforest";
   homeManagerModules = {
     calibre.enable = true;
     darktable.enable = true;
