@@ -215,7 +215,6 @@ def get_mouse_battery_status():
             }
 
     except subprocess.CalledProcessError as e:
-        print(f"Error calling polychromatic-cli: {e}")
         return {
             "battery": "unknown",
             "charging": False,
@@ -379,6 +378,45 @@ def get_office_humidity():
         print(f"Error getting office humidity: {response.status_code}")
         return "unknown"
 
+def mpd_now_playing():
+    """Fetches and parses MPC information to generate a friendly now playing message.
+
+    Returns:
+        str: The formatted now playing message.
+    """
+
+    # Fetch MPC output
+    mpc_json = subprocess.run(['mpc', '-f', "'{\"name\":\"%name%\", \"artist\":\"%artist%\", \"album\":\"%album%\", \"albumartist\":\"%albumartist%\", \"comment\":\"%comment%\", \"composer\":\"%composer%\", \"date\":\"%date%\", \"originaldate\":\"%originaldate%\", \"disc\":\"%disc%\", \"genre\":\"%genre%\", \"performer\":\"%performer%\", \"title\":\"%title%\", \"track\":\"%track%\", \"time\":\"%time%\", \"file\":\"%file%\", \"position\":\"%position%\", \"id\":\"%id%\", \"prio\":\"%prio%\", \"mtime\":\"%mtime%\", \"mdate\":\"%mdate%\", \"audioformat\":\"%audioformat%\"}'"], capture_output=True, text=True).stdout.strip().splitlines()[0]
+    mpc_status = subprocess.run(['mpc', 'status'], capture_output=True, text=True).stdout.strip().splitlines()
+    mpc_json = mpc_json.replace("'", '')
+
+    # Parse JSON metadata
+    metadata = json.loads(mpc_json)
+    artist = metadata.get('artist', '')
+    title = metadata.get('title', '')
+
+    # Determine display artist
+    display_artist = artist if artist else metadata.get('name', '')
+
+    # Parse playback status
+    playing_status = re.search(r'\[(.*)\]', mpc_status[1]).group(1)
+    elapsed_time, total_time = re.findall(r'\d+:\d+', mpc_status[1])
+
+    # Set play icon based on status
+    play_icon = {
+        'playing': '',
+        'paused': '',
+    }.get(playing_status, '')  # Default for stopped
+
+    # Format time information
+    time_info = f' ({elapsed_time}/{total_time})' if total_time != '0:00' else ''
+
+    # Format the now playing message
+    now_playing = f"{play_icon} {display_artist} - {title}{time_info} 󰝚"
+    now_playing = now_playing.replace('&', '&amp;')
+
+    return {"now_playing": now_playing}
+
 def main():
     # Produce a simplified JSON output
     host_info = get_host_info()
@@ -399,10 +437,10 @@ def main():
                 "humidity": get_office_humidity(),
             }
         },
+        "mpd": mpd_now_playing(),
     }
 
     print(json.dumps(output, indent=2, ensure_ascii=False))
-
 
 if __name__ == "__main__":
     main()
