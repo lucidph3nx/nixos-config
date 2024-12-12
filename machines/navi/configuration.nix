@@ -270,6 +270,25 @@
       "10-default-source" = {
         "wireplumber.settings"."default.configured.audio.source" = "alsa_input.usb-AT_AT2020USB-X_202011110001-00.mono-fallback";
       };
+      "51-alsa-disable" = {
+        "monitor.alsa.rules" = [
+          {
+            "matches" = [
+              {
+                # disable, not a output device (microphone)
+                "device.name" = "alsa_output.usb-AT_AT2020USB-X_202011110001-00.analog-stereo";
+              }
+            ];
+            "actions" = [
+              {
+                "update-props" = {
+                  "device.disabled" = true;
+                };
+              }
+            ];
+          }
+        ];
+      };
     };
   };
   security.rtkit.enable = true;
