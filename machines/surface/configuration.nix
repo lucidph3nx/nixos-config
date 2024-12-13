@@ -91,6 +91,7 @@
     mkdir -p /persist/home/ben
     mkdir -p /persist/home/ben/.ssh
     chown -R ben:users /persist/home/ben
+    mkdir -p /persist/home/ben/downloads
   '';
 
   networking.hostName = "surface";

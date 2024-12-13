@@ -138,6 +138,7 @@
     mkdir -p /persist/home/ben/.ssh
     mkdir -p /persist/home/ben/.local/share/Steam
     chown -R ben:users /persist/home/ben
+    mkdir -p /persist/home/ben/downloads
   '';
 
   networking = {
