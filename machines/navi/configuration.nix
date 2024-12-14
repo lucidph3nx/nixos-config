@@ -138,7 +138,10 @@
     mkdir -p /persist/home/ben/.ssh
     mkdir -p /persist/home/ben/.local/share/Steam
     chown -R ben:users /persist/home/ben
-    mkdir -p /persist/home/ben/downloads
+  '';
+  # ensure these empty directories exist
+  system.activationScripts.emptyDirs = ''
+    mkdir -p /home/ben/downloads
   '';
 
   networking = {
