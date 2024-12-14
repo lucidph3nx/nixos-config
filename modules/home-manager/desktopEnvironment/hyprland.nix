@@ -452,7 +452,7 @@ in {
         */
         ''
           #!/bin/sh
-          hyprctl dispatch exec hyprlock &&
+          hyprctl dispatch exec hyprlock ;
           systemctl suspend
         '';
     };
