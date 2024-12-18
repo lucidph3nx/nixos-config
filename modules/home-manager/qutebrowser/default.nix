@@ -380,6 +380,12 @@
           '')
       ];
     };
+      home.file = {
+        ".config/qutebrowser/userscripts/" = {
+          source = ./userscripts;
+          recursive = true;
+        };
+      };
       home.persistence."/persist/home/ben" = {
         directories = [
           ".local/share/qutebrowser"
