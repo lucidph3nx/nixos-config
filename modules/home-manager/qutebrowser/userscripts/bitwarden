@@ -17,8 +17,7 @@ If enabled, with the `--totp` flag, it will also move the TOTP code to the
 clipboard, much like the Firefox add-on.
 
 You must log into Bitwarden CLI using `bw login` prior to use of this script.
-The session key will be stored using keyctl for the number of seconds passed to
-the --auto-lock option.
+The session key will be stored in $XDG_RUNTIME_DIR.
 
 To use in qutebrowser, run: `spawn --userscript qute-bitwarden`
 """
@@ -58,8 +57,6 @@ argument_parser.add_argument('--io-encoding', '-i', default='UTF-8',
                              help='Encoding used to communicate with subprocesses')
 argument_parser.add_argument('--merge-candidates', '-m', action='store_true',
                              help='Merge pass candidates for fully-qualified and registered domain name')
-argument_parser.add_argument('--auto-lock', type=int, default=900,
-                             help='Automatically lock the vault after this many seconds')
 group = argument_parser.add_mutually_exclusive_group()
 group.add_argument('--username-only', '-e',
                    action='store_true', help='Only insert username')
@@ -87,6 +84,7 @@ def qute_command(command):
 
 
 def ask_password(password_prompt_invocation):
+    """Prompt the user for their Bitwarden master password and unlock the vault."""
     process = subprocess.run(
         shlex.split(password_prompt_invocation),
         text=True,
@@ -100,37 +98,30 @@ def ask_password(password_prompt_invocation):
         text=True,
     ).strip()
 
+def get_session_file_path():
+    """Get the path to store the session key."""
+    runtime_dir = os.getenv('XDG_RUNTIME_DIR', '/tmp')
+    return os.path.join(runtime_dir, 'bw_session_key')
 
-def get_session_key(auto_lock, password_prompt_invocation):
-    if auto_lock == 0:
-        subprocess.call(['keyctl', 'purge', 'user', 'bw_session'])
-        return ask_password(password_prompt_invocation)
-    else:
-        process = subprocess.run(
-            ['keyctl', 'request', 'user', 'bw_session'],
-            text=True,
-            stdout=subprocess.PIPE,
-        )
-        key_id = process.stdout.strip()
-        if process.returncode > 0:
+def get_session_key(password_prompt_invocation):
+    """Retrieve the session key from the file or prompt for it if not available."""
+    session_file = get_session_file_path()
+    try:
+        if os.path.exists(session_file):
+            with open(session_file, 'r', encoding='utf-8') as f:
+                return f.read().strip()
+        else:
             session = ask_password(password_prompt_invocation)
-            if not session:
-                raise Exception('Could not unlock vault')
-            key_id = subprocess.check_output(
-                ['keyctl', 'add', 'user', 'bw_session', session, '@u'],
-                text=True,
-            ).strip()
-
-        if auto_lock > 0:
-            subprocess.call(['keyctl', 'timeout', str(key_id), str(auto_lock)])
-        return subprocess.check_output(
-            ['keyctl', 'pipe', str(key_id)],
-            text=True,
-        ).strip()
+            with open(session_file, 'w', encoding='utf-8') as f:
+                f.write(session)
+            return session
+    except Exception as e:
+        stderr(f"Error managing session key: {e}")
+        raise
 
 
-def pass_(domain, encoding, auto_lock, password_prompt_invocation):
-    session_key = get_session_key(auto_lock, password_prompt_invocation)
+def pass_(domain, encoding, password_prompt_invocation):
+    session_key = get_session_key(password_prompt_invocation)
     process = subprocess.run(
         ['bw', 'list', 'items', '--session', session_key, '--url', domain],
         capture_output=True,
@@ -149,8 +140,8 @@ def pass_(domain, encoding, auto_lock, password_prompt_invocation):
     return out
 
 
-def get_totp_code(selection_id, domain_name, encoding, auto_lock, password_prompt_invocation):
-    session_key = get_session_key(auto_lock, password_prompt_invocation)
+def get_totp_code(selection_id, domain_name, encoding, password_prompt_invocation):
+    session_key = get_session_key(password_prompt_invocation)
     process = subprocess.run(
         ['bw', 'get', 'totp', '--session', session_key, selection_id],
         capture_output=True,
@@ -205,7 +196,6 @@ def main(arguments):
             pass_(
                 target,
                 arguments.io_encoding,
-                arguments.auto_lock,
                 arguments.password_prompt_invocation,
             )
         )
@@ -253,7 +243,6 @@ def main(arguments):
                 selection['id'],
                 selection['name'],
                 arguments.io_encoding,
-                arguments.auto_lock,
                 arguments.password_prompt_invocation,
             )
         )
@@ -278,7 +267,6 @@ def main(arguments):
                 selection['id'],
                 selection['name'],
                 arguments.io_encoding,
-                arguments.auto_lock,
                 arguments.password_prompt_invocation,
             )
         )

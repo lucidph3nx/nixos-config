@@ -33,6 +33,8 @@
       pdftk
       (python3.withPackages (python312Packages: [
         python312Packages.requests
+        python312Packages.tldextract
+        python312Packages.pyperclip
       ]))
       ripgrep
       sops
