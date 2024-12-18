@@ -14,7 +14,6 @@
     ./obsidian.nix
     ./picard.nix
     ./plexamp.nix
-    ./qutebrowser.nix
     ./vimiv.nix
     ./webcord.nix
     ./zathura.nix

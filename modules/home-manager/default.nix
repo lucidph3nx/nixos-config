@@ -9,6 +9,7 @@
     ./firefox
     ./guiApps
     ./neovim
+    ./qutebrowser
     ./scripts
     ./sshConfig
   ];
