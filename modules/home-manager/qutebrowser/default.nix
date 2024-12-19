@@ -17,6 +17,12 @@
     qutebrowser-setup = pkgs.writeShellScript "qutebrowser-setup" (
       builtins.concatStringsSep "\n" (builtins.map (n: "${config.programs.qutebrowser.package}/share/qutebrowser/scripts/dictcli.py install ${n}") config.programs.qutebrowser.settings.spellcheck.languages)
     );
+    bitwarden-userscript =
+      pkgs.writers.writePython3Bin "bitwarden" {
+        flakeIgnore = ["E126" "E302" "E501" "E402" "E265" "W503"];
+        libraries = with pkgs.python312Packages; [tldextract pyperclip];
+      }
+      (builtins.readFile ./userscripts/bitwarden);
   in {
     # systemd unit to fetch qutebrowser dicts
     systemd.user.services.qutebrowser-setup = {
@@ -92,6 +98,8 @@
           favicons = {
             scale = 1;
           };
+          # close window if last tab is closed
+          last_close = "close";
         };
         fileselect = {
           handler = "external";
@@ -151,7 +159,7 @@
               bg = "${bg0}";
             };
             odd = {
-              bg = "${bg1}";
+              bg = "${bg_dim}";
             };
             match = {
               fg = "${red}";
@@ -248,20 +256,24 @@
         };
         hints.border = "0px solid black";
       };
-      extraConfig = /* python */ ''
-        # enable geolocation on some sites
-        config.set('content.geolocation',True, 'https://www.bunnings.co.nz')
-        config.set('content.geolocation',True, 'https://www.metlink.org.nz')
-        config.set('content.geolocation',True, 'https://www.newworld.co.nz')
-        config.set('content.geolocation',True, 'https://www.pbtech.co.nz')
-        # tab padding
-        c.tabs.padding = {
-          'bottom': 5,
-          'left': 5,
-          'top': 5,
-          'right': 5,
-        }
-      '';
+      extraConfig =
+        /*
+        python
+        */
+        ''
+          # enable geolocation on some sites
+          config.set('content.geolocation',True, 'https://www.bunnings.co.nz')
+          config.set('content.geolocation',True, 'https://www.metlink.org.nz')
+          config.set('content.geolocation',True, 'https://www.newworld.co.nz')
+          config.set('content.geolocation',True, 'https://www.pbtech.co.nz')
+          # tab padding
+          c.tabs.padding = {
+            'bottom': 5,
+            'left': 5,
+            'top': 5,
+            'right': 5,
+          }
+        '';
       # keybindings
       # I did used to use a combination of config.bind and c.bindings
       # but my 'ch' with no leader did not work in config.bind
@@ -380,16 +392,13 @@
           '')
       ];
     };
-      home.file = {
-        ".config/qutebrowser/userscripts/" = {
-          source = ./userscripts;
-          recursive = true;
-        };
-      };
-      home.persistence."/persist/home/ben" = {
-        directories = [
-          ".local/share/qutebrowser"
-        ];
-      };
+    xdg.dataFile."qutebrowser/userscripts/bitwarden" = {
+      source = "${bitwarden-userscript}/bin/bitwarden";
+    };
+    home.persistence."/persist/home/ben" = {
+      directories = [
+        ".local/share/qutebrowser"
+      ];
+    };
   };
 }
