@@ -30,27 +30,27 @@ in {
                 ObsidianTodo = {
                   fg = '${theme.blue}',
                   bg = 'none',
-                  bold = true
+                  style = 'bold'
                 },
                 ObsidianDone = {
                   fg = '${theme.green}',
                   bg = 'none',
-                  bold = true
+                  style = 'bold'
                 },
                 ObsidianRightArrow = {
                   fg = '${theme.blue}',
                   bg = 'none',
-                  bold = true
+                  style = 'bold'
                 },
                 ObsidianTilde = {
                   fg = '${theme.orange}',
                   bg = 'none',
-                  bold = true
+                  style = 'bold'
                 },
                 ObsidianRefText = {
                   fg = '${theme.blue}',
                   bg = 'none',
-                  bold = true
+                  style = 'NONE' -- no underline for obsidian links
                 },
                 ObsidianExtLinkIcon = {
                   fg = '${theme.blue}',
@@ -59,10 +59,25 @@ in {
                 ObsidianTag = {
                   fg = '${theme.blue}',
                   bg = 'none',
-                  italic = true
-                }
+                  style = 'italic'
+                },
+                ['@markup.heading.1.markdown'] = {
+                  fg = '${theme.blue}',
+                  bg = 'none',
+                  style = 'bold'
+                },
+                ['@markup.heading.2.markdown'] = {
+                  fg = '${theme.green}',
+                  bg = 'none',
+                  style = 'bold'
+                },
+                ['@markup.heading.3.markdown'] = {
+                  fg = '${theme.purple}',
+                  bg = 'none',
+                  style = 'bold'
+                },
               }
-            }
+            },
           })
           vim.cmd('colorscheme github_light')
         '';
