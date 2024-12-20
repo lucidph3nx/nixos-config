@@ -5,7 +5,10 @@
   config,
   ...
 }: {
-  imports = [inputs.ags.homeManagerModules.default];
+  imports = [
+    inputs.ags.homeManagerModules.default
+    ./style.scss.nix
+  ];
   options = {
     homeManagerModules.ags.enable =
       lib.mkEnableOption "Enable AGS"
