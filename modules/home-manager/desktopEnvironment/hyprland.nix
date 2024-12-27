@@ -86,7 +86,6 @@ in {
           # (lib.mkIf (config.theme.name == "github-light") "swaybg -i ${homeDir}/.config/wallpaper_github_light-${resolution}.png --mode fill")
           # "swaybg --color ${builtins.substring 1 6 (theme.bg_dim)}"
           "hypridle"
-          "waybar"
           (lib.mkIf (osConfig.nixModules.isLaptop == false) "steam -silent") # couldn't figure out xdg-autostart
           "${homeDir}/.local/scripts/game.inputRemapper.defaults"
           # default to 70% brightness
@@ -94,7 +93,13 @@ in {
           # default to keyboard backlight off
           (lib.mkIf osConfig.nixModules.isLaptop "${pkgs.brightnessctl}/bin/brightnessctl --device='asus::kbd_backlight' set 0")
           ".local/scripts/cli.hyprland.switchWorkspaceOnWindowClose"
+          "waybar"
+          # ags overview
+          # "ags run"
         ];
+        debug = {
+          disable_logs = false;
+        };
         exec = [
           "pkill waybar && hyprctl dispatch exec waybar"
           "${homeDir}/.local/scripts/cli.system.setHyprGaps"
@@ -186,6 +191,8 @@ in {
           "workspace 2 silent,class:(WebCord)"
           "float, class:(Waydroid)"
           "center, class:(Waydroid)"
+          "float, class:(qute-editor)"
+          "float, class:(qute-filepicker)"
         ];
         windowrule = [
           "size, 480 800 class:(Waydroid)"
@@ -193,7 +200,17 @@ in {
         monitor = [
           ",preferred,auto,auto"
         ];
+        layerrule = [
+          # disable animations for AGS
+          "noanim, gtk-layer-shell"
+        ];
+        bindrt = [
+          # hide ags overview on SUPER_L keyup
+          "SUPER, SUPER_L, exec, ags request -i astal hide"
+        ];
         bind = [
+          # show ags overview on SUPER_L keydown
+          ", SUPER_L, exec, ags request -i astal show"
           # Motions
           # focus window
           "SUPER, h, movefocus, l"
@@ -215,7 +232,6 @@ in {
           "SUPER, 7, workspace, 7"
           "SUPER, 8, workspace, 8"
           "SUPER, 9, workspace, 9"
-          "SUPER, 0, workspace, 0"
           # move active window to workspace
           "SUPER SHIFT, 1, movetoworkspacesilent, 1"
           "SUPER SHIFT, 2, movetoworkspacesilent, 2"
@@ -226,7 +242,6 @@ in {
           "SUPER SHIFT, 7, movetoworkspacesilent, 7"
           "SUPER SHIFT, 8, movetoworkspacesilent, 8"
           "SUPER SHIFT, 9, movetoworkspacesilent, 9"
-          "SUPER SHIFT, 0, movetoworkspacesilent, 0"
           # floating
           "SUPER SHIFT, space, togglefloating"
           # example special workspace TODO more

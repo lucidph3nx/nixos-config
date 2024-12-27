@@ -30,10 +30,13 @@
         inputs.ags.packages.${pkgs.system}.hyprland
       ];
     };
-
-    # home.file = {
-    #   ".config/ags/config.js".source = ./config/config.js;
-    # };
+    home.file = {
+      ".config/ags/app.ts".source = ./config/app.ts;
+      ".config/ags/tsconfig.json".source = ./config/tsconfig.json;
+      ".config/ags/widget/Overview.tsx".source = ./config/widget/Overview.tsx;
+      ".config/ags/lib/DynamicProperty.ts".source = ./config/lib/DynamicProperty.ts;
+      ".config/ags/lib/mpd.ts".source = ./config/lib/mpd.ts;
+    };
     # just persist for now while i work on it
     home.persistence."/persist/home/ben" = {
       directories = [
