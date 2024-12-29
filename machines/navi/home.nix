@@ -10,7 +10,7 @@
     inputs.impermanence.nixosModules.home-manager.impermanence
   ];
   # my own modules
-  setTheme = "onedark";
+  setTheme = "everforest";
   homeManagerModules = {
     ags.enable = true;
     anki.enable = true;
