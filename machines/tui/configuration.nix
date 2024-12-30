@@ -101,10 +101,6 @@
     mkdir -p /persist/home/ben/.local/share/Steam
     chown -R ben:users /persist/home/ben
   '';
-  # ensure these empty directories exist
-  system.activationScripts.emptyDirs = ''
-    mkdir -p /home/ben/downloads
-  '';
 
   networking = {
     hostName = "tui";

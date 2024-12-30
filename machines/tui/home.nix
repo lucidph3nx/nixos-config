@@ -76,6 +76,12 @@
       ".terraform.d"
     ];
   };
+  home.activation = {
+    # ensure these empty directories exist
+    emptyDirs = ''
+      mkdir -p /home/ben/downloads
+    '';
+  };
 
   services.udiskie = {
     enable = true;
