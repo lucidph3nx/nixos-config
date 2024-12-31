@@ -312,15 +312,14 @@ in
           ''
             #!/bin/sh
 
-            # Fetch the mpc output and split it into three parts
-            json=$(mpc -f '{"name":"%name%", "artist":"%artist%", "album":"%album%", "title":"%title%", "time":"%time%"}' | head -n 1)
+            fields=$(mpc -f 'name=%name%\nartist=%artist%\nalbum=%album%\ntitle=%title%\ntime=%time%' | sed 's/^\n//' | head -n 5)
+            name=$(echo "$fields" | grep -oP 'name=\K.*')
+            artist=$(echo "$fields" | grep -oP 'artist=\K.*')
+            album=$(echo "$fields" | grep -oP 'album=\K.*')
+            title=$(echo "$fields" | grep -oP 'title=\K.*')
+            time=$(echo "$fields" | grep -oP 'time=\K.*')
             status=$(mpc status | sed -n '2p')  # Second line contains the playback status and timing info
             player=$(mpc status | sed -n '3p') # Third line contains volume, repeat, random, etc.
-
-            # Parse the metadata with jq
-            artist=$(echo "$json" | jq -r '.artist' 2>/dev/null)
-            name=$(echo "$json" | jq -r '.name' 2>/dev/null)
-            title=$(echo "$json" | jq -r '.title' 2>/dev/null)
 
             # Use name if artist is not available
             if [ -n "$artist" ]; then
