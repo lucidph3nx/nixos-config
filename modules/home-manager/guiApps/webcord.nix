@@ -13,5 +13,10 @@
     home.packages = with pkgs; [
       webcord
     ];
+    home.persistence."/persist/home/ben" = {
+      directories = [
+        ".config/WebCord"
+      ];
+    };
   };
 }
