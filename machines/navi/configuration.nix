@@ -192,11 +192,11 @@
     cheese
     exfat
     ffmpeg
+    freetype # fonts needed for wine
     gamescope
+    gphoto2
     lsof
     lutris-unwrapped
-    wineWowPackages.waylandFull
-    freetype # fonts needed for wine
     mangohud
     ntfs3g
     parted
@@ -207,6 +207,8 @@
     shotcut
     solvespace
     usbutils
+    v4l-utils
+    wineWowPackages.waylandFull
   ];
   hardware.openrazer = {
     enable = true;
