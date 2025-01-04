@@ -310,7 +310,12 @@
   security.rtkit.enable = true;
 
   # cups for printing
-  services.printing.enable = true;
+  services.printing = {
+    enable = true;
+    drivers = [
+      pkgs.brlaser
+    ];
+  };
 
   # gaming
   hardware.graphics = {
