@@ -63,6 +63,12 @@
           tls = {
             certificate_errors = "ask-block-thirdparty";
           };
+          register_protocol_handler = {
+            # don't open calendar links
+            "https://calendar.google.com?cid=%25s" = false;
+            # don't open mail links
+            "https://mail.google.com?extsrc=mailto&url=%25s" = false;
+          };
         };
         confirm_quit = [
           "downloads"
