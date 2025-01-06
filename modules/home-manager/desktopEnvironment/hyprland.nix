@@ -63,15 +63,18 @@ in {
       toggleTouchpad = "${homeDir}/.local/scripts/system.inputs.toggleTouchpad";
       # applications
       terminal = "kitty";
-      browser = "firefox";
-      calendar = "firefox --new-window https://calendar.google.com";
-      home-assistant = "firefox --new-window https://home-assistant.$SECRET_DOMAIN";
-      plex = "firefox --new-window https://plex.$SECRET_DOMAIN";
+      browser = "qutebrowser";
+      newwindow = "${browser} --target window";
+      # browser = "firefox";
+      # newwindow = "${browser} --new-window";
+      calendar = "${newwindow} https://calendar.google.com";
+      home-assistant = "${newwindow} https://home-assistant.$SECRET_DOMAIN";
+      plex = "${newwindow} https://plex.$SECRET_DOMAIN";
       filemanager = "kitty lf";
       musicplayer = "kitty ncmpcpp";
       obsidian = "kitty ${homeDir}/.local/scripts/cli.tmux.projectSessioniser ${homeDir}/documents/obsidian";
       addtoshoppinglist = "${homeDir}/.local/scripts/home.shoppinglist.addItem";
-      openshoppinglist = "firefox --new-window https://www.notion.so/ph3nx/Shopping-List-92d98ac3dc86460285a399c0b1176fc5";
+      openshoppinglist = "${newwindow} https://www.notion.so/ph3nx/Shopping-List-92d98ac3dc86460285a399c0b1176fc5";
       # configuration
       enableAudioControls = osConfig.nixModules.externalAudio.enable == false;
     in {
