@@ -305,6 +305,7 @@
         "gh" = "github.com";
         "gm" = "maps.google.com";
         "ww" = "https://www.metservice.com/towns-cities/locations/wellington";
+        "yt" = "youtube.com";
       };
       searchEngines = {
         "DEFAULT" = "https://search.tinfoilforest.nz/search?q={}";
@@ -315,6 +316,7 @@
         "nixpkgs" = "https://search.nixos.org/packages?channel=unstable&from=0&size=50&sort=relevance&type=packages&query={}";
         "nw" = "https://www.newworld.co.nz/shop/search?q={}";
         "reo" = "https://maoridictionary.co.nz/search?idiom=&phrase=&proverb=&loan=&histLoanWords=&keywords={}";
+        "wk" = "https://en.wikipedia.org/w/index.php?search={}&title=Special%3ASearch&ns0=1";
         "yt" = "https://www.youtube.com/results?search_query={}";
       };
       greasemonkey = with config.theme; [
