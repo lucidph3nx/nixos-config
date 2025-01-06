@@ -11,9 +11,8 @@
       // {
         default = true;
       };
-    # currently doesnt do anything WIP
   };
-  config = let
+  config = lib.mkIf config.homeManagerModules.qutebrowser.enable (let
     qutebrowser-setup = pkgs.writeShellScript "qutebrowser-setup" (
       builtins.concatStringsSep "\n" (builtins.map (n: "${config.programs.qutebrowser.package}/share/qutebrowser/scripts/dictcli.py install ${n}") config.programs.qutebrowser.settings.spellcheck.languages)
     );
@@ -422,5 +421,5 @@
         ".local/share/qutebrowser"
       ];
     };
-  };
+  });
 }
