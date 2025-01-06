@@ -5,6 +5,7 @@
 }: {
   imports = [
     ./anki.nix
+    ./bitwarden.nix
     ./calibre.nix
     ./darktable.nix
     ./dragon-drop.nix
@@ -26,6 +27,7 @@
   config = lib.mkIf config.homeManagerModules.guiApps.enable {
     homeManagerModules = {
       anki.enable = lib.mkDefault false;
+      bitwarden.enable = lib.mkDefault true;
       calibre.enable = lib.mkDefault false;
       darktable.enable = lib.mkDefault false;
       dragon-drop.enable = lib.mkDefault true;
