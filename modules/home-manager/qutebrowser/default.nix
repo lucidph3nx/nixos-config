@@ -90,7 +90,9 @@
           default_family = "JetBrains Mono";
           default_size = "10pt";
         };
-        window.hide_decoration = true;
+        # false beacuse it causes a weird olour shift
+        # https://github.com/qutebrowser/qutebrowser/issues/5528
+        window.hide_decoration = false;
         tabs = {
           position = "top";
           # only show if there are multiple tabs
