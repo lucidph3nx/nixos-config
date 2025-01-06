@@ -12,10 +12,10 @@
     home.packages = with pkgs; [
       bitwarden-desktop
     ];
-    # home.persistence."/persist/home/ben" = {
-    #   directories = [
-    #     ".config/Bitwarden CLI"
-    #   ];
-    # };
+    home.persistence."/persist/home/ben" = {
+      directories = [
+        ".config/Bitwarden"
+      ];
+    };
   };
 }
