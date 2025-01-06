@@ -411,6 +411,8 @@
         https://www.notion.so/ph3nx notion
         https://www.nzpost.co.nz/tools/tracking nzpost tracking
         https://www.openstreetmap.org/#map=13/-41.2751/174.8099 osm
+        https://github.com/lucidph3nx/nixos-config nixos-config
+        https://github.com/lucidph3nx/home-ops home-ops
       '';
     };
     xdg.dataFile."qutebrowser/userscripts/bitwarden" = {
