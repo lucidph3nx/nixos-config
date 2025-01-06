@@ -396,6 +396,18 @@
           '')
       ];
     };
+    xdg.configFile."qutebrowser/bookmarks/urls" = {
+      text = ''
+        https://bank.westpac.co.nz/one/app.html#login bank
+        https://kubesearch.dev/ kubesearch
+        https://mail.google.com/mail/u/0/ gmail0
+        https://mail.google.com/mail/u/1/ gmail1
+        https://music.youtube.com/ ytm
+        https://www.notion.so/ph3nx notion
+        https://www.nzpost.co.nz/tools/tracking nzpost tracking
+        https://www.openstreetmap.org/#map=13/-41.2751/174.8099 osm
+      '';
+    };
     xdg.dataFile."qutebrowser/userscripts/bitwarden" = {
       source = "${bitwarden-userscript}/bin/bitwarden";
     };
