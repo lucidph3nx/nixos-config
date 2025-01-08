@@ -160,6 +160,9 @@
           "ch" = "tab-only --next";
           "cl" = "tab-only --prev";
           "tg" = "tab-give";
+          # open clipboard item shortcuts
+          "p" = "open -- {clipboard}";
+          "P" = "open -t -- {clipboard}";
           # bitwarden bindings
           "<Space>ll" = "spawn --userscript bitwarden --totp";
           "<Space>lu" = "spawn --userscript bitwarden --username-only";
