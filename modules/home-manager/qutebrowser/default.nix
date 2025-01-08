@@ -175,6 +175,7 @@
         https://kubesearch.dev/ kubesearch
         https://mail.google.com/mail/u/0/ gmail0
         https://mail.google.com/mail/u/1/ gmail1
+        https://photos.google.com/ photos
         https://music.youtube.com/ ytm
         https://www.youtube.com/ youtube
         https://www.notion.so/ph3nx notion
