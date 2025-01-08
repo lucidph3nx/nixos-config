@@ -1,13 +1,13 @@
 {
   config,
   pkgs,
-  inputs,
   lib,
   ...
 }: {
   imports = [
     ./colours.nix
     ./greasemonkey.nix
+    ./keybindings.nix
   ];
   options = {
     homeManagerModules.qutebrowser.enable =
@@ -148,33 +148,6 @@
             'right': 5,
           }
         '';
-      # keybindings
-      # I did used to use a combination of config.bind and c.bindings
-      # but my 'ch' with no leader did not work in config.bind
-      # and having a combination of binding strategies caused them to interfere
-      keyBindings = {
-        normal = {
-          # unbind
-          "<Ctrl-h>" = "nop";
-          # close tabs left and right
-          "ch" = "tab-only --next";
-          "cl" = "tab-only --prev";
-          "tg" = "tab-give";
-          # open clipboard item shortcuts
-          "p" = "open -- {clipboard}";
-          "P" = "open -t -- {clipboard}";
-          # bitwarden bindings
-          "<Space>ll" = "spawn --userscript bitwarden --totp";
-          "<Space>lu" = "spawn --userscript bitwarden --username-only";
-          "<Space>lp" = "spawn --userscript bitwarden --password-only";
-          "<Space>lt" = "spawn --userscript bitwarden --totp-only";
-          "<Space>lb" = "spawn --userscript open-bitwarden";
-          # youtube music download
-          "<Space>md" = "spawn --userscript ytm-download";
-          "<Space>y" = "yank selection";
-          "<Space>ff" = "spawn --userscript open-firefox";
-        };
-      };
       quickmarks = {
         "fm" = "messenger.com";
         "gc" = "calendar.google.com";
