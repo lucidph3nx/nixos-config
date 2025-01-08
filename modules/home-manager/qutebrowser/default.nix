@@ -178,6 +178,8 @@
         https://music.youtube.com/ ytm
         https://www.youtube.com/ youtube
         https://www.notion.so/ph3nx notion
+        https://www.notion.so/ph3nx/1db29fec27504e22b58755d4df3881c1?v=1fcaf59aab3f4e3fb5f2822ff0038b6d meal-recipes
+        https://www.notion.so/ph3nx/Shopping-List-92d98ac3dc86460285a399c0b1176fc5 shopping-list
         https://www.nzpost.co.nz/tools/tracking nzpost tracking
         https://www.openstreetmap.org/#map=13/-41.2751/174.8099 osm
         https://github.com/lucidph3nx/nixos-config nixos-config
