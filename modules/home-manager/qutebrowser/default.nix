@@ -168,6 +168,7 @@
           "<Space>lu" = "spawn --userscript bitwarden --username-only";
           "<Space>lp" = "spawn --userscript bitwarden --password-only";
           "<Space>lt" = "spawn --userscript bitwarden --totp-only";
+          "<Space>lb" = "spawn --userscript open-bitwarden";
           # youtube music download
           "<Space>md" = "spawn --userscript ytm-download";
           "<Space>y" = "yank selection";
@@ -202,6 +203,7 @@
         https://mail.google.com/mail/u/0/ gmail0
         https://mail.google.com/mail/u/1/ gmail1
         https://music.youtube.com/ ytm
+        https://www.youtube.com/ youtube
         https://www.notion.so/ph3nx notion
         https://www.nzpost.co.nz/tools/tracking nzpost tracking
         https://www.openstreetmap.org/#map=13/-41.2751/174.8099 osm
@@ -214,6 +216,9 @@
     };
     xdg.dataFile."qutebrowser/userscripts/open-firefox" = {
       source = ./userscripts/open-firefox;
+    };
+    xdg.dataFile."qutebrowser/userscripts/open-bitwarden" = {
+      source = ./userscripts/open-bitwarden;
     };
     xdg.dataFile."qutebrowser/userscripts/ytm-download" = {
       source = ./userscripts/ytm-download;
