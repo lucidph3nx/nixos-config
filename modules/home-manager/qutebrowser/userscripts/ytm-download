@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+v_param=$(echo "$QUTE_URL" | grep -oP '(?<=v=)[^&]+')
+msg info "downoading $v_param with yt-dlp"
+yt-dlp  --add-metadata --format m4a --youtube-skip-dash-manifest -i -o '~/music/%(artist)s/%(album)s/%(title)s.%(ext)s' --sponsorblock-remove 'music_offtopic' "$v_param"

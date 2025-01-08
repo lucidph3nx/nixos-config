@@ -212,6 +212,12 @@
     xdg.dataFile."qutebrowser/userscripts/bitwarden" = {
       source = "${bitwarden-userscript}/bin/bitwarden";
     };
+    xdg.dataFile."qutebrowser/userscripts/open-firefox" = {
+      source = ./userscripts/open-firefox;
+    };
+    xdg.dataFile."qutebrowser/userscripts/ytm-download" = {
+      source = ./userscripts/ytm-download;
+    };
     home.persistence."/persist/home/ben" = {
       directories = [
         ".local/share/qutebrowser"
