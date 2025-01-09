@@ -58,6 +58,11 @@
         name = "youtube_sponsorblock.js";
         text = builtins.readFile ./greasemonkey/youtube_sponsorblock.js;
       })
+      # some css styling for youtube
+      (pkgs.writeTextFile {
+        name = "youtube.css.js";
+        text = builtins.readFile ./greasemonkey/youtube.css.js;
+      })
       # adblock for reddit
       (pkgs.writeTextFile {
         name = "reddit_adblock.js";
