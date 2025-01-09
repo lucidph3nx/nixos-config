@@ -11,49 +11,49 @@ const delay = 1000;
 // Configuration for segment categories
 const CATEGORY_SETTINGS = {
   sponsor: {
-    color: 'var(--system-theme-bg_red)',
+    color: 'var(--system-theme-green)',
     label: 'Sponsor',
     skip: true,
     priority: 1
   },
   selfpromo: {
-    color: 'var(--system-theme-bg_yellow)',
+    color: 'var(--system-theme-yellow)',
     label: 'Unpaid/Self Promotion',
     skip: true,
     priority: 2
   },
   interaction: {
-    color: 'var(--system-theme-bg_green)',
+    color: 'var(--system-theme-purple)',
     label: 'Interaction Reminder',
     skip: true,
     priority: 2
   },
   intro: {
-    color: 'var(--system-theme-bg_blue)',
+    color: 'var(--system-theme-aqua)',
     label: 'Intermission/Intro',
     skip: false,
     priority: 2
   },
   outro: {
-    color: 'var(--system-theme-bg_blue)',
+    color: 'var(--system-theme-blue)',
     label: 'Endcards/Credits',
     skip: false,
     priority: 2
   },
   preview: {
-    color: 'var(--system-theme-bg_blue)',
+    color: 'var(--system-theme-blue)',
     label: 'Preview/Recap/Hook',
     skip: false,
     priority: 2
   },
   music_offtopic: {
-    color: 'var(--system-theme-bg_yellow)',
+    color: 'var(--system-theme-orange)',
     label: 'Non-Music Section',
     skip: false,
     priority: 2
   },
   filler: {
-    color: 'var(--system-theme-bg_blue)',
+    color: 'var(--system-theme-purple)',
     label: 'Filler',
     skip: false,
     priority: 3
