@@ -204,5 +204,11 @@
         ".local/share/qutebrowser"
       ];
     };
+    xdg.mimeApps.defaultApplications = {
+      "text/html" = ["qutebrowser.desktop"];
+      "text/xml" = ["qutebrowser.desktop"];
+      "x-scheme-handler/http" = ["fqutebrowser.desktop"];
+      "x-scheme-handler/https" = ["qutebrowser.desktop"];
+    };
   });
 }
