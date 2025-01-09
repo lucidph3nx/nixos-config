@@ -199,6 +199,8 @@ in {
         ];
         windowrule = [
           "size, 480 800 class:(Waydroid)"
+          "size, 800 480 class:(qute-editor)"
+          "size, 800 480 class:(qute-filepicker)"
         ];
         monitor = [
           ",preferred,auto,auto"
