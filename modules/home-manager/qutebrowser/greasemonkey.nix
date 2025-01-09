@@ -80,6 +80,12 @@
           }
           `)
         '')
+      # sponsorblock for youtube videos
+      (pkgs.writeTextFile {
+        name = "youtube_sponsorblock.js";
+        text = builtins.readFile ./greasemonkey/youtube_sponsorblock.js;
+      })
+      # https://github.com/afreakk/greasemonkeyscripts/blob/master/reddit_adblock.js
     ];
   };
 }
