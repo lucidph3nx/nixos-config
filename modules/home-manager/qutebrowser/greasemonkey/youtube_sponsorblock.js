@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         SponsorBlock
-// @version      2.0.0
+// @version      2.1.0
 // @description  Skip sponsor and other unwanted segments, show labels in tooltips, and apply colors on the seek bar for YouTube
 // @match        *://*.youtube.com/*
 // @exclude      *://*.youtube.com/subscribe_embed?*
@@ -43,10 +43,10 @@ const CATEGORY_SETTINGS = {
   preview: {
     color: 'var(--system-theme-bg_blue)',
     label: 'Preview/Recap/Hook',
-    skip: false ,
+    skip: false,
     priority: 2
   },
-  music_offtopic: { 
+  music_offtopic: {
     color: 'var(--system-theme-bg_yellow)',
     label: 'Non-Music Section',
     skip: false,
@@ -56,7 +56,7 @@ const CATEGORY_SETTINGS = {
     color: 'var(--system-theme-bg_blue)',
     label: 'Filler',
     skip: false,
-    priority: 2
+    priority: 3
   },
 };
 
@@ -69,6 +69,14 @@ const fetchSegments = (videoID) => {
   )
     .then((res) => res.json())
     .catch((e) => console.error(`Sponsorblock fetch failed: ${e}`) || []);
+};
+
+const getHighestPriorityCategory = (categories) => {
+  return categories.reduce((highest, category) => {
+    const priority = CATEGORY_SETTINGS[category]?.priority ?? Number.MAX_VALUE;
+    const highestPriority = CATEGORY_SETTINGS[highest]?.priority ?? Number.MAX_VALUE;
+    return priority < highestPriority ? category : highest;
+  });
 };
 
 const createCategoryIndicators = (segments) => {
@@ -114,15 +122,16 @@ const createCategoryTooltip = (segments) => {
     const tooltip = document.querySelector('.ytp-tooltip-text');
     if (!tooltip) return;
 
-    const matchingSegment = segments.find(
+    const overlappingSegments = segments.filter(
       ({ segment }) =>
         timeInSeconds >= segment[0] && timeInSeconds <= segment[1]
     );
 
-    if (matchingSegment) {
-      const { category } = matchingSegment;
-      const categoryConfig = CATEGORY_SETTINGS[category] || {};
-      const label = categoryConfig.label || category;
+    if (overlappingSegments.length > 0) {
+      const highestPriorityCategory = getHighestPriorityCategory(
+        overlappingSegments.map(({ category }) => category)
+      );
+      const label = CATEGORY_SETTINGS[highestPriorityCategory]?.label || highestPriorityCategory;
 
       if (!tooltip.textContent.includes(label)) {
         tooltip.textContent += ` (${label})`;
