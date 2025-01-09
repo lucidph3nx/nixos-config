@@ -85,7 +85,11 @@
         name = "youtube_sponsorblock.js";
         text = builtins.readFile ./greasemonkey/youtube_sponsorblock.js;
       })
-      # https://github.com/afreakk/greasemonkeyscripts/blob/master/reddit_adblock.js
+      # adblock for reddit
+      (pkgs.writeTextFile {
+        name = "reddit_adblock.js";
+        text = builtins.readFile ./greasemonkey/reddit_adblock.js;
+      })
     ];
   };
 }
