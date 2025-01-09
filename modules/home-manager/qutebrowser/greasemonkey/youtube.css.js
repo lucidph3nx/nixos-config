@@ -31,4 +31,11 @@ GM_addStyle(`
   #contents {
     margin-left: 0px !important;
   }
+  /* hide sugested videos section */
+  #secondary {
+    display: none !important;
+  }
+  /* note, the above requires the wide=1 cookie to be set */
 `)
+// add cookie to force wide mode
+document.cookie = 'wide=1; expires=' + new Date('3099').toUTCString() + ';domain=.youtube.com;path=/';
