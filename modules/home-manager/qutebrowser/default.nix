@@ -205,10 +205,10 @@
       ];
     };
     xdg.mimeApps.defaultApplications = {
-      "text/html" = ["qutebrowser.desktop"];
-      "text/xml" = ["qutebrowser.desktop"];
-      "x-scheme-handler/http" = ["fqutebrowser.desktop"];
-      "x-scheme-handler/https" = ["qutebrowser.desktop"];
+      "text/html" = ["org.qutebrowser.qutebrowser.desktop"];
+      "text/xml" = ["org.qutebrowser.qutebrowser.desktop"];
+      "x-scheme-handler/http" = ["org.qutebrowser.qutebrowser.desktop"];
+      "x-scheme-handler/https" = ["org.qutebrowser.qutebrowser.desktop"];
     };
   });
 }
