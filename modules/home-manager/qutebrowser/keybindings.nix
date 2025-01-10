@@ -19,6 +19,9 @@
         # open clipboard item shortcuts
         "p" = "open -- {clipboard}";
         "P" = "open -t -- {clipboard}";
+        # edit current url
+        "e" = "set-cmd-text :open {url:pretty}";
+        "E" = "set-cmd-text :open -t {url:pretty}";
         # bitwarden bindings
         "<Space>ll" = "spawn --userscript bitwarden --totp";
         "<Space>lu" = "spawn --userscript bitwarden --username-only";
