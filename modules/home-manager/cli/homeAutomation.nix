@@ -23,7 +23,7 @@
           -H "Content-Type: application/json" \
           -s \
           https://home-assistant.''${SECRET_DOMAIN}/api/states/sensor.office_sensor_humidity \
-          | ${pkgs.jq}/bin/jq -r '.attributes | "\(.humidity)\(.unit_of_measurement)"'
+          | ${pkgs.jq}/bin/jq -r '. | "\(.state)\(.attributes.unit_of_measurement)"'
       '';
     };
     # This script returns the current temperature in my office via home assistant
@@ -36,7 +36,7 @@
           -H "Content-Type: application/json" \
           -s \
           https://home-assistant.''${SECRET_DOMAIN}/api/states/sensor.office_sensor_temperature \
-          | ${pkgs.jq}/bin/jq -r '.attributes | "\(.temperature)\(.unit_of_measurement)"'
+          | ${pkgs.jq}/bin/jq -r '. | "\(.state)\(.attributes.unit_of_measurement)"'
       '';
     };
     # This script opens the blinds in the office
