@@ -136,6 +136,25 @@
             error = "${red}";
           };
         };
+        downloads = {
+          bar.bg = "${bg0}";
+          error = {
+            bg = "${red}";
+            fg = "${bg0}";
+          };
+          start = {
+            bg = "${blue}";
+            fg = "${bg0}";
+          };
+          stop = {
+            bg = "${green}";
+            fg = "${bg0}";
+          };
+          system = {
+            bg = "rgb";
+            fg = "rgb";
+          };
+        };
       };
       hints.border = "0px solid black";
     };

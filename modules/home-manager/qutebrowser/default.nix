@@ -51,7 +51,12 @@
           ];
           default_page = "qute://start";
         };
-        downloads.location.directory = "~/downloads";
+        downloads = {
+          location = {
+            directory = "~/downloads";
+            prompt = false;
+          };
+        };
         content = {
           # disable autoplay globally
           autoplay = false;
@@ -92,7 +97,7 @@
           "{}"
         ];
         fonts = {
-          default_family = "JetBrains Mono";
+          default_family = "JetBrainsMono Nerd Font";
           default_size = "10pt";
         };
         # false beacuse it causes a weird olour shift
