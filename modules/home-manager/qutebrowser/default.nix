@@ -113,6 +113,7 @@
           # close window if last tab is closed
           last_close = "close";
         };
+        hints.radius = 0; # no rounded corners on hints
         fileselect = {
           handler = "external";
           single_file.command = [
