@@ -70,6 +70,21 @@
         name = "reddit_adblock.js";
         text = builtins.readFile ./greasemonkey/reddit_adblock.js;
       })
+      # style for github.com
+      (pkgs.writeTextFile {
+        name = "github.css.js";
+        text = builtins.readFile ./greasemonkey/github.css.js;
+      })
+      # style for google calendar
+      (pkgs.writeTextFile {
+        name = "googlecalendar.css.js";
+        text = builtins.readFile ./greasemonkey/googlecalendar.css.js;
+      })
+      # style for searx
+      (pkgs.writeTextFile {
+        name = "searx.css.js";
+        text = builtins.readFile ./greasemonkey/searx.css.js;
+      })
     ];
   };
 }
