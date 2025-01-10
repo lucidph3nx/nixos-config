@@ -269,7 +269,6 @@
     STEAM_EXTRA_COMPAT_TOOLS_PATHS = "/home/ben/.steam/root/compatibilitytools.d";
   };
 
-
   services.udisks2 = {
     enable = true;
     mountOnMedia = true;

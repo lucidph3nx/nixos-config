@@ -298,9 +298,9 @@
               }
             ];
             "actions" = {
-                "update-props" = {
-                  "node.disabled" = true;
-                };
+              "update-props" = {
+                "node.disabled" = true;
+              };
             };
           }
         ];

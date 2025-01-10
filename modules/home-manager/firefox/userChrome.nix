@@ -219,7 +219,7 @@ with config.theme; {
         #userContext-indicator { display: none !important;}
 
         /* --- HIDE TABS IF ONLY ONE TAB ------------------------ */
-        
+
         /* TODO: fix this, I've tried a bunch of things and can't get it to work */
         /* #tabbrowser-tabs .tabbrowser-tab:only-of-type, */
         /* #tabbrowser-tabs .tabbrowser-tab:only-of-type + #tabbrowser-arrowscrollbox-periphery{ display: none !important; } */

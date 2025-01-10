@@ -72,8 +72,7 @@ in {
         };
       };
     };
-    xdg.mimeApps.defaultApplications = 
-      lib.mkIf (config.homeManagerModules.defaultBrowser == "firefox") {
+    xdg.mimeApps.defaultApplications = lib.mkIf (config.homeManagerModules.defaultBrowser == "firefox") {
       "text/html" = ["firefox.desktop"];
       "text/xml" = ["firefox.desktop"];
       "x-scheme-handler/http" = ["firefox.desktop"];
