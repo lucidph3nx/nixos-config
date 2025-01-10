@@ -196,11 +196,10 @@ in {
           "center, class:(Waydroid)"
           "float, class:(qute-editor)"
           "float, class:(qute-filepicker)"
-        ];
-        windowrule = [
-          "size, 480 800 class:(Waydroid)"
-          "size, 800 480 class:(qute-editor)"
-          "size, 800 480 class:(qute-filepicker)"
+          "float, title:darktable starting"
+          "size 480 800, class:(Waydroid)"
+          "size 800 480, class:(qute-editor)"
+          "size 800 480, class:(qute-filepicker)"
         ];
         monitor = [
           ",preferred,auto,auto"
