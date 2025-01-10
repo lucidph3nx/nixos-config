@@ -5,7 +5,8 @@
   lib,
   ...
 }: let
-  browserNewWindow = "firefox --new-window";
+  # browserNewWindow = "firefox --new-window";
+  browserNewWindow = "qutebrowser --target window";
   externalAudio = osConfig.nixModules.externalAudio.enable;
   enableHomeAutomation = config.homeManagerModules.homeAutomation.enable;
   location = osConfig.nixModules.deviceLocation;
