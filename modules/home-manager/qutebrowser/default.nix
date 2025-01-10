@@ -166,6 +166,7 @@
         "DEFAULT" = "https://search.tinfoilforest.nz/search?q={}";
         "gg" = "https://google.com/search?hl=en&q={}";
         "gh" = "https://github.com/search?q={}";
+        "ghnx" = "https://github.com/search?q={}+language%3ANix&type=code&l=Nix";
         "hm" = "https://home-manager-options.extranix.com/?query={}";
         "nixopt" = "https://search.nixos.org/options?channel=unstable&from=0&size=50&sort=relevance&type=packages&query={}";
         "nixpkgs" = "https://search.nixos.org/packages?channel=unstable&from=0&size=50&sort=relevance&type=packages&query={}";
