@@ -20,6 +20,8 @@
           GM_addStyle(`
           :root {
             --system-theme-fg: ${foreground};
+            --system-theme-primary: ${primary};
+            --system-theme-secondary: ${secondary};
             --system-theme-red: ${red};
             --system-theme-orange: ${orange};
             --system-theme-yellow: ${yellow};

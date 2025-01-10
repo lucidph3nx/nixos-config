@@ -18,7 +18,20 @@ GM_addStyle(`
     --yt-spec-text-secondary: var(--system-theme-grey2) !important;
     --ytd-searchbox-background: var(--system-theme-bg_dim) !important;
     --ytd-searchbox-legacy-border-color: var(--system-theme-bg0) !important;
+    --yt-spec-red-indicator: var(--system-theme-red) !important;
+    --yt-spec-static-brand-red: var(--system-theme-red) !important;
   }
+
+  /* progress bar */
+  .ytp-play-progress.ytp-swatch-background-color {
+    background: var(--system-theme-red) !important;
+  }
+
+  /* hide anoying branding over the top of the video bottom right */
+  .annotation.annotation-type-custom.iv-branding {
+    display: none !important;
+  }
+
   .yt-spec-button-shape-next--call-to-action.yt-spec-button-shape-next--text {
     color: var(--system-theme-green) !important;
   }
@@ -39,3 +52,13 @@ GM_addStyle(`
 `)
 // add cookie to force wide mode
 document.cookie = 'wide=1; expires=' + new Date('3099').toUTCString() + ';domain=.youtube.com;path=/';
+
+// just for fun, use my colourscheme for the red youtube logo
+const observer = new MutationObserver(() => {
+  const pathElement = document.querySelector('[id^="yt-ringo2-red-svg_yt"] > g:nth-child(1) > path');
+  if (pathElement) {
+    pathElement.setAttribute('fill', 'var(--system-theme-primary)');
+  }
+});
+
+observer.observe(document.body, { childList: true, subtree: true });
