@@ -3,6 +3,12 @@
   lib,
   ...
 }: {
+  options = {
+    homeManagerModules.defaultBrowser = lib.mkOption {
+      default = "qutebrowser";
+      type = lib.types.enum ["firefox" "qutebrowser"];
+    };
+  };
   imports = [
     ./cli
     ./desktopEnvironment

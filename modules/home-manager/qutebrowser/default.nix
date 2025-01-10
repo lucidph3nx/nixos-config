@@ -205,7 +205,8 @@
         ".local/share/qutebrowser"
       ];
     };
-    xdg.mimeApps.defaultApplications = {
+    xdg.mimeApps.defaultApplications =
+      lib.mkIf (config.homeManagerModules.defaultBrowser == "qutebrowser") {
       "text/html" = ["org.qutebrowser.qutebrowser.desktop"];
       "text/xml" = ["org.qutebrowser.qutebrowser.desktop"];
       "x-scheme-handler/http" = ["org.qutebrowser.qutebrowser.desktop"];

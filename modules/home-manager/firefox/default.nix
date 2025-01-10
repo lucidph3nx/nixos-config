@@ -72,12 +72,13 @@ in {
         };
       };
     };
-    # xdg.mimeApps.defaultApplications = {
-    #   "text/html" = ["firefox.desktop"];
-    #   "text/xml" = ["firefox.desktop"];
-    #   "x-scheme-handler/http" = ["firefox.desktop"];
-    #   "x-scheme-handler/https" = ["firefox.desktop"];
-    # };
+    xdg.mimeApps.defaultApplications = 
+      lib.mkIf (config.homeManagerModules.defaultBrowser == "firefox") {
+      "text/html" = ["firefox.desktop"];
+      "text/xml" = ["firefox.desktop"];
+      "x-scheme-handler/http" = ["firefox.desktop"];
+      "x-scheme-handler/https" = ["firefox.desktop"];
+    };
     home.persistence."/persist/home/ben" = {
       directories = [
         ".mozilla/firefox"
