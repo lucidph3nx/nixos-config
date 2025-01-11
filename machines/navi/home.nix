@@ -12,7 +12,6 @@
   # my own modules
   setTheme = "everforest";
   homeManagerModules = {
-    ags.enable = true;
     anki.enable = true;
     calibre.enable = true;
     darktable.enable = true;
