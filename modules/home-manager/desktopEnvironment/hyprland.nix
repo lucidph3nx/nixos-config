@@ -194,12 +194,14 @@ in {
           "workspace 2 silent,class:(WebCord)"
           "float, class:(Waydroid)"
           "center, class:(Waydroid)"
+          # popout nvim editor for qutebrowser
           "float, class:(qute-editor)"
-          "float, class:(qute-filepicker)"
-          "float, title:darktable starting"
-          "size 480 800, class:(Waydroid)"
           "size 800 480, class:(qute-editor)"
+          # popout lf file picker for qutebrowser
+          "float, class:(qute-filepicker)"
           "size 800 480, class:(qute-filepicker)"
+          "float, title:darktable starting" # darktable splash screen
+          "size 480 800, class:(Waydroid)"
         ];
         monitor = [
           ",preferred,auto,auto"
