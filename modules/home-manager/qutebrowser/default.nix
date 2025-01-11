@@ -50,6 +50,7 @@
             "qute://start"
           ];
           default_page = "qute://start";
+          open_base_url = true; # open base url when a search engine is used without a query
         };
         downloads = {
           location = {
