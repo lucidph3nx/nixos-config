@@ -7,6 +7,7 @@
     ./anki.nix
     ./bitwarden.nix
     ./calibre.nix
+    ./cura-appimage.nix
     ./darktable.nix
     ./dragon-drop.nix
     ./kitty.nix
@@ -30,6 +31,7 @@
       anki.enable = lib.mkDefault false;
       bitwarden.enable = lib.mkDefault true;
       calibre.enable = lib.mkDefault false;
+      cura.enable = lib.mkDefault false;
       darktable.enable = lib.mkDefault false;
       dragon-drop.enable = lib.mkDefault true;
       kitty.enable = lib.mkDefault true;

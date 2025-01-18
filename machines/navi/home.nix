@@ -14,6 +14,7 @@
   homeManagerModules = {
     anki.enable = true;
     calibre.enable = true;
+    cura.enable = true;
     darktable.enable = true;
     firefox.hideUrlbar = true;
     homeAutomation.enable = true;
@@ -92,7 +93,7 @@
   home.packages = with pkgs; [
     # https://github.com/NixOS/nixpkgs/issues/325896
     # I also seem to need to run it with QT_QPA_PLATFORM=xcb
-    pkgs-stable.cura
+    # pkgs-stable.cura
     gimp
     # cinnamon.nemo
     # retro gaming
