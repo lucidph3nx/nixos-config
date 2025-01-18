@@ -15,6 +15,7 @@
     ./obsidian.nix
     ./picard.nix
     ./plexamp.nix
+    ./signal.nix
     ./vimiv.nix
     ./webcord.nix
     ./zathura.nix
@@ -37,6 +38,7 @@
       obsidian.enable = lib.mkDefault false;
       picard.enable = lib.mkDefault false;
       plexamp.enable = lib.mkDefault false;
+      signal.enable = lib.mkDefault true;
       vimiv.enable = lib.mkDefault true;
       webcord.enable = lib.mkDefault true;
       zathura.enable = lib.mkDefault true;
