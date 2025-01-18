@@ -13,10 +13,10 @@
     home.packages = with pkgs; [
       signal-desktop
     ];
-  #   home.persistence."/persist/home/ben" = {
-  #     directories = [
-  #       ".config/Plexamp"
-  #     ];
-  #   };
+    home.persistence."/persist/home/ben" = {
+      directories = [
+        ".config/Signal"
+      ];
+    };
   };
 }
