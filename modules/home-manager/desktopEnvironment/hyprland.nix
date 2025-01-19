@@ -186,7 +186,7 @@ in {
           # when opening another program from terminal, swallow the terminal
           enable_swallow = true;
           swallow_regex = "^(kitty)$";
-          swallow_exception_regex = "^(lf|wev|qutebrowser)$";
+          swallow_exception_regex = "^(lf|wev)$";
         };
         windowrulev2 = [
           "workspace 2 silent,class:(Prospect Mail)"
@@ -202,6 +202,8 @@ in {
           "size 800 480, class:(qute-filepicker)"
           "float, title:darktable starting" # darktable splash screen
           "size 480 800, class:(Waydroid)"
+          # sometimes chromium thinks its fine to open in a tiny window
+          "tile, class:(Chromium-browser)"
         ];
         monitor = [
           ",preferred,auto,auto"
