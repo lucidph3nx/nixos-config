@@ -1,6 +1,7 @@
 // ==UserScript==
 // @name    Userstyle (youtube.css)
 // @match        *://*.youtube.com/*
+// @exclude     *://music.youtube.com/*
 // ==/UserScript==
 GM_addStyle(`
   * {
