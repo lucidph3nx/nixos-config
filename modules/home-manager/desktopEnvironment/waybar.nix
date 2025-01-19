@@ -36,19 +36,20 @@ in
         package = pkgs.waybar;
         systemd.target = "sway-session.target";
         settings = {
-          mainBar = {
+          topBar = {
+            name = "topBar";
             layer = "top";
             position = "top";
-            height = 25;
+            height = 40;
             mode = "overlay";
             start_hidden = true;
+            margin = "30"; # margin for the whole bar
             modules-left = [
               (lib.mkIf enableSway "sway/workspaces")
               (lib.mkIf enableSway "sway/scratchpad")
               (lib.mkIf enableSway "sway/mode")
               (lib.mkIf enableHyprland "hyprland/workspaces")
               (lib.mkIf enableHyprland "hyprland/submap")
-              (lib.mkIf enableMpd "custom/mpd")
             ];
             modules-center = [
               "hyprland/window"
@@ -77,30 +78,17 @@ in
               "tooltip" = true;
               "tooltip-format" = "{app}: {title}";
             };
+            "hyprland/workspaces" = {
+              "persistent-workspaces" = {
+                "*" = 9;
+              };
+            };
             "hyprland/window" = {
               "format" = "{title}";
               "rewrite" = {
                 "(.*) — Mozilla Firefox" = "$1";
+                "(.*) - qutebrowser" = "$1";
               };
-            };
-            # "mpd" = lib.mkIf enableMpd {
-            #   "unknown-tag" = "";
-            #   "format" = "{stateIcon} {artist} - {title} ({elapsedTime:%M:%S}) ";
-            #   "format-disconnected" = "";
-            #   "format-stopped" = "";
-            #   "interval" = 10;
-            #   "state-icons" = {
-            #     "paused" = "";
-            #     "playing" = "";
-            #   };
-            #   "tooltip-format" = "MPD (connected)";
-            #   "tooltip-format-disconnected" = "MPD (disconnected)";
-            #   "on-click" = "kitty ncmpcpp";
-            # };
-            "custom/mpd" = lib.mkIf enableMpd {
-              "return-type" = "string";
-              "interval" = 1;
-              "exec" = "${homeDir}/.local/scripts/cli.mpd.nowPlaying";
             };
             "custom/office-temp" = lib.mkIf enableHomeAutomation {
               "return-type" = "string";
@@ -186,125 +174,153 @@ in
               "interval" = "5";
             };
           };
+          bottomBar = {
+            name = "bottomBar";
+            layer = "top";
+            position = "bottom";
+            height = 40;
+            mode = "overlay";
+            start_hidden = true;
+            margin = "30"; # margin for the whole bar
+            modules-left = [
+              (lib.mkIf enableMpd "custom/mpd")
+            ];
+            modules-center = [];
+            modules-right = [];
+            "custom/mpd" = lib.mkIf enableMpd {
+              "return-type" = "string";
+              "interval" = 1;
+              "exec" = "${homeDir}/.local/scripts/cli.mpd.nowPlaying";
+            };
+          };
         };
-        style = ''
-          * {
-            border: none;
-            border-radius: 0;
-            font-family: JetBrainsMono Nerd Font, monospace;
-            font-size: ${fontsize};
-            font-weight: 500;
-            min-height: 0;
-          }
-          window#waybar {
-            background-color: ${bg0};
-            color: ${foreground};
-          }
-          window#waybar.hidden {
-            opacity: 0.2;
-          }
-          #workspaces {
-            padding: 0px 0px 0px 0px;
-          }
-          /* for hyprland its active instead of focused*/
-          #workspaces button.active {
-            color: ${bg0};
-            background-color: ${primary};
-          }
-          #workspaces button.focused {
-            background-color: ${secondary};
-            color: ${bg0};
-          }
-          #workspaces button.urgent {
-            background-color: ${red};
-            color: ${bg0};
-          }
-          #workspaces button:hover {
-            transition-duration: 0s;
-            box-shadow: inherit;
-            text-shadow: inherit;
-            background: ${secondary};
-            color: ${bg0};
-          }
-          #workspaces button {
-            color: ${foreground};
-            min-width: 25px;
-          }
-          #scratchpad {
-            background-color: ${blue};
-            color: ${bg0};
-            padding: 2px 5px;
-          }
-          #mode {
-            padding-left: 10px;
-            padding-right: 10px;
-            background-color: ${green};
-            color: ${bg0};
-          }
-          #submap {
-            padding-left: 10px;
-            padding-right: 10px;
-            background-color: ${red};
-            color: ${bg0};
-          }
-          #custom-mpd {
-            padding-right: 10px;
-            padding-left: 10px;
-          }
-          /* hide when stopped  or disconnected*/
-          #mpd.stopped, #mpd.disconnected {
-              font-size: 0;
-              margin: 0;
-              padding: 0;
-          }
-          widget > * {
-              padding-top: 2px;
-              padding-bottom: 2px;
-          }
-          .modules-left > widget:first-child > * {
-            margin-left: 0px;
-          }
-          .modules-left > widget:last-child > * {
-            margin-right: 18px;
-          }
-          .modules-right > widget > * {
-            padding: 0 12px;
-            margin-left: 0;
-            margin-right: 0;
-            color: ${bg0};
-            background-color: ${primary};
-          }
-          @keyframes blink {
-            to {
-              color: ${green};
+        style =
+          /*
+          css
+          */
+          ''
+            * {
+              border: none;
+              border-radius: 0;
+              font-family: JetBrainsMono Nerd Font, monospace;
+              font-size: ${fontsize};
+              font-weight: 500;
+              min-height: 0;
             }
-          }
-          #tray {
-            background: ${bg0};
-          }
-          #custom-inhibitidle.active {
-            color: ${bg0};
-            background-color: ${red};
-          }
-          #custom-mouse-battery.low {
-            color: ${bg0};
-            background-color: ${red};
-          }
-          #custom-mouse-battery.full {
-            color: ${bg0};
-            background-color: ${blue};
-          }
-          label:focus {
-            background-color: ${bg0};
-          }
-          tooltip {
-            background: ${bg0};
-          }
-          tooltip label {
-            color: ${green};
-            text-shadow: none;
-          }
-        '';
+            window#waybar.background {
+              /* transparent background */
+              background: rgba(0, 0, 0, 0);
+              /* background-color: ${bg0}; */
+              /* color: ${foreground}; */
+            }
+            #workspaces {
+              padding: 0px 0px 0px 0px;
+            }
+            /* for hyprland its active instead of focused*/
+            #workspaces button.active {
+              color: ${bg0};
+              background-color: ${primary};
+            }
+            #workspaces button.focused {
+              background-color: ${secondary};
+              color: ${bg0};
+            }
+            #workspaces button.urgent {
+              background-color: ${red};
+              color: ${bg0};
+            }
+            #workspaces button.empty {
+              color: ${grey1};
+              background-color: ${bg0};
+            }
+            #workspaces button:hover {
+              transition-duration: 0s;
+              box-shadow: inherit;
+              text-shadow: inherit;
+              background: ${secondary};
+              color: ${bg0};
+            }
+            #workspaces button {
+              color: ${foreground};
+              background-color: ${bg0};
+              min-width: 25px;
+            }
+            #scratchpad {
+              background-color: ${blue};
+              color: ${bg0};
+              padding: 2px 5px;
+            }
+            #mode {
+              padding-left: 10px;
+              padding-right: 10px;
+              background-color: ${green};
+              color: ${bg0};
+            }
+            #submap {
+              padding-left: 10px;
+              padding-right: 10px;
+              background-color: ${red};
+              color: ${bg0};
+            }
+            #custom-mpd {
+              padding-right: 10px;
+              padding-left: 10px;
+              color: ${foreground};
+              background-color: ${bg0};
+            }
+            widget > * {
+                padding-top: 2px;
+                padding-bottom: 2px;
+            }
+            .modules-left > widget:first-child > * {
+              margin-left: 0px;
+            }
+            .modules-left > widget:last-child > * {
+              margin-right: 18px;
+            }
+            .modules-right > widget > * {
+              padding: 0 12px;
+              margin-left: 0;
+              margin-right: 0;
+              color: ${bg0};
+              background-color: ${primary};
+            }
+            window#waybar.topBar .modules-center {
+              padding: 0 12px;
+              color: ${foreground};
+              background-color: ${bg0};
+            }
+            @keyframes blink {
+              to {
+                color: ${green};
+              }
+            }
+            #tray {
+              background: ${bg0};
+            }
+            #custom-inhibitidle.active {
+              color: ${bg0};
+              background-color: ${red};
+            }
+            #custom-mouse-battery.low {
+              color: ${bg0};
+              background-color: ${red};
+            }
+            #custom-mouse-battery.full {
+              color: ${bg0};
+              background-color: ${blue};
+            }
+            label:focus {
+              background-color: ${bg0};
+            }
+            tooltip {
+              background: ${bg0};
+            }
+            tooltip label {
+              color: ${green};
+              text-shadow: none;
+            }
+          '';
       };
       home.file.".local/scripts/cli.mpd.nowPlaying" = {
         executable = true;

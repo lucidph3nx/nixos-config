@@ -104,7 +104,7 @@ in {
           disable_logs = false;
         };
         exec = [
-          # "pkill waybar && hyprctl dispatch exec waybar"
+          "pkill waybar && hyprctl dispatch exec waybar"
           "${homeDir}/.local/scripts/cli.system.setHyprGaps"
         ];
         input = {
