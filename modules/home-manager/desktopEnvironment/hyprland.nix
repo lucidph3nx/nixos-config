@@ -104,7 +104,7 @@ in {
           disable_logs = false;
         };
         exec = [
-          "pkill waybar && hyprctl dispatch exec waybar"
+          # "pkill waybar && hyprctl dispatch exec waybar"
           "${homeDir}/.local/scripts/cli.system.setHyprGaps"
         ];
         input = {
@@ -214,11 +214,15 @@ in {
         ];
         bindrt = [
           # hide ags overview on SUPER_L keyup
-          "SUPER, SUPER_L, exec, ags request -i astal hide"
+          # "SUPER, SUPER_L, exec, ags request -i astal hide"
+          # hide waybar on SUPER_L keyup
+          "SUPER, SUPER_L, exec, pkill -SIGUSR1 waybar"
         ];
         bind = [
           # show ags overview on SUPER_L keydown
-          ", SUPER_L, exec, ags request -i astal show"
+          # ", SUPER_L, exec, ags request -i astal show"
+          # show waybar on SUPER_L keydown
+          ", SUPER_L, exec, pkill -SIGUSR1 waybar"
           # Motions
           # focus window
           "SUPER, h, movefocus, l"

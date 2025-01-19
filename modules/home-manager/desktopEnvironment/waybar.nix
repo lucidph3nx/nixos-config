@@ -40,6 +40,8 @@ in
             layer = "top";
             position = "top";
             height = 25;
+            mode = "overlay";
+            start_hidden = true;
             modules-left = [
               (lib.mkIf enableSway "sway/workspaces")
               (lib.mkIf enableSway "sway/scratchpad")
