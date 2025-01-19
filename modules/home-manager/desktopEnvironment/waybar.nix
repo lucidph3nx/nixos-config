@@ -216,6 +216,15 @@ in
             #workspaces {
               padding: 0px 0px 0px 0px;
             }
+            #workspaces button {
+              color: ${foreground};
+              background-color: ${bg0};
+              min-width: 25px;
+            }
+            #workspaces button.empty {
+              color: ${grey1};
+              background-color: ${bg0};
+            }
             /* for hyprland its active instead of focused*/
             #workspaces button.active {
               color: ${bg0};
@@ -229,21 +238,12 @@ in
               background-color: ${red};
               color: ${bg0};
             }
-            #workspaces button.empty {
-              color: ${grey1};
-              background-color: ${bg0};
-            }
             #workspaces button:hover {
               transition-duration: 0s;
               box-shadow: inherit;
               text-shadow: inherit;
               background: ${secondary};
               color: ${bg0};
-            }
-            #workspaces button {
-              color: ${foreground};
-              background-color: ${bg0};
-              min-width: 25px;
             }
             #scratchpad {
               background-color: ${blue};
