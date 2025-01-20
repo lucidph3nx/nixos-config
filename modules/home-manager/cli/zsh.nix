@@ -35,7 +35,10 @@ in {
         expireDuplicatesFirst = true;
         path = "${homeDir}/.local/state/zsh/history";
       };
-      autosuggestion.enable = true;
+      autosuggestion = {
+        enable = true;
+        highlight = "fg=${config.theme.grey1}";
+      };
       syntaxHighlighting.enable = true;
       # zprof.enable = true; # for troubleshooting startup
       plugins = [
