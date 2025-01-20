@@ -104,6 +104,7 @@ in {
           disable_logs = false;
         };
         exec = [
+          # restart waybar, if for some reason it died
           "pkill waybar && hyprctl dispatch exec waybar"
           "${homeDir}/.local/scripts/cli.system.setHyprGaps"
         ];
@@ -204,6 +205,8 @@ in {
           "size 480 800, class:(Waydroid)"
           # sometimes chromium thinks its fine to open in a tiny window
           "tile, class:(Chromium-browser)"
+          # prevent darktable from maximising on start
+          "suppressevent maximize, class:(darktable)"
         ];
         monitor = [
           ",preferred,auto,auto"
