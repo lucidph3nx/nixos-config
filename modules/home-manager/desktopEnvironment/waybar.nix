@@ -56,14 +56,11 @@ in
             ];
             modules-right = [
               "tray"
-              (lib.mkIf mouseBattery "custom/mouse-battery")
               (lib.mkIf (externalAudio == false) "pulseaudio")
               (lib.mkIf externalAudio "custom/audio-enabled")
               (lib.mkIf (enableHomeAutomation && location == "office") "custom/office-temp")
               (lib.mkIf (enableHomeAutomation && location == "office") "custom/office-humidity")
               "custom/notification"
-              "network"
-              (lib.mkIf isLaptop "battery")
               "custom/inhibitidle"
               "custom/clock"
             ];
@@ -154,25 +151,6 @@ in
               "on-click-right" = "swaync-client -d -sw";
               "escape" = true;
             };
-            "custom/mouse-battery" = lib.mkIf mouseBattery {
-              "return-type" = "json";
-              "interval" = 60;
-              "exec" = "${homeDir}/.local/scripts/home.mouse.batteryIndicator";
-              # "exec" = "polychromatic-cli -d mouse -k | grep Battery | sed 's/[^0-9]*//g'";
-              "format" = "{}";
-            };
-            "network" = {
-              # don't show when on ethernet
-              "format-ethernet" = "";
-              "format-wifi" = "󱚽";
-              "tooltip-format-wifi" = "{essid} ({signalStrength}%)";
-            };
-            "battery" = {
-              "format-icons" = ["󱊡" "󱊢" "󱊣"];
-              "format-charging" = "{capacity}% 󰂄";
-              "format" = "{capacity}% {icon}";
-              "interval" = "5";
-            };
           };
           bottomBar = {
             name = "bottomBar";
@@ -186,11 +164,60 @@ in
               (lib.mkIf enableMpd "custom/mpd")
             ];
             modules-center = [];
-            modules-right = [];
+            modules-right = [
+              (lib.mkIf mouseBattery "custom/mouse-battery")
+              "cpu"
+              "memory"
+              "network"
+              (lib.mkIf isLaptop "battery")
+              "power-profiles-daemon"
+              "systemd-failed-units"
+            ];
+            "cpu" = {
+              "format" = " {usage}%";
+              "interval" = 10;
+            };
+            "memory" = {
+              "format" = " {percentage}%";
+              "interval" = 10;
+            };
+            "network" = {
+              "format-ethernet" = "󰈀 {ifname}";
+              "format-wifi" = "󱚽 {essid} ({signalStrength}%)";
+            };
             "custom/mpd" = lib.mkIf enableMpd {
               "return-type" = "string";
               "interval" = 1;
               "exec" = "${homeDir}/.local/scripts/cli.mpd.nowPlaying";
+            };
+            "custom/mouse-battery" = lib.mkIf mouseBattery {
+              "return-type" = "json";
+              "interval" = 60;
+              "exec" = "${homeDir}/.local/scripts/home.mouse.batteryIndicator";
+              # "exec" = "polychromatic-cli -d mouse -k | grep Battery | sed 's/[^0-9]*//g'";
+              "format" = "{}";
+            };
+            "battery" = {
+              "format-icons" = ["󱊡" "󱊢" "󱊣"];
+              "format-charging" = "{capacity}% 󰂄";
+              "format" = "{capacity}% {icon}";
+              "interval" = "5";
+            };
+            "power-profiles-daemon" = {
+              "format" = "{icon}";
+              "format-icons" = {
+                "default" = "";
+                "balanced" = "";
+                "performance" = "";
+                "powersave" = "";
+              };
+            };
+            "systemd-failed-units" = {
+              "hide-on-ok" = false;
+              "format" = "systemd: 󰀩 {nr_failed}";
+              "format-ok" = "systemd:  ";
+              "system" = true;
+              "user" = true;
             };
           };
         };
@@ -317,6 +344,14 @@ in
             tooltip label {
               color: ${green};
               text-shadow: none;
+            }
+            #systemd-failed-units.ok {
+              background-color: ${green};
+              color: ${bg0};
+            }
+            #systemd-failed-units.degraded {
+              background-color: ${red};
+              color: ${bg0};
             }
           '';
       };
