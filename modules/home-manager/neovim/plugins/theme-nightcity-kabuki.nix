@@ -29,6 +29,8 @@ in {
             on_highlights = function(groups, c)
                 -- no bg for String
                 groups.String = { fg = c.text }
+                -- statusline consistent with other themes + tmux
+                groups.StatusLine = { fg = '${theme.foreground}', bg = '${theme.bg1}' }
             end
 
           --   groups = {
