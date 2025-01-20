@@ -27,8 +27,8 @@ with config.theme; {
           set -g status-left " [#{session_name}] "
           # set -g status-right "#{?window_bigger,[#{window_offset_x}#,#{window_offset_y}] ,}#{=21:pane_title} "
           set -g status-right "#h "
-          set -g status-style 'bg=${bg1} fg=${blue}'
-          set -g status-right-style 'bg=${bg1} fg=${green}'
+          set -g status-style 'bg=${bg1} fg=${secondary}'
+          set -g status-right-style 'bg=${bg1} fg=${primary}'
           # for kitty images in image.nvim
           set -gq allow-passthrough on
           # pane switching
