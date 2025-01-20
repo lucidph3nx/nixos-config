@@ -199,8 +199,8 @@ in
             };
             "battery" = {
               "format-icons" = ["󱊡" "󱊢" "󱊣"];
-              "format-charging" = "{capacity}% 󰂄";
-              "format" = "{capacity}% {icon}";
+              "format-charging" = "󰂄 {capacity}%";
+              "format" = "{icon} {capacity}%";
               "interval" = "5";
             };
             "power-profiles-daemon" = {
