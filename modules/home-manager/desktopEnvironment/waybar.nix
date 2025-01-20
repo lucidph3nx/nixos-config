@@ -210,20 +210,18 @@ in
             window#waybar.background {
               /* transparent background */
               background: rgba(0, 0, 0, 0);
-              /* background-color: ${bg0}; */
-              /* color: ${foreground}; */
             }
             #workspaces {
               padding: 0px 0px 0px 0px;
             }
             #workspaces button {
               color: ${foreground};
-              background-color: ${bg0};
+              background-color: ${bg3};
               min-width: 25px;
             }
             #workspaces button.empty {
               color: ${grey1};
-              background-color: ${bg0};
+              background-color: ${bg3};
             }
             /* for hyprland its active instead of focused*/
             #workspaces button.active {
@@ -254,19 +252,19 @@ in
               padding-left: 10px;
               padding-right: 10px;
               background-color: ${green};
-              color: ${bg0};
+              color: ${bg3};
             }
             #submap {
               padding-left: 10px;
               padding-right: 10px;
               background-color: ${red};
-              color: ${bg0};
+              color: ${bg3};
             }
             #custom-mpd {
               padding-right: 10px;
               padding-left: 10px;
               color: ${foreground};
-              background-color: ${bg0};
+              background-color: ${bg3};
             }
             widget > * {
                 padding-top: 2px;
@@ -288,7 +286,7 @@ in
             window#waybar.topBar .modules-center {
               padding: 0 12px;
               color: ${foreground};
-              background-color: ${bg0};
+              background-color: ${bg3};
             }
             @keyframes blink {
               to {
@@ -296,7 +294,7 @@ in
               }
             }
             #tray {
-              background: ${bg0};
+              background: ${bg3};
             }
             #custom-inhibitidle.active {
               color: ${bg0};
