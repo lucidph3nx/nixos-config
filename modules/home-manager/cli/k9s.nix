@@ -202,6 +202,8 @@
               indicator = {
                 fgColor = "${blue}";
                 bgColor = "${bg0}";
+                toggleOnColor= "${primary}";
+                toggleOffColor= "${grey1}";
               };
             };
             help = {
