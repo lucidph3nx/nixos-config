@@ -26,6 +26,7 @@
     ./telescope.nix
     ./theme-everforest.nix
     ./theme-github-light.nix
+    ./theme-nightcity-kabuki.nix
     ./theme-onedark.nix
     ./toggleterm.nix
     ./treesitter.nix

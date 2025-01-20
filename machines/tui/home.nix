@@ -11,7 +11,7 @@
   ];
   # my own modules
   # setTheme = "github-light";
-  setTheme = "onedark";
+  setTheme = "nightcity-kabuki";
   homeManagerModules = {
     calibre.enable = true;
     darktable.enable = true;
