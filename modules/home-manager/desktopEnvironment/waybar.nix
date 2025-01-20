@@ -206,10 +206,10 @@ in
             "power-profiles-daemon" = {
               "format" = "{icon}";
               "format-icons" = {
-                "default" = "";
-                "balanced" = "";
-                "performance" = "";
-                "powersave" = "";
+                "default" = " ";
+                "balanced" = " ";
+                "performance" = " ";
+                "powersave" = " ";
               };
             };
             "systemd-failed-units" = {
@@ -352,6 +352,10 @@ in
             #systemd-failed-units.degraded {
               background-color: ${red};
               color: ${bg0};
+            }
+            #power-profiles-daemon {
+              padding-left: 10px;
+              padding-right: 10px;
             }
           '';
       };
