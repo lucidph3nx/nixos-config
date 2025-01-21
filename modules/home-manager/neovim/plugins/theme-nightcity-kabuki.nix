@@ -31,61 +31,17 @@ in {
                 groups.String = { fg = c.text }
                 -- statusline consistent with other themes + tmux
                 groups.StatusLine = { fg = '${theme.foreground}', bg = '${theme.bg1}' }
+                -- obsidian
+                groups.ObsidianTodo = { fg = '${theme.primary}', style = 'bold' }
+                groups.ObsidianDone = { fg = '${theme.primary}', style = 'bold' }
+                groups.ObsidianTilde = { fg = '${theme.red}', style = 'bold' }
+                groups.ObsidianRefText = { fg = '${theme.primary}'}
+                groups.ObsidianExtLinkIcon = { fg = '${theme.primary}'}
+                groups.ObsidianTag = { fg = '${theme.secondary}', style = 'italic' }
+                groups['@markup.heading.1.markdown'] = { fg = '${theme.orange}', style = 'bold' }
+                groups['@markup.heading.2.markdown'] = { fg = '${theme.red}', style = 'bold' }
+                groups['@markup.heading.3.markdown'] = { fg = '${theme.purple}', style = 'bold' }
             end
-
-          --   groups = {
-          --     all = {
-          --       ObsidianTodo = {
-          --         fg = '${theme.blue}',
-          --         bg = 'none',
-          --         style = 'bold'
-          --       },
-          --       ObsidianDone = {
-          --         fg = '${theme.green}',
-          --         bg = 'none',
-          --         style = 'bold'
-          --       },
-          --       ObsidianRightArrow = {
-          --         fg = '${theme.blue}',
-          --         bg = 'none',
-          --         style = 'bold'
-          --       },
-          --       ObsidianTilde = {
-          --         fg = '${theme.orange}',
-          --         bg = 'none',
-          --         style = 'bold'
-          --       },
-          --       ObsidianRefText = {
-          --         fg = '${theme.blue}',
-          --         bg = 'none',
-          --         style = 'NONE' -- no underline for obsidian links
-          --       },
-          --       ObsidianExtLinkIcon = {
-          --         fg = '${theme.blue}',
-          --         bg = 'none',
-          --       },
-          --       ObsidianTag = {
-          --         fg = '${theme.blue}',
-          --         bg = 'none',
-          --         style = 'italic'
-          --       },
-          --       ['@markup.heading.1.markdown'] = {
-          --         fg = '${theme.blue}',
-          --         bg = 'none',
-          --         style = 'bold'
-          --       },
-          --       ['@markup.heading.2.markdown'] = {
-          --         fg = '${theme.green}',
-          --         bg = 'none',
-          --         style = 'bold'
-          --       },
-          --       ['@markup.heading.3.markdown'] = {
-          --         fg = '${theme.purple}',
-          --         bg = 'none',
-          --         style = 'bold'
-          --       },
-          --     }
-          --   },
           })
           vim.cmd('colorscheme nightcity')
         '';
