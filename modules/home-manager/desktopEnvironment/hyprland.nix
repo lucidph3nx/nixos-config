@@ -207,6 +207,8 @@ in {
           "tile, class:(Chromium-browser)"
           # prevent darktable from maximising on start
           "suppressevent maximize, class:(darktable)"
+          # same with libreoffice
+          "suppressevent maximize, class:(libreoffice-writer)"
         ];
         monitor = [
           ",preferred,auto,auto"
