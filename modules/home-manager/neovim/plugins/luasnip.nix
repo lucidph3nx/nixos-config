@@ -10,7 +10,7 @@
         lua
         */
         ''
-          require('cmp').setup()
+          require("cmp").setup()
         '';
     }
     {
@@ -21,7 +21,7 @@
         lua
         */
         ''
-          require('luasnip').setup {}
+          require("luasnip").setup({})
           local ls = require("luasnip")
           local s = ls.snippet
           local sn = ls.snippet_node
@@ -30,13 +30,19 @@
 
           -- my snippets
           ls.add_snippets("markdown", {
-            s("[] ", { t("- [ ] ") })
+          	s("[] ", { t("- [ ] ") }),
           })
           ls.add_snippets("markdown", {
-            s("wikidate", d(1, function (args, parent)
-            local env = parent.snippet.env
-            return sn(nil, t{"[[" .. env.CURRENT_YEAR .. "-" .. env.CURRENT_MONTH .. "-" .. env.CURRENT_DATE .. "]]"})
-          end, {}))
+          	s(
+          		"wikidate",
+          		d(1, function(args, parent)
+          			local env = parent.snippet.env
+          			return sn(
+          				nil,
+          				t({ "[[" .. env.CURRENT_YEAR .. "-" .. env.CURRENT_MONTH .. "-" .. env.CURRENT_DATE .. "]]" })
+          			)
+          		end, {})
+          	),
           })
         '';
     }

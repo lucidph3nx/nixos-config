@@ -8,13 +8,13 @@
         lua
         */
         ''
-          require('colorizer').setup {
-            filetypes = { "*" },
-            user_default_options = {
-              -- don't colorize names
-              names = false
-            }
-          }
+          require("colorizer").setup({
+          	filetypes = { "*" },
+          	user_default_options = {
+          		-- don't colorize names
+          		names = false,
+          	},
+          })
         '';
     }
   ];

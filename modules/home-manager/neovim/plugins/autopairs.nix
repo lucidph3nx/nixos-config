@@ -8,9 +8,9 @@
         lua
         */
         ''
-          require('nvim-autopairs').setup()
+          require("nvim-autopairs").setup()
           -- don't close quotes
-          require('nvim-autopairs').remove_rule('"')
+          require("nvim-autopairs").remove_rule('"')
         '';
     }
   ];

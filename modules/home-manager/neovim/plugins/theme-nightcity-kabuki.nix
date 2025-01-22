@@ -24,26 +24,26 @@ in {
         lua
         */
         ''
-          require('nightcity').setup({
-            style = 'kabuki',
-            on_highlights = function(groups, c)
-                -- no bg for String
-                groups.String = { fg = c.text }
-                -- statusline consistent with other themes + tmux
-                groups.StatusLine = { fg = '${theme.foreground}', bg = '${theme.bg1}' }
-                -- obsidian
-                groups.ObsidianTodo = { fg = '${theme.primary}', style = 'bold' }
-                groups.ObsidianDone = { fg = '${theme.primary}', style = 'bold' }
-                groups.ObsidianTilde = { fg = '${theme.red}', style = 'bold' }
-                groups.ObsidianRefText = { fg = '${theme.primary}'}
-                groups.ObsidianExtLinkIcon = { fg = '${theme.primary}'}
-                groups.ObsidianTag = { fg = '${theme.secondary}', style = 'italic' }
-                groups['@markup.heading.1.markdown'] = { fg = '${theme.orange}', style = 'bold' }
-                groups['@markup.heading.2.markdown'] = { fg = '${theme.red}', style = 'bold' }
-                groups['@markup.heading.3.markdown'] = { fg = '${theme.purple}', style = 'bold' }
-            end
+          require("nightcity").setup({
+          	style = "kabuki",
+          	on_highlights = function(groups, c)
+          		-- no bg for String
+          		groups.String = { fg = c.text }
+          		-- statusline consistent with other themes + tmux
+          		groups.StatusLine = { fg = "${theme.foreground}", bg = "${theme.bg1}" }
+          		-- obsidian
+          		groups.ObsidianTodo = { fg = "${theme.primary}", style = "bold" }
+          		groups.ObsidianDone = { fg = "${theme.primary}", style = "bold" }
+          		groups.ObsidianTilde = { fg = "${theme.red}", style = "bold" }
+          		groups.ObsidianRefText = { fg = "${theme.primary}" }
+          		groups.ObsidianExtLinkIcon = { fg = "${theme.primary}" }
+          		groups.ObsidianTag = { fg = "${theme.secondary}", style = "italic" }
+          		groups["@markup.heading.1.markdown"] = { fg = "${theme.orange}", style = "bold" }
+          		groups["@markup.heading.2.markdown"] = { fg = "${theme.red}", style = "bold" }
+          		groups["@markup.heading.3.markdown"] = { fg = "${theme.purple}", style = "bold" }
+          	end,
           })
-          vim.cmd('colorscheme nightcity')
+          vim.cmd("colorscheme nightcity")
         '';
     }
   ];

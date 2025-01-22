@@ -8,7 +8,7 @@
         lua
         */
         ''
-          require('leap').create_default_mappings()
+          require("leap").create_default_mappings()
         '';
     }
     {
@@ -19,7 +19,7 @@
         lua
         */
         ''
-          require('flit').setup()
+          require("flit").setup()
         '';
     }
     pkgs.vimPlugins.vim-repeat

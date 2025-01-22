@@ -18,7 +18,7 @@
         -- highlight the line of a cursor
         --set.cursorline = true
         -- spellcheck language
-        set.spelllang = 'en_nz,mi'
+        set.spelllang = "en_nz,mi"
 
         -- tab definitions
         set.tabstop = 2
@@ -46,7 +46,7 @@
         set.hlsearch = true
         set.termguicolors = true
         -- keep signcolumn always visible
-        set.signcolumn = 'yes'
+        set.signcolumn = "yes"
         set.showmode = false -- I use lualine and don't need to see the mode twice
         -- when splitting, open new window below/right
         set.splitright = true
@@ -58,29 +58,29 @@
         set.timeoutlen = 1000
         set.lazyredraw = true
 
-        set.completeopt = 'menuone,noselect'
+        set.completeopt = "menuone,noselect"
 
         -- disable mouse
         set.mouse = ""
 
         -- vim diagnostic messages - tell me the lsp it came from
         vim.diagnostic.config({
-        virtual_text = {
-            source = true,
-            format = function(diagnostic)
-                if diagnostic.user_data and diagnostic.user_data.code then
-                    return string.format('%s %s', diagnostic.user_data.code, diagnostic.message)
-                else
-                    return diagnostic.message
-                end
-            end,
-          },
-          signs = true,
-          float = {
-              header = 'Diagnostics',
-              source = true,
-              border = 'rounded',
-          },
+        	virtual_text = {
+        		source = true,
+        		format = function(diagnostic)
+        			if diagnostic.user_data and diagnostic.user_data.code then
+        				return string.format("%s %s", diagnostic.user_data.code, diagnostic.message)
+        			else
+        				return diagnostic.message
+        			end
+        		end,
+        	},
+        	signs = true,
+        	float = {
+        		header = "Diagnostics",
+        		source = true,
+        		border = "rounded",
+        	},
         })
       '';
   };
