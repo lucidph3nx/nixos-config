@@ -104,7 +104,7 @@
           default_family = "JetBrainsMono Nerd Font";
           default_size = "10pt";
         };
-        # false beacuse it causes a weird olour shift
+        # false beacuse it causes a weird colour shift
         # https://github.com/qutebrowser/qutebrowser/issues/5528
         window.hide_decoration = false;
         tabs = {
