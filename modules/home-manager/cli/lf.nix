@@ -36,6 +36,8 @@
         set previewer ${previewer}/bin/pv.sh
         set cleaner ${cleaner}/bin/clean.sh
 
+        # create folder
+        map a push %mkdir<space>
         # delete
         map d
         map dd :cut
