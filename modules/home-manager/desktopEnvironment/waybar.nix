@@ -13,7 +13,6 @@
   enableMpd = config.homeManagerModules.mpd.enable;
   enableHyprland = config.homeManagerModules.hyprland.enable;
   enableSway = config.homeManagerModules.sway.enable;
-  mouseBattery = config.homeManagerModules.waybar.mouseBattery;
   homeDir = config.home.homeDirectory;
   fontsize = config.homeManagerModules.waybar.fontSize;
   isLaptop = osConfig.nixModules.isLaptop;
@@ -22,7 +21,6 @@ in
     options = {
       homeManagerModules.waybar = {
         enable = lib.mkEnableOption "enables waybar";
-        mouseBattery = lib.mkEnableOption "show mouse battery via opernrazer";
         fontSize = lib.mkOption {
           type = lib.types.str;
           default = "18px";
@@ -165,7 +163,6 @@ in
             ];
             modules-center = [];
             modules-right = [
-              (lib.mkIf mouseBattery "custom/mouse-battery")
               "cpu"
               "memory"
               "network"
@@ -189,13 +186,6 @@ in
               "return-type" = "string";
               "interval" = 1;
               "exec" = "${homeDir}/.local/scripts/cli.mpd.nowPlaying";
-            };
-            "custom/mouse-battery" = lib.mkIf mouseBattery {
-              "return-type" = "json";
-              "interval" = 60;
-              "exec" = "${homeDir}/.local/scripts/home.mouse.batteryIndicator";
-              # "exec" = "polychromatic-cli -d mouse -k | grep Battery | sed 's/[^0-9]*//g'";
-              "format" = "{}";
             };
             "battery" = {
               "format-icons" = ["󱊡" "󱊢" "󱊣"];
@@ -326,14 +316,6 @@ in
             #custom-inhibitidle.active {
               color: ${bg0};
               background-color: ${red};
-            }
-            #custom-mouse-battery.low {
-              color: ${bg0};
-              background-color: ${red};
-            }
-            #custom-mouse-battery.full {
-              color: ${bg0};
-              background-color: ${blue};
             }
             label:focus {
               background-color: ${bg0};
