@@ -208,6 +208,7 @@
     };
     xdg.mimeApps.defaultApplications = {
       "image/jpeg" = ["vimiv.desktop"];
+      "image/png" = ["vimiv.desktop"];
     };
   };
 }
