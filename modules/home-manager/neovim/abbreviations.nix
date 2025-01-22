@@ -9,21 +9,21 @@
         " markdown
         ab ch - [ ]
         " fractions
-        ab 1/2 ½
-        ab 1/4 ¼
-        ab 3/4 ¾
-        ab 1/3 ⅓
-        ab 2/3 ⅔
-        ab 1/5 ⅕
-        ab 2/5 ⅖
-        ab 3/5 ⅗
-        ab 4/5 ⅘
-        ab 1/6 ⅙
-        ab 5/6 ⅚
-        ab 1/8 ⅛
-        ab 3/8 ⅜
-        ab 5/8 ⅝
-        ab 7/8 ⅞
+        ab 1o2 ½
+        ab 1o4 ¼
+        ab 3o4 ¾
+        ab 1o3 ⅓
+        ab 2o3 ⅔
+        ab 1o5 ⅕
+        ab 2o5 ⅖
+        ab 3o5 ⅗
+        ab 4o5 ⅘
+        ab 1o6 ⅙
+        ab 5o6 ⅚
+        ab 1o8 ⅛
+        ab 3o8 ⅜
+        ab 5o8 ⅝
+        ab 7o8 ⅞
         " superscript
         ab 1u ¹
         ab 2u ²
