@@ -43,7 +43,6 @@
         swaync.enable = lib.mkDefault true;
         waybar = {
           enable = lib.mkDefault true;
-          mouseBattery = lib.mkDefault false;
         };
       };
       home.packages = with pkgs; [
