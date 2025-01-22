@@ -1,10 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  inputs,
-  ...
-}: {
+{...}: {
   # Setting various vim options
   programs.neovim = {
     extraLuaConfig =

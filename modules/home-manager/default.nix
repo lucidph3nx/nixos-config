@@ -1,8 +1,4 @@
-{
-  pkgs,
-  lib,
-  ...
-}: {
+{lib, ...}: {
   options = {
     homeManagerModules.defaultBrowser = lib.mkOption {
       default = "qutebrowser";

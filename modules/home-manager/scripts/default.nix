@@ -1,8 +1,4 @@
-{
-  config,
-  pkgs,
-  ...
-}:
+{...}:
 # a temporary solution
 # scripts should be grouped into domains
 {

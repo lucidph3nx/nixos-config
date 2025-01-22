@@ -1,7 +1,6 @@
 {
   config,
   pkgs,
-  inputs,
   lib,
   ...
 }: {
@@ -129,8 +128,8 @@
         pagedown = "Next";
         homeDir = config.home.homeDirectory;
       in [
-        "SUPER, Prior, exec, ${homeDir}/.local/scripts/home.office.openBlinds"
-        "SUPER, Next, exec, ${homeDir}/.local/scripts/home.office.closeBlinds"
+        "SUPER, ${pageup}, exec, ${homeDir}/.local/scripts/home.office.openBlinds"
+        "SUPER, ${pagedown}, exec, ${homeDir}/.local/scripts/home.office.closeBlinds"
       ];
     };
     # This script turns off the grow lights

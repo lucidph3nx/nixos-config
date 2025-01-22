@@ -1,10 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  inputs,
-  ...
-}: {
+{...}: {
   # Setting some helpful autocommands
   programs.neovim = {
     extraLuaConfig =
