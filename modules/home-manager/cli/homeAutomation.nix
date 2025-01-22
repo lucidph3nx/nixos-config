@@ -193,7 +193,7 @@
               echo "last_notification=low" > "$STATE_FILE"
           elif [[ "$battery_level" -eq $FULL_BATTERY && "$last_notification" != "full" ]]; then
               # Notify when fully charged
-              notify-send -i battery-low -u normal "Mouse Fully Charged" "Battery level: $battery_level%."
+              notify-send -i battery -u normal "Mouse Fully Charged" "Battery level: $battery_level%."
               echo "last_notification=full" > "$STATE_FILE"
           elif [[ "$battery_level" -ge $LOW_BATTERY && "$battery_level" -lt $FULL_BATTERY ]]; then
               # Reset state if conditions are normal
