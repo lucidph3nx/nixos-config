@@ -160,6 +160,7 @@
         "gc" = "calendar.google.com";
         "gh" = "github.com";
         "gm" = "maps.google.com";
+        "gp" = "photos.google.com";
         "ww" = "https://www.metservice.com/towns-cities/locations/wellington";
         "yt" = "youtube.com";
       };
