@@ -25,5 +25,9 @@
         ".config/nvim/spell"
       ];
     };
+    xdg.mimeApps.defaultApplications = lib.mkIf config.programs.neovim.enable {
+      "text/plain" = "nvim.desktop";
+      "text/markdown" = "nvim.desktop";
+    };
   };
 }
