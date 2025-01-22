@@ -84,6 +84,9 @@
           "bookmarks"
           "history"
         ];
+        scrolling = {
+          bar = "when-searching";
+        };
         spellcheck = {
           languages = [
             "en-AU"

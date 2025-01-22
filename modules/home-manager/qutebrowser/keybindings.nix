@@ -22,6 +22,8 @@
         # edit current url
         "e" = "cmd-set-text :open {url:pretty}";
         "E" = "cmd-set-text :open -t {url:pretty}";
+        # edit text
+        "<Ctrl-e>" = "edit-text";
         # bitwarden bindings
         "<Space>ll" = "spawn --userscript bitwarden --totp";
         "<Space>lu" = "spawn --userscript bitwarden --username-only";
