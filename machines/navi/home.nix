@@ -32,7 +32,6 @@
     plexamp.enable = true;
     ssh.client.enable = true;
     sway.enable = true;
-    waybar.mouseBattery = true;
   };
   home = {
     username = "ben";
