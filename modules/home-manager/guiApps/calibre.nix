@@ -1,7 +1,6 @@
 {
   config,
   pkgs,
-  pkgs-master,
   lib,
   ...
 }: {
@@ -11,8 +10,7 @@
   };
   config = lib.mkIf config.homeManagerModules.calibre.enable {
     home.packages = [
-      # waiting for https://nixpk.gs/pr-tracker.html?pr=355885
-      pkgs-master.calibre
+      pkgs.calibre
     ];
     home.persistence."/persist/home/ben" = {
       directories = [
