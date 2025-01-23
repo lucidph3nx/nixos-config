@@ -198,6 +198,7 @@
         https://github.com/lucidph3nx/nixos-config nixos-config
         https://github.com/lucidph3nx/home-ops home-ops
         https://chatgpt.com/ chatgpt
+        https://github.com/NixOS/nixpkgs/issues nixpkgs-issues
       '';
     };
     xdg.dataFile."qutebrowser/userscripts/bitwarden" = {
