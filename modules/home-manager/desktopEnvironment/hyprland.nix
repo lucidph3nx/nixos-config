@@ -97,8 +97,6 @@ in {
           (lib.mkIf osConfig.nixModules.isLaptop "${pkgs.brightnessctl}/bin/brightnessctl --device='asus::kbd_backlight' set 0")
           ".local/scripts/cli.hyprland.switchWorkspaceOnWindowClose"
           "waybar"
-          # ags overview
-          # "ags run"
         ];
         debug = {
           disable_logs = false;
@@ -190,42 +188,21 @@ in {
           swallow_exception_regex = "^(lf|wev)$";
         };
         windowrulev2 = [
-          "workspace 2 silent,class:(Prospect Mail)"
-          "workspace 2 silent,class:(teams-for-linux)"
-          "workspace 2 silent,class:(WebCord)"
+          # waydroid 
           "float, class:(Waydroid)"
           "center, class:(Waydroid)"
-          # popout nvim editor for qutebrowser
-          "float, class:(qute-editor)"
-          "size 800 480, class:(qute-editor)"
-          # popout lf file picker for qutebrowser
-          "float, class:(qute-filepicker)"
-          "size 800 480, class:(qute-filepicker)"
-          "float, title:darktable starting" # darktable splash screen
           "size 480 800, class:(Waydroid)"
           # sometimes chromium thinks its fine to open in a tiny window
           "tile, class:(Chromium-browser)"
-          # prevent darktable from maximising on start
-          "suppressevent maximize, class:(darktable)"
-          "syncfullscreen 0, class:(libreoffice-writer)" # prevent libreoffice from fullscreening
-          "syncfullscreen 0, class:(org.qutebrowser.qutebrowser)" # fake fullscreen, good for youtube etc
         ];
         monitor = [
           ",preferred,auto,auto"
         ];
-        layerrule = [
-          # disable animations for AGS
-          "noanim, gtk-layer-shell"
-        ];
         bindrt = [
-          # hide ags overview on SUPER_L keyup
-          # "SUPER, SUPER_L, exec, ags request -i astal hide"
           # hide waybar on SUPER_L keyup
           "SUPER, SUPER_L, exec, pkill -SIGUSR1 waybar"
         ];
         bind = [
-          # show ags overview on SUPER_L keydown
-          # ", SUPER_L, exec, ags request -i astal show"
           # show waybar on SUPER_L keydown
           ", SUPER_L, exec, pkill -SIGUSR1 waybar"
           # Motions

@@ -7,7 +7,6 @@
 }: {
   imports = [
     ./additionalTheming.nix
-    # ./ags # I'll come back to this oneday
     ./hyprland.nix
     ./hyprlock.nix
     ./input-remapper.nix

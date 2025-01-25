@@ -146,16 +146,16 @@
         */
         ''
           # enable geolocation on some sites
-          config.set('content.geolocation',True, 'https://www.bunnings.co.nz')
-          config.set('content.geolocation',True, 'https://www.metlink.org.nz')
-          config.set('content.geolocation',True, 'https://www.newworld.co.nz')
-          config.set('content.geolocation',True, 'https://www.pbtech.co.nz')
+          config.set("content.geolocation", True, "https://www.bunnings.co.nz")
+          config.set("content.geolocation", True, "https://www.metlink.org.nz")
+          config.set("content.geolocation", True, "https://www.newworld.co.nz")
+          config.set("content.geolocation", True, "https://www.pbtech.co.nz")
           # tab padding
           c.tabs.padding = {
-            'bottom': 5,
-            'left': 5,
-            'top': 5,
-            'right': 5,
+              "bottom": 5,
+              "left": 5,
+              "top": 5,
+              "right": 5,
           }
         '';
       quickmarks = {
@@ -223,6 +223,15 @@
       "text/xml" = ["org.qutebrowser.qutebrowser.desktop"];
       "x-scheme-handler/http" = ["org.qutebrowser.qutebrowser.desktop"];
       "x-scheme-handler/https" = ["org.qutebrowser.qutebrowser.desktop"];
+    };
+    wayland.windowManager.hyprland.settings = lib.mkIf (config.homeManagerModules.hyprland.enable) {
+      windowrulev2 = [
+        # floating filepickers and editors
+        "float, class:(^qute-*)"
+        "size 800 480, class:(^qute-*)"
+        # fake fullscreen, good for youtube etc
+        "syncfullscreen 0, class:(org.qutebrowser.qutebrowser)"
+      ];
     };
   });
 }

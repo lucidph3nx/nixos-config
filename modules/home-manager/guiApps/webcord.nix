@@ -17,5 +17,11 @@
         ".config/WebCord"
       ];
     };
+    wayland.windowManager.hyprland.settings = lib.mkIf (config.homeManagerModules.hyprland.enable) {
+      windowrulev2 = [
+        # silently open on workspace 2
+        "workspace 2 silent,class:(WebCord)"
+      ];
+    };
   };
 }
