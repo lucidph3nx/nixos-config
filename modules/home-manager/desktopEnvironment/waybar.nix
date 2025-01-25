@@ -79,6 +79,7 @@ in
             "hyprland/window" = {
               "format" = "{title}";
               "rewrite" = {
+                # remove the browser name from the title
                 "(.*) — Mozilla Firefox" = "$1";
                 "(.*) - qutebrowser" = "$1";
               };
