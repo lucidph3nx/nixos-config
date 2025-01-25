@@ -63,10 +63,8 @@ in {
       toggleTouchpad = "${homeDir}/.local/scripts/system.inputs.toggleTouchpad";
       # applications
       terminal = "kitty";
-      browser = "qutebrowser";
-      newwindow = "${browser} --target window";
-      # browser = "firefox";
-      # newwindow = "${browser} --new-window";
+      browser = config.homeManagerModules.defaultWebBrowserSettings.cmd;
+      newwindow = config.homeManagerModules.defaultWebBrowserSettings.newWindowCmd;
       calendar = "${newwindow} https://calendar.google.com";
       home-assistant = "${newwindow} https://home-assistant.$SECRET_DOMAIN";
       plex = "${newwindow} https://plex.$SECRET_DOMAIN";
