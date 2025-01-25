@@ -207,8 +207,7 @@ in {
           "tile, class:(Chromium-browser)"
           # prevent darktable from maximising on start
           "suppressevent maximize, class:(darktable)"
-          # same with libreoffice
-          "suppressevent maximize, class:(libreoffice-writer)"
+          "syncfullscreen 0, class:(libreoffice-writer)" # prevent libreoffice from fullscreening
           "syncfullscreen 0, class:(org.qutebrowser.qutebrowser)" # fake fullscreen, good for youtube etc
         ];
         monitor = [
