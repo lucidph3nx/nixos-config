@@ -209,6 +209,7 @@ in {
           "suppressevent maximize, class:(darktable)"
           # same with libreoffice
           "suppressevent maximize, class:(libreoffice-writer)"
+          "syncfullscreen 0, class:(org.qutebrowser.qutebrowser)" # fake fullscreen, good for youtube etc
         ];
         monitor = [
           ",preferred,auto,auto"
