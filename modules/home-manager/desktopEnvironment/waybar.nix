@@ -5,8 +5,6 @@
   lib,
   ...
 }: let
-  # browserNewWindow = "firefox --new-window";
-  browserNewWindow = "qutebrowser --target window";
   externalAudio = osConfig.nixModules.externalAudio.enable;
   enableHomeAutomation = config.homeManagerModules.homeAutomation.enable;
   location = osConfig.nixModules.deviceLocation;
@@ -90,14 +88,12 @@ in
               "interval" = 60;
               "format" = " {}";
               "exec" = "${homeDir}/.local/scripts/cli.home.office.getTemperature";
-              "on-click" = "${browserNewWindow} https://home-assistant.$SECRET_DOMAIN/lovelace/default_view";
             };
             "custom/office-humidity" = lib.mkIf enableHomeAutomation {
               "return-type" = "string";
               "interval" = 60;
               "format" = " {}";
               "exec" = "${homeDir}/.local/scripts/cli.home.office.getHumidity";
-              "on-click" = "${browserNewWindow} https://home-assistant.$SECRET_DOMAIN/lovelace/default_view";
             };
             "tray" = {
               "icon-size" = 18;
@@ -108,15 +104,6 @@ in
               "format-muted" = "󰖁 {volume}%";
               "on-click" = "qpwgraph";
             };
-            # "custom/audio-cycle" = lib.mkIf enableAudio {
-            #   "return-type" = "json";
-            #   "exec-on-event" = true;
-            #   "interval" = 1;
-            #   "format" = "{alt}";
-            #   "exec" = "${homeDir}/.local/scripts/cli.audio.getOutput";
-            #   "exec-if" = "sleep 0.5"; # Give enough time for script to get output
-            #   "on-click" = "${homeDir}/.local/scripts/system.audio.switchOutput";
-            # };
             "custom/audio-enabled" = {
               "return-type" = "string";
               "interval" = 1;
