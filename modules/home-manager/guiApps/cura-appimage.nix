@@ -36,6 +36,7 @@ in {
     home.persistence."/persist/home/ben" = {
       directories = [
         ".config/cura"
+        ".local/share/cura"
       ];
     };
     xdg.desktopEntries = lib.mkIf pkgs.stdenv.isLinux {
