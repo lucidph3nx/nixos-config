@@ -40,6 +40,8 @@ in {
           current_item_suffix = "$/r$(end)";
           current_item_inactive_column_prefix = "$5$r";
           media_library_primary_tag = "album_artist";
+          # I don't use this, but i don't want it in my home directory
+          lyrics_directory = "~/.config/ncmpcpp/lyrics";
         };
         bindings = [
           {

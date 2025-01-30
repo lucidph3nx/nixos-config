@@ -28,6 +28,10 @@
         # this is the cursor I like, from plasma 6
         package = pkgs.kdePackages.breeze;
       };
+      gtk2 = {
+        # not in home dir please
+        configLocation = "${config.xdg.configHome}/gtk-2.0/gtkrc";
+      };
       gtk3 = lib.mkIf (config.theme.type == "dark") {
         extraConfig.gtk-application-prefer-dark-theme = true;
       };
