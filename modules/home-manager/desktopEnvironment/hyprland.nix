@@ -168,14 +168,6 @@ in {
           preserve_split = "yes";
           force_split = 2;
         };
-        master = {
-          allow_small_split = true;
-          special_scale_factor = ".80";
-          mfact = ".45";
-          orientation = "center";
-          inherit_fullscreen = false;
-          always_center_master = false;
-        };
         misc = {
           disable_hyprland_logo = true;
           disable_splash_rendering = true;
