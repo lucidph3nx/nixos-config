@@ -3,7 +3,6 @@
     helm-ls
     lua-language-server
     nil
-    terraform-ls
     typescript-language-server
     yaml-language-server
   ];
@@ -53,7 +52,6 @@
           add_lsp(lspconfig.pylsp, {})
           add_lsp(lspconfig.rust_analyzer, {})
           add_lsp(lspconfig.sqlls, {})
-          add_lsp(lspconfig.terraformls, {})
           add_lsp(lspconfig.ts_ls, {})
           add_lsp(lspconfig.yamlls, {
           	settings = { ["yamlls"] = {

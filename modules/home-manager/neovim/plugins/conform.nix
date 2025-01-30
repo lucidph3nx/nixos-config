@@ -4,7 +4,6 @@
     alejandra
     black
     jq
-    terraform
   ];
   programs.neovim.plugins = [
     {
@@ -21,7 +20,6 @@
           		python = { "black" },
           		nix = { "alejandra", "injected" },
           		json = { "jq" },
-          		terraform = { "terraform_fmt" },
           	},
           })
           -- Keybindings

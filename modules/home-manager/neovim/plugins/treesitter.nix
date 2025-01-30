@@ -34,7 +34,6 @@
           scala
           ssh_config
           sql
-          terraform
           tmux
           toml
           typescript

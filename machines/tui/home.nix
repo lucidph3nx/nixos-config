@@ -73,7 +73,6 @@
       # these should be with the hm modules
       # but give compile errors on darwin
       ".config/syncthing"
-      ".terraform.d"
     ];
   };
   home.activation = {
