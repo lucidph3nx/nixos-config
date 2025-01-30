@@ -139,7 +139,7 @@ in {
         };
         decoration = {
           rounding = 0;
-          blur.enabled = false;
+          blur.enabled = true;
           shadow = {
             enabled = false;
           };
