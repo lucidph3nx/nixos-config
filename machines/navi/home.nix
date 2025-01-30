@@ -89,9 +89,6 @@
   };
 
   home.packages = with pkgs; [
-    # https://github.com/NixOS/nixpkgs/issues/325896
-    # I also seem to need to run it with QT_QPA_PLATFORM=xcb
-    # pkgs-stable.cura
     gimp
     # cinnamon.nemo
     # retro gaming
@@ -100,7 +97,7 @@
   ];
 
   wayland.windowManager.hyprland.settings.monitor = [
-    "DP-3,highrr,5120x1440,1"
+    "DP-3,highrr,0x0,1"
   ];
 
   home.sessionVariables = {
