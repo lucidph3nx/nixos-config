@@ -97,7 +97,7 @@
   ];
 
   wayland.windowManager.hyprland.settings.monitor = [
-    "DP-3,highrr,0x0,1"
+    "DP-3,5120x1440@239.76Hz,0x0,1"
   ];
 
   home.sessionVariables = {
