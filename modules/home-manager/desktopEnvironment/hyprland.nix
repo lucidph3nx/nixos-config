@@ -189,8 +189,8 @@ in {
           ",preferred,auto,auto"
         ];
         bindrt = [
-          # hide waybar on SUPER_L keyup
-          "SUPER, SUPER_L, exec, pkill -SIGUSR1 waybar"
+          # hide waybar on SUPER_L keyup (actually resets which loads it as hidden)
+          "SUPER, SUPER_L, exec, pkill -SIGUSR2 waybar"
         ];
         bind = [
           # show waybar on SUPER_L keydown
