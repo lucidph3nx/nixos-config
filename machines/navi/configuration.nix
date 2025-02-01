@@ -54,15 +54,6 @@
     hosts = {
     };
   };
-  # allow portforward of 443
-  security.wrappers = {
-    ssh = {
-      owner = "root";
-      group = "root";
-      capabilities = "cap_net_bind_service=+eip";
-      source = "${pkgs.openssh}/bin/ssh";
-    };
-  };
 
   # no password for sudo
   security.sudo.wheelNeedsPassword = false;
