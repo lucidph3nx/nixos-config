@@ -215,7 +215,21 @@
     enable = true;
     gamescopeSession.enable = false;
     protontricks.enable = true;
+    package = pkgs.steam.override {
+      extraPkgs = pkgs:
+        with pkgs; [
+          libcap
+          procps
+          usbutils
+        ];
+    };
   };
+  # for vr headsets
+  hardware.steam-hardware.enable = true;
+
+  # IMPORTANT: for anyone who found this code by searching github, I do not have a working VR setup
+  # not sure what I'm missing, but I'll try again later, don't treat this as a working example
+
   programs.gamemode.enable = true;
   environment.sessionVariables = {
     STEAM_EXTRA_COMPAT_TOOLS_PATHS = "/home/ben/.steam/root/compatibilitytools.d";
