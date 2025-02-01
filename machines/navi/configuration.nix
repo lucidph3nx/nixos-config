@@ -33,7 +33,6 @@
         path = "/home/ben/music";
       };
     };
-    input-remapper.enable = true;
     # should be on home network
     nfs-mounts.enable = true;
   };
@@ -244,6 +243,22 @@
       xdg-desktop-portal-wlr
     ];
     wlr.enable = lib.mkForce true; #TODO: figure out why hyprland conflicts with this
+  };
+
+  # key remapping
+  services.keyd = {
+    enable = true;
+    keyboards = {
+      mouse = {
+        ids = ["1532:00b7:aa6166ef"]; # Razer Deathadder V3 Pro
+        settings = {
+          main = {
+            mouse1 = "playpause";
+            mouse2 = "leftmeta";
+          };
+        };
+      };
+    };
   };
 
   # List services that you want to enable:

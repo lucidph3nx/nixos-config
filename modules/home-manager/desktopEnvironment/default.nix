@@ -9,7 +9,6 @@
     ./additionalTheming.nix
     ./hyprland.nix
     ./hyprlock.nix
-    ./input-remapper.nix
     ./mpd.nix
     ./pipewire-utils.nix
     ./rofi.nix
@@ -33,7 +32,6 @@
       homeManagerModules = {
         hyprland.enable = lib.mkDefault false;
         hyprlock.enable = lib.mkDefault false;
-        input-remapper.enable = lib.mkDefault true;
         mpd.enable = lib.mkDefault true;
         pipewire-utils.enable = lib.mkDefault true;
         rofi.enable = lib.mkDefault true;

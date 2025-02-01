@@ -4,7 +4,6 @@
     ./cli-tools.nix
     ./greetd.nix
     ./gui-tools.nix
-    ./input-remapper.nix
     ./localisation.nix
     ./nfs-mounts.nix
     ./polkit.nix
