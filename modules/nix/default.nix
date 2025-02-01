@@ -4,6 +4,7 @@
     ./cli-tools.nix
     ./greetd.nix
     ./gui-tools.nix
+    ./hardware-boot-switch.nix
     ./impermanence.nix
     ./localisation.nix
     ./nfs-mounts.nix
