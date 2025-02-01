@@ -12,6 +12,7 @@
     ./sops
     ./printer.nix
     ./syncthing.nix
+    ./user-ben.nix
   ];
   options = {
     nixModules.externalAudio.enable = lib.mkEnableOption {

@@ -1,0 +1,22 @@
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}: {
+  # Set up main user account: ben
+  # Define a user account. Don't forget to set a password with ‘passwd’.
+  users.users.ben = {
+    isNormalUser = true;
+    hashedPasswordFile = config.sops.secrets.ben_hashed_password.path;
+    description = "ben";
+    extraGroups = [
+      "wheel"
+      (lib.mkIf config.networking.networkmanager.enable "networkmanager")
+      (lib.mkIf config.hardware.openrazer.enable "openrazer")
+    ];
+    shell = pkgs.zsh;
+  };
+  # no password for sudo
+  security.sudo.wheelNeedsPassword = false;
+}
