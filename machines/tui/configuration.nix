@@ -31,7 +31,6 @@
       calibre.enable = true;
       music.enable = true;
     };
-    input-remapper.enable = true;
     nfs-mounts.enable = true;
   };
 
