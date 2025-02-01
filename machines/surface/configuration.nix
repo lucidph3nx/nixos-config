@@ -134,9 +134,6 @@
   };
   security.rtkit.enable = true;
 
-  # cups for printing
-  services.printing.enable = true;
-
   # device specific syncthing config
   sops.secrets.surface-cert-pem = {
     owner = "ben";

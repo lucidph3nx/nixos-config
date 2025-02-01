@@ -9,6 +9,7 @@
     ./nfs-mounts.nix
     ./polkit.nix
     ./sops
+    ./printer.nix
     ./syncthing.nix
   ];
   options = {

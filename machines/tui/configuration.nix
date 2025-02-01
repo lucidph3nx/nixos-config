@@ -32,6 +32,7 @@
       music.enable = true;
     };
     nfs-mounts.enable = true;
+    printer.enable = true;
   };
 
   # Bootloader.
@@ -169,20 +170,6 @@
     };
   };
   security.rtkit.enable = true;
-
-  # cups for printing
-  services.printing = {
-    enable = true;
-    drivers = [
-      pkgs.brlaser
-    ];
-  };
-  # printer autoddiscovery
-  services.avahi = {
-    enable = true;
-    nssmdns4 = true;
-    openFirewall = true;
-  };
 
   # gaming
   hardware.graphics = {

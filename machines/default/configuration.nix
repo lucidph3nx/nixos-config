@@ -101,8 +101,6 @@
   services.dbus.implementation = "broker";
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
-  # cups for printing
-  services.printing.enable = true;
 
   # device specific syncthing config
   sops.secrets.default-cert-pem = {

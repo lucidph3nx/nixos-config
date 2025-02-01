@@ -35,6 +35,7 @@
     };
     # should be on home network
     nfs-mounts.enable = true;
+    printer.enable = true;
   };
 
   # Bootloader.
@@ -253,14 +254,6 @@
     };
   };
   security.rtkit.enable = true;
-
-  # cups for printing
-  services.printing = {
-    enable = true;
-    drivers = [
-      pkgs.brlaser
-    ];
-  };
 
   # gaming
   hardware.graphics = {
