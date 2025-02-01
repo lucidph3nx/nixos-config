@@ -41,6 +41,9 @@
         "lucidph3nx-nixos-config.cachix.org-1:gXiGMMDnozkXCjvOs9fOwKPZNIqf94ZA/YksjrKekHE="
       ];
     };
+    # increase network buffer size
+    boot.kernel.sysctl."net.core.rmem_max" = 2500000;
+
     # power management
     services.power-profiles-daemon.enable = true;
 

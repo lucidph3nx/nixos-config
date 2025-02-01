@@ -41,9 +41,6 @@
     efi.canTouchEfiVariables = true;
   };
 
-  boot.kernel.sysctl."net.core.rmem_max" = 2500000;
-
-
   networking = {
     hostName = "tui";
     networkmanager.enable = true;
