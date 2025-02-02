@@ -52,16 +52,12 @@ in {
           src = lib.cleanSource ./files;
           file = "p10k.zsh";
         }
+        {
+          name = "vi-mode";
+          src = pkgs.zsh-vi-mode;
+          file = "share/zsh-vi-mode/zsh-vi-mode.plugin.zsh";
+        }
       ];
-      oh-my-zsh = {
-        enable = true;
-        plugins = [
-          "git"
-          "git-auto-fetch"
-          "history"
-          "vi-mode"
-        ];
-      };
       shellAliases = {
         # preserve env when using sudo
         # sudo = "sudo -E -s";
@@ -77,8 +73,11 @@ in {
         v = "nvim";
         # youtube music download script
         ytm-download = "yt-dlp  --add-metadata --format m4a --youtube-skip-dash-manifest -i -o '~/music/%(artist)s/%(album)s/%(title)s.%(ext)s' --sponsorblock-remove 'music_offtopic'";
-        # git pull
+        # git aliases
         gP = "git pull";
+        gcb = "git checkout -b";
+        # history search
+        hs = "history | grep";
       };
       initExtra = ''
         # Custom keybindings
