@@ -49,12 +49,12 @@ in {
       window {
         location: 0;
         background-color: ${bg0};
-        border-color: ${bg3};
-        border: 2;
+        border-color: ${bg_dim};
+        border: 1;
         width: 1042px;
       }
       mainbox {
-        margin: 15px;
+        margin: 5px;
       }
       inputbar {
         border-color: ${green};
@@ -64,11 +64,9 @@ in {
       prompt {
         color: ${foreground};
         padding: 10px;
-        padding-top: 5px;
       }
       entry {
         padding: 10px;
-        padding-top: 5px;
         placeholder-color: ${bg5};
       }
       listview {
