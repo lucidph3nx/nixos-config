@@ -39,7 +39,7 @@
         owner = "ben";
         mode = "0600";
         sopsFile = sopsFile;
-      }
+      };
     };
     environment.sessionVariables = {
       HASS_API_KEY = "$(cat ${config.sops.secrets.hass_api_key.path})";
