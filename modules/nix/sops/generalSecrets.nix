@@ -35,6 +35,11 @@
         mode = "0600";
         sopsFile = sopsFile;
       };
+      bitwarden_password = {
+        owner = "ben";
+        mode = "0600";
+        sopsFile = sopsFile;
+      }
     };
     environment.sessionVariables = {
       HASS_API_KEY = "$(cat ${config.sops.secrets.hass_api_key.path})";
@@ -42,6 +47,7 @@
       GITHUB_TOKEN = "$(cat ${config.sops.secrets.github_token.path})";
       GITHUB_PACKAGES_TOKEN = "$(cat ${config.sops.secrets.github_token.path})";
       NOTION_SHOPPING_LIST_KEY = "$(cat ${config.sops.secrets.notion_shopping_list_key.path})";
+      BITWARDEN_PASSWORD = "$(cat ${config.sops.secrets.bitwarden_password.path})";
     };
   };
 }
