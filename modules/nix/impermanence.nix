@@ -77,6 +77,7 @@
     # ensure these empty directories exist
     system.activationScripts.emptyDirs = ''
       mkdir -p /home/ben/downloads
+      chown -R ben:users /home/ben/downloads
     '';
     # needed for impermanance in home-manager
     programs.fuse.userAllowOther = true;
