@@ -6,7 +6,10 @@
 }: {
   options = {
     nx.programs.obsidian.enable =
-      lib.mkEnableOption "enables obsidian";
+      lib.mkEnableOption "enables obsidian"
+      // {
+        default = false;
+      };
   };
   config = lib.mkIf config.nx.programs.obsidian.enable {
     home-manager.users.ben.home = {
