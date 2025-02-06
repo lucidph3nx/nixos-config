@@ -6,7 +6,8 @@
     ./mpv.nix
     ./obsidian.nix
     ./picard.nix
-    ./zathura.nix
     ./vimiv.nix
+    ./webcord.nix
+    ./zathura.nix
   ];
 }
