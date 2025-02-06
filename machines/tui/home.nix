@@ -72,9 +72,6 @@
       "code"
       "documents"
       "music"
-      # these should be with the hm modules
-      # but give compile errors on darwin
-      ".config/syncthing"
     ];
   };
   home.activation = {

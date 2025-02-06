@@ -33,7 +33,6 @@
       "code"
       "documents"
       "music"
-      ".config/syncthing"
     ];
     files = [
       # ".zsh_history"
