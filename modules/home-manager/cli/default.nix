@@ -1,6 +1,5 @@
 {lib, ...}: {
   imports = [
-    ./fastfetch.nix
     ./git.nix
     ./homeAutomation.nix
     ./tmux.nix

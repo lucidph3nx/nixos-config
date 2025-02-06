@@ -6,6 +6,7 @@
     ./cura-appimage.nix
     ./darktable.nix
     ./dragon-drop.nix
+    ./fastfetch.nix
     ./k9s.nix
     ./kitty.nix
     ./kubetools.nix
