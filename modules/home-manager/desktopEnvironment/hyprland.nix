@@ -74,7 +74,7 @@ in {
       addtoshoppinglist = "${homeDir}/.local/scripts/home.shoppinglist.addItem";
       openshoppinglist = "${newwindow} https://www.notion.so/ph3nx/Shopping-List-92d98ac3dc86460285a399c0b1176fc5";
       # configuration
-      enableAudioControls = osConfig.nixModules.externalAudio.enable == false;
+      enableAudioControls = osConfig.nx.externalAudio.enable == false;
     in {
       enable = true;
       settings = {
@@ -87,12 +87,12 @@ in {
           # (lib.mkIf (config.theme.name == "github-light") "swaybg -i ${homeDir}/.config/wallpaper_github_light-${resolution}.png --mode fill")
           # "swaybg --color ${builtins.substring 1 6 (theme.bg_dim)}"
           "hypridle"
-          (lib.mkIf (osConfig.nixModules.isLaptop == false) "steam -silent") # couldn't figure out xdg-autostart
+          (lib.mkIf (osConfig.nx.isLaptop == false) "steam -silent") # couldn't figure out xdg-autostart
           "${homeDir}/.local/scripts/game.inputRemapper.defaults"
           # default to 70% brightness
-          (lib.mkIf osConfig.nixModules.isLaptop "${pkgs.brightnessctl}/bin/brightnessctl s 70%")
+          (lib.mkIf osConfig.nx.isLaptop "${pkgs.brightnessctl}/bin/brightnessctl s 70%")
           # default to keyboard backlight off
-          (lib.mkIf osConfig.nixModules.isLaptop "${pkgs.brightnessctl}/bin/brightnessctl --device='asus::kbd_backlight' set 0")
+          (lib.mkIf osConfig.nx.isLaptop "${pkgs.brightnessctl}/bin/brightnessctl --device='asus::kbd_backlight' set 0")
           ".local/scripts/cli.hyprland.switchWorkspaceOnWindowClose"
           "waybar"
         ];
@@ -120,7 +120,7 @@ in {
           };
         };
         gestures = {
-          workspace_swipe = lib.mkIf osConfig.nixModules.isLaptop true;
+          workspace_swipe = lib.mkIf osConfig.nx.isLaptop true;
         };
         general = {
           gaps_in = 5;
@@ -272,10 +272,10 @@ in {
           ", XF86AudioStop, exec, ${pkgs.playerctl}/bin/playerctl stop"
           ", XF86AudioNext, exec, ${pkgs.playerctl}/bin/playerctl next"
           ", XF86AudioPrev, exec, ${pkgs.playerctl}/bin/playerctl previous"
-          (lib.mkIf osConfig.nixModules.isLaptop ", XF86MonBrightnessUp, exec, ${pkgs.brightnessctl}/bin/brightnessctl s +10%")
-          (lib.mkIf osConfig.nixModules.isLaptop ", XF86MonBrightnessDown, exec, ${pkgs.brightnessctl}/bin/brightnessctl s 10%-")
+          (lib.mkIf osConfig.nx.isLaptop ", XF86MonBrightnessUp, exec, ${pkgs.brightnessctl}/bin/brightnessctl s +10%")
+          (lib.mkIf osConfig.nx.isLaptop ", XF86MonBrightnessDown, exec, ${pkgs.brightnessctl}/bin/brightnessctl s 10%-")
           # on my asus laptop, one of the function keys presses Super_L+p for some reason for touchpad disable
-          (lib.mkIf osConfig.nixModules.isLaptop "SUPER, p, exec, ${toggleTouchpad}")
+          (lib.mkIf osConfig.nx.isLaptop "SUPER, p, exec, ${toggleTouchpad}")
           # print screen
           ", Print, exec, ${homeDir}/.local/scripts/application.grim.fullScreenshotToFile"
         ];
@@ -392,7 +392,7 @@ in {
           fi
         '';
     };
-    home.file.".local/scripts/system.inputs.toggleTouchpad" = lib.mkIf osConfig.nixModules.isLaptop {
+    home.file.".local/scripts/system.inputs.toggleTouchpad" = lib.mkIf osConfig.nx.isLaptop {
       executable = true;
       text =
         /*

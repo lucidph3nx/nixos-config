@@ -4,10 +4,10 @@
   ...
 }: {
   options = {
-    nixModules.sops.signingKeys.enable =
+    nx.sops.signingKeys.enable =
       lib.mkEnableOption "Set up signing keys";
   };
-  config = lib.mkIf config.nixModules.sops.signingKeys.enable {
+  config = lib.mkIf config.nx.sops.signingKeys.enable {
     sops.secrets = let
       sopsFile = ../../../secrets/signingKeys.yaml;
     in {

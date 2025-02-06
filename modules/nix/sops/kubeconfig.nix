@@ -4,10 +4,10 @@
   ...
 }: {
   options = {
-    nixModules.sops.kubeconfig.enable =
+    nx.sops.kubeconfig.enable =
       lib.mkEnableOption "Set up kube config";
   };
-  config = lib.mkIf config.nixModules.sops.kubeconfig.enable {
+  config = lib.mkIf config.nx.sops.kubeconfig.enable {
     sops.secrets = let
       sopsFile = ../../../secrets/kubeconfig.yaml;
     in {

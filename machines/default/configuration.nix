@@ -14,7 +14,7 @@
     ../../modules/nix
   ];
 
-  nixModules = {
+  nx = {
     sops = {
       generalSecrets.enable = true;
       signingKeys.enable = true;
@@ -89,8 +89,6 @@
 
   # List services that you want to enable:
   services.dbus.implementation = "broker";
-  # Enable the OpenSSH daemon.
-  services.openssh.enable = true;
 
   # device specific syncthing config
   sops.secrets.default-cert-pem = {

@@ -5,13 +5,13 @@
   ...
 }: {
   options = {
-    nixModules.blocky.enable =
+    nx.blocky.enable =
       lib.mkEnableOption "Add a local blocky DNS server and set it as the default nameserver"
       // {
         default = false;
       };
   };
-  config = lib.mkIf config.nixModules.blocky.enable {
+  config = lib.mkIf config.nx.blocky.enable {
     environment.systemPackages = with pkgs; [
       blocky # nice to also have the cli tool
     ];
@@ -93,6 +93,27 @@
             "misc"
           ];
         };
+      };
+    };
+    # utility scripts for blocky
+    home-manager.users.ben.home = {
+      file.".local/scripts/services.blocky.pause" = {
+        executable = true;
+        text =
+          /*
+          bash
+          */
+          ''
+            #!/bin/sh
+            response=$(${pkgs.blocky}/bin/blocky blocking disable --duration 10m --groups default 2>&1)
+            cleaned_response=$(echo "$response" | awk '{print $NF}')
+
+            if [ "$cleaned_response" = "OK" ]; then
+              notify-send --expire-time 5000 "Blocky" "Blocky is disabled for 10 minutes"
+            else
+              notify-send "Blocky" "Error: $response"
+            fi
+          '';
       };
     };
   };

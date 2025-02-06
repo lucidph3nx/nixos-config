@@ -1,30 +1,25 @@
 {lib, ...}: {
   imports = [
-    ./blocky.nix
     ./cli-tools.nix
-    ./greetd.nix
     ./gui-tools.nix
     ./hardware-boot-switch.nix
     ./impermanence.nix
     ./localisation.nix
     ./nfs-mounts.nix
-    ./polkit.nix
     ./sops
-    ./printer.nix
-    ./syncthing.nix
     ./user-ben.nix
   ];
   options = {
-    nixModules.externalAudio.enable = lib.mkEnableOption {
+    nx.externalAudio.enable = lib.mkEnableOption {
       default = false;
       description = "machine is using external audio control, disable things like volume controls";
     };
-    nixModules.deviceLocation = lib.mkOption {
+    nx.deviceLocation = lib.mkOption {
       default = "none";
       description = "physical location of the machine, for showing local variables like temp humidity";
       type = lib.types.str;
     };
-    nixModules.isLaptop = lib.mkEnableOption {
+    nx.isLaptop = lib.mkEnableOption {
       default = false;
       description = "machine is a laptop, enable things like battery monitoring";
     };
@@ -55,8 +50,8 @@
     # increase network buffer size
     boot.kernel.sysctl."net.core.rmem_max" = 2500000;
 
-    # power management
-    services.power-profiles-daemon.enable = true;
+    # # power management
+    # services.power-profiles-daemon.enable = true;
 
     virtualisation.podman.enable = true;
     # zsh bootstrap

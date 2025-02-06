@@ -5,17 +5,18 @@
   ...
 }: {
   options = {
-    nixModules.printer.enable =
-      lib.mkEnableOption "Code to support printer"
+    nx.printer.enable =
+      lib.mkEnableOption "Configuration to support printer"
       // {
         default = false;
       };
   };
-  config = lib.mkIf config.nixModules.printer.enable {
+  config = lib.mkIf config.nx.printer.enable {
     # cups for printing
     services.printing = {
       enable = true;
       drivers = [
+        # Brother laser printer driver
         pkgs.brlaser
       ];
     };

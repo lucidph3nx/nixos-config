@@ -12,10 +12,10 @@
     ./hardware-configuration.nix
     (import ./disko.nix {device = "/dev/nvme1n1";})
     inputs.disko.nixosModules.default
-    ../../modules/nix
+    ../../modules
   ];
 
-  nixModules = {
+  nx = {
     externalAudio.enable = true; # using external dac
     deviceLocation = "office";
     sops = {
@@ -62,7 +62,8 @@
     users = {
       ben.imports = [
         ./home.nix
-        ../../modules
+        ../../modules/home-manager
+        ../../modules/colourScheme
       ];
     };
   };
@@ -145,63 +146,53 @@
 
   # List services that you want to enable:
   services.dbus.implementation = "broker";
-  # Enable the OpenSSH daemon.
-  services.openssh.enable = true;
 
   # sound
-  services.pipewire = {
-    enable = true;
-    pulse.enable = true;
-    alsa = {
-      enable = true;
-      support32Bit = true;
+  services.pipewire.wireplumber.extraConfig = {
+    # 100% volume
+    "10-default-volume" = {
+      "wireplumber.settings"."device.routes.default-sink-volume" = 1.0;
     };
-    wireplumber.extraConfig = {
-      # 100% volume
-      "10-default-volume" = {
-        "wireplumber.settings"."device.routes.default-sink-volume" = 1.0;
-      };
-      # FiiO K7 as default sink
-      "10-default-sink" = {
-        "wireplumber.settings"."default.configured.audio.sink" = "alsa_output.usb-GuangZhou_FiiO_Electronics_Co._Ltd_FiiO_K7-00.analog-stereo";
-      };
-      # AT2020USB-XLR as default source
-      "10-default-source" = {
-        "wireplumber.settings"."default.configured.audio.source" = "alsa_input.usb-AT_AT2020USB-X_202011110001-00.mono-fallback";
-      };
-      "51-alsa-disable" = {
-        "monitor.alsa.rules" = [
-          {
-            "matches" = [
-              {
-                # disable, not a output device
-                "node.name" = "alsa_output.usb-AT_AT2020USB-X_202011110001-00.analog-stereo";
-              }
-              {
-                # Bult in output disable, nothing plugged in
-                "node.name" = "alsa_output.pci-0000_00_1f.3.iec958-stereo";
-              }
-              {
-                # HDMI output disable, never used
-                "node.name" = "alsa_output.pci-0000_03_00.1.hdmi-stereo-extra4";
-              }
-              {
-                # disable, webcam should never be used for audio
-                "node.name" = "alsa_input.usb-046d_Logitech_StreamCam_F2867D05-02.analog-stereo";
-              }
-              {
-                # Bult in input disable, nothing plugged in
-                "node.name" = "alsa_input.pci-0000_00_1f.3.analog-stereo";
-              }
-            ];
-            "actions" = {
-              "update-props" = {
-                "node.disabled" = true;
-              };
+    # FiiO K7 as default sink
+    "10-default-sink" = {
+      "wireplumber.settings"."default.configured.audio.sink" = "alsa_output.usb-GuangZhou_FiiO_Electronics_Co._Ltd_FiiO_K7-00.analog-stereo";
+    };
+    # AT2020USB-XLR as default source
+    "10-default-source" = {
+      "wireplumber.settings"."default.configured.audio.source" = "alsa_input.usb-AT_AT2020USB-X_202011110001-00.mono-fallback";
+    };
+    "51-alsa-disable" = {
+      "monitor.alsa.rules" = [
+        {
+          "matches" = [
+            {
+              # disable, not a output device
+              "node.name" = "alsa_output.usb-AT_AT2020USB-X_202011110001-00.analog-stereo";
+            }
+            {
+              # Bult in output disable, nothing plugged in
+              "node.name" = "alsa_output.pci-0000_00_1f.3.iec958-stereo";
+            }
+            {
+              # HDMI output disable, never used
+              "node.name" = "alsa_output.pci-0000_03_00.1.hdmi-stereo-extra4";
+            }
+            {
+              # disable, webcam should never be used for audio
+              "node.name" = "alsa_input.usb-046d_Logitech_StreamCam_F2867D05-02.analog-stereo";
+            }
+            {
+              # Bult in input disable, nothing plugged in
+              "node.name" = "alsa_input.pci-0000_00_1f.3.analog-stereo";
+            }
+          ];
+          "actions" = {
+            "update-props" = {
+              "node.disabled" = true;
             };
-          }
-        ];
-      };
+          };
+        }
+      ];
     };
   };
   security.rtkit.enable = true;

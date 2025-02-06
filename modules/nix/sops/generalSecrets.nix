@@ -4,10 +4,10 @@
   ...
 }: {
   options = {
-    nixModules.sops.generalSecrets.enable =
+    nx.sops.generalSecrets.enable =
       lib.mkEnableOption "Set up general Secrets";
   };
-  config = lib.mkIf config.nixModules.sops.generalSecrets.enable {
+  config = lib.mkIf config.nx.sops.generalSecrets.enable {
     sops.secrets = let
       sopsFile = ../../../secrets/secrets.yaml;
     in {

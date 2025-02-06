@@ -1,7 +1,8 @@
 {...}: {
   imports = [
-    ./home-manager
-    #   ./nix
+    # ./home-manager
+    ./nix
     ./colourScheme
+    ./services
   ];
 }

@@ -15,7 +15,7 @@
     ../../modules/nix
   ];
 
-  nixModules = {
+  nx = {
     isLaptop = true;
     blocky.enable = true;
     sops = {
@@ -143,18 +143,7 @@
 
   # List services that you want to enable:
   services.dbus.implementation = "broker";
-  # Enable the OpenSSH daemon.
-  services.openssh.enable = true;
 
-  # sound
-  services.pipewire = {
-    enable = true;
-    pulse.enable = true;
-    alsa = {
-      enable = true;
-      support32Bit = true;
-    };
-  };
   security.rtkit.enable = true;
 
   # gaming

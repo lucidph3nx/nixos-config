@@ -4,33 +4,33 @@
   ...
 }: {
   options = {
-    nixModules.syncthing.enable =
+    nx.syncthing.enable =
       lib.mkEnableOption "Set up syncthing"
       // {
         default = false;
       };
-    nixModules.syncthing.obsidian.enable =
+    nx.syncthing.obsidian.enable =
       lib.mkEnableOption "Set up syncthing obsidian folder"
       // {
         default = false;
       };
-    nixModules.syncthing.calibre.enable =
+    nx.syncthing.calibre.enable =
       lib.mkEnableOption "Set up syncthing calibre folder"
       // {
         default = false;
       };
-    nixModules.syncthing.music.enable =
+    nx.syncthing.music.enable =
       lib.mkEnableOption "Set up syncthing music folder"
       // {
         default = false;
       };
-    nixModules.syncthing.music.path = lib.mkOption {
+    nx.syncthing.music.path = lib.mkOption {
       type = lib.types.str;
       default = "/persist/home/ben/music/";
       description = "location for music folder";
     };
   };
-  config = lib.mkIf config.nixModules.syncthing.enable {
+  config = lib.mkIf config.nx.syncthing.enable {
     services.syncthing = {
       enable = true;
       user = "ben";
@@ -47,20 +47,20 @@
           "nas0" = {id = "7LANRKO-RRMWROL-PDMCTJX-WKSPOKO-LS3K35O-CJEMX7O-MHHIURW-GSF6FAS";};
         };
         folders = {
-          "obsidian" = lib.mkIf config.nixModules.syncthing.obsidian.enable {
+          "obsidian" = lib.mkIf config.nx.syncthing.obsidian.enable {
             id = "hgl5u-yejsp";
             devices = ["k8s"];
             path = "/persist/home/ben/documents/obsidian";
           };
-          "calibre" = lib.mkIf config.nixModules.syncthing.calibre.enable {
+          "calibre" = lib.mkIf config.nx.syncthing.calibre.enable {
             id = "bny6u-oz6gf";
             devices = ["nas0"];
             path = "/persist/home/ben/documents/calibre";
           };
-          "music" = lib.mkIf config.nixModules.syncthing.music.enable {
+          "music" = lib.mkIf config.nx.syncthing.music.enable {
             id = "dmuif-nefck";
             devices = ["nas0"];
-            path = config.nixModules.syncthing.music.path;
+            path = config.nx.syncthing.music.path;
           };
         };
         options.urAccepted = -1;
@@ -79,17 +79,25 @@
         21027
       ];
     };
-    system.activationScripts.documentsFolder = lib.mkIf config.nixModules.syncthing.enable ''
+    system.activationScripts.documentsFolder = lib.mkIf config.nx.syncthing.enable ''
       mkdir -p /home/ben/documents
       chown ben:users /home/ben/documents
     '';
-    system.activationScripts.obsidianFolder = lib.mkIf config.nixModules.syncthing.obsidian.enable ''
+    system.activationScripts.obsidianFolder = lib.mkIf config.nx.syncthing.obsidian.enable ''
       mkdir -p /home/ben/documents/obsidian
       chown ben:users /home/ben/documents/obsidian
     '';
-    system.activationScripts.musicFolder = lib.mkIf config.nixModules.syncthing.music.enable ''
+    system.activationScripts.musicFolder = lib.mkIf config.nx.syncthing.music.enable ''
       mkdir -p /home/ben/music
       chown ben:users /home/ben/music
     '';
+
+    # persist the syncthing config with home-manager impermanence module
+    home-manager.users.ben.home.persistence."/persist/home/ben" = {
+      allowOther = true;
+      directories = [
+        ".config/syncthing"
+      ];
+    };
   };
 }

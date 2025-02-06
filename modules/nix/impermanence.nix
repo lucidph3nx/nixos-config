@@ -4,13 +4,13 @@
   ...
 }: {
   options = {
-    nixModules.impermanence.enable =
+    nx.impermanence.enable =
       lib.mkEnableOption "Code to support impermanence"
       // {
         default = true;
       };
   };
-  config = lib.mkIf config.nixModules.impermanence.enable {
+  config = lib.mkIf config.nx.impermanence.enable {
     # # https://github.com/nix-community/impermanence/issues/229
     # boot.initrd.systemd.suppressedUnits = ["systemd-machine-id-commit.service"];
     # systemd.suppressedSystemUnits = ["systemd-machine-id-commit.service"];

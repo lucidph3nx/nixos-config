@@ -5,13 +5,13 @@
   ...
 }: {
   options = {
-    nixModules.cli-tools.enable =
+    nx.cli-tools.enable =
       lib.mkEnableOption "Add default cli tools"
       // {
         default = true;
       };
   };
-  config = lib.mkIf config.nixModules.cli-tools.enable {
+  config = lib.mkIf config.nx.cli-tools.enable {
     environment.systemPackages = with pkgs; [
       age
       cachix

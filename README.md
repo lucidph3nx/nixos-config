@@ -6,6 +6,8 @@ Does anybody even read the readme for nix repos? the code speaks for itself.
 - Multiple Nix configurations
     - NixOS desktop & test VM
 - Both Nix, and Home Manager configurations rolled into a single set up
+    I've recently taken this a step further, combining configurations in the same files
+    This makes this setup much simpler and cleaner but is only now suitable for a single user setup
 - [Impermanence](https://github.com/nix-community/impermanence)
 - Initial disk formatting and setup (btrfs) with [disko](https://github.com/nix-community/disko)
 - Secret encryption and management with [sops-nix](https://github.com/Mic92/sops-nix)

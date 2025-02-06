@@ -5,13 +5,13 @@
   ...
 }: {
   options = {
-    nixModules.gui-tools.enable =
+    nx.gui-tools.enable =
       lib.mkEnableOption "Add default gui tools"
       // {
         default = true;
       };
   };
-  config = lib.mkIf config.nixModules.gui-tools.enable {
+  config = lib.mkIf config.nx.gui-tools.enable {
     environment.systemPackages = with pkgs; [
       (chromium.override {
         commandLineArgs = [

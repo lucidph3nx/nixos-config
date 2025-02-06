@@ -5,15 +5,15 @@
   lib,
   ...
 }: let
-  externalAudio = osConfig.nixModules.externalAudio.enable;
+  externalAudio = osConfig.nx.externalAudio.enable;
   enableHomeAutomation = config.homeManagerModules.homeAutomation.enable;
-  location = osConfig.nixModules.deviceLocation;
+  location = osConfig.nx.deviceLocation;
   enableMpd = config.homeManagerModules.mpd.enable;
   enableHyprland = config.homeManagerModules.hyprland.enable;
   enableSway = config.homeManagerModules.sway.enable;
   homeDir = config.home.homeDirectory;
   fontsize = config.homeManagerModules.waybar.fontSize;
-  isLaptop = osConfig.nixModules.isLaptop;
+  isLaptop = osConfig.nx.isLaptop;
 in
   with config.theme; {
     options = {

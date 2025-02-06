@@ -12,7 +12,7 @@
     inputs.sops-nix.nixosModules.sops
   ];
   config = {
-    nixModules = {
+    nx = {
       sops.ageKeys.enable = lib.mkDefault false;
       sops.generalSecrets.enable = lib.mkDefault false;
       sops.signingKeys.enable = lib.mkDefault false;

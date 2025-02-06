@@ -5,13 +5,13 @@
   ...
 }: {
   options = {
-    nixModules.polkit.enable =
+    nx.polkit.enable =
       lib.mkEnableOption "Set up polkit"
       // {
         default = true;
       };
   };
-  config = lib.mkIf config.nixModules.polkit.enable {
+  config = lib.mkIf config.nx.polkit.enable {
     environment.systemPackages = with pkgs; [
       polkit
       polkit_gnome

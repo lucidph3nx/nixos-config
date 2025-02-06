@@ -4,10 +4,10 @@
   ...
 }: {
   options = {
-    nixModules.sops.homeSSHKeys.enable =
+    nx.sops.homeSSHKeys.enable =
       lib.mkEnableOption "Set up home SSH Keys";
   };
-  config = lib.mkIf config.nixModules.sops.homeSSHKeys.enable {
+  config = lib.mkIf config.nx.sops.homeSSHKeys.enable {
     sops.secrets = let
       sopsFile = ../../../secrets/homeSSHKeys.yaml;
     in {

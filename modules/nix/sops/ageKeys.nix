@@ -4,10 +4,10 @@
   ...
 }: {
   options = {
-    nixModules.sops.ageKeys.enable =
+    nx.sops.ageKeys.enable =
       lib.mkEnableOption "Set up Age Keys";
   };
-  config = lib.mkIf config.nixModules.sops.ageKeys.enable {
+  config = lib.mkIf config.nx.sops.ageKeys.enable {
     sops.secrets = let
       sopsFile = ../../../secrets/ageKeys.yaml;
     in {

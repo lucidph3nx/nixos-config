@@ -60,7 +60,7 @@
       "games"
       # these should be with the hm modules
       # but give compile errors on darwin
-      ".config/syncthing"
+      # ".config/syncthing"
     ];
   };
   home.activation = {
@@ -68,26 +68,6 @@
     emptyDirs = ''
       mkdir -p /home/ben/downloads
     '';
-  };
-
-  services.udiskie = {
-    enable = true;
-    automount = true;
-    notify = true;
-    settings = {
-      program_options = {
-        menu = "flat";
-        file_manager = "xdg-open";
-      };
-      device_config = [
-        # ignore hardware os switch
-        {
-          id_uuid = "55AA-6922";
-          ignore = true;
-        }
-      ];
-    };
-    tray = "auto";
   };
 
   home.packages = with pkgs; [
