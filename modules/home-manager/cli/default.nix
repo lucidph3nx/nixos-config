@@ -1,6 +1,5 @@
 {lib, ...}: {
   imports = [
-    ./bitwardencli.nix
     ./fastfetch.nix
     ./git.nix
     ./homeAutomation.nix
@@ -14,7 +13,6 @@
   ];
 
   homeManagerModules = {
-    bitwardencli.enable = lib.mkDefault true;
     git.enable = lib.mkDefault true;
     homeAutomation.enable = lib.mkDefault false;
     k9s.enable = lib.mkDefault true;

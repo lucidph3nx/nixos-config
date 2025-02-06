@@ -4,5 +4,6 @@
     ./nix
     ./colourScheme
     ./services
+    ./programs
   ];
 }

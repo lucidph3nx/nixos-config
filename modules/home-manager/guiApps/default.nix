@@ -5,7 +5,6 @@
 }: {
   imports = [
     ./anki.nix
-    ./bitwarden.nix
     ./calibre.nix
     ./cura-appimage.nix
     ./darktable.nix
@@ -29,7 +28,6 @@
   config = lib.mkIf config.homeManagerModules.guiApps.enable {
     homeManagerModules = {
       anki.enable = lib.mkDefault false;
-      bitwarden.enable = lib.mkDefault true;
       calibre.enable = lib.mkDefault false;
       cura.enable = lib.mkDefault false;
       darktable.enable = lib.mkDefault false;
