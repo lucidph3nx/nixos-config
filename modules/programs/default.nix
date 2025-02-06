@@ -3,6 +3,7 @@
     ./bitwarden.nix
     ./calibre.nix
     ./cura-appimage.nix
+    ./darktable.nix
     ./kitty.nix
     ./libreoffice.nix
     ./mpv.nix

@@ -13,7 +13,6 @@
   setTheme = "everforest";
   homeManagerModules = {
     anki.enable = true;
-    darktable.enable = true;
     firefox.hideUrlbar = true;
     homeAutomation.enable = true;
     wallpaper = {

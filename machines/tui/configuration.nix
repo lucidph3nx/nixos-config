@@ -36,6 +36,7 @@
     };
     programs = {
       calibre.enable = true;
+      darktable.enable = true;
       libreoffice.enable = true;
       obsidian.enable = true;
       picard.enable = true;
