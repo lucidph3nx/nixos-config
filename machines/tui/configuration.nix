@@ -12,7 +12,7 @@
     ./hardware-configuration.nix
     (import ./disko.nix {device = "/dev/nvme0n1";})
     inputs.disko.nixosModules.default
-    ../../modules/nix
+    ../../modules
   ];
 
   nx = {
@@ -58,7 +58,8 @@
     users = {
       ben.imports = [
         ./home.nix
-        ../../modules
+        ../../modules/home-manager
+        ../../modules/colourScheme
       ];
     };
   };

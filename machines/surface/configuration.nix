@@ -13,7 +13,7 @@
     inputs.disko.nixosModules.default
     inputs.nixos-hardware.nixosModules.microsoft-surface-pro-intel
     inputs.nixos-hardware.nixosModules.microsoft-surface-common
-    ../../modules/nix
+    ../../modules
   ];
 
   nx = {
@@ -53,7 +53,8 @@
     users = {
       ben.imports = [
         ./home.nix
-        ../../modules
+        ../../modules/home-manager
+        ../../modules/colourScheme
       ];
     };
   };
