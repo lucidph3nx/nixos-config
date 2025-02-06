@@ -7,6 +7,7 @@
     ./darktable.nix
     ./dragon-drop.nix
     ./fastfetch.nix
+    ./git.nix
     ./k9s.nix
     ./kitty.nix
     ./kubetools.nix
