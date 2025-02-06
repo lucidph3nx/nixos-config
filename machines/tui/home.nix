@@ -64,6 +64,7 @@
       ".local/share/nix"
       ".local/share/nvim"
       ".local/share/vulkan"
+      ".local/share/applications" # where steam puts its .desktop files for games
       ".local/state"
       ".cache"
       ".ssh"
