@@ -9,7 +9,6 @@
     ./cura-appimage.nix
     ./darktable.nix
     ./dragon-drop.nix
-    ./kitty.nix
     ./plexamp.nix
     ./signal.nix
     ./vimiv.nix
@@ -27,7 +26,6 @@
       cura.enable = lib.mkDefault false;
       darktable.enable = lib.mkDefault false;
       dragon-drop.enable = lib.mkDefault true;
-      kitty.enable = lib.mkDefault true;
       plexamp.enable = lib.mkDefault false;
       signal.enable = lib.mkDefault true;
       vimiv.enable = lib.mkDefault true;

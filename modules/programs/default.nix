@@ -1,6 +1,7 @@
 {...}: {
   imports = [
     ./bitwarden.nix
+    ./kitty.nix
     ./libreoffice.nix
     ./mpv.nix
     ./obsidian.nix
