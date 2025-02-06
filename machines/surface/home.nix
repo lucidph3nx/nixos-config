@@ -41,7 +41,6 @@
 
   home.packages = with pkgs; [
     gimp # temp for troubleshooting
-    picard
     # cinnamon.nemo
   ];
 

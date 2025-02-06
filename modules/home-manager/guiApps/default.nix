@@ -10,7 +10,6 @@
     ./darktable.nix
     ./dragon-drop.nix
     ./kitty.nix
-    ./picard.nix
     ./plexamp.nix
     ./signal.nix
     ./vimiv.nix
@@ -29,7 +28,6 @@
       darktable.enable = lib.mkDefault false;
       dragon-drop.enable = lib.mkDefault true;
       kitty.enable = lib.mkDefault true;
-      picard.enable = lib.mkDefault false;
       plexamp.enable = lib.mkDefault false;
       signal.enable = lib.mkDefault true;
       vimiv.enable = lib.mkDefault true;

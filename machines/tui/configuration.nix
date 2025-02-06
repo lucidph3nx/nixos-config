@@ -37,6 +37,7 @@
     programs = {
       obsidian.enable = true;
       libreoffice.enable = true;
+      picard.enable = true;
     };
     nfs-mounts.enable = true;
   };

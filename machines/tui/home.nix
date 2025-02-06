@@ -39,7 +39,6 @@
       enable = true;
       oled = true;
     };
-    picard.enable = true;
     plexamp.enable = true;
     ssh.client.enable = true;
     sway.enable = true;
