@@ -38,6 +38,7 @@
     };
     programs = {
       obsidian.enable = true;
+      libreoffice.enable = true;
     };
     # should be on home network
     nfs-mounts.enable = true;

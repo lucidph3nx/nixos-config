@@ -36,6 +36,7 @@
     };
     programs = {
       obsidian.enable = true;
+      libreoffice.enable = true;
     };
     nfs-mounts.enable = true;
   };

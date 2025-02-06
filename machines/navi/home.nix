@@ -26,7 +26,6 @@
       disableWorkspaceAnimations = true;
     };
     hyprlock.enable = true;
-    libreoffice.enable = true;
     picard.enable = true;
     plexamp.enable = true;
     ssh.client.enable = true;
