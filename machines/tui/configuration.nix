@@ -35,8 +35,9 @@
       printer.enable = true;
     };
     programs = {
-      obsidian.enable = true;
+      calibre.enable = true;
       libreoffice.enable = true;
+      obsidian.enable = true;
       picard.enable = true;
       plexamp.enable = true;
     };

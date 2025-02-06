@@ -13,7 +13,6 @@
   # setTheme = "github-light";
   setTheme = "everforest";
   homeManagerModules = {
-    calibre.enable = true;
     darktable.enable = true;
     firefox.hideUrlbar = true;
     homeAutomation.enable = true;

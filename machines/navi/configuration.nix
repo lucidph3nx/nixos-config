@@ -37,6 +37,7 @@
       printer.enable = true;
     };
     programs = {
+      calibre.enable = true;
       cura.enable = true;
       libreoffice.enable = true;
       obsidian.enable = true;
