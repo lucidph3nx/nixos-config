@@ -6,7 +6,6 @@
   imports = [
     ./anki.nix
     ./calibre.nix
-    ./cura-appimage.nix
     ./darktable.nix
     ./dragon-drop.nix
   ];
@@ -19,7 +18,6 @@
     homeManagerModules = {
       anki.enable = lib.mkDefault false;
       calibre.enable = lib.mkDefault false;
-      cura.enable = lib.mkDefault false;
       darktable.enable = lib.mkDefault false;
       dragon-drop.enable = lib.mkDefault true;
     };
