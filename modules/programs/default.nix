@@ -6,6 +6,7 @@
     ./cura-appimage.nix
     ./darktable.nix
     ./dragon-drop.nix
+    ./k9s.nix
     ./kitty.nix
     ./lf.nix
     ./libreoffice.nix
