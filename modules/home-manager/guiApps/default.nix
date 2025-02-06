@@ -9,7 +9,6 @@
     ./cura-appimage.nix
     ./darktable.nix
     ./dragon-drop.nix
-    ./plexamp.nix
   ];
 
   options = {
@@ -23,7 +22,6 @@
       cura.enable = lib.mkDefault false;
       darktable.enable = lib.mkDefault false;
       dragon-drop.enable = lib.mkDefault true;
-      plexamp.enable = lib.mkDefault false;
     };
   };
 }

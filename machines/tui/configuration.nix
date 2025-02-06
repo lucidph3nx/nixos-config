@@ -38,6 +38,7 @@
       obsidian.enable = true;
       libreoffice.enable = true;
       picard.enable = true;
+      plexamp.enable = true;
     };
     nfs-mounts.enable = true;
   };

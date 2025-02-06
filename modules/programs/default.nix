@@ -6,6 +6,7 @@
     ./mpv.nix
     ./obsidian.nix
     ./picard.nix
+    ./plexamp.nix
     ./signal.nix
     ./vimiv.nix
     ./webcord.nix

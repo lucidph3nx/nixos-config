@@ -40,6 +40,7 @@
       obsidian.enable = true;
       libreoffice.enable = true;
       picard.enable = true;
+      plexamp.enable = true;
     };
     # should be on home network
     nfs-mounts.enable = true;
