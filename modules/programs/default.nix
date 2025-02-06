@@ -4,7 +4,9 @@
     ./calibre.nix
     ./cura-appimage.nix
     ./darktable.nix
+    ./dragon-drop.nix
     ./kitty.nix
+    ./lf.nix
     ./libreoffice.nix
     ./mpv.nix
     ./obsidian.nix

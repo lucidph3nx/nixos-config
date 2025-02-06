@@ -5,7 +5,6 @@
 }: {
   imports = [
     ./anki.nix
-    ./dragon-drop.nix
   ];
 
   options = {
@@ -15,7 +14,6 @@
   config = lib.mkIf config.homeManagerModules.guiApps.enable {
     homeManagerModules = {
       anki.enable = lib.mkDefault false;
-      dragon-drop.enable = lib.mkDefault true;
     };
   };
 }
