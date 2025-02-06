@@ -11,7 +11,6 @@
     ./dragon-drop.nix
     ./plexamp.nix
     ./signal.nix
-    ./vimiv.nix
     ./webcord.nix
   ];
 
@@ -28,7 +27,6 @@
       dragon-drop.enable = lib.mkDefault true;
       plexamp.enable = lib.mkDefault false;
       signal.enable = lib.mkDefault true;
-      vimiv.enable = lib.mkDefault true;
       webcord.enable = lib.mkDefault true;
     };
   };

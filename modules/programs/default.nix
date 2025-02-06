@@ -7,5 +7,6 @@
     ./obsidian.nix
     ./picard.nix
     ./zathura.nix
+    ./vimiv.nix
   ];
 }
