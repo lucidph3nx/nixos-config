@@ -3,6 +3,7 @@
     ./blocky.nix
     ./greetd.nix
     ./mouseBatteryMonitor.nix
+    ./mpd.nix
     ./pipewire.nix
     ./polkit.nix
     ./printer.nix

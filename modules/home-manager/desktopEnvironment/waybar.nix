@@ -8,7 +8,7 @@
   externalAudio = osConfig.nx.externalAudio.enable;
   enableHomeAutomation = config.homeManagerModules.homeAutomation.enable;
   location = osConfig.nx.deviceLocation;
-  enableMpd = config.homeManagerModules.mpd.enable;
+  enableMpd = osConfig.nx.services.mpd.enable;
   enableHyprland = config.homeManagerModules.hyprland.enable;
   enableSway = config.homeManagerModules.sway.enable;
   homeDir = config.home.homeDirectory;

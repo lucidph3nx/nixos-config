@@ -1,11 +1,10 @@
 {
   config,
+  osConfig,
   pkgs,
   lib,
   ...
-}: let
-  homeDir = config.home.homeDirectory;
-in {
+}: {
   options = {
     homeManagerModules.ncmpcpp.enable =
       lib.mkEnableOption "enables ncmpcpp";
@@ -13,12 +12,12 @@ in {
   config =
     lib.mkIf (config.homeManagerModules.ncmpcpp.enable
       # no point in installing if mpd is not
-      && config.homeManagerModules.mpd.enable)
+      && osConfig.nx.services.mpd.enable)
     {
       programs.ncmpcpp = {
         enable = true;
         package = pkgs.ncmpcpp.override {visualizerSupport = true;};
-        mpdMusicDir = "${homeDir}/music/";
+        mpdMusicDir = config.services.mpd.musicDirectory;
         settings = {
           display_bitrate = "yes";
           user_interface = "alternative";

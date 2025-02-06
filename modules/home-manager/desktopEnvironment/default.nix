@@ -9,7 +9,6 @@
     ./additionalTheming.nix
     ./hyprland.nix
     ./hyprlock.nix
-    ./mpd.nix
     ./pipewire-utils.nix
     ./rofi.nix
     ./screenshot.nix
@@ -32,7 +31,6 @@
       homeManagerModules = {
         hyprland.enable = lib.mkDefault false;
         hyprlock.enable = lib.mkDefault false;
-        mpd.enable = lib.mkDefault true;
         pipewire-utils.enable = lib.mkDefault true;
         rofi.enable = lib.mkDefault true;
         sway.enable = lib.mkDefault true;
