@@ -8,6 +8,7 @@
     ./dragon-drop.nix
     ./k9s.nix
     ./kitty.nix
+    ./kubetools.nix
     ./lf.nix
     ./libreoffice.nix
     ./mpv.nix
