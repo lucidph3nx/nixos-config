@@ -5,7 +5,7 @@
 }: {
   options = {
     nx.syncthing.enable =
-      lib.mkEnableOption "Set up syncthing"
+      lib.mkEnableOption "Set up syncthing (includes documents folder)"
       // {
         default = false;
       };
@@ -69,9 +69,9 @@
         "--no-default-folder"
       ];
     };
+    # network ports for syncthing
     networking.firewall = {
       allowedTCPPorts = [
-        # 8384 # This would be to make the web interface available on the network
         22000
       ];
       allowedUDPPorts = [
