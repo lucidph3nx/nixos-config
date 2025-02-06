@@ -16,7 +16,6 @@
     ./signal.nix
     ./vimiv.nix
     ./webcord.nix
-    ./zathura.nix
   ];
 
   options = {
@@ -37,7 +36,6 @@
       signal.enable = lib.mkDefault true;
       vimiv.enable = lib.mkDefault true;
       webcord.enable = lib.mkDefault true;
-      zathura.enable = lib.mkDefault true;
     };
   };
 }
