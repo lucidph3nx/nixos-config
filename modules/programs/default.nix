@@ -24,5 +24,6 @@
     ./vimiv.nix
     ./webcord.nix
     ./zathura.nix
+    ./zsh.nix
   ];
 }

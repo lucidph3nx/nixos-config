@@ -41,7 +41,6 @@
       xdg-utils
       yq-go
       yt-dlp
-      zsh
     ];
   };
 }
