@@ -11,7 +11,6 @@
     ./dragon-drop.nix
     ./kitty.nix
     ./libreoffice.nix
-    ./mpv.nix
     ./picard.nix
     ./plexamp.nix
     ./signal.nix
@@ -33,7 +32,6 @@
       dragon-drop.enable = lib.mkDefault true;
       kitty.enable = lib.mkDefault true;
       libreoffice.enable = lib.mkDefault false;
-      mpv.enable = lib.mkDefault true;
       picard.enable = lib.mkDefault false;
       plexamp.enable = lib.mkDefault false;
       signal.enable = lib.mkDefault true;
