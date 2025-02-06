@@ -1,12 +1,13 @@
 {...}: {
   imports = [
     ./blocky.nix
+    ./greetd.nix
+    ./mouseBatteryMonitor.nix
     ./pipewire.nix
     ./polkit.nix
     ./printer.nix
     ./syncthing.nix
     ./udiskie.nix
-    ./greetd.nix
   ];
   config = {
     # default service configuration, things that don't need their own module
