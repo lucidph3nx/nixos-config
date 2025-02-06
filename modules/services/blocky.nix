@@ -95,8 +95,10 @@
         };
       };
     };
-    # utility scripts for blocky
     home-manager.users.ben.home = {
+      # making sure scripts are on path if not set elsewhere
+      sessionPath = ["$HOME/.local/scripts"];
+      # utility scripts for blocky
       file.".local/scripts/services.blocky.pause" = {
         executable = true;
         text =

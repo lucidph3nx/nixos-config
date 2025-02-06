@@ -1,4 +1,5 @@
 {
+  osConfig,
   config,
   pkgs,
   lib,
@@ -7,7 +8,6 @@
 with config.theme; let
   terminal = "${pkgs.kitty}/bin/kitty";
 in {
-  imports = [../cli/tmuxSessioniser.nix]; #needed for one of the rofi scripts
   options = {
     homeManagerModules.rofi.enable =
       lib.mkEnableOption "enables rofi";
@@ -96,12 +96,12 @@ in {
     home.file.".local/scripts/application.launcher" = {
       source = ./scripts/application.launcher;
     };
-    homeManagerModules.tmuxSessioniser.enable = true;
-    home.file.".local/scripts/application.nvim.sessionLauncher" = let
-      nvimSessionLauncherStyle = ''inputbar { children: [entry]; border-color: ${blue};} entry { placeholder: "Select Project"; } element-icon { enabled: false; }'';
-    in {
+    home.file.".local/scripts/application.nvim.sessionLauncher" = 
+      lib.mkIf osConfig.nx.programs.tmuxSessioniser.enable {
       executable = true;
-      text = ''
+      text = let
+        nvimSessionLauncherStyle = ''inputbar { children: [entry]; border-color: ${blue};} entry { placeholder: "Select Project"; } element-icon { enabled: false; }'';
+      in ''
         #!/bin/sh
         monitor="$(swaymsg -t get_outputs | jq -c '.[] | select(.focused) | select(.id)' | jq -c '.name')"
         # Get the selection from tmux project getter
@@ -138,30 +138,42 @@ in {
           import requests
 
           NOTION_KEY = os.getenv("NOTION_SHOPPING_LIST_KEY")
-          NOTION_URL = "https://api.notion.com/v1/blocks/92d98ac3dc86460285a399c0b1176fc5/children"
+          NOTION_URL = (
+              "https://api.notion.com/v1/blocks/92d98ac3dc86460285a399c0b1176fc5/children"
+          )
           ROFI_STYLE = 'listview { enabled: false;} inputbar { children: [entry]; border-color: ${purple};} entry { placeholder: "Add Item to Shopping List"; }'
+
 
           def add_item(item):
               headers = {
                   "Authorization": f"Bearer {NOTION_KEY}",
                   "Content-Type": "application/json",
-                  "Notion-Version": "2022-02-22"
+                  "Notion-Version": "2022-02-22",
               }
               data = {
-                  "children": [{
-                      "object": "block",
-                      "type": "to_do",
-                      "to_do": {
-                          "rich_text": [{"type": "text", "text": {"content": item}}],
-                          "checked": False
+                  "children": [
+                      {
+                          "object": "block",
+                          "type": "to_do",
+                          "to_do": {
+                              "rich_text": [{"type": "text", "text": {"content": item}}],
+                              "checked": False,
+                          },
                       }
-                  }]
+                  ]
               }
               response = requests.patch(NOTION_URL, headers=headers, json=data)
-              status = "Item added successfully." if response.status_code == 200 else f"Failed. HTTP: {response.status_code}"
-              subprocess.run(["notify-send","-i", "notes", "-t", "2000", "-e", "Notion", status])
+              status = (
+                  "Item added successfully."
+                  if response.status_code == 200
+                  else f"Failed. HTTP: {response.status_code}"
+              )
+              subprocess.run(["notify-send", "-i", "notes", "-t", "2000", "-e", "Notion", status])
 
-          selected_item = subprocess.run(["rofi", "-dmenu", "-i", "-theme-str", ROFI_STYLE], capture_output=True, text=True).stdout.strip()
+
+          selected_item = subprocess.run(
+              ["rofi", "-dmenu", "-i", "-theme-str", ROFI_STYLE], capture_output=True, text=True
+          ).stdout.strip()
           if selected_item:
               add_item(selected_item)
         '';

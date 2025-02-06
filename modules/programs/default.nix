@@ -19,6 +19,8 @@
     ./picard.nix
     ./plexamp.nix
     ./signal.nix
+    ./tmux.nix
+    ./tmuxSessioniser.nix
     ./vimiv.nix
     ./webcord.nix
     ./zathura.nix

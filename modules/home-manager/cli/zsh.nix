@@ -89,6 +89,7 @@ in {
         bindkey -s ^v "nvim\n"
         bindkey -s ^p "python\n"
         bindkey -s ^o "cli.tmux.projectSessioniser ~/documents/obsidian\n"
+        bindkey -s ^f "cli.tmux.projectSessioniser\n"
         # utils
         eval "$(direnv hook zsh)"
       '';
