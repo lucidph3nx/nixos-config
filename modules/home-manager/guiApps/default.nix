@@ -12,7 +12,6 @@
     ./kitty.nix
     ./libreoffice.nix
     ./mpv.nix
-    ./obsidian.nix
     ./picard.nix
     ./plexamp.nix
     ./signal.nix
@@ -35,7 +34,6 @@
       kitty.enable = lib.mkDefault true;
       libreoffice.enable = lib.mkDefault false;
       mpv.enable = lib.mkDefault true;
-      obsidian.enable = lib.mkDefault false;
       picard.enable = lib.mkDefault false;
       plexamp.enable = lib.mkDefault false;
       signal.enable = lib.mkDefault true;

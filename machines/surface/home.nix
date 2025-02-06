@@ -12,7 +12,6 @@
     firefox.hideUrlbar = true;
     hyprland.enable = true;
     sway.enable = true;
-    obsidian.enable = true;
     homeAutomation.enable = true;
     ssh.client.enable = true;
     waybar.fontSize = "14px";

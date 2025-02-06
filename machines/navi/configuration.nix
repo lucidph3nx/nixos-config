@@ -36,6 +36,9 @@
       };
       printer.enable = true;
     };
+    programs = {
+      obsidian.enable = true;
+    };
     # should be on home network
     nfs-mounts.enable = true;
   };

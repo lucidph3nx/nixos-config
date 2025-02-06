@@ -34,6 +34,9 @@
       };
       printer.enable = true;
     };
+    programs = {
+      obsidian.enable = true;
+    };
     nfs-mounts.enable = true;
   };
 
