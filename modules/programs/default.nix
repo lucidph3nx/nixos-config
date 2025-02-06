@@ -11,6 +11,7 @@
     ./lf.nix
     ./libreoffice.nix
     ./mpv.nix
+    ./ncmpcpp.nix
     ./obsidian.nix
     ./picard.nix
     ./plexamp.nix
