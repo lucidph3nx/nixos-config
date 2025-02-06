@@ -10,7 +10,6 @@
     ./darktable.nix
     ./dragon-drop.nix
     ./plexamp.nix
-    ./signal.nix
   ];
 
   options = {
@@ -25,7 +24,6 @@
       darktable.enable = lib.mkDefault false;
       dragon-drop.enable = lib.mkDefault true;
       plexamp.enable = lib.mkDefault false;
-      signal.enable = lib.mkDefault true;
     };
   };
 }
