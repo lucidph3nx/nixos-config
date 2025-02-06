@@ -12,7 +12,6 @@
   # my own modules
   setTheme = "everforest";
   homeManagerModules = {
-    anki.enable = true;
     firefox.hideUrlbar = true;
     homeAutomation.enable = true;
     wallpaper = {

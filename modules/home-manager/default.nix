@@ -28,7 +28,6 @@
     ./cli
     ./desktopEnvironment
     ./firefox
-    ./guiApps
     ./neovim
     ./qutebrowser
     ./scripts
@@ -54,7 +53,6 @@
         (lib.attrByPath [config.homeManagerModules.defaultWebBrowser] {} browserSettings);
       desktopEnvironment.enable = lib.mkDefault true;
       firefox.enable = lib.mkDefault true;
-      guiApps.enable = lib.mkDefault true;
       neovim.enable = lib.mkDefault true;
     };
     xdg.mimeApps.enable = true;

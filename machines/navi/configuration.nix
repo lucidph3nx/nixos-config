@@ -37,6 +37,7 @@
       printer.enable = true;
     };
     programs = {
+      anki.enable = true;
       calibre.enable = true;
       cura.enable = true;
       darktable.enable = true;

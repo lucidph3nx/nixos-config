@@ -1,5 +1,6 @@
 {...}: {
   imports = [
+    ./anki.nix
     ./bitwarden.nix
     ./calibre.nix
     ./cura-appimage.nix
