@@ -25,17 +25,19 @@
       homeSSHKeys.enable = true;
       kubeconfig.enable = true;
     };
-    syncthing = {
-      enable = true;
-      obsidian.enable = true;
-      music = {
+    services = {
+      syncthing = {
         enable = true;
-        path = "/home/ben/music";
+        obsidian.enable = true;
+        music = {
+          enable = true;
+          path = "/home/ben/music";
+        };
       };
+      printer.enable = true;
     };
     # should be on home network
     nfs-mounts.enable = true;
-    printer.enable = true;
   };
 
   # Bootloader.

@@ -17,7 +17,6 @@
 
   nx = {
     isLaptop = true;
-    blocky.enable = true;
     sops = {
       ageKeys.enable = true;
       generalSecrets.enable = true;
@@ -25,14 +24,17 @@
       homeSSHKeys.enable = true;
       kubeconfig.enable = true;
     };
-    syncthing = {
-      enable = true;
-      obsidian.enable = true;
-      calibre.enable = true;
-      music.enable = true;
+    services = {
+      blocky.enable = true;
+      syncthing = {
+        enable = true;
+        obsidian.enable = true;
+        calibre.enable = true;
+        music.enable = true;
+      };
+      printer.enable = true;
     };
     nfs-mounts.enable = true;
-    printer.enable = true;
   };
 
   # Bootloader.

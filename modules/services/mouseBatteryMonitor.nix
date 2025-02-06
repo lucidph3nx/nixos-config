@@ -5,13 +5,13 @@
   ...
 }: {
   options = {
-    nx.mouseBatteryMonitor.enable =
+    nx.services.mouseBatteryMonitor.enable =
       lib.mkEnableOption "A systemd service to monitor and notify mouse battery status"
       // {
         default = true;
       };
   };
-  config = lib.mkIf config.nx.mouseBatteryMonitor.enable {
+  config = lib.mkIf config.nx.services.mouseBatteryMonitor.enable {
     home-manager.users.ben = {
       # a systemd service to monitor the battery level of my mouse and send notifications
       systemd.user.services.mouse-battery-monitor = let

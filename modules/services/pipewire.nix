@@ -4,13 +4,13 @@
   ...
 }: {
   options = {
-    nx.pipewire.enable =
+    nx.services.pipewire.enable =
       lib.mkEnableOption "Enable pipewire for audio"
       // {
         default = true;
       };
   };
-  config = lib.mkIf config.nx.pipewire.enable {
+  config = lib.mkIf config.nx.services.pipewire.enable {
     services.pipewire = {
       enable = true;
       pulse.enable = true;

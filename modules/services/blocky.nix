@@ -5,13 +5,13 @@
   ...
 }: {
   options = {
-    nx.blocky.enable =
+    nx.services.blocky.enable =
       lib.mkEnableOption "Add a local blocky DNS server and set it as the default nameserver"
       // {
         default = false;
       };
   };
-  config = lib.mkIf config.nx.blocky.enable {
+  config = lib.mkIf config.nx.services.blocky.enable {
     environment.systemPackages = with pkgs; [
       blocky # nice to also have the cli tool
     ];

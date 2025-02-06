@@ -5,18 +5,18 @@
   ...
 }: {
   options = {
-    nx.greetd.enable =
+    nx.services.greetd.enable =
       lib.mkEnableOption "Add greetd/tuigreet setup"
       // {
         default = true;
       };
-    nx.greetd.command = lib.mkOption {
+    nx.services.greetd.command = lib.mkOption {
       type = lib.types.str;
       default = "Hyprland";
       description = "Command to run as default session in greetd";
     };
   };
-  config = lib.mkIf config.nx.greetd.enable {
+  config = lib.mkIf config.nx.services.greetd.enable {
     environment.persistence."/persist/system" = {
       hideMounts = true;
       directories = [
@@ -30,7 +30,7 @@
       vt = 7; # the tty to run greetd on, changed so that systemd startup doesnt overwrite tuigreet
       settings = {
         default_session = {
-          command = "${pkgs.greetd.tuigreet}/bin/tuigreet --remember --time --time-format '%Y-%m-%d %H:%M:%S' --cmd ${config.nx.greetd.command}";
+          command = "${pkgs.greetd.tuigreet}/bin/tuigreet --remember --time --time-format '%Y-%m-%d %H:%M:%S' --cmd ${config.nx.services.greetd.command}";
           user = "greeter";
         };
       };
