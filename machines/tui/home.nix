@@ -31,10 +31,6 @@
         duration = 900; # suspend after 15 minutes
       };
     };
-    hyprlock = {
-      enable = true;
-      oled = true;
-    };
     sway.enable = true;
   };
   home = {

@@ -15,7 +15,6 @@
     wallpaper = {
       variant = "enso";
     };
-    hyprlock.enable = true;
     sway.enable = true;
   };
   home = {

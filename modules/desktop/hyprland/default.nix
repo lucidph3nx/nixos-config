@@ -10,6 +10,7 @@ in {
   imports = [
     ./idle.nix
     ./scripts.nix
+    ./hyprlock.nix
   ];
   options = {
     nx.desktop.hyprland = {

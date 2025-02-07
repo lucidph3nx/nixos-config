@@ -3,21 +3,25 @@
   lib,
   ...
 }: let
-  homeDir = config.home.homeDirectory;
+  homeDir = config.home-manager.users.ben.home.homeDirectory;
   theme = config.theme;
 in {
   options = {
-    homeManagerModules.hyprlock.enable =
-      lib.mkEnableOption "enables hyprlock";
-    homeManagerModules.hyprlock.oled = lib.mkOption {
+    nx.desktop.hyprlock.enable =
+      lib.mkEnableOption "enables hyprlock"
+      // {
+        # default to enabled if hyprland is
+        default = config.nx.desktop.hyprland.enable;
+      };
+    nx.desktop.hyprlock.oled = lib.mkOption {
       type = lib.types.bool;
       default = false;
       description = "Enable OLED specific settings";
     };
   };
-  config = lib.mkIf config.homeManagerModules.hyprlock.enable {
-    programs.hyprlock = let
-      oled = config.homeManagerModules.hyprlock.oled;
+  config = lib.mkIf config.nx.desktop.hyprlock.enable {
+    home-manager.users.ben.programs.hyprlock = let
+      oled = config.nx.desktop.hyprlock.oled;
     in {
       enable = true;
       settings = {

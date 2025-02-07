@@ -24,6 +24,9 @@
       homeSSHKeys.enable = true;
       kubeconfig.enable = true;
     };
+    desktop = {
+      hyprlock.oled = true;
+    };
     programs = {
       calibre.enable = true;
       darktable.enable = true;
