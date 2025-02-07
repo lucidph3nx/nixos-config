@@ -1,4 +1,5 @@
 {
+  osConfig,
   config,
   pkgs,
   lib,
@@ -72,7 +73,7 @@ in {
         };
       };
     };
-    xdg.mimeApps.defaultApplications = lib.mkIf (config.homeManagerModules.defaultWebBrowser == "firefox") {
+    xdg.mimeApps.defaultApplications = lib.mkIf (osConfig.nx.programs.defaultWebBrowser == "firefox") {
       "text/html" = ["firefox.desktop"];
       "text/xml" = ["firefox.desktop"];
       "x-scheme-handler/http" = ["firefox.desktop"];
