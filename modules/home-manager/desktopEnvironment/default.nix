@@ -13,7 +13,6 @@
     ./swaylock.nix
     ./swaync.nix
     ./wallpaper.nix
-    ./waybar.nix
   ];
 
   options = {
@@ -31,9 +30,6 @@
         sway.enable = lib.mkDefault true;
         swaylock.enable = lib.mkDefault true;
         swaync.enable = lib.mkDefault true;
-        waybar = {
-          enable = lib.mkDefault true;
-        };
       };
       home.packages = with pkgs; [
         wtype

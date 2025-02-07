@@ -9,9 +9,7 @@
   ];
   # my own modules
   homeManagerModules = {
-    hyprland.enable = true;
     sway.enable = true;
-    waybar.fontSize = "14px";
   };
   home = {
     username = "ben";
