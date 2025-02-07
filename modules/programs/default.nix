@@ -8,6 +8,7 @@
     ./dragon-drop.nix
     ./fastfetch.nix
     ./git.nix
+    ./homeAutomation.nix
     ./k9s.nix
     ./kitty.nix
     ./kubetools.nix

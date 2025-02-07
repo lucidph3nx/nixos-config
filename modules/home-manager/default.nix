@@ -25,7 +25,6 @@
     };
   };
   imports = [
-    ./cli
     ./desktopEnvironment
     ./firefox
     ./neovim

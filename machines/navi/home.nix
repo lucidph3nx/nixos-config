@@ -13,7 +13,6 @@
   setTheme = "everforest";
   homeManagerModules = {
     firefox.hideUrlbar = true;
-    homeAutomation.enable = true;
     wallpaper = {
       variant = "enso";
     };

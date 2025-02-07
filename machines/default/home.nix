@@ -11,8 +11,6 @@
   homeManagerModules = {
     firefox.enable = true; # testing removing and readding
     firefox.hideUrlbar = true;
-    # Enable home automation stuff as device should be in the home
-    homeAutomation.enable = true;
     ssh.client.enable = true;
   };
   home = {

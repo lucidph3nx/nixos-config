@@ -6,7 +6,7 @@
   ...
 }: let
   externalAudio = osConfig.nx.externalAudio.enable;
-  enableHomeAutomation = config.homeManagerModules.homeAutomation.enable;
+  enableHomeAutomation = osConfig.nx.programs.homeAutomation.enable;
   location = osConfig.nx.deviceLocation;
   enableMpd = osConfig.nx.services.mpd.enable;
   enableHyprland = config.homeManagerModules.hyprland.enable;

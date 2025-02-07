@@ -14,7 +14,6 @@
   setTheme = "everforest";
   homeManagerModules = {
     firefox.hideUrlbar = true;
-    homeAutomation.enable = true;
     wallpaper = {
       variant = "enso";
       resolution = "2880x1800";

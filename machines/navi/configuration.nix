@@ -41,6 +41,7 @@
       calibre.enable = true;
       cura.enable = true;
       darktable.enable = true;
+      homeAutomation.enable = true;
       libreoffice.enable = true;
       obsidian.enable = true;
       picard.enable = true;
