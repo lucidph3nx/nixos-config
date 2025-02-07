@@ -208,7 +208,7 @@ in
               border: none;
               border-radius: 0;
               font-family: JetBrainsMono Nerd Font, monospace;
-              font-size: "18px";
+              font-size: 18;
               font-weight: 500;
               min-height: 0;
             }
