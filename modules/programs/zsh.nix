@@ -95,6 +95,10 @@ in {
           # history search
           hs = "history | grep";
         };
+        sessionVariables = {
+          # these interfere with my keybindings below
+          ZVM_INIT_MODE = "sourcing";
+        };
         initExtra = ''
           # Custom keybindings
           bindkey -s ^v "nvim\n"
