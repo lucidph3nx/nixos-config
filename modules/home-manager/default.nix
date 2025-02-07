@@ -26,7 +26,6 @@
   # };
   imports = [
     ./desktopEnvironment
-    ./neovim
     ./scripts
   ];
   # config = let
@@ -48,7 +47,6 @@
   #       lib.mkDefault
   #       (lib.attrByPath [config.homeManagerModules.defaultWebBrowser] {} browserSettings);
       desktopEnvironment.enable = lib.mkDefault true;
-      neovim.enable = lib.mkDefault true;
     };
   #   xdg.mimeApps.enable = true;
   #   # Let Home Manager install and manage itself.

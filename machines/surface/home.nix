@@ -23,7 +23,6 @@
   home.persistence."/persist/home/ben" = {
     directories = [
       ".local/share/nix"
-      ".local/share/nvim"
       ".local/state"
       ".cache"
       "code"

@@ -19,7 +19,6 @@
       # these should be with the hm modules
       # but give compile errors on darwin
       ".mozilla/firefox"
-      ".config/nvim/spell"
       ".config/github-copilot"
       ".config/teams-for-linux"
     ];

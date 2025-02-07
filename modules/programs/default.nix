@@ -21,6 +21,7 @@
     ./libreoffice.nix
     ./mpv.nix
     ./ncmpcpp.nix
+    ./neovim
     ./obsidian.nix
     ./picard.nix
     ./plexamp.nix
