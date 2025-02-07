@@ -24,16 +24,6 @@
       homeSSHKeys.enable = true;
       kubeconfig.enable = true;
     };
-    services = {
-      blocky.enable = true;
-      syncthing = {
-        enable = true;
-        obsidian.enable = true;
-        calibre.enable = true;
-        music.enable = true;
-      };
-      printer.enable = true;
-    };
     programs = {
       calibre.enable = true;
       darktable.enable = true;
@@ -43,6 +33,16 @@
       obsidian.enable = true;
       picard.enable = true;
       plexamp.enable = true;
+    };
+    services = {
+      blocky.enable = true;
+      syncthing = {
+        enable = true;
+        obsidian.enable = true;
+        calibre.enable = true;
+        music.enable = true;
+      };
+      printer.enable = true;
     };
     nfs-mounts.enable = true;
   };

@@ -25,17 +25,6 @@
       homeSSHKeys.enable = true;
       kubeconfig.enable = true;
     };
-    services = {
-      syncthing = {
-        enable = true;
-        obsidian.enable = true;
-        music = {
-          enable = true;
-          path = "/home/ben/music";
-        };
-      };
-      printer.enable = true;
-    };
     programs = {
       anki.enable = true;
       calibre.enable = true;
@@ -47,6 +36,17 @@
       obsidian.enable = true;
       picard.enable = true;
       plexamp.enable = true;
+    };
+    services = {
+      syncthing = {
+        enable = true;
+        obsidian.enable = true;
+        music = {
+          enable = true;
+          path = "/home/ben/music";
+        };
+      };
+      printer.enable = true;
     };
     # should be on home network
     nfs-mounts.enable = true;
