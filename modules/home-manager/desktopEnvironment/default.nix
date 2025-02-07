@@ -7,7 +7,6 @@
 }: {
   imports = [
     ./additionalTheming.nix
-    ./pipewire-utils.nix
     ./rofi.nix
     ./sway.nix
     ./swaylock.nix
@@ -25,7 +24,6 @@
       && pkgs.stdenv.isLinux
     ) {
       homeManagerModules = {
-        pipewire-utils.enable = lib.mkDefault true;
         rofi.enable = lib.mkDefault true;
         sway.enable = lib.mkDefault true;
         swaylock.enable = lib.mkDefault true;
