@@ -1,5 +1,0 @@
-#!/bin/sh
-mpc clear
-mpc insert http://radio123-gecko.radioca.st/radioactivefm
-mpc next
-mpc play

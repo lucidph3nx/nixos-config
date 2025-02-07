@@ -60,6 +60,21 @@ in {
           ".ssh"
         ];
       };
+      # a script to open ssh connections to all nodes
+      home.file.".local/scripts/home.ssh.allNodes" = {
+        executable = true;
+        text =
+          /*
+          sh
+          */
+          ''
+            #!/bin/sh
+            kitty ssh node0 &
+            kitty ssh node1 &
+            kitty ssh node2 &
+            kitty ssh node3
+          '';
+      };
     };
   };
 }

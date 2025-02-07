@@ -51,6 +51,36 @@
           ".local/share/mpd"
         ];
       };
+      # turn on the radio
+      home.file.".local/scripts/ambient.play.radioactivefm" = {
+        executable = true;
+        text =
+          /*
+          sh
+          */
+          ''
+            #!/bin/sh
+            mpc clear
+            mpc insert http://radio123-gecko.radioca.st/radioactivefm
+            mpc next
+            mpc play
+          '';
+      };
+      # play rain sounds
+      home.file.".local/scripts/ambient.play.rain" = {
+        executable = true;
+        text =
+          /*
+          sh
+          */
+          ''
+            #!/bin/sh
+            mpc clear
+            mpc insert NA/NA/rain.m4a
+            mpc next
+            mpc play
+          '';
+      };
     };
   };
 }
