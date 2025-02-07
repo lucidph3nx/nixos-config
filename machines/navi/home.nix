@@ -15,10 +15,6 @@
     wallpaper = {
       variant = "enso";
     };
-    hyprland = {
-      enable = true;
-      disableWorkspaceAnimations = true;
-    };
     hyprlock.enable = true;
     sway.enable = true;
   };

@@ -7,7 +7,6 @@
 }: {
   imports = [
     ./additionalTheming.nix
-    ./hyprland.nix
     ./hyprlock.nix
     ./pipewire-utils.nix
     ./rofi.nix
@@ -29,7 +28,6 @@
       && pkgs.stdenv.isLinux
     ) {
       homeManagerModules = {
-        hyprland.enable = lib.mkDefault false;
         hyprlock.enable = lib.mkDefault false;
         pipewire-utils.enable = lib.mkDefault true;
         rofi.enable = lib.mkDefault true;

@@ -25,6 +25,9 @@
       homeSSHKeys.enable = true;
       kubeconfig.enable = true;
     };
+    desktop = {
+      hyprland.disableWorkspaceAnimations = true;
+    };
     programs = {
       anki.enable = true;
       calibre.enable = true;
@@ -130,9 +133,6 @@
   programs.sway = {
     enable = true;
     extraPackages = []; # I don't need foot etc bundled
-  };
-  programs.hyprland = {
-    enable = true;
   };
   xdg.portal = {
     enable = true;

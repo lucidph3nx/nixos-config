@@ -3,6 +3,7 @@
     # ./home-manager
     ./nix
     ./colourScheme
+    ./desktop
     ./services
     ./programs
   ];

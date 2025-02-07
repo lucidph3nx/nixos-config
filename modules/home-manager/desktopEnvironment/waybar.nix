@@ -9,7 +9,7 @@
   enableHomeAutomation = osConfig.nx.programs.homeAutomation.enable;
   location = osConfig.nx.deviceLocation;
   enableMpd = osConfig.nx.services.mpd.enable;
-  enableHyprland = config.homeManagerModules.hyprland.enable;
+  enableHyprland = osConfig.nx.desktop.hyprland.enable;
   enableSway = config.homeManagerModules.sway.enable;
   homeDir = config.home.homeDirectory;
   fontsize = config.homeManagerModules.waybar.fontSize;

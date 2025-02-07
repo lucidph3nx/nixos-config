@@ -84,7 +84,6 @@
     enable = true;
     extraPackages = []; # I don't need foot etc bundled
   };
-  programs.hyprland.enable = true;
   xdg.portal = {
     enable = true;
     extraPortals = with pkgs; [

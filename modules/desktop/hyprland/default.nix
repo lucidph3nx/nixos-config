@@ -1,58 +1,35 @@
 {
   config,
-  osConfig,
-  pkgs,
   lib,
+  pkgs,
   ...
 }: let
-  homeDir = config.home.homeDirectory;
+  homeDir = config.home-manager.users.ben.home.homeDirectory;
   theme = config.theme;
 in {
+  imports = [
+    ./idle.nix
+    ./scripts.nix
+  ];
   options = {
-    homeManagerModules.hyprland = {
-      enable = lib.mkEnableOption "enables hyprland";
+    nx.desktop.hyprland = {
+      enable =
+        lib.mkEnableOption "enable the Hyprland desktop module"
+        // {
+          default = true;
+        };
       disableWorkspaceAnimations = lib.mkOption {
         type = lib.types.bool;
         default = false;
         description = "disables workspace animations";
       };
-      lockTimeout.enable = lib.mkOption {
-        type = lib.types.bool;
-        default = true;
-        description = "whether to lock the screen due to idle";
-      };
-      lockTimeout.duration = lib.mkOption {
-        type = lib.types.int;
-        # default 30 minutes
-        default = 1800;
-        description = "time before locking the screen";
-      };
-      screenTimeout.enable = lib.mkOption {
-        type = lib.types.bool;
-        default = true;
-        description = "whether to turn off the screen due to idle";
-      };
-      screenTimeout.duration = lib.mkOption {
-        type = lib.types.int;
-        # default 1 hour
-        default = 3600;
-        description = "time before turning off the screen";
-      };
-      suspendTimeout.enable = lib.mkOption {
-        type = lib.types.bool;
-        default = true;
-        description = "whether to suspend the system due to idle";
-      };
-      suspendTimeout.duration = lib.mkOption {
-        type = lib.types.int;
-        # default 2 hours
-        default = 7200;
-        description = "time before suspending the system";
-      };
     };
   };
-  config = lib.mkIf config.homeManagerModules.hyprland.enable {
-    wayland.windowManager.hyprland = let
+  config = {
+    # enable for system
+    programs.hyprland.enable = true;
+    # configure for user
+    home-manager.users.ben.wayland.windowManager.hyprland = let
       # scripts
       screenshotutil = "${homeDir}/.local/scripts/application.grim.screenshotToClipboard";
       emojipicker = "${homeDir}/.local/scripts/application.rofi.emojipicker";
@@ -63,8 +40,8 @@ in {
       toggleTouchpad = "${homeDir}/.local/scripts/system.inputs.toggleTouchpad";
       # applications
       terminal = "kitty";
-      browser = osConfig.nx.programs.defaultWebBrowserSettings.cmd;
-      newwindow = osConfig.nx.programs.defaultWebBrowserSettings.newWindowCmd;
+      browser = config.nx.programs.defaultWebBrowserSettings.cmd;
+      newwindow = config.nx.programs.defaultWebBrowserSettings.newWindowCmd;
       calendar = "${newwindow} https://calendar.google.com";
       home-assistant = "${newwindow} https://home-assistant.$SECRET_DOMAIN";
       plex = "${newwindow} https://plex.$SECRET_DOMAIN";
@@ -74,25 +51,25 @@ in {
       addtoshoppinglist = "${homeDir}/.local/scripts/home.shoppinglist.addItem";
       openshoppinglist = "${newwindow} https://www.notion.so/ph3nx/Shopping-List-92d98ac3dc86460285a399c0b1176fc5";
       # configuration
-      enableAudioControls = osConfig.nx.externalAudio.enable == false;
+      enableAudioControls = config.nx.externalAudio.enable == false;
     in {
       enable = true;
       settings = {
         exec-once = let
-          resolution = config.homeManagerModules.wallpaper.resolution;
+          resolution = config.home-manager.users.ben.homeManagerModules.wallpaper.resolution;
         in [
-          "swaync"
-          (lib.mkIf config.homeManagerModules.wallpaper.enable "swaybg -i ${homeDir}/.config/wallpaper-${resolution}.png --mode fill")
+          "${pkgs.swaynotificationcenter}/bin/swaync"
+          (lib.mkIf config.home-manager.users.ben.homeManagerModules.wallpaper.enable "swaybg -i ${homeDir}/.config/wallpaper-${resolution}.png --mode fill")
           # (lib.mkIf (config.theme.name == "everforest") "swaybg -i ${homeDir}/.config/wallpaper_everforest-${resolution}.png --mode fill")
           # (lib.mkIf (config.theme.name == "github-light") "swaybg -i ${homeDir}/.config/wallpaper_github_light-${resolution}.png --mode fill")
           # "swaybg --color ${builtins.substring 1 6 (theme.bg_dim)}"
           "hypridle"
-          (lib.mkIf (osConfig.nx.isLaptop == false) "steam -silent") # couldn't figure out xdg-autostart
+          (lib.mkIf (config.nx.isLaptop == false) "steam -silent") # couldn't figure out xdg-autostart
           "${homeDir}/.local/scripts/game.inputRemapper.defaults"
           # default to 70% brightness
-          (lib.mkIf osConfig.nx.isLaptop "${pkgs.brightnessctl}/bin/brightnessctl s 70%")
+          (lib.mkIf config.nx.isLaptop "${pkgs.brightnessctl}/bin/brightnessctl s 70%")
           # default to keyboard backlight off
-          (lib.mkIf osConfig.nx.isLaptop "${pkgs.brightnessctl}/bin/brightnessctl --device='asus::kbd_backlight' set 0")
+          (lib.mkIf config.nx.isLaptop "${pkgs.brightnessctl}/bin/brightnessctl --device='asus::kbd_backlight' set 0")
           ".local/scripts/cli.hyprland.switchWorkspaceOnWindowClose"
           "waybar"
         ];
@@ -120,7 +97,7 @@ in {
           };
         };
         gestures = {
-          workspace_swipe = lib.mkIf osConfig.nx.isLaptop true;
+          workspace_swipe = lib.mkIf config.nx.isLaptop true;
         };
         general = {
           gaps_in = 5;
@@ -157,9 +134,9 @@ in {
             "border, 1, 2, default"
             "borderangle, 1, 50, linear, loop"
             "fade, 1, 2, default"
-            (lib.mkIf (config.homeManagerModules.hyprland.disableWorkspaceAnimations != true)
+            (lib.mkIf (config.nx.desktop.hyprland.disableWorkspaceAnimations != true)
               "workspaces,1,1, myBezier")
-            (lib.mkIf (config.homeManagerModules.hyprland.disableWorkspaceAnimations == true)
+            (lib.mkIf (config.nx.desktop.hyprland.disableWorkspaceAnimations == true)
               "workspaces,0")
           ];
         };
@@ -178,7 +155,7 @@ in {
           swallow_exception_regex = "^(lf|wev)$";
         };
         windowrulev2 = [
-          # waydroid 
+          # waydroid
           "float, class:(Waydroid)"
           "center, class:(Waydroid)"
           "size 480 800, class:(Waydroid)"
@@ -247,8 +224,8 @@ in {
           "SUPER, i, exec, ${homeDir}/.local/scripts/cli.system.inhibitIdle toggle"
           ", switch:on:Lid Switch, exec, ${homeDir}/.local/scripts/cli.system.suspend"
           # Notification Center
-          "SUPER, n, exec, swaync-client -t -sw"
-          "SUPER SHIFT, N, exec, swaync-client --close-all && swaync-client --close-panel"
+          "SUPER, n, exec, ${pkgs.swaynotificationcenter}/bin/swaync-client -t -sw"
+          "SUPER SHIFT, N, exec, ${pkgs.swaynotificationcenter}/bin/swaync-client --close-all && ${pkgs.swaynotificationcenter}/bin/swaync-client --close-panel"
           # application shortcuts
           "ALT, Return, exec, ${terminal}"
           "AlT, Space, exec, ${applicationlauncher}"
@@ -272,10 +249,10 @@ in {
           ", XF86AudioStop, exec, ${pkgs.playerctl}/bin/playerctl stop"
           ", XF86AudioNext, exec, ${pkgs.playerctl}/bin/playerctl next"
           ", XF86AudioPrev, exec, ${pkgs.playerctl}/bin/playerctl previous"
-          (lib.mkIf osConfig.nx.isLaptop ", XF86MonBrightnessUp, exec, ${pkgs.brightnessctl}/bin/brightnessctl s +10%")
-          (lib.mkIf osConfig.nx.isLaptop ", XF86MonBrightnessDown, exec, ${pkgs.brightnessctl}/bin/brightnessctl s 10%-")
+          (lib.mkIf config.nx.isLaptop ", XF86MonBrightnessUp, exec, ${pkgs.brightnessctl}/bin/brightnessctl s +10%")
+          (lib.mkIf config.nx.isLaptop ", XF86MonBrightnessDown, exec, ${pkgs.brightnessctl}/bin/brightnessctl s 10%-")
           # on my asus laptop, one of the function keys presses Super_L+p for some reason for touchpad disable
-          (lib.mkIf osConfig.nx.isLaptop "SUPER, p, exec, ${toggleTouchpad}")
+          (lib.mkIf config.nx.isLaptop "SUPER, p, exec, ${toggleTouchpad}")
           # print screen
           ", Print, exec, ${homeDir}/.local/scripts/application.grim.fullScreenshotToFile"
         ];
@@ -330,199 +307,12 @@ in {
         # pkgs.hyprlandPlugins.hy3
       ];
     };
-    services.hypridle = let
-      lockTimeout = config.homeManagerModules.hyprland.lockTimeout.enable;
-      screenTimeout = config.homeManagerModules.hyprland.screenTimeout.enable;
-      suspendTimeout = config.homeManagerModules.hyprland.suspendTimeout.enable;
-      lockTimeoutDuration = config.homeManagerModules.hyprland.lockTimeout.duration;
-      screenTimeoutDuration = config.homeManagerModules.hyprland.screenTimeout.duration;
-      suspendTimeoutDuration = config.homeManagerModules.hyprland.suspendTimeout.duration;
-    in {
-      enable = true;
-      settings = {
-        general = {
-          lock_cmd = "hyprctl dispatch exec hyprlock";
-        };
-        listener = [
-          (lib.mkIf lockTimeout {
-            timeout = lockTimeoutDuration;
-            on-timeout = "hyprctl dispatch exec hyprlock";
-          })
-          (lib.mkIf screenTimeout {
-            timeout = screenTimeoutDuration;
-            on-timeout = "hyprctl dispatch dpms off";
-            on-resume = "hyprctl dispatch dpms on";
-          })
-          (lib.mkIf suspendTimeout {
-            timeout = suspendTimeoutDuration;
-            on-timeout = "systemctl suspend";
-            on-resume = "hyprctl dispatch exec hyprlock";
-          })
-        ];
-      };
-    };
-    home.packages = with pkgs; [
+    home-manager.users.ben.home.packages = with pkgs; [
       dex
       grim
       slurp
       swaybg
-      swaynotificationcenter
       wl-clipboard
     ];
-    home.sessionPath = ["$HOME/.local/scripts"];
-    home.file.".local/scripts/cli.system.setHyprGaps" = {
-      executable = true;
-      text =
-        /*
-        bash
-        */
-        ''
-          #!/bin/sh
-          width=$(hyprctl monitors -j | jq '.[0].width')
-
-          # Check if running in super-ultrawide
-          if [ $width -gt 5000 ]; then
-            hyprctl keyword workspace "w[t1], gapsout:5 $((width / 4))"
-            hyprctl keyword workspace "s[true], gapsout:50 $((width / 4))"
-          else
-            # unsetting is not possible, for now set to default
-            # https://github.com/hyprwm/Hyprland/issues/5691
-            hyprctl keyword workspace "w[t1], gapsout:5 5"
-            hyprctl keyword workspace "s[true], gapsout:50 50"
-          fi
-        '';
-    };
-    home.file.".local/scripts/system.inputs.toggleTouchpad" = lib.mkIf osConfig.nx.isLaptop {
-      executable = true;
-      text =
-        /*
-        bash
-        */
-        ''
-          #!/bin/sh
-          export STATUS_FILE="$XDG_RUNTIME_DIR/touchpad_status"
-          if ! [ -f "$STATUS_FILE" ]; then
-            # disable touchpad
-            hyprctl keyword 'device[asup1415:00-093a:300c-touchpad]:enabled' false > /dev/null
-            touch "$STATUS_FILE"
-            echo "disabled" > "$STATUS_FILE"
-          elif [ "$(cat $STATUS_FILE)" = "enabled" ]; then
-            # disable touchpad
-            hyprctl keyword 'device[asup1415:00-093a:300c-touchpad]:enabled' false > /dev/null
-            echo "disabled" > "$STATUS_FILE"
-          elif [ "$(cat $STATUS_FILE)" = "disabled" ]; then
-            # enable touchpad
-            hyprctl keyword 'device[asup1415:00-093a:300c-touchpad]:enabled' true > /dev/null
-            echo "enabled" > "$STATUS_FILE"
-          fi
-        '';
-    };
-    home.file.".local/scripts/cli.hyprland.switchWorkspaceOnWindowClose" = {
-      executable = true;
-      text =
-        /*
-        bash
-        */
-        ''
-          #!/bin/sh
-          function handle {
-            if [[ "$1" == closewindow* ]]; then
-              echo "Close Window detected"
-
-              active_workspace=$(hyprctl activeworkspace -j | jq '.id')
-              if [[ "$active_workspace" -ne 1 ]]; then
-                windows_count=$(hyprctl activeworkspace -j | jq '.windows')
-                if [[ "$windows_count" -eq 0 ]]; then
-                  echo $windows_count
-                  echo "Empty workspace detected"
-                  hyprctl dispatch workspace m-1
-                fi
-              fi
-            fi
-          }
-          ${pkgs.socat}/bin/socat - "UNIX-CONNECT:$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock" | while read -r line; do handle "$line"; done
-        '';
-    };
-    home.file.".local/scripts/cli.system.suspend" = {
-      executable = true;
-      text =
-        /*
-        bash
-        */
-        ''
-          #!/bin/sh
-          hyprctl dispatch exec hyprlock ;
-          systemctl suspend
-        '';
-    };
-    home.file.".local/scripts/cli.system.inhibitIdle" = {
-      executable = true;
-      text =
-        /*
-        bash
-        */
-        ''
-          #!/bin/sh
-          LOCKFILE="/tmp/systemd_inhibit.lock"
-
-          start_inhibit() {
-              systemd-inhibit --what=idle --why="Preventing idle for a task" sleep infinity &
-              echo $! > "$LOCKFILE"
-          }
-
-          stop_inhibit() {
-              if [[ -f "$LOCKFILE" ]]; then
-                  kill "$(cat "$LOCKFILE")"
-                  rm -f "$LOCKFILE"
-              fi
-          }
-
-          status_inhibit() {
-              if [[ -f "$LOCKFILE" ]]; then
-                  echo "Inhibit Active"
-              else
-                  echo "Inhibit Inactive"
-              fi
-          }
-
-          case $1 in
-              start)
-                  if [[ -f "$LOCKFILE" ]]; then
-                      echo "Inhibit already running."
-                  else
-                      start_inhibit
-                      echo "Inhibit started."
-                  fi
-                  ;;
-              stop)
-                  stop_inhibit
-                  echo "Inhibit stopped."
-                  ;;
-              status)
-                  status_inhibit
-                  ;;
-              statusjson)
-                  if [[ -f "$LOCKFILE" ]]; then
-                      echo '{"text": "IDLE INHIBIT", "class": "active"}'
-                  else
-                      echo '{"text": "", "class": "inactive"}'
-                  fi
-                  ;;
-              toggle)
-                  if [[ -f "$LOCKFILE" ]]; then
-                      stop_inhibit
-                      echo "Inhibit toggled off."
-                  else
-                      start_inhibit
-                      echo "Inhibit toggled on."
-                  fi
-                  ;;
-              *)
-                  echo "Usage: $0 {start|stop|status|toggle}"
-                  exit 1
-                  ;;
-          esac
-        '';
-    };
   };
 }
