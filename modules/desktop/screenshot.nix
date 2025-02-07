@@ -1,0 +1,44 @@
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}: let
+  theme = config.theme;
+in {
+  options = {
+    nx.desktop.screenshot.enable =
+      lib.mkEnableOption "enables screenshot utils"
+      // {
+        default = true;
+      };
+  };
+  config = lib.mkIf config.nx.desktop.screenshot.enable {
+    home-manager.users.ben.home = {
+      file.".local/scripts/application.grim.screenshotToClipboard" = {
+        executable = true;
+        text = ''
+          #!/bin/sh
+          ${pkgs.grim}/bin/grim -g "$(${pkgs.slurp}/bin/slurp -c "${theme.green}FF" -b '${theme.bg0}80')" - | ${pkgs.wl-clipboard}/bin/wl-copy
+        '';
+      };
+      file.".local/scripts/application.grim.screenshotToFile" = {
+        executable = true;
+        text = ''
+          #!/bin/sh
+          mkdir -p "$HOME/pictures/screenshots"
+          ${pkgs.grim}/bin/grim -g "$(${pkgs.slurp}/bin/slurp -c "${theme.green}FF" -b '${theme.bg0}80')" "$HOME/pictures/screenshots/$(date '+%y%m%d_%H-%M-%S').png"
+        '';
+      };
+      file.".local/scripts/application.grim.fullScreenshotToFile" = {
+        executable = true;
+        text = ''
+          #!/bin/sh
+          sleep 0.2 # wait for the ui to move if done from command palette
+          mkdir -p "$HOME/pictures/screenshots"
+          ${pkgs.grim}/bin/grim "$HOME/pictures/screenshots/$(date '+%y%m%d_%H-%M-%S').png"
+        '';
+      };
+    };
+  };
+}

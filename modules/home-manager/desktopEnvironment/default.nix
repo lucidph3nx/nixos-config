@@ -9,7 +9,6 @@
     ./additionalTheming.nix
     ./pipewire-utils.nix
     ./rofi.nix
-    ./screenshot.nix
     ./sway.nix
     ./swaylock.nix
     ./swaync.nix
