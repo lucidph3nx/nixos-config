@@ -11,7 +11,6 @@
   homeManagerModules = {
     hyprland.enable = true;
     sway.enable = true;
-    homeAutomation.enable = true;
     waybar.fontSize = "14px";
   };
   home = {
