@@ -37,6 +37,7 @@
     programs = {
       calibre.enable = true;
       darktable.enable = true;
+      firefox.hideUrlbar = true;
       homeAutomation.enable = true;
       libreoffice.enable = true;
       obsidian.enable = true;

@@ -3,8 +3,8 @@
   lib,
   ...
 }: {
-  config = lib.mkIf config.homeManagerModules.firefox.enable {
-    home.file.".config/tridactyl/tridactylrc".text =
+  config = lib.mkIf config.nx.programs.firefox.enable {
+    home-manager.users.ben.home.file.".config/tridactyl/tridactylrc".text =
       /*
       tridactyl
       */

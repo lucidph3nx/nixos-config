@@ -11,6 +11,7 @@
     ./darktable.nix
     ./dragon-drop.nix
     ./fastfetch.nix
+    ./firefox
     ./git.nix
     ./homeAutomation.nix
     ./k9s.nix
@@ -25,6 +26,7 @@
     ./plexamp.nix
     ./qutebrowser
     ./signal.nix
+    ./ssh.nix
     ./tmux.nix
     ./tmuxSessioniser.nix
     ./vimiv.nix

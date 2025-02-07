@@ -4,8 +4,8 @@
   ...
 }:
 with config.theme; {
-  config = lib.mkIf config.homeManagerModules.firefox.enable {
-    programs.firefox.profiles.main.userContent =
+  config = lib.mkIf config.nx.programs.firefox.enable {
+    home-manager.users.ben.programs.firefox.profiles.main.userContent =
       /*
       css
       */

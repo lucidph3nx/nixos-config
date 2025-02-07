@@ -9,11 +9,9 @@
   ];
   # my own modules
   homeManagerModules = {
-    firefox.hideUrlbar = true;
     hyprland.enable = true;
     sway.enable = true;
     homeAutomation.enable = true;
-    ssh.client.enable = true;
     waybar.fontSize = "14px";
   };
   home = {
@@ -28,7 +26,6 @@
       ".local/share/nvim"
       ".local/state"
       ".cache"
-      ".ssh"
       "code"
       "documents"
       "music"

@@ -4,8 +4,8 @@
   ...
 }:
 with config.theme; {
-  config = lib.mkIf config.homeManagerModules.firefox.enable {
-    home.file.".config/tridactyl/themes/customtheme.css".text =
+  config = lib.mkIf config.nx.programs.firefox.enable {
+    home-manager.users.ben.home.file.".config/tridactyl/themes/customtheme.css".text =
       /*
       css
       */

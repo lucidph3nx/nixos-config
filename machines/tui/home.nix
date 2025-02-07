@@ -13,7 +13,6 @@
   # setTheme = "github-light";
   setTheme = "everforest";
   homeManagerModules = {
-    firefox.hideUrlbar = true;
     wallpaper = {
       variant = "enso";
       resolution = "2880x1800";
@@ -36,7 +35,6 @@
       enable = true;
       oled = true;
     };
-    ssh.client.enable = true;
     sway.enable = true;
   };
   home = {
@@ -61,7 +59,6 @@
       ".local/share/icons/hicolor" # where steam puts its icons
       ".local/state"
       ".cache"
-      ".ssh"
       "code"
       "documents"
       "music"

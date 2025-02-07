@@ -26,10 +26,8 @@
   # };
   imports = [
     ./desktopEnvironment
-    ./firefox
     ./neovim
     ./scripts
-    ./sshConfig
   ];
   # config = let
   #   browserSettings = {
@@ -50,7 +48,6 @@
   #       lib.mkDefault
   #       (lib.attrByPath [config.homeManagerModules.defaultWebBrowser] {} browserSettings);
       desktopEnvironment.enable = lib.mkDefault true;
-      firefox.enable = lib.mkDefault true;
       neovim.enable = lib.mkDefault true;
     };
   #   xdg.mimeApps.enable = true;

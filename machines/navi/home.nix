@@ -12,7 +12,6 @@
   # my own modules
   setTheme = "everforest";
   homeManagerModules = {
-    firefox.hideUrlbar = true;
     wallpaper = {
       variant = "enso";
     };
@@ -21,7 +20,6 @@
       disableWorkspaceAnimations = true;
     };
     hyprlock.enable = true;
-    ssh.client.enable = true;
     sway.enable = true;
   };
   home = {
@@ -45,7 +43,6 @@
       ".local/share/icons/hicolor" # where steam puts its icons
       ".local/state"
       ".cache"
-      ".ssh"
       "code"
       "documents"
       "games"

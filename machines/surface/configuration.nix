@@ -34,6 +34,7 @@
     };
     programs = {
       obsidian.enable = true;
+      firefox.hideUrlbar = true;
     };
     # should be on home network
     nfs-mounts.enable = false; # not whitelisted on nas
