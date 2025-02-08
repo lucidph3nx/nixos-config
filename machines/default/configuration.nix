@@ -21,6 +21,11 @@
       homeSSHKeys.enable = true;
       kubeconfig.enable = true;
     };
+    desktop = {
+      # hyprland doesnt work well in a vm
+      hyprland.enable = false;
+      sway.enable = true;
+    };
     services = {
       syncthing = {
         enable = true;
