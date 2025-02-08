@@ -6,7 +6,7 @@
 }: {
   imports = [./schema.nix];
 
-  theme = lib.mkIf (config.setTheme == "onedark") {
+  theme = lib.mkIf (config.nx.desktop.theme == "onedark") {
     name = "onedark";
     type = "dark";
     foreground = "#abb2bf";

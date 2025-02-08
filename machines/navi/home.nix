@@ -9,8 +9,6 @@
   imports = [
     inputs.impermanence.nixosModules.home-manager.impermanence
   ];
-  # my own modules
-  setTheme = "everforest";
   home = {
     username = "ben";
     homeDirectory = "/home/ben";

@@ -25,6 +25,7 @@
       kubeconfig.enable = true;
     };
     desktop = {
+      theme = "everforest";
       hyprland = {
         lockTimeout = {
           enable = false;
@@ -90,8 +91,6 @@
     users = {
       ben.imports = [
         ./home.nix
-        ../../modules/home-manager
-        ../../modules/colourScheme
       ];
     };
   };

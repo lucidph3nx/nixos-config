@@ -58,8 +58,6 @@
     users = {
       ben.imports = [
         ./home.nix
-        ../../modules/home-manager
-        ../../modules/colourScheme
       ];
     };
   };

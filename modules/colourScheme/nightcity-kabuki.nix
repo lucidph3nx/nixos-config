@@ -6,7 +6,7 @@
 }: {
   imports = [./schema.nix];
 
-  theme = lib.mkIf (config.setTheme == "nightcity-kabuki") {
+  theme = lib.mkIf (config.nx.desktop.theme == "nightcity-kabuki") {
     name = "nightcity-kabuki";
     type = "dark";
     foreground = "#f9efc5";

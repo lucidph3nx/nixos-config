@@ -1,9 +1,0 @@
-#!/bin/sh
-
-monitor="$(swaymsg -t get_outputs | jq -c '.[] | select(.focused) | select(.id)' | jq -c '.name')"
-
-# rofi style
-rofi_style_calculator='listview { enabled: false;} inputbar { children: [entry]; border-color: #7fbbb3;} entry { placeholder: "Calculator"; } element-icon { enabled: false; }'
-
-# start rofi with calculator args
-rofi -monitor "$monitor" -show calc -no-history -calc-command 'wl-copy "{result}"' -theme-str "$rofi_style_calculator"

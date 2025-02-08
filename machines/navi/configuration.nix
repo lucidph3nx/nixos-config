@@ -26,6 +26,7 @@
       kubeconfig.enable = true;
     };
     desktop = {
+      theme = "everforest";
       hyprland.disableWorkspaceAnimations = true;
       wallpaper.variant = "enso";
     };
@@ -80,8 +81,6 @@
     users = {
       ben.imports = [
         ./home.nix
-        ../../modules/home-manager
-        ../../modules/colourScheme
       ];
     };
   };

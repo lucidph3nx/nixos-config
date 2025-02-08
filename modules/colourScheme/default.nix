@@ -10,7 +10,7 @@
     ./nightcity-kabuki.nix
   ];
   options = {
-    setTheme = lib.mkOption {
+    nx.desktop.theme = lib.mkOption {
       default = "everforest";
       type = lib.types.enum ["everforest" "onedark" "github-light" "nightcity-kabuki"];
     };

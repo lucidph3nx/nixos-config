@@ -6,7 +6,7 @@
 }: {
   imports = [./schema.nix];
 
-  theme = lib.mkIf (config.setTheme == "github-light") {
+  theme = lib.mkIf (config.nx.desktop.theme == "github-light") {
     name = "github-light";
     type = "light";
     foreground = "#24292f";
