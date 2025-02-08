@@ -5,7 +5,7 @@
   ...
 }: {
   config = lib.mkIf config.nx.desktop.sway.enable {
-    home-manager.users.ben.wayland.windowManager.sway = {
+    home-manager.users.ben.wayland.windowManager.sway.config = {
       startup = [
         {
           # swayidle: lock screen after 30 minutes of inactivity
