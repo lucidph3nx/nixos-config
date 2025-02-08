@@ -1,11 +1,11 @@
 {...}: {
   imports = [
-    # ./home-manager
-    ./nix
     ./colourScheme
     ./desktop
-    ./services
+    ./impermanence.nix
+    ./nix
     ./programs
+    ./services
   ];
   config = {
     # Let Home Manager install and manage itself.
