@@ -1,7 +1,6 @@
 {lib, ...}: {
   imports = [
     ./cli-tools.nix
-    ./gui-tools.nix
     ./hardware-boot-switch.nix
     ./impermanence.nix
     ./localisation.nix

@@ -7,6 +7,7 @@
     ./anki.nix
     ./bitwarden.nix
     ./calibre.nix
+    ./chromium.nix
     ./cura-appimage.nix
     ./darktable.nix
     ./dragon-drop.nix
