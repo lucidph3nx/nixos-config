@@ -4,17 +4,13 @@
   ...
 }: {
   options = {
-    nx.impermanence.enable =
+    nx.system.impermanence.enable =
       lib.mkEnableOption "Code to support impermanence"
       // {
         default = true;
       };
   };
-  config = lib.mkIf config.nx.impermanence.enable {
-    # # https://github.com/nix-community/impermanence/issues/229
-    # boot.initrd.systemd.suppressedUnits = ["systemd-machine-id-commit.service"];
-    # systemd.suppressedSystemUnits = ["systemd-machine-id-commit.service"];
-
+  config = lib.mkIf config.nx.system.impermanence.enable {
     # Wipe the disk on each boot
     boot.initrd.postDeviceCommands =
       lib.mkAfter

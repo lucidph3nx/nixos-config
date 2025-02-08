@@ -6,13 +6,13 @@
   nasServerIP = "10.87.1.200";
 in {
   options = {
-    nx.nfs-mounts.enable =
+    nx.system.nfs-mounts.enable =
       lib.mkEnableOption "Set up local NFS mounts (local machines only)"
       // {
         default = false;
       };
   };
-  config = lib.mkIf config.nx.nfs-mounts.enable {
+  config = lib.mkIf config.nx.system.nfs-mounts.enable {
     fileSystems."/nfs/3d" = {
       device = "${nasServerIP}:/volume1/3d";
       fsType = "nfs";

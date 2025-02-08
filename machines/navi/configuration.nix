@@ -53,8 +53,7 @@
       };
       printer.enable = true;
     };
-    # should be on home network
-    nfs-mounts.enable = true;
+    system.nfs-mounts.enable = true;
   };
 
   # Bootloader.

@@ -38,8 +38,6 @@
       obsidian.enable = true;
       homeAutomation.enable = true;
     };
-    # should be on home network
-    nfs-mounts.enable = false; # not whitelisted on nas
   };
 
   # Bootloader.
