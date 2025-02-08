@@ -27,6 +27,7 @@
     };
     desktop = {
       hyprland.disableWorkspaceAnimations = true;
+      wallpaper.variant = "enso";
     };
     programs = {
       anki.enable = true;

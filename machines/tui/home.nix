@@ -12,12 +12,6 @@
   # my own modules
   # setTheme = "github-light";
   setTheme = "everforest";
-  homeManagerModules = {
-    wallpaper = {
-      variant = "enso";
-      resolution = "2880x1800";
-    };
-  };
   home = {
     username = "ben";
     homeDirectory = "/home/ben";

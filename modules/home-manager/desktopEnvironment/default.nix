@@ -7,7 +7,6 @@
 }: {
   imports = [
     ./rofi.nix
-    ./wallpaper.nix
   ];
 
   options = {

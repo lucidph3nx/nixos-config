@@ -11,11 +11,6 @@
   ];
   # my own modules
   setTheme = "everforest";
-  homeManagerModules = {
-    wallpaper = {
-      variant = "enso";
-    };
-  };
   home = {
     username = "ben";
     homeDirectory = "/home/ben";

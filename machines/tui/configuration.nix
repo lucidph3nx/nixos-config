@@ -39,6 +39,10 @@
         };
       };
       hyprlock.oled = true;
+      wallpaper = {
+        variant = "enso";
+        resolution = "2880x1800";
+      };
     };
     programs = {
       calibre.enable = true;

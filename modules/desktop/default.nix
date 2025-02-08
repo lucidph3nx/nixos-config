@@ -5,6 +5,7 @@
     ./screenshot.nix
     ./sway
     ./swaync.nix
+    ./wallpaper
     ./waybar
   ];
 }
