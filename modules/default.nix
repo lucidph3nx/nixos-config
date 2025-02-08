@@ -2,10 +2,10 @@
   imports = [
     ./colourScheme
     ./desktop
-    ./impermanence.nix
     ./nix
     ./programs
     ./services
+    ./system
   ];
   config = {
     # Let Home Manager install and manage itself.
