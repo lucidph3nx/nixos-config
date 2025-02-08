@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }: let
   homeDir = config.home-manager.users.ben.home.homeDirectory;
@@ -51,6 +52,9 @@ in {
           }
         ];
       };
+      home.packages = with pkgs; [
+        gh
+      ];
     };
   };
 }

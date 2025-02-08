@@ -1,6 +1,7 @@
 {
   lib,
   config,
+  pkgs,
   ...
 }: {
   imports = [
@@ -23,9 +24,11 @@
     ./mpv.nix
     ./ncmpcpp.nix
     ./neovim
+    ./nh.nix
     ./obsidian.nix
     ./picard.nix
     ./plexamp.nix
+    ./python.nix
     ./qutebrowser
     ./signal.nix
     ./ssh.nix
@@ -77,6 +80,33 @@
     home-manager.users.ben = {
       # not sure of a better place to put this
       xdg.mimeApps.enable = true;
+      # some default programs that require no configuration
+      home.packages = with pkgs; [
+        age
+        cachix
+        curl
+        dig
+        direnv
+        dust
+        eza
+        fzf
+        fzy
+        htop
+        imagemagick
+        jnv
+        jq
+        killall
+        openssl
+        p7zip
+        pdftk
+        ripgrep
+        sops
+        unrar
+        unzip
+        xdg-utils
+        yq-go
+        yt-dlp
+      ];
     };
   };
 }

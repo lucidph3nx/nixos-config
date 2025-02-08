@@ -1,6 +1,5 @@
 {lib, ...}: {
   imports = [
-    ./cli-tools.nix
     ./hardware-boot-switch.nix
     ./impermanence.nix
     ./localisation.nix
@@ -49,15 +48,7 @@
     # increase network buffer size
     boot.kernel.sysctl."net.core.rmem_max" = 2500000;
 
-    # # power management
-    # services.power-profiles-daemon.enable = true;
-
     virtualisation.podman.enable = true;
-    # nix helper
-    programs.nh = {
-      enable = true;
-      flake = "/home/ben/code/nixos-config";
-    };
     # XDG env vars
     environment.sessionVariables = {
       # General XDG variables
