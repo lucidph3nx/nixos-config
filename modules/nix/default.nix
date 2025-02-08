@@ -1,7 +1,6 @@
 {lib, ...}: {
   imports = [
     ./hardware-boot-switch.nix
-    ./nfs-mounts.nix
     ./sops
   ];
   options = {
