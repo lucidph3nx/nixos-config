@@ -17,7 +17,6 @@
       variant = "enso";
       resolution = "2880x1800";
     };
-    sway.enable = true;
   };
   home = {
     username = "ben";

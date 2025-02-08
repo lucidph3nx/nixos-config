@@ -6,10 +6,7 @@
   ...
 }: {
   imports = [
-    ./additionalTheming.nix
     ./rofi.nix
-    ./sway.nix
-    ./swaylock.nix
     ./swaync.nix
     ./wallpaper.nix
   ];
@@ -25,8 +22,6 @@
     ) {
       homeManagerModules = {
         rofi.enable = lib.mkDefault true;
-        sway.enable = lib.mkDefault true;
-        swaylock.enable = lib.mkDefault true;
         swaync.enable = lib.mkDefault true;
       };
       home.packages = with pkgs; [

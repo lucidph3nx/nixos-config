@@ -15,7 +15,6 @@
     wallpaper = {
       variant = "enso";
     };
-    sway.enable = true;
   };
   home = {
     username = "ben";

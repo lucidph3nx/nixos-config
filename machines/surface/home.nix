@@ -7,10 +7,6 @@
   imports = [
     inputs.impermanence.nixosModules.home-manager.impermanence
   ];
-  # my own modules
-  homeManagerModules = {
-    sway.enable = true;
-  };
   home = {
     username = "ben";
     homeDirectory = "/home/ben";

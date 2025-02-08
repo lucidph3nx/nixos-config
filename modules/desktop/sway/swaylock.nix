@@ -1,16 +1,19 @@
 {
   config,
-  pkgs,
   lib,
   ...
 }:
 with config.theme; {
   options = {
-    homeManagerModules.swaylock.enable =
-      lib.mkEnableOption "enables swaylock";
+    nx.desktop.swaylock.enable =
+      lib.mkEnableOption "enables swaylock"
+      // {
+        # default to enable if sway is
+        default = config.nx.desktop.sway.enable;
+      };
   };
-  config = lib.mkIf config.homeManagerModules.swaylock.enable {
-    programs.swaylock = {
+  config = lib.mkIf config.nx.desktop.swaylock.enable {
+    home-manager.users.ben.programs.swaylock = {
       enable = true;
       settings = {
         color = "000000";

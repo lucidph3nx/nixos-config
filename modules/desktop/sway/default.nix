@@ -2,31 +2,41 @@
   config,
   pkgs,
   pkgs-stable,
-  osConfig,
   lib,
   ...
 }: let
-  homeDir = config.home.homeDirectory;
+  homeDir = config.home-manager.users.ben.home.homeDirectory;
   theme = config.theme;
   # Colours
   active = theme.green;
   inactive = theme.blue;
   foreground = theme.foreground;
   background = theme.bg0;
-  warn = theme.orange;
   danger = theme.red;
 in {
+  imports = [
+    ./idle.nix
+    ./scripts.nix
+    ./swaylock.nix
+  ];
   options = {
-    homeManagerModules.sway.enable =
-      lib.mkEnableOption "enables sway";
+    nx.desktop.sway.enable =
+      lib.mkEnableOption "enables sway"
+      // {
+        default = false;
+      };
   };
-  config = lib.mkIf config.homeManagerModules.sway.enable {
-    wayland.windowManager.sway = let
+  config = lib.mkIf config.nx.desktop.sway.enable {
+    # enable for system
+    programs.sway = {
+      enable = true;
+      extraPackages = []; # I don't need foot etc bundled
+    };
+    # configure for user
+    home-manager.users.ben.wayland.windowManager.sway = let
       # bindings
       super = "Mod4";
       alt = "Mod1";
-      pageup = "Prior";
-      pagedown = "Next";
       left = "h";
       down = "j";
       up = "k";
@@ -255,16 +265,6 @@ in {
         };
         startup = [
           {
-            # swayidle: lock screen after 30 minutes of inactivity
-            # turn off screen after 1 hour of inactivity
-            command = ''
-              exec swayidle -w \
-                timeout 1800 'swaylock -f -c 000000' \
-                timeout 3600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
-                before-sleep 'swaylock -f -c 000000'
-            '';
-          }
-          {
             # set smart gaps etc if super-ultrawide
             command = "${homeDir}/.local/scripts/cli.system.setSwayGaps";
             always = true;
@@ -324,40 +324,14 @@ in {
         export XDG_SESSION_DESKTOP="sway";
       '';
     };
-    home.packages = with pkgs; [
+    home-manager.users.ben.home.packages = with pkgs; [
       autotiling
       dex
       grim
       slurp
       swaybg
-      swayidle
-      swaylock
       swaynotificationcenter
       wl-clipboard
     ];
-    # home.file = {
-    # ".config/sway/config".source              = ./files/sway-config;
-    # ".config/sway/navi/config".source         = ./files/sway-navi-config;
-    # ".config/sway/scripts/set_gaps.sh".source = ./files/sway-script-setgaps;
-    # };
-    # my scripts relevant to sway
-    home.sessionPath = ["$HOME/.local/scripts"];
-    home.file.".local/scripts/cli.system.setSwayGaps" = {
-      executable = true;
-      text = ''
-        #!/bin/sh
-        width=$(swaymsg -t get_outputs | jq '.[0].rect.width' | xargs printf "%.0f\n")
-        # Check if running in super-ultrawide
-        if [ $width -gt 5000 ]; then
-          swaymsg smart_gaps inverse_outer
-          swaymsg gaps horizontal $(($width/4))
-          swaymsg gaps horizontal all set $(($width/4))
-        else
-          swaymsg smart_gaps off
-          swaymsg gaps horizontal 0
-          swaymsg gaps horizontal all set 0
-        fi
-      '';
-    };
   };
 }
