@@ -40,5 +40,20 @@ in {
         '';
       };
     };
+    home-manager.users.ben.wayland.windowManager = let
+      homeDir = config.home-manager.users.ben.home.homeDirectory;
+      screenshotToClipboard = "${homeDir}/.local/scripts/application.grim.screenshotToClipboard";
+    in {
+      # shortcuts for sway
+      sway.config.keybindings = let
+        super = "Mod4";
+      in {
+        "${super}+Shift+s" = "exec ${screenshotToClipboard}";
+      };
+      # shortcuts for hyprland
+      hyprland.settings.bind = [
+        "SUPER SHIFT, S, exec, ${screenshotToClipboard}"
+      ];
+    };
   };
 }

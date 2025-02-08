@@ -42,7 +42,6 @@ in {
       up = "k";
       right = "l";
       # scripts
-      screenshotutil = "${homeDir}/.local/scripts/application.grim.screenshotToClipboard";
       emojipicker = "${homeDir}/.local/scripts/application.rofi.emojipicker";
       runscripts = "${homeDir}/.local/scripts/application.scripts.launcher";
       calculator = "${homeDir}/.local/scripts/application.rofi.calculator";
@@ -139,7 +138,6 @@ in {
           # Window Shortcuts
           "${super}+q" = "kill";
           "${super}+Shift+c" = "reload";
-          "${super}+Shift+s" = "exec ${screenshotutil}";
           "${super}+period" = "exec ${emojipicker}";
           "${super}+Space" = "exec ${runscripts}";
           "${super}+c" = "exec ${calculator}";

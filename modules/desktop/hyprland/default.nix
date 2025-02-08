@@ -32,7 +32,6 @@ in {
     # configure for user
     home-manager.users.ben.wayland.windowManager.hyprland = let
       # scripts
-      screenshotutil = "${homeDir}/.local/scripts/application.grim.screenshotToClipboard";
       emojipicker = "${homeDir}/.local/scripts/application.rofi.emojipicker";
       runscripts = "${homeDir}/.local/scripts/application.scripts.launcher";
       calculator = "${homeDir}/.local/scripts/application.rofi.calculator";
@@ -215,7 +214,6 @@ in {
           # window shortcuts
           "SUPER, q, killactive"
           "SUPER SHIFT, C, exec, hyprctl reload"
-          "SUPER SHIFT, S, exec, ${screenshotutil}"
           "SUPER, period, exec, ${emojipicker}"
           "SUPER, Space, exec, ${runscripts}"
           "SUPER, c, exec, ${calculator}"
