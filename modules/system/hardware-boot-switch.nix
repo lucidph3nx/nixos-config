@@ -5,13 +5,13 @@
   ...
 }: {
   options = {
-    nx.hardware-boot-switch.enable =
+    nx.system.hardware-boot-switch.enable =
       lib.mkEnableOption "Code to support printer"
       // {
         default = false;
       };
   };
-  config = lib.mkIf config.nx.hardware-boot-switch.enable {
+  config = lib.mkIf config.nx.system.hardware-boot-switch.enable {
   # this module supports a hardware based dual-boot switch
   # It uses a microcontroller which pretends to be a storage device
   # and presents a file with the current switch position in it

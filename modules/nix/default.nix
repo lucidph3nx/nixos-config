@@ -1,6 +1,5 @@
 {lib, ...}: {
   imports = [
-    ./hardware-boot-switch.nix
     ./sops
   ];
   options = {
