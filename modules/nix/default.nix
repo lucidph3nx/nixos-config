@@ -4,7 +4,6 @@
     ./localisation.nix
     ./nfs-mounts.nix
     ./sops
-    ./user-ben.nix
   ];
   options = {
     nx.externalAudio.enable = lib.mkEnableOption {
