@@ -16,11 +16,6 @@
   home.persistence."/persist/home/ben" = {
     directories = [
       "code"
-      # these should be with the hm modules
-      # but give compile errors on darwin
-      ".mozilla/firefox"
-      ".config/github-copilot"
-      ".config/teams-for-linux"
     ];
     files = [
       # ".zsh_history"

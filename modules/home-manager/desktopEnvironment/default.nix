@@ -7,7 +7,6 @@
 }: {
   imports = [
     ./rofi.nix
-    ./swaync.nix
     ./wallpaper.nix
   ];
 
@@ -22,7 +21,6 @@
     ) {
       homeManagerModules = {
         rofi.enable = lib.mkDefault true;
-        swaync.enable = lib.mkDefault true;
       };
       home.packages = with pkgs; [
         wtype
