@@ -1,7 +1,6 @@
 {lib, ...}: {
   imports = [
     ./hardware-boot-switch.nix
-    ./localisation.nix
     ./nfs-mounts.nix
     ./sops
   ];
