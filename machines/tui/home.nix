@@ -35,7 +35,6 @@
   ];
 
   home.packages = with pkgs; [
-    pkgs-stable.prismlauncher # open source minecraft launcher
-    # cinnamon.nemo
+    prismlauncher # open source minecraft launcher
   ];
 }
