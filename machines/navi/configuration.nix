@@ -52,6 +52,9 @@
         ageKeys.enable = true;
       };
     };
+    gaming = {
+      enable = true;
+    };
   };
 
   # Bootloader.

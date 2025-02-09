@@ -55,6 +55,7 @@
       sops.ageKeys.enable = true;
     };
     gaming = {
+      enable = true;
       prismlauncher.enable = true;
     };
   };

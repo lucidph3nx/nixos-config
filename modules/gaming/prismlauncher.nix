@@ -11,7 +11,9 @@
         default = false;
       };
   };
-  config = lib.mkIf config.nx.gaming.prismlauncher.enable {
+  config = lib.mkIf (config.nx.gaming.prismlauncher.enable
+    # only enable if gaming is enabled
+    && config.nx.gaming.enable) {
     home-manager.users.ben = {
       home.packages = with pkgs; [
         prismlauncher
