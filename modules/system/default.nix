@@ -4,6 +4,7 @@
     ./impermanence.nix
     ./localisation.nix
     ./nfs-mounts.nix
+    ./nix-options.nix
     ./users.nix
   ];
 }
