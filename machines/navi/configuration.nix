@@ -116,24 +116,6 @@
     support32Bit.enable = true;
   };
 
-  fonts.fontDir.enable = true;
-  fonts.packages = [
-    pkgs.nerd-fonts.jetbrains-mono
-    pkgs.noto-fonts
-  ];
-
-  programs.sway = {
-    enable = true;
-    extraPackages = []; # I don't need foot etc bundled
-  };
-  xdg.portal = {
-    enable = true;
-    extraPortals = with pkgs; [
-      xdg-desktop-portal-wlr
-    ];
-    wlr.enable = lib.mkForce true; #TODO: figure out why hyprland conflicts with this
-  };
-
   # key remapping
   services.keyd = {
     enable = true;

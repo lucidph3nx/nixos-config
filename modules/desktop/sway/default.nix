@@ -32,6 +32,10 @@ in {
       enable = true;
       extraPackages = []; # I don't need foot etc bundled
     };
+    xdg.portal = {
+      enable = true;
+      wlr.enable = true;
+    };
     # configure for user
     home-manager.users.ben.wayland.windowManager.sway = let
       # bindings

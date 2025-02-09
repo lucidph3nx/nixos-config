@@ -66,24 +66,6 @@
     lm_sensors
   ];
 
-  fonts.fontDir.enable = true;
-  fonts.packages = [
-    pkgs.nerd-fonts.jetbrains-mono
-  ];
-
-  programs.sway = {
-    enable = true;
-    extraPackages = []; # I don't need foot etc bundled
-  };
-  xdg.portal = {
-    enable = true;
-    extraPortals = with pkgs; [
-      xdg-desktop-portal-wlr
-      xdg-desktop-portal-gtk
-    ];
-    wlr.enable = true;
-  };
-
   # List services that you want to enable:
   services.dbus.implementation = "broker";
 

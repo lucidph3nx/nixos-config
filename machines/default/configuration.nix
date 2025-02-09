@@ -60,32 +60,8 @@
     };
   };
 
-  fonts.fontDir.enable = true;
-  fonts.packages = [
-    pkgs.nerd-fonts.jetbrains-mono
-  ];
-
-  programs.sway = {
-    enable = true;
-    extraPackages = []; # I don't need foot etc bundled
-  };
-  xdg.portal = {
-    enable = true;
-    extraPortals = with pkgs; [
-      xdg-desktop-portal-wlr
-      xdg-desktop-portal-gtk
-    ];
-    wlr.enable = true;
-  };
-
   # List services that you want to enable:
   services.dbus.implementation = "broker";
-
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

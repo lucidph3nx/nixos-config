@@ -1,6 +1,7 @@
 {...}: {
   imports = [
     ./additionalTheming.nix
+    ./fonts.nix
     ./hyprland
     ./rofi
     ./screenshot.nix
