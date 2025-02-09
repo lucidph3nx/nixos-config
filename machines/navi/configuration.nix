@@ -131,9 +131,6 @@
     };
   };
 
-  # List services that you want to enable:
-  services.dbus.implementation = "broker";
-
   # sound
   services.pipewire.wireplumber.extraConfig = {
     # 100% volume
