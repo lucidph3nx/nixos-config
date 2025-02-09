@@ -33,11 +33,11 @@
           "tcp-tls:one.one.one.one:853"
           "tcp-tls:dns.quad9.net:853"
         ];
-        loading = {
-          # download more lists in parallel
-          concurrency = 10;
-        };
         blocking = {
+          loading = {
+            # download more lists in parallel
+            concurrency = 10;
+          };
           denylists = {
             suspicious = [
               "https://raw.githubusercontent.com/PolishFiltersTeam/KADhosts/master/KADhosts.txt"
