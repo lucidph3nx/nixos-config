@@ -23,8 +23,6 @@
         method = "symlink";
       }
       ".local/share/lutris"
-      # ".local/share/PrismLauncher"
-      ".local/share/vulkan"
       ".local/share/applications" # where steam puts its .desktop files for games
       ".local/share/icons/hicolor" # where steam puts its icons
     ];
@@ -33,8 +31,4 @@
   wayland.windowManager.hyprland.settings.monitor = [
     "eDP-1,2880x1800@120.00000,0x0,1.5"
   ];
-
-  # home.packages = with pkgs; [
-  #   prismlauncher # open source minecraft launcher
-  # ];
 }
