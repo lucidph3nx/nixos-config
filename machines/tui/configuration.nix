@@ -41,7 +41,7 @@
       plexamp.enable = true;
     };
     services = {
-      blocky.enable = true;
+      blocky.enable = false; # for roaming, slows startup at home
       syncthing = {
         enable = true;
         obsidian.enable = true;
