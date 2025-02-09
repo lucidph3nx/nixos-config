@@ -23,22 +23,10 @@
       #   method = "symlink";
       # }
       ".local/share/lutris"
-      ".local/share/nix"
       ".local/share/vulkan"
       ".local/share/applications" # where steam puts its .desktop files for games
       ".local/share/icons/hicolor" # where steam puts its icons
-      ".local/state"
-      ".cache"
-      "code"
-      "documents"
-      "games"
     ];
-  };
-  home.activation = {
-    # ensure these empty directories exist
-    emptyDirs = ''
-      mkdir -p /home/ben/downloads
-    '';
   };
 
   home.packages = with pkgs; [

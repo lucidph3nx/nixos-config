@@ -42,7 +42,7 @@
         umount /btrfs_tmp
       '';
 
-    # things to persist
+    # system things to persist
     fileSystems."/persist".neededForBoot = true;
     environment.persistence."/persist/system" = {
       hideMounts = true;
@@ -77,5 +77,23 @@
     '';
     # needed for impermanance in home-manager
     programs.fuse.userAllowOther = true;
+    # home-manager things to persist
+    home-manager.users.ben.home.persistence."/persist/home/ben" = {
+      allowOther = true;
+      directories = [
+        ".local/share/nix"
+        ".local/state"
+        ".cache"
+        "code"
+        "documents"
+        "games"
+      ];
+    };
+    home-manager.users.ben.home.activation = {
+      # ensure these empty directories exist
+      emptyDirs = ''
+        mkdir -p /home/ben/downloads
+      '';
+    };
   };
 }

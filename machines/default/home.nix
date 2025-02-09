@@ -13,16 +13,6 @@
   };
   home.stateVersion = "23.11"; # Do Not Touch!
 
-  home.persistence."/persist/home/ben" = {
-    directories = [
-      "code"
-    ];
-    files = [
-      # ".zsh_history"
-    ];
-    allowOther = true;
-  };
-
   home.packages = with pkgs; [
     gimp # temp for troubleshooting
     # cinnamon.nemo

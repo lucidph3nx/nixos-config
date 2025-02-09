@@ -13,20 +13,6 @@
   };
   home.stateVersion = "24.05"; # Do Not Touch!
 
-  home.persistence."/persist/home/ben" = {
-    directories = [
-      ".local/share/nix"
-      ".local/state"
-      ".cache"
-      "code"
-      "documents"
-      "music"
-    ];
-    files = [
-      # ".zsh_history"
-    ];
-    allowOther = true;
-  };
 
   home.packages = with pkgs; [
     gimp # temp for troubleshooting
