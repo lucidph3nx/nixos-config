@@ -215,7 +215,6 @@ in {
           "SUPER SHIFT, F, fullscreen"
           "SUPER, s, exec, ${homeDir}/.local/scripts/cli.system.suspend"
           "SUPER, i, exec, ${homeDir}/.local/scripts/cli.system.inhibitIdle toggle"
-          ", switch:on:Lid Switch, exec, ${homeDir}/.local/scripts/cli.system.suspend"
           # Notification Center
           "SUPER, n, exec, ${pkgs.swaynotificationcenter}/bin/swaync-client -t -sw"
           "SUPER SHIFT, N, exec, ${pkgs.swaynotificationcenter}/bin/swaync-client --close-all && ${pkgs.swaynotificationcenter}/bin/swaync-client --close-panel"
@@ -252,7 +251,7 @@ in {
           "SUPER, mouse:273, resizewindow"
         ];
         bindl = [
-          ", switch:on:Lid Switch, exec, systemctl suspend"
+          ", switch:on:Lid Switch, exec, ${homeDir}/.local/scripts/cli.system.suspend"
         ];
         env = [
           "XDG_CURRENT_DESKTOP,Hyprland"
