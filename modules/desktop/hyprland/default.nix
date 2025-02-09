@@ -304,6 +304,7 @@ in {
       slurp
       swaybg
       wl-clipboard
+      (lib.mkIf config.nx.isLaptop brightnessctl)
     ];
   };
 }
