@@ -13,7 +13,4 @@
   };
   home.stateVersion = "24.05"; # Do Not Touch!
 
-  home.sessionVariables = {
-    PAGER = "less";
-  };
 }

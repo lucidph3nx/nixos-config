@@ -12,8 +12,4 @@
     homeDirectory = "/home/ben";
   };
   home.stateVersion = "23.11"; # Do Not Touch!
-
-  home.sessionVariables = {
-    PAGER = "less";
-  };
 }

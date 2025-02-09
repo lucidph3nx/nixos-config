@@ -38,8 +38,4 @@
     pkgs-stable.prismlauncher # open source minecraft launcher
     # cinnamon.nemo
   ];
-
-  home.sessionVariables = {
-    PAGER = "less";
-  };
 }

@@ -41,7 +41,6 @@
   ];
 
   home.sessionVariables = {
-    PAGER = "less";
     MEDNAFEN_HOME = "${config.xdg.configHome}/mednafen";
   };
 }
