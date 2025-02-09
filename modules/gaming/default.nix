@@ -5,6 +5,7 @@
 }: {
   imports = [
     ./prismlauncher.nix
+    ./lutris.nix
   ];
   options = {
     nx.gaming.enable =
