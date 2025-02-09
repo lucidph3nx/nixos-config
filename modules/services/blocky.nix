@@ -95,6 +95,11 @@
         };
       };
     };
+    # don't start blocky until network is online
+    systemd.services.blocky = {
+      after = ["network-online.target"];
+      wants = ["network-online.target"];
+    };
     home-manager.users.ben.home = {
       # making sure scripts are on path if not set elsewhere
       sessionPath = ["$HOME/.local/scripts"];

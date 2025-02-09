@@ -72,6 +72,11 @@
         "--no-default-folder"
       ];
     };
+    # don't start syncthing until network is online
+    systemd.services.syncthing = {
+      after = ["network-online.target"];
+      wants = ["network-online.target"];
+    };
     # network ports for syncthing
     networking.firewall = {
       allowedTCPPorts = [
