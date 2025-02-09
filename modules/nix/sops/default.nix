@@ -6,16 +6,12 @@
   imports = [
     ./ageKeys.nix
     ./generalSecrets.nix
-    ./homeSSHKeys.nix
-    ./signingKeys.nix
     inputs.sops-nix.nixosModules.sops
   ];
   config = {
     nx = {
       sops.ageKeys.enable = lib.mkDefault false;
       sops.generalSecrets.enable = lib.mkDefault false;
-      sops.signingKeys.enable = lib.mkDefault false;
-      sops.homeSSHKeys.enable = lib.mkDefault false;
     };
     # sops defaults
     sops = {

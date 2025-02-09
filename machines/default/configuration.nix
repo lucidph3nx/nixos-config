@@ -17,8 +17,6 @@
   nx = {
     sops = {
       generalSecrets.enable = true;
-      signingKeys.enable = true;
-      homeSSHKeys.enable = true;
     };
     desktop = {
       # hyprland doesnt work well in a vm

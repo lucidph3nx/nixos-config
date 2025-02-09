@@ -20,8 +20,6 @@
     sops = {
       ageKeys.enable = true;
       generalSecrets.enable = true;
-      signingKeys.enable = true;
-      homeSSHKeys.enable = true;
     };
     desktop = {
       theme = "everforest";

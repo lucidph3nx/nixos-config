@@ -56,5 +56,26 @@ in {
         gh
       ];
     };
+    # git signing keys
+    sops.secrets = let
+      sopsFile = ./secrets/ssh.sops.yaml;
+    in {
+      "ssh/lucidph3nx-ed25519-signingkey" = {
+        owner = "ben";
+        mode = "0600";
+        path = "/home/ben/.ssh/lucidph3nx-ed25519-signingkey";
+        sopsFile = sopsFile;
+      };
+      "ssh/lucidph3nx-ed25519-signingkey.pub" = {
+        owner = "ben";
+        mode = "0600";
+        path = "/home/ben/.ssh/lucidph3nx-ed25519-signingkey.pub";
+        sopsFile = sopsFile;
+      };
+    };
+    system.activationScripts.signingKeysFolderPermissions = ''
+      mkdir -p /home/ben/.ssh
+      chown ben:users /home/ben/.ssh
+    '';
   };
 }
