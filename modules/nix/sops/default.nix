@@ -7,7 +7,6 @@
     ./ageKeys.nix
     ./generalSecrets.nix
     ./homeSSHKeys.nix
-    ./kubeconfig.nix
     ./signingKeys.nix
     inputs.sops-nix.nixosModules.sops
   ];
@@ -17,7 +16,6 @@
       sops.generalSecrets.enable = lib.mkDefault false;
       sops.signingKeys.enable = lib.mkDefault false;
       sops.homeSSHKeys.enable = lib.mkDefault false;
-      sops.kubeconfig.enable = lib.mkDefault false;
     };
     # sops defaults
     sops = {

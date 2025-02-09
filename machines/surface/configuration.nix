@@ -22,7 +22,6 @@
       generalSecrets.enable = true;
       signingKeys.enable = true;
       homeSSHKeys.enable = true;
-      kubeconfig.enable = true;
     };
     services = {
       syncthing = {
@@ -67,11 +66,6 @@
     qpwgraph
     lm_sensors
   ];
-
-  environment.sessionVariables = {
-    # for kube
-    KUBECONFIG = "${config.sops.secrets.homekube.path}";
-  };
 
   fonts.fontDir.enable = true;
   fonts.packages = [

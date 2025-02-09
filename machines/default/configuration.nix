@@ -19,7 +19,6 @@
       generalSecrets.enable = true;
       signingKeys.enable = true;
       homeSSHKeys.enable = true;
-      kubeconfig.enable = true;
     };
     desktop = {
       # hyprland doesnt work well in a vm
@@ -64,16 +63,6 @@
         ./home.nix
       ];
     };
-  };
-
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
-  # environment.systemPackages = with pkgs; [
-  # ];
-
-  environment.sessionVariables = {
-    # for kube
-    KUBECONFIG = "${config.sops.secrets.homekube.path}";
   };
 
   fonts.fontDir.enable = true;

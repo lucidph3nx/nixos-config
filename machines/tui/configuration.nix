@@ -22,7 +22,6 @@
       generalSecrets.enable = true;
       signingKeys.enable = true;
       homeSSHKeys.enable = true;
-      kubeconfig.enable = true;
     };
     desktop = {
       theme = "everforest";
@@ -122,11 +121,6 @@
     enable = true;
     # doesn't work, always sends notifications of 0%, probably the devices fault
     batteryNotifier.enable = false;
-  };
-
-  environment.sessionVariables = {
-    # for kube
-    KUBECONFIG = "${config.sops.secrets.homekube.path}";
   };
 
   fonts.fontDir.enable = true;

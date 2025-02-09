@@ -23,7 +23,6 @@
       generalSecrets.enable = true;
       signingKeys.enable = true;
       homeSSHKeys.enable = true;
-      kubeconfig.enable = true;
     };
     desktop = {
       theme = "everforest";
@@ -116,11 +115,6 @@
   hardware.amdgpu.amdvlk = {
     enable = true;
     support32Bit.enable = true;
-  };
-
-  environment.sessionVariables = {
-    # for kube
-    KUBECONFIG = "${config.sops.secrets.homekube.path}";
   };
 
   fonts.fontDir.enable = true;
