@@ -89,6 +89,7 @@
           ''
             #!/bin/sh
             hyprctl dispatch exec hyprlock ;
+            pkill -SIGUSR2 waybar
             systemctl suspend
           '';
       };
