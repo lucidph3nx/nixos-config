@@ -143,9 +143,6 @@
     };
   };
 
-  # List services that you want to enable:
-  services.dbus.implementation = "broker";
-
   # gaming
   hardware.graphics = {
     enable = true;
