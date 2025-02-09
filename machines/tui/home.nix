@@ -35,7 +35,6 @@
   ];
 
   home.packages = with pkgs; [
-    gimp
     pkgs-stable.prismlauncher # open source minecraft launcher
     # cinnamon.nemo
   ];

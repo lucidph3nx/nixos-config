@@ -30,7 +30,6 @@
   };
 
   home.packages = with pkgs; [
-    gimp
     # cinnamon.nemo
     # retro gaming
     mednafen

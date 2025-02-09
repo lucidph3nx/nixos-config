@@ -13,12 +13,6 @@
   };
   home.stateVersion = "24.05"; # Do Not Touch!
 
-
-  home.packages = with pkgs; [
-    gimp # temp for troubleshooting
-    # cinnamon.nemo
-  ];
-
   home.sessionVariables = {
     PAGER = "less";
   };
