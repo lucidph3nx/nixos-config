@@ -3,6 +3,9 @@
   lib,
   ...
 }: {
+  imports = [
+    ./secrets.nix
+  ];
   options = {
     nx.services.syncthing.enable =
       lib.mkEnableOption "Set up syncthing (includes documents folder)"

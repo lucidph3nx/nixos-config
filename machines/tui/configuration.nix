@@ -195,20 +195,6 @@
     mountOnMedia = true;
   };
 
-  # device specific syncthing config
-  sops.secrets.tui-cert-pem = {
-    owner = "ben";
-    mode = "0600";
-    sopsFile = ../../secrets/syncthingKeys.yaml;
-  };
-  sops.secrets.tui-key-pem = {
-    owner = "ben";
-    mode = "0600";
-    sopsFile = ../../secrets/syncthingKeys.yaml;
-  };
-  services.syncthing.cert = config.sops.secrets.tui-cert-pem.path;
-  services.syncthing.key = config.sops.secrets.tui-key-pem.path;
-
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave

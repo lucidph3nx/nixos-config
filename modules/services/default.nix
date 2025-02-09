@@ -7,7 +7,7 @@
     ./pipewire.nix
     ./polkit.nix
     ./printer.nix
-    ./syncthing.nix
+    ./syncthing
     ./udiskie.nix
   ];
   config = {

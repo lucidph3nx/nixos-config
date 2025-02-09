@@ -10,4 +10,8 @@ creation_rules:
     key_groups:
     - age:
       - *primary
+  - path_regex: .*\.sops\.ya?ml
+    key_groups:
+    - age:
+      - *primary
       
