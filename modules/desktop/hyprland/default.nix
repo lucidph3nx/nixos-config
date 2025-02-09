@@ -152,6 +152,13 @@ in {
           swallow_regex = "^(kitty)$";
           swallow_exception_regex = "^(lf|wev)$";
         };
+        device = [
+          {
+            # reduce touchpad sensitivity
+            name = "asup1415:00-093a:300c-touchpad";
+            sensitivity = 0.5;
+          }
+        ];
         windowrulev2 = [
           # sometimes chromium thinks its fine to open in a tiny window
           "tile, class:(Chromium-browser)"
