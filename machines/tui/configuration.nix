@@ -95,7 +95,6 @@
     ffmpeg
     gamescope
     inkscape
-    lsof
     mangohud
     ntfs3g
     parted
@@ -106,12 +105,6 @@
     usbutils
     wev
   ];
-  hardware.openrazer = {
-    enable = true;
-    # doesn't work, always sends notifications of 0%, probably the devices fault
-    batteryNotifier.enable = false;
-  };
-
   # key remapping
   services.keyd = {
     enable = true;

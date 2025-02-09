@@ -95,7 +95,6 @@
     freetype # fonts needed for wine
     gamescope
     gphoto2
-    lsof
     mangohud
     ntfs3g
     parted
