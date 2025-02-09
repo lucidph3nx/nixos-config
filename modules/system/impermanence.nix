@@ -87,6 +87,7 @@
         "code"
         "documents"
         "games"
+        "music"
       ];
     };
     home-manager.users.ben.home.activation = {
