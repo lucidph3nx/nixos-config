@@ -96,7 +96,6 @@
     gamescope
     inkscape
     lsof
-    lutris-unwrapped
     mangohud
     ntfs3g
     parted

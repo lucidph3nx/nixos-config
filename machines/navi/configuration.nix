@@ -54,6 +54,7 @@
     };
     gaming = {
       enable = true;
+      lutris.enable = true;
     };
   };
 
@@ -95,7 +96,6 @@
     gamescope
     gphoto2
     lsof
-    lutris-unwrapped
     mangohud
     ntfs3g
     parted
