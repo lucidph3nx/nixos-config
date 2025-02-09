@@ -5,10 +5,12 @@
 }: {
   config = lib.mkIf config.nx.programs.qutebrowser.enable {
     sops.secrets = {
-      bookmarks = {
+      "bookmarks.sops" = {
+        # using binary format to preserve multiline strings
+        format = "binary";
         owner = "ben";
         mode = "0600";
-        sopsFile = ./secrets/bookmarks.sops.yaml;
+        sopsFile = ./secrets/bookmarks.sops;
         path = "${config.home-manager.users.ben.home.homeDirectory}/.config/qutebrowser/bookmarks/urls";
       };
       bitwarden_password = {
