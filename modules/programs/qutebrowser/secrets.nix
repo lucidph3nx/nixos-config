@@ -17,6 +17,9 @@
         sopsFile = ./secrets/bitwarden.sops.yaml;
       };
     };
+    system.activationScripts.chownQutebrowser = ''
+      chown -R ben:users /home/ben/.config/qutebrowser
+    '';
     environment.sessionVariables = {
       BITWARDEN_PASSWORD = "$(cat ${config.sops.secrets.bitwarden_password.path})";
     };
