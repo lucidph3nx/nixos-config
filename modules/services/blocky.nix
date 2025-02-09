@@ -33,8 +33,12 @@
           "tcp-tls:one.one.one.one:853"
           "tcp-tls:dns.quad9.net:853"
         ];
+        loading = {
+          # download more lists in parallel
+          concurrency = 10;
+        };
         blocking = {
-          blackLists = {
+          denylists = {
             suspicious = [
               "https://raw.githubusercontent.com/PolishFiltersTeam/KADhosts/master/KADhosts.txt"
               "https://raw.githubusercontent.com/FadeMind/hosts.extras/master/add.Spam/hosts"
@@ -52,27 +56,23 @@
               "https://raw.githubusercontent.com/bigdargon/hostsVN/master/hosts"
             ];
             trackers = [
-              "https://v.firebog.net/hosts/Easyprivacy.txt"
               "https://v.firebog.net/hosts/Prigent-Ads.txt"
               "https://raw.githubusercontent.com/FadeMind/hosts.extras/master/add.2o7Net/hosts"
               "https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt"
               "https://hostfiles.frogeye.fr/firstparty-trackers-hosts.txt"
             ];
             misc = [
-              "https://raw.githubusercontent.com/DandelionSprout/adfilt/master/Alternate%20versions%20Anti-Malware%20List/AntiMalwareHosts.txt"
               "https://osint.digitalside.it/Threat-Intel/lists/latestdomains.txt"
               "https://s3.amazonaws.com/lists.disconnect.me/simple_malvertising.txt"
               "https://v.firebog.net/hosts/Prigent-Crypto.txt"
               "https://raw.githubusercontent.com/FadeMind/hosts.extras/master/add.Risk/hosts"
-              "https://phishing.army/download/phishing_army_blocklist_extended.txt"
-              "https://gitlab.com/quidsup/notrack-blocklists/raw/master/notrack-malware.txt"
               "https://v.firebog.net/hosts/RPiList-Malware.txt"
               "https://v.firebog.net/hosts/RPiList-Phishing.txt"
               "https://raw.githubusercontent.com/Spam404/lists/master/main-blacklist.txt"
               "https://raw.githubusercontent.com/AssoEchap/stalkerware-indicators/master/generated/hosts"
             ];
           };
-          whiteLists = {
+          allowlists = {
             suspicious = [
               "https://raw.githubusercontent.com/anudeepND/whitelist/master/domains/whitelist.txt"
             ];
