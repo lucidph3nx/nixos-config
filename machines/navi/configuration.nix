@@ -99,7 +99,6 @@
     mangohud
     ntfs3g
     parted
-    polychromatic
     protontricks
     protonup
     shotcut
@@ -108,11 +107,6 @@
     v4l-utils
     wineWowPackages.waylandFull
   ];
-  hardware.openrazer = {
-    enable = true;
-    # doesn't work, always sends notifications of 0%, probably the devices fault
-    batteryNotifier.enable = false;
-  };
   hardware.amdgpu.amdvlk = {
     enable = true;
     support32Bit.enable = true;

@@ -28,7 +28,6 @@
   };
 
   home.packages = with pkgs; [
-    # cinnamon.nemo
     # retro gaming
     mednafen
     pcsx2

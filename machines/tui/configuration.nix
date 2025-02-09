@@ -99,7 +99,6 @@
     mangohud
     ntfs3g
     parted
-    polychromatic
     protontricks
     protonup
     shotcut

@@ -12,7 +12,15 @@
       };
   };
   config = lib.mkIf config.nx.services.mouseBatteryMonitor.enable {
+    hardware.openrazer = {
+      enable = true;
+      # too many false positive 0% notifications
+      batteryNotifier.enable = false;
+    };
     home-manager.users.ben = {
+      home.packages = with pkgs; [
+        polychromatic
+      ];
       # a systemd service to monitor the battery level of my mouse and send notifications
       systemd.user.services.mouse-battery-monitor = let
         mouse-battery-monitor =
