@@ -1,7 +1,6 @@
 {...}: {
   imports = [
     ./blocky.nix
-    ./dbus.nix
     ./greetd.nix
     ./mouseBatteryMonitor.nix
     ./mpd.nix
