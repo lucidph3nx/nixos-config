@@ -213,9 +213,6 @@
     mountOnMedia = true;
   };
 
-  virtualisation = {
-    waydroid.enable = true;
-  };
   # programs.virt-manager.enable = true;
   networking.firewall = {
     allowedTCPPorts = [

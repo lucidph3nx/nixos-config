@@ -153,10 +153,6 @@ in {
           swallow_exception_regex = "^(lf|wev)$";
         };
         windowrulev2 = [
-          # waydroid
-          "float, class:(Waydroid)"
-          "center, class:(Waydroid)"
-          "size 480 800, class:(Waydroid)"
           # sometimes chromium thinks its fine to open in a tiny window
           "tile, class:(Chromium-browser)"
         ];
