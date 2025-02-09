@@ -17,10 +17,6 @@
   ];
 
   nx = {
-    sops = {
-      ageKeys.enable = true;
-      generalSecrets.enable = true;
-    };
     services = {
       syncthing = {
         enable = true;
@@ -31,6 +27,11 @@
     programs = {
       obsidian.enable = true;
       firefox.hideUrlbar = true;
+    };
+    system = {
+      sops = {
+        ageKeys.enable = true;
+      };
     };
   };
 

@@ -43,8 +43,6 @@ in {
       browser = config.nx.programs.defaultWebBrowserSettings.cmd;
       newwindow = config.nx.programs.defaultWebBrowserSettings.newWindowCmd;
       calendar = "${newwindow} https://calendar.google.com";
-      home-assistant = "${newwindow} https://home-assistant.$SECRET_DOMAIN";
-      plex = "${newwindow} https://plex.$SECRET_DOMAIN";
       filemanager = "kitty lf";
       musicplayer = "kitty ncmpcpp";
       obsidian = "kitty ${homeDir}/.local/scripts/cli.tmux.projectSessioniser ${homeDir}/documents/obsidian";
@@ -231,9 +229,7 @@ in {
           "ALT, a, exec, anki"
           "ALT, b, exec, ${browser}"
           "ALT, c, exec, ${calendar}"
-          "ALT, h, exec, ${home-assistant}"
           "ALT, f, exec, ${filemanager}"
-          "ALT, p, exec, ${plex}"
           "ALT, m, exec, ${musicplayer}"
           "ALT, l, exec, ${addtoshoppinglist}"
           "ALT SHIFT, l, exec, ${openshoppinglist}"

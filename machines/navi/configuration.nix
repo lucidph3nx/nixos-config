@@ -18,10 +18,6 @@
   nx = {
     externalAudio.enable = true; # using external dac
     deviceLocation = "office";
-    sops = {
-      ageKeys.enable = true;
-      generalSecrets.enable = true;
-    };
     desktop = {
       theme = "everforest";
       hyprland.disableWorkspaceAnimations = true;
@@ -50,7 +46,12 @@
       };
       printer.enable = true;
     };
-    system.nfs-mounts.enable = true;
+    system = {
+      nfs-mounts.enable = true;
+      sops = {
+        ageKeys.enable = true;
+      };
+    };
   };
 
   # Bootloader.

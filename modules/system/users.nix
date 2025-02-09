@@ -17,6 +17,11 @@
     ];
     shell = pkgs.zsh;
   };
+  # password
+  sops.secrets.ben_hashed_password = {
+    neededForUsers = true;
+    sopsFile = ./secrets/passwords.sops.yaml;
+  };
   # no password for sudo
   security.sudo.wheelNeedsPassword = false;
 }

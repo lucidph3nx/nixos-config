@@ -62,7 +62,10 @@
       };
       printer.enable = true;
     };
-    nfs-mounts.enable = true;
+    system = {
+      nfs-mounts.enable = true;
+      sops.ageKeys.enable = true;
+    };
   };
 
   # Bootloader.

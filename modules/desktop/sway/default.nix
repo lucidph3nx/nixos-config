@@ -51,8 +51,6 @@ in {
       terminal = "kitty";
       browser = "firefox";
       calendar = "firefox --new-window https://calendar.google.com";
-      home-assistant = "firefox --new-window https://home-assistant.$SECRET_DOMAIN";
-      plex = "firefox --new-window https://plex.$SECRET_DOMAIN";
       filemanager = "lf";
       musicplayer = "kitty ncmpcpp";
       obsidian = "kitty ${homeDir}/.local/scripts/cli.tmux.projectSessioniser ${homeDir}/documents/obsidian";
@@ -150,9 +148,7 @@ in {
           "${alt}+Space" = "exec ${applicationlauncher}";
           "${alt}+b" = "exec ${browser}";
           "${alt}+c" = "exec ${calendar}";
-          "${alt}+h" = "exec ${home-assistant}";
           "${alt}+f" = "exec ${filemanager}";
-          "${alt}+p" = "exec ${plex}";
           "${alt}+m" = "exec ${musicplayer}";
           "${alt}+l" = "exec ${addtoshoppinglist}";
           "${alt}+Shift+l" = "exec ${openshoppinglist}";

@@ -12,6 +12,23 @@
       };
   };
   config = lib.mkIf config.nx.programs.homeAutomation.enable {
+    # home-assistant API key
+    sops.secrets.hass_api_key = {
+      owner = "ben";
+      mode = "0600";
+      sopsFile = ./secrets/home-assistant.sops.yaml;
+    };
+    # secret domain
+    sops.secrets.hass_domain = {
+      owner = "ben";
+      mode = "0600";
+      sopsFile = ./secrets/home-assistant.sops.yaml;
+    };
+    # add api key to environment
+    environment.sessionVariables = {
+      HASS_API_KEY = "$(cat ${config.sops.secrets.hass_api_key.path})";
+      HASS_DOMAIN = "$(cat ${config.sops.secrets.hass_domain.path})";
+    };
     home-manager.users.ben = {
       # my scripts relevant to homeAutomation
       home.sessionPath = ["$HOME/.local/scripts"];
@@ -25,7 +42,7 @@
             -H "Authorization: Bearer ''${HASS_API_KEY}" \
             -H "Content-Type: application/json" \
             -s \
-            https://home-assistant.''${SECRET_DOMAIN}/api/states/sensor.office_sensor_humidity \
+            https://''${HASS_DOMAIN}/api/states/sensor.office_sensor_humidity \
             | ${pkgs.jq}/bin/jq -r '. | "\(.state)\(.attributes.unit_of_measurement)"'
         '';
       };
@@ -38,7 +55,7 @@
             -H "Authorization: Bearer ''${HASS_API_KEY}" \
             -H "Content-Type: application/json" \
             -s \
-            https://home-assistant.''${SECRET_DOMAIN}/api/states/sensor.office_sensor_temperature \
+            https://''${HASS_DOMAIN}/api/states/sensor.office_sensor_temperature \
             | ${pkgs.jq}/bin/jq -r '. | "\(.state)\(.attributes.unit_of_measurement)"'
         '';
       };
@@ -51,7 +68,7 @@
             -H "Authorization: Bearer ''${HASS_API_KEY}" \
             -H "Content-Type: application/json" \
             -d '{"entity_id": "cover.office_blinds"}' \
-            https://home-assistant.''${SECRET_DOMAIN}/api/services/cover/open_cover
+            https://''${HASS_DOMAIN}/api/services/cover/open_cover
         '';
       };
       # This script closes the blinds in the office
@@ -63,7 +80,7 @@
             -H "Authorization: Bearer ''${HASS_API_KEY}" \
             -H "Content-Type: application/json" \
             -d '{"entity_id": "cover.office_blinds"}' \
-            https://home-assistant.''${SECRET_DOMAIN}/api/services/cover/close_cover
+            https://''${HASS_DOMAIN}/api/services/cover/close_cover
         '';
       };
       # This script closes only the LEFT blind in the office
@@ -75,7 +92,7 @@
             -H "Authorization: Bearer ''${HASS_API_KEY}" \
             -H "Content-Type: application/json" \
             -d '{"entity_id": "cover.office_left"}' \
-            https://home-assistant.''${SECRET_DOMAIN}/api/services/cover/close_cover
+            https://''${HASS_DOMAIN}/api/services/cover/close_cover
         '';
       };
       # This script closes only the RIGHT blind in the office
@@ -87,7 +104,7 @@
             -H "Authorization: Bearer ''${HASS_API_KEY}" \
             -H "Content-Type: application/json" \
             -d '{"entity_id": "cover.office_right"}' \
-            https://home-assistant.''${SECRET_DOMAIN}/api/services/cover/close_cover
+            https://''${HASS_DOMAIN}/api/services/cover/close_cover
         '';
       };
       # Turns on the heater in the office
@@ -99,7 +116,7 @@
             -H "Authorization: Bearer ''${HASS_API_KEY}" \
             -H "Content-Type: application/json" \
             -d '{"entity_id": "switch.office_heater"}' \
-            https://home-assistant.''${SECRET_DOMAIN}/api/services/switch/turn_on
+            https://''${HASS_DOMAIN}/api/services/switch/turn_on
         '';
       };
       # Turns off the heater in the office
@@ -111,19 +128,22 @@
             -H "Authorization: Bearer ''${HASS_API_KEY}" \
             -H "Content-Type: application/json" \
             -d '{"entity_id": "switch.office_heater"}' \
-            https://home-assistant.''${SECRET_DOMAIN}/api/services/switch/turn_off
+            https://''${HASS_DOMAIN}/api/services/switch/turn_off
         '';
       };
       # relevant home automation keyboard shortcuts in sway
       wayland.windowManager.sway.config = lib.mkIf config.home-manager.users.ben.wayland.windowManager.sway.enable {
         keybindings = let
           super = "Mod4";
+          alt = "Mod1";
           pageup = "Prior";
           pagedown = "Next";
+          newwindow = config.nx.programs.defaultWebBrowserSettings.newWindowCmd;
           homeDir = config.home-manager.users.ben.home.homeDirectory;
         in {
           "${super}+${pageup}" = "exec ${homeDir}/.local/scripts/home.office.openBlinds";
           "${super}+${pagedown}" = "exec ${homeDir}/.local/scripts/home.office.closeBlinds";
+          "${alt}+h" = "exec ${newwindow} https://$HASS_DOMAIN";
         };
       };
       wayland.windowManager.hyprland.settings = lib.mkIf config.home-manager.users.ben.wayland.windowManager.hyprland.enable {
@@ -131,9 +151,11 @@
           pageup = "Prior";
           pagedown = "Next";
           homeDir = config.home-manager.users.ben.home.homeDirectory;
+          newwindow = config.nx.programs.defaultWebBrowserSettings.newWindowCmd;
         in [
           "SUPER, ${pageup}, exec, ${homeDir}/.local/scripts/home.office.openBlinds"
           "SUPER, ${pagedown}, exec, ${homeDir}/.local/scripts/home.office.closeBlinds"
+          "ALT, h, exec, ${newwindow} https://$HASS_DOMAIN"
         ];
       };
       # This script turns off the grow lights
@@ -145,7 +167,7 @@
             -H "Authorization: Bearer ''${HASS_API_KEY}" \
             -H "Content-Type: application/json" \
             -d '{"entity_id": "automation.growlight_off"}' \
-            https://home-assistant.''${SECRET_DOMAIN}/api/services/automation/trigger
+            https://''${HASS_DOMAIN}/api/services/automation/trigger
         '';
       };
       # This script turns on the grow lights
@@ -157,7 +179,7 @@
             -H "Authorization: Bearer ''${HASS_API_KEY}" \
             -H "Content-Type: application/json" \
             -d '{"entity_id": "automation.growlight_timer"}' \
-            https://home-assistant.''${SECRET_DOMAIN}/api/services/automation/trigger
+            https://''${HASS_DOMAIN}/api/services/automation/trigger
         '';
       };
     };

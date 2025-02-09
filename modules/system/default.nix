@@ -6,5 +6,6 @@
     ./nfs-mounts.nix
     ./nix-options.nix
     ./users.nix
+    ./sops.nix
   ];
 }

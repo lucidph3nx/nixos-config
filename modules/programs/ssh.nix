@@ -6,7 +6,7 @@
 }: let
   homeDir = config.home-manager.users.ben.home.homeDirectory;
   cloudflaredBlock = {
-    proxyCommand = "${pkgs.cloudflared}/bin/cloudflared access ssh --hostname %h.$SECRET_DOMAIN";
+    proxyCommand = "${pkgs.cloudflared}/bin/cloudflared access ssh --hostname %h.$CLOUDFLARED_DOMAIN";
     user = "ben";
     port = 22;
     identityFile = "${homeDir}/.ssh/lucidph3nx-ed25519";
@@ -76,7 +76,7 @@ in {
           '';
       };
     };
-    # ssh keys
+    # ssh secrets
     sops.secrets = let
       sopsFile = ./secrets/ssh.sops.yaml;
     in {
@@ -104,6 +104,14 @@ in {
         path = "/home/ben/.ssh/lucidph3nx-rsa.pub";
         sopsFile = sopsFile;
       };
+      "config/cloudflared_domain" = {
+        owner = "ben";
+        mode = "0600";
+        sopsFile = sopsFile;
+      };
+    };
+    environment.sessionVariables = {
+      CLOUDFLARED_DOMAIN = "$(cat ${config.sops.secrets."config/cloudflared_domain".path})";
     };
     system.activationScripts.sshKeysFolderPermissions = ''
       mkdir -p /home/ben/.ssh

@@ -56,26 +56,32 @@ in {
         gh
       ];
     };
-    # git signing keys
-    sops.secrets = let
-      sopsFile = ./secrets/ssh.sops.yaml;
-    in {
-      "ssh/lucidph3nx-ed25519-signingkey" = {
+    # ssh signing keys
+    sops.secrets."ssh/lucidph3nx-ed25519-signingkey" = {
         owner = "ben";
         mode = "0600";
         path = "/home/ben/.ssh/lucidph3nx-ed25519-signingkey";
-        sopsFile = sopsFile;
+        sopsFile = ./secrets/ssh.sops.yaml;
       };
-      "ssh/lucidph3nx-ed25519-signingkey.pub" = {
+    sops.secrets."ssh/lucidph3nx-ed25519-signingkey.pub" = {
         owner = "ben";
         mode = "0600";
         path = "/home/ben/.ssh/lucidph3nx-ed25519-signingkey.pub";
-        sopsFile = sopsFile;
+        sopsFile = ./secrets/ssh.sops.yaml;
       };
-    };
     system.activationScripts.signingKeysFolderPermissions = ''
       mkdir -p /home/ben/.ssh
       chown ben:users /home/ben/.ssh
     '';
+    # github api token
+    sops.secrets."github_token" = {
+      owner = "ben";
+      mode = "0600";
+      sopsFile = ./secrets/github.sops.yaml;
+    };
+    environment.sessionVariables = {
+      GITHUB_TOKEN = "$(cat ${config.sops.secrets.github_token.path})";
+      GITHUB_PACKAGES_TOKEN = "$(cat ${config.sops.secrets.github_token.path})";
+    };
   };
 }

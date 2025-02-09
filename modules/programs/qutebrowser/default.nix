@@ -8,6 +8,7 @@
     ./colours.nix
     ./greasemonkey.nix
     ./keybindings.nix
+    ./secrets.nix
   ];
   options = {
     nx.programs.qutebrowser.enable =
@@ -181,27 +182,6 @@
           "wk" = "https://en.wikipedia.org/w/index.php?search={}&title=Special%3ASearch&ns0=1";
           "yt" = "https://www.youtube.com/results?search_query={}";
         };
-      };
-      xdg.configFile."qutebrowser/bookmarks/urls" = {
-        text = ''
-          https://bank.westpac.co.nz/one/app.html#login bank
-          https://kubesearch.dev/ kubesearch
-          https://mail.google.com/mail/u/0/ gmail0
-          https://mail.google.com/mail/u/1/ gmail1
-          https://photos.google.com/ photos
-          https://drive.google.com/ drive
-          https://music.youtube.com/ ytm
-          https://www.youtube.com/ youtube
-          https://www.notion.so/ph3nx notion
-          https://www.notion.so/ph3nx/1db29fec27504e22b58755d4df3881c1?v=1fcaf59aab3f4e3fb5f2822ff0038b6d meal-recipes
-          https://www.notion.so/ph3nx/Shopping-List-92d98ac3dc86460285a399c0b1176fc5 shopping-list
-          https://www.nzpost.co.nz/tools/tracking nzpost tracking
-          https://www.openstreetmap.org/#map=13/-41.2751/174.8099 osm
-          https://github.com/lucidph3nx/nixos-config nixos-config
-          https://github.com/lucidph3nx/home-ops home-ops
-          https://chatgpt.com/ chatgpt
-          https://github.com/NixOS/nixpkgs/issues nixpkgs-issues
-        '';
       };
       xdg.dataFile."qutebrowser/userscripts/bitwarden" = {
         source = "${bitwarden-userscript}/bin/bitwarden";

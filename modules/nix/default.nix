@@ -1,7 +1,4 @@
 {lib, ...}: {
-  imports = [
-    ./sops
-  ];
   options = {
     nx.externalAudio.enable = lib.mkEnableOption {
       default = false;

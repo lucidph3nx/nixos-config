@@ -15,9 +15,6 @@
   ];
 
   nx = {
-    sops = {
-      generalSecrets.enable = true;
-    };
     desktop = {
       # hyprland doesnt work well in a vm
       hyprland.enable = false;
