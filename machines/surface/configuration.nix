@@ -62,7 +62,6 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     ffmpeg
-    qpwgraph
     lm_sensors
   ];
 

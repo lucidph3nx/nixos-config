@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }: {
   options = {
@@ -22,5 +23,8 @@
       wireplumber.enable = true;
     };
     security.rtkit.enable = true;
+    environment.systemPackages = with pkgs; [
+      qpwgraph
+    ];
   };
 }

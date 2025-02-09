@@ -108,7 +108,6 @@
     polychromatic
     protontricks
     protonup
-    qpwgraph
     shotcut
     solvespace
     usbutils
