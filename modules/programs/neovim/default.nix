@@ -28,6 +28,7 @@
         directories = [
           ".config/nvim/spell"
           ".local/share/nvim"
+          ".local/state/nvim"
         ];
       };
       xdg.mimeApps.defaultApplications = lib.mkIf config.programs.neovim.enable {

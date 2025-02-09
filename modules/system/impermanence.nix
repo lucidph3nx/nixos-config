@@ -82,7 +82,8 @@
       allowOther = true;
       directories = [
         ".local/share/nix"
-        ".local/state"
+        ".local/state/nix"
+        ".local/state/home-manager"
         ".cache"
         "code"
         "documents"
