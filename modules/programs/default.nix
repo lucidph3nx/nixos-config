@@ -28,6 +28,7 @@
     ./obsidian.nix
     ./picard.nix
     ./plexamp.nix
+    ./podman.nix
     ./python.nix
     ./qutebrowser
     ./signal.nix
