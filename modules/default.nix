@@ -2,6 +2,7 @@
   imports = [
     ./colourScheme
     ./desktop
+    ./gaming
     ./programs
     ./services
     ./system

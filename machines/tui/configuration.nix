@@ -54,6 +54,9 @@
       nfs-mounts.enable = true;
       sops.ageKeys.enable = true;
     };
+    gaming = {
+      prismlauncher.enable = true;
+    };
   };
 
   # Bootloader.
