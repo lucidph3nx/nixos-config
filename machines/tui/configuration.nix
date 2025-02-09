@@ -17,10 +17,6 @@
 
   nx = {
     isLaptop = true;
-    sops = {
-      ageKeys.enable = true;
-      generalSecrets.enable = true;
-    };
     desktop = {
       theme = "everforest";
       hyprland = {
