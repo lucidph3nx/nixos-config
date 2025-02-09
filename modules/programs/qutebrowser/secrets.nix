@@ -17,7 +17,8 @@
         sopsFile = ./secrets/bitwarden.sops.yaml;
       };
     };
-    system.activationScripts.chownQutebrowser = ''
+    system.activationScripts.qutebrowserFolderPermissions = ''
+      mkdir -p /home/ben/.config/qutebrowser
       chown -R ben:users /home/ben/.config/qutebrowser
     '';
     environment.sessionVariables = {
