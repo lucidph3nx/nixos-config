@@ -5,8 +5,8 @@
     ./localisation.nix
     ./nfs-mounts.nix
     ./nix-options.nix
-    ./users.nix
     ./sops.nix
+    ./users.nix
   ];
   config = {
     # increase network buffer size
