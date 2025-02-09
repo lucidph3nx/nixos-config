@@ -183,8 +183,6 @@
       ];
     };
   };
-  security.rtkit.enable = true;
-
   # gaming
   hardware.graphics = {
     enable = true;
@@ -221,7 +219,6 @@
 
   virtualisation = {
     waydroid.enable = true;
-    # libvirtd.enable = true;
   };
   # programs.virt-manager.enable = true;
   networking.firewall = {

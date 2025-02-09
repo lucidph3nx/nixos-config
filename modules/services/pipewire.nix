@@ -21,5 +21,6 @@
       audio.enable = true;
       wireplumber.enable = true;
     };
+    security.rtkit.enable = true;
   };
 }
