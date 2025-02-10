@@ -16,10 +16,12 @@ with config.theme; {
       programs.kitty = {
         enable = true;
         font = {
-          name = "JetBrainsMono Nerd Font Medium";
+          name = "JetBrainsMono Nerd Font";
           size = 12.0;
         };
         extraConfig = ''
+          symbol_map U+1f636,U+200D,U+1F32B,U+FE0F Noto Color Emoji
+          prefer_color_emoji yes
           hide_window_decorations titlebar-only
           window_margin_width 15
           confirm_os_window_close 0
