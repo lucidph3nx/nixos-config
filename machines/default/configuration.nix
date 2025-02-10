@@ -40,10 +40,6 @@
   boot.loader.grub.efiInstallAsRemovable = true;
 
   networking.hostName = "default"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
-  # Enable networking
-  networking.networkmanager.enable = true;
 
   # home-manager is awesome
   home-manager = {

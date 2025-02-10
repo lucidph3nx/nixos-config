@@ -66,10 +66,7 @@
     efi.canTouchEfiVariables = true;
   };
 
-  networking = {
-    hostName = "tui";
-    networkmanager.enable = true;
-  };
+  networking.hostName = "tui";
 
   # home-manager is awesome
   home-manager = {

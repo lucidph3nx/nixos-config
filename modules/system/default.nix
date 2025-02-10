@@ -3,14 +3,13 @@
     ./hardware-boot-switch.nix
     ./impermanence.nix
     ./localisation.nix
+    ./networking.nix
     ./nfs-mounts.nix
     ./nix-options.nix
     ./sops.nix
     ./users.nix
   ];
   config = {
-    # increase network buffer size
-    boot.kernel.sysctl."net.core.rmem_max" = 2500000;
     # XDG env vars
     environment.sessionVariables = {
       # General XDG variables

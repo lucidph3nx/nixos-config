@@ -65,10 +65,7 @@
     efiInstallAsRemovable = true;
   };
 
-  networking = {
-    hostName = "navi";
-    networkmanager.enable = true;
-  };
+  networking.hostName = "navi";
 
   # home-manager is awesome
   home-manager = {

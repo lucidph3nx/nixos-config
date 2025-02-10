@@ -41,7 +41,6 @@
   boot.loader.grub.efiInstallAsRemovable = true;
 
   networking.hostName = "surface";
-  networking.networkmanager.enable = true;
 
   # home-manager is awesome
   home-manager = {
