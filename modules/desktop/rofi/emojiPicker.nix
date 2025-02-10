@@ -43,7 +43,6 @@ with config.theme; {
           };
         in
           pkgs.runCommand "filtered-emojis" {nativeBuildInputs = [pkgs.ripgrep];} ''
-            set -x  # Debugging
             cat ${emojiRaw} | ${pkgs.ripgrep}/bin/rg -v '([🏻-🏿♀♂⚧👩👨]|country-flag|subdivision-flag)' > $out
             if [ $? -ne 0 ]; then
               echo "ripgrep failed!" >&2
