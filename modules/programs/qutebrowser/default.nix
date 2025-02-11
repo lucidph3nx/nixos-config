@@ -179,6 +179,7 @@
           "nixopt" = "https://search.nixos.org/options?channel=unstable&from=0&size=50&sort=relevance&type=packages&query={}";
           "nixpkgs" = "https://search.nixos.org/packages?channel=unstable&from=0&size=50&sort=relevance&type=packages&query={}";
           "nw" = "https://www.newworld.co.nz/shop/search?q={}";
+          "protondb" = "https://www.protondb.com/search?q={}";
           "reo" = "https://maoridictionary.co.nz/search?idiom=&phrase=&proverb=&loan=&histLoanWords=&keywords={}";
           "wk" = "https://en.wikipedia.org/w/index.php?search={}&title=Special%3ASearch&ns0=1";
           "yt" = "https://www.youtube.com/results?search_query={}";
