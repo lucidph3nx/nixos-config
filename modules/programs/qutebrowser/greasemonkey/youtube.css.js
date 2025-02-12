@@ -21,6 +21,26 @@ GM_addStyle(`
     --ytd-searchbox-legacy-border-color: var(--system-theme-bg0) !important;
     --yt-spec-red-indicator: var(--system-theme-red) !important;
     --yt-spec-static-brand-red: var(--system-theme-red) !important;
+    --yt-spec-icon-active-other: var(--system-theme-fg) !important;
+    --yt-spec-wordmark-text: var(--system-theme-fg) !important;
+    --yt-spec-icon-active-other: var(--system-theme-fg) !important;
+    --yt-spec-icon-inactive: var(--system-theme-fg) !important;
+    --yt-spec-icon-disabled: var(--system-theme-grey2) !important;
+    --yt-spec-brand-icon-inactive: var(--system-theme-fg) !important;
+  }
+
+  .yt-spec-button-shape-next--mono.yt-spec-button-shape-next--filled,
+  .yt-spec-icon-badge-shape--style-overlay .yt-spec-icon-badge-shape__icon,
+  .ytSearchboxComponentInputBoxDark,
+  .ytSearchboxComponentHostDark, .yt-spec-button-shape-next--overlay.yt-spec-button-shape-next--text,
+  .yt-spec-button-shape-next--overlay.yt-spec-button-shape-next--text {
+    color: var(--system-theme-bg) !important;
+    background-color: var(--system-theme-bg) !important;
+  }
+}
+  /* weird black bands around a "cinimatic video" */
+  .ytd-watch-flexy[full-bleed-player] #full-bleed-container.ytd-watch-flexy {
+    background-color: var(--system-theme-bg) !important;
   }
 
   /* progress bar */
