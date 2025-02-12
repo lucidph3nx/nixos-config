@@ -5,6 +5,7 @@
 }: let
   homeDir = config.home-manager.users.ben.home.homeDirectory;
   theme = config.theme;
+  resolution = config.nx.desktop.wallpaper.resolution;
 in {
   options = {
     nx.desktop.hyprlock.enable =
@@ -33,7 +34,7 @@ in {
         background = [
           {
             monitor = "";
-            path = lib.mkIf (oled == false) "${homeDir}/.config/wallpaper_${theme.name}.png";
+            path = lib.mkIf (oled == false) "${homeDir}/.config/wallpaper-${resolution}.png";
             color = lib.mkIf (oled == true) "rgba(0,0,0,1)";
             blur_passes = 0;
           }
