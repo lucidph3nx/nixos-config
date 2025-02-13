@@ -43,6 +43,7 @@
           enable = true;
           path = "/home/ben/music";
         };
+        photos.enable = true;
       };
       printer.enable = true;
     };

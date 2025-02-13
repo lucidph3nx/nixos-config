@@ -32,6 +32,11 @@
       default = "/persist/home/ben/music/";
       description = "location for music folder";
     };
+    nx.services.syncthing.photos.enable =
+      lib.mkEnableOption "Set up syncthing photos folder"
+      // {
+        default = false;
+      };
   };
   config = lib.mkIf config.nx.services.syncthing.enable {
     services.syncthing = {
@@ -64,6 +69,11 @@
             id = "dmuif-nefck";
             devices = ["nas0"];
             path = config.nx.services.syncthing.music.path;
+          };
+          "photos" = lib.mkIf config.nx.services.syncthing.photos.enable {
+            id = "4ghtf-4leca";
+            devices = ["nas0"];
+            path = "/persist/home/ben/pictures/photos";
           };
         };
         options.urAccepted = -1;
@@ -98,6 +108,10 @@
     system.activationScripts.musicFolder = lib.mkIf config.nx.services.syncthing.music.enable ''
       mkdir -p /home/ben/music
       chown ben:users /home/ben/music
+    '';
+    system.activationScripts.photosFolder = lib.mkIf config.nx.services.syncthing.photos.enable ''
+      mkdir -p /home/ben/pictures/photos
+      chown ben:users /home/ben/pictures/photos
     '';
 
     # persist the syncthing config with home-manager impermanence module
