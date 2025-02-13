@@ -88,6 +88,7 @@
         "code"
         "documents"
         "games"
+        "pictures"
         # mount music on all machines except navi (it uses dedicated drive for music)
         (lib.mkIf (config.networking.hostName != "navi") "music")
       ];

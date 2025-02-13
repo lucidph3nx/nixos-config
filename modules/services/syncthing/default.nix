@@ -119,7 +119,6 @@
       allowOther = true;
       directories = [
         ".config/syncthing"
-        (lib.mkIf config.nx.services.syncthing.photos.enable "pictures/photos")
       ];
     };
   };

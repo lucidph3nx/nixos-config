@@ -18,7 +18,6 @@
       ];
       home.persistence."/persist/home/ben" = {
         directories = [
-          "pictures/darktable"
           ".config/darktable"
         ];
       };
