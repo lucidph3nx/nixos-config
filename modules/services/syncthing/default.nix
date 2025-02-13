@@ -101,6 +101,10 @@
       mkdir -p /home/ben/documents
       chown ben:users /home/ben/documents
     '';
+    system.activationScripts.picturesFolder = lib.mkIf config.nx.services.syncthing.enable ''
+      mkdir -p /home/ben/pictures
+      chown ben:users /home/ben/pictures
+    '';
     system.activationScripts.obsidianFolder = lib.mkIf config.nx.services.syncthing.obsidian.enable ''
       mkdir -p /home/ben/documents/obsidian
       chown ben:users /home/ben/documents/obsidian
