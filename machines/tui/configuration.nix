@@ -47,6 +47,7 @@
         obsidian.enable = true;
         calibre.enable = true;
         music.enable = true;
+        photos.enable = true;
       };
       printer.enable = true;
     };
