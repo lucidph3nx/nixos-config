@@ -86,6 +86,11 @@
           name = "searx.css.js";
           text = builtins.readFile ./greasemonkey/searx.css.js;
         })
+        # delay load for reddit
+        (pkgs.writeTextFile {
+          name = "reddit_delay_load.js";
+          text = builtins.readFile ./greasemonkey/reddit_delay_load.js;
+        })
       ];
     };
   };
