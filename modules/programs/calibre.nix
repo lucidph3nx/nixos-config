@@ -21,6 +21,9 @@
           ".config/calibre"
         ];
       };
+      xdg.mimeApps.defaultApplications = {
+        "application/epub+zip" = "calibre-ebook-viewer.desktop";
+      };
     };
   };
 }
