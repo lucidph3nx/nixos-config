@@ -22,8 +22,6 @@
         directory = ".local/share/Steam";
         method = "symlink";
       }
-      ".local/share/applications" # where steam puts its .desktop files for games
-      ".local/share/icons/hicolor" # where steam puts its icons
     ];
   };
 

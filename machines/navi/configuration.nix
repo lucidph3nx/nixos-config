@@ -173,24 +173,6 @@
       ];
     };
   };
-  # gaming
-  hardware.graphics = {
-    enable = true;
-    enable32Bit = true;
-  };
-  programs.steam = {
-    enable = true;
-    gamescopeSession.enable = false;
-    protontricks.enable = true;
-    package = pkgs.steam.override {
-      extraPkgs = pkgs:
-        with pkgs; [
-          libcap
-          procps
-          usbutils
-        ];
-    };
-  };
   # for vr headsets
   hardware.steam-hardware.enable = true;
 

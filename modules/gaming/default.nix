@@ -4,8 +4,9 @@
   ...
 }: {
   imports = [
-    ./prismlauncher.nix
     ./lutris.nix
+    ./prismlauncher.nix
+    ./steam.nix
   ];
   options = {
     nx.gaming.enable =
@@ -15,6 +16,11 @@
       };
   };
   config = lib.mkIf config.nx.gaming.enable {
+    hardware.graphics = {
+      enable = true;
+      enable32Bit = true;
+    };
+    programs.gamemode.enable = true;
     home-manager.users.ben = {
       home.persistence."/persist/home/ben" = {
         directories = [

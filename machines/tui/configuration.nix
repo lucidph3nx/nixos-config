@@ -126,21 +126,6 @@
     };
   };
 
-  # gaming
-  hardware.graphics = {
-    enable = true;
-    enable32Bit = true;
-  };
-  programs.steam = {
-    enable = true;
-    gamescopeSession.enable = false;
-    protontricks.enable = true;
-  };
-  programs.gamemode.enable = true;
-  environment.sessionVariables = {
-    STEAM_EXTRA_COMPAT_TOOLS_PATHS = "/home/ben/.steam/root/compatibilitytools.d";
-  };
-
   services.udisks2 = {
     enable = true;
     mountOnMedia = true;
