@@ -10,6 +10,11 @@
       // {
         default = true;
       };
+    nx.gaming.steam.persist =
+      lib.mkEnableOption "enables persistence for steam directory"
+      // {
+        default = true;
+      };
   };
   config = lib.mkIf (config.nx.gaming.steam.enable
     # only enable if gaming is enabled
@@ -33,6 +38,11 @@
     home-manager.users.ben = {
       home.persistence."/persist/home/ben" = {
         directories = [
+          (lib.mkIf config.nx.gaming.steam.persist
+            {
+              directory = ".local/share/Steam";
+              method = "symlink";
+            })
           ".local/share/applications" # where steam puts its .desktop files for games
           ".local/share/icons/hicolor" # where steam puts its icons
         ];

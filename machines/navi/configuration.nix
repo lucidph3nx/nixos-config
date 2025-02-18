@@ -56,6 +56,9 @@
     gaming = {
       enable = true;
       lutris.enable = true;
+      # we don't need to persist steam
+      # it already has its own drive on this machine
+      steam.persist = false; 
     };
   };
 

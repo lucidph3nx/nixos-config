@@ -15,16 +15,6 @@
   };
   home.stateVersion = "24.05"; # Do Not Touch!
 
-  home.persistence."/persist/home/ben" = {
-    allowOther = true;
-    directories = [
-      {
-        directory = ".local/share/Steam";
-        method = "symlink";
-      }
-    ];
-  };
-
   wayland.windowManager.hyprland.settings.monitor = [
     "eDP-1,2880x1800@120.00000,0x0,1.5"
   ];
