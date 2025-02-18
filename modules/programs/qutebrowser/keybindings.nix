@@ -13,6 +13,8 @@
         normal = {
           # unbind
           "<Ctrl-h>" = "nop";
+          "M" = "nop";
+          "m" = "nop";
           # close tabs left and right
           "ch" = "tab-only --next";
           "cl" = "tab-only --prev";
