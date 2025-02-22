@@ -9,7 +9,9 @@ GM_addStyle(`
     font-family: JetBrains Mono, monospace !important;
   }
 
-  html[dark], [dark] {
+  html[dark], [dark],
+  html[darker-dark], [darker-dark]
+  html[darker-dark-theme-deprecate], [darker-dark-theme-deprecate] {
     --yt-spec-base-background: var(--system-theme-bg_dim) !important;
     --yt-spec-raised-background: var(--system-theme-bg0) !important;
     --yt-spec-menu-background: var(--system-theme-bg0) !important;
@@ -31,13 +33,21 @@ GM_addStyle(`
 
   .yt-spec-button-shape-next--mono.yt-spec-button-shape-next--filled,
   .yt-spec-icon-badge-shape--style-overlay .yt-spec-icon-badge-shape__icon,
+  .ytSearchboxComponentSearchButton,
+  .ytSearchboxComponentInputBox,
   .ytSearchboxComponentInputBoxDark,
+  .ytSearchboxComponentHost,
   .ytSearchboxComponentHostDark, .yt-spec-button-shape-next--overlay.yt-spec-button-shape-next--text,
   .yt-spec-button-shape-next--overlay.yt-spec-button-shape-next--text {
     color: var(--system-theme-bg) !important;
     background-color: var(--system-theme-bg) !important;
   }
-}
+  .ytSearchboxComponentInputBox,
+  .ytSearchboxComponentInputBoxDark 
+  .ytSearchboxComponentSearchButton {
+    border-color: var(--system-theme-grey2) !important;
+  }
+
   /* weird black bands around a "cinimatic video" */
   .ytd-watch-flexy[full-bleed-player] #full-bleed-container.ytd-watch-flexy {
     background-color: var(--system-theme-bg) !important;
@@ -66,7 +76,7 @@ GM_addStyle(`
     margin-left: 0px !important;
   }
   /* hide sugested videos section */
-  #secondary {
+  #related {
     display: none !important;
   }
   /* note, the above requires the wide=1 cookie to be set */
