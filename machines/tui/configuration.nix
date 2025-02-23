@@ -29,6 +29,7 @@
         variant = "enso";
         resolution = "2880x1800";
       };
+      offline-focus-mode.enable = true;
     };
     programs = {
       calibre.enable = true;

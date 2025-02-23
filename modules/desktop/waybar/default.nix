@@ -149,7 +149,9 @@ in
             modules-left = [
               (lib.mkIf enableMpd "custom/mpd")
             ];
-            modules-center = [];
+            modules-center = [
+              "custom/system-mode"
+            ];
             modules-right = [
               "cpu"
               "memory"
@@ -158,6 +160,13 @@ in
               "power-profiles-daemon"
               "systemd-failed-units"
             ];
+            "custom/system-mode" = {
+              "return-type" = "json";
+              "interval" = 1;
+              "exec" = "${homeDir}/.local/scripts/cli.desktop.getSystemMode json";
+              "format" = "{}";
+            };
+
             "cpu" = {
               "format" = " {usage}%";
               "interval" = 10;
@@ -185,9 +194,9 @@ in
               "format" = "{icon}";
               "format-icons" = {
                 "default" = " ";
-                "balanced" = " ";
                 "performance" = " ";
-                "powersave" = " ";
+                "balanced" = " ";
+                "power-saver" = " ";
               };
             };
             "systemd-failed-units" = {
@@ -304,6 +313,16 @@ in
             #custom-inhibitidle.active {
               color: ${bg0};
               background-color: ${red};
+            }
+            #custom-system-mode.normal {
+              color: ${bg0};
+              background-color: ${orange};
+              padding: 0 12px;
+            }
+            #custom-system-mode.offline-focus {
+              color: ${bg0};
+              background-color: ${blue};
+              padding: 0 12px;
             }
             label:focus {
               background-color: ${bg0};
