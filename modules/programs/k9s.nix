@@ -79,6 +79,7 @@
         };
         views.views = {
           "v1/pods" = {
+            sortColumn = "AGE:desc";
             columns = [
               "AGE"
               "NAMESPACE"
