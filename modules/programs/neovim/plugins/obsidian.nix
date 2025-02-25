@@ -20,11 +20,7 @@
           		return string.lower(title:gsub("%s", "_"))
           	end,
           	notes_subdir = "notes",
-          	daily_notes = {
-          		folder = "dailies",
-          		date_format = "%Y-%m-%d",
-          		template = "daily_note.md",
-          	},
+          	daily_notes = { folder = "dailies", date_format = "%Y-%m-%d", template = "daily_note.md" },
           	templates = {
           		subdir = "templates",
           	},
@@ -42,7 +38,59 @@
           		end
           	end,
           	open_app_foreground = true,
-          	disable_frontmatter = true,
+          	disable_frontmatter = false,
+          	note_frontmatter_func = function(note)
+          		-- Ensure note.path is a string
+          		local note_path = tostring(note.path)
+
+          		-- Extract filename (without extension)
+          		local filename = vim.fn.fnamemodify(note_path, ":t:r") -- Gets 'YYYY-MM-DD' from 'YYYY-MM-DD.md'
+
+          		-- Check if filename matches YYYY-MM-DD format
+          		local is_daily_note = filename:match("^%d%d%d%d%-%d%d%-%d%d$") ~= nil
+
+          		-- Ensure title is an alias if not already present
+          		if note.title and not vim.tbl_contains(note.aliases, note.title) then
+          			note:add_alias(note.title)
+          		elseif is_daily_note and not vim.tbl_contains(note.aliases, filename) then
+          			-- If it's a daily note and has no title, use filename as alias
+          			note:add_alias(filename)
+          		end
+
+          		-- Get current date and time
+          		local current_date = os.date("%Y-%m-%d") -- Matches daily note format
+          		local current_time = os.date("%Y-%m-%d %H:%M:%S") -- Full timestamp
+
+          		local out = {
+          			aliases = note.aliases,
+          			tags = note.tags,
+          			modified = current_time, -- Timestamp for modifications
+          		}
+
+          		-- Add "daily-notes" tag if it's a daily note and not already tagged
+          		if is_daily_note and not vim.tbl_contains(note.tags, "daily-notes") then
+          			table.insert(out.tags, "daily-notes")
+          		end
+
+          		-- Check if the file already exists
+          		local file = io.open(note_path, "r")
+          		if file == nil then
+          			-- File doesn't exist, assume it's a new note and set "created" as a link
+          			out.created = "[[" .. current_date .. "]]"
+          		else
+          			-- File exists, close it and don't set "created"
+          			file:close()
+          		end
+
+          		-- Preserve existing metadata
+          		if note.metadata ~= nil and not vim.tbl_isempty(note.metadata) then
+          			for k, v in pairs(note.metadata) do
+          				out[k] = v
+          			end
+          		end
+
+          		return out
+          	end,
           	-- don't use built in mappings
           	mappings = {},
           	ui = {
@@ -101,6 +149,7 @@
           vim.keymap.set("n", "<leader>oo", vim.cmd.ObsidianOpen, { desc = "[O]bsidian [O]pen" })
           vim.keymap.set("n", "<leader>of", vim.cmd.ObsidianFollow, { desc = "[O]bsidian [F]ollow" })
           vim.keymap.set("n", "<leader>ob", vim.cmd.ObsidianBacklinks, { desc = "[O]bsidian [B]acklinks" })
+          vim.keymap.set("n", "<leader>ost", vim.cmd.ObsidianTags, { desc = "[O]bsidian [S]earch [T]ags" })
         '';
     }
   ];
