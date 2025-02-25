@@ -82,10 +82,12 @@
           			file:close()
           		end
 
-          		-- Preserve existing metadata
+          		-- Preserve existing metadata, but always update `modified`
           		if note.metadata ~= nil and not vim.tbl_isempty(note.metadata) then
           			for k, v in pairs(note.metadata) do
-          				out[k] = v
+          				if k ~= "modified" then -- Keep everything but ensure modified is new
+          					out[k] = v
+          				end
           			end
           		end
 
