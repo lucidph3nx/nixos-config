@@ -30,6 +30,7 @@
             # Delete entries older than 7 days
             ${pkgs.sqlite}/bin/sqlite3 "$DB_PATH" <<EOF
             DELETE FROM History WHERE atime < CAST(strftime('%s', 'now', '-7 days') AS INTEGER);
+            DELETE FROM CompletionHistory WHERE last_atime < CAST(strftime('%s', 'now', '-7 days') AS INTEGER);
             EOF
           '';
       in {
