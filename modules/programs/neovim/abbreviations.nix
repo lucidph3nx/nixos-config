@@ -49,6 +49,9 @@
         " math
         ab pi π
         ab inf ∞
+        " words with accents
+        ab jalapeno jalapeño
+        ab jalapenos jalapeños
       '';
   };
 }
