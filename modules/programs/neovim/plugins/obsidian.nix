@@ -8,6 +8,13 @@
         lua
         */
         ''
+          -- Helper function to get the date of the next specified weekday
+          local getNextWeekday = function(dayOfWeek)
+          	local currentWeekday = os.date("%w", os.time())
+          	local nextWeekMonday = os.time() + (7 - currentWeekday + 1) * 24 * 60 * 60
+          	return os.date("%Y-%m-%d", nextWeekMonday + (dayOfWeek - 1) * 24 * 60 * 60)
+          end
+
           require("obsidian").setup({
           	workspaces = {
           		{
@@ -23,6 +30,37 @@
           	daily_notes = { folder = "dailies", date_format = "%Y-%m-%d", template = "daily_note.md" },
           	templates = {
           		subdir = "templates",
+          		substitutions = {
+          			nextweekyear = function()
+          				-- return the year of the next week
+          				return os.date("%Y", os.time() + 7 * 24 * 60 * 60)
+          			end,
+          			nextweeknum = function()
+          				-- return the week number of the next week
+          				return os.date("%V", os.time() + 7 * 24 * 60 * 60)
+          			end,
+          			nextweekmonday = function()
+          				return getNextWeekday(1)
+          			end,
+          			nextweektuesday = function()
+          				return getNextWeekday(2)
+          			end,
+          			nextweekwednesday = function()
+          				return getNextWeekday(3)
+          			end,
+          			nextweekthursday = function()
+          				return getNextWeekday(4)
+          			end,
+          			nextweekfriday = function()
+          				return getNextWeekday(5)
+          			end,
+          			nextweeksaturday = function()
+          				return getNextWeekday(6)
+          			end,
+          			nextweeksunday = function()
+          				return getNextWeekday(7)
+          			end,
+          		},
           	},
           	follow_url_func = function(url)
           		vim.fn.jobstart({ "xdg-open", url })
