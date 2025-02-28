@@ -11,7 +11,7 @@
         default = true;
       };
   };
-  config = lib.mkIf config.nx.services.laptopBatteryMonitor.enable {
+  config = lib.mkIf (config.nx.services.laptopBatteryMonitor.enable && config.nx.isLaptop) {
     home-manager.users.ben = {
       home.packages = with pkgs; [
         polychromatic
