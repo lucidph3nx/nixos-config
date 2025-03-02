@@ -31,7 +31,7 @@
         comment = "Secure and free password manager for all of your devices";
         icon = "bitwarden";
         exec = "bitwarden --enable-features=UseOzonePlatform --ozone-platform=wayland";
-        mimeTypes = [ "x-scheme-handler/bitwarden" ];
+        mimeType = [ "x-scheme-handler/bitwarden" ];
       };
     };
   };
