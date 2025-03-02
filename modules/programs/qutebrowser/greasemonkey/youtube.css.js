@@ -39,12 +39,14 @@ GM_addStyle(`
   .ytSearchboxComponentHost,
   .ytSearchboxComponentHostDark, .yt-spec-button-shape-next--overlay.yt-spec-button-shape-next--text,
   .yt-spec-button-shape-next--overlay.yt-spec-button-shape-next--text {
-    color: var(--system-theme-bg) !important;
+    color: var(--system-theme-fg) !important;
     background-color: var(--system-theme-bg) !important;
   }
   .ytSearchboxComponentInputBox,
-  .ytSearchboxComponentInputBoxDark 
-  .ytSearchboxComponentSearchButton {
+  .ytSearchboxComponentInputBoxDark,
+  .ytSearchboxComponentSearchButton,
+  .ytSearchboxComponentSearchButtonDark {
+    border: 1px solid var(--system-theme-grey2) !important;
     border-color: var(--system-theme-grey2) !important;
   }
 
