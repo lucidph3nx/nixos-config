@@ -181,6 +181,7 @@
           "nw" = "https://www.newworld.co.nz/shop/search?q={}";
           "protondb" = "https://www.protondb.com/search?q={}";
           "reo" = "https://maoridictionary.co.nz/search?idiom=&phrase=&proverb=&loan=&histLoanWords=&keywords={}";
+          "sx" = "https://search.tinfoilforest.nz/search?q={}";
           "wk" = "https://en.wikipedia.org/w/index.php?search={}&title=Special%3ASearch&ns0=1";
           "yt" = "https://www.youtube.com/results?search_query={}";
         };
