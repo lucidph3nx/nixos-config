@@ -66,11 +66,6 @@
           name = "youtube.css.js";
           text = builtins.readFile ./greasemonkey/youtube.css.js;
         })
-        # adblock for youtube
-        (pkgs.writeTextFile {
-          name = "youtube_adblock.js";
-          text = builtins.readFile ./greasemonkey/youtube_adblock.js;
-        })
         # adblock for reddit
         (pkgs.writeTextFile {
           name = "reddit_adblock.js";
