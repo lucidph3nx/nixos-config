@@ -173,6 +173,7 @@
         searchEngines = {
           "DEFAULT" = "https://search.tinfoilforest.nz/search?q={}";
           "gg" = "https://google.com/search?hl=en&q={}";
+          "gm" = "https://www.google.com/maps/search/{}";
           "gh" = "https://github.com/search?q={}";
           "ghnx" = "https://github.com/search?q={}+language%3ANix&type=code&l=Nix";
           "hm" = "https://home-manager-options.extranix.com/?query={}";
