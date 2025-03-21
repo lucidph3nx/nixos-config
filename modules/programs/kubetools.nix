@@ -18,10 +18,7 @@ in {
       home.packages = with pkgs; [
         kubectl
         kubernetes-helm
-        kubelogin-oidc
-        kubelogin
         fluxcd
-        krew
       ];
       home.sessionVariables = {
         KUBECONFIG = "${kubeDir}/config";
