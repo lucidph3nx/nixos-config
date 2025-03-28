@@ -35,20 +35,26 @@
             LOW_BATTERY=20
             FULL_BATTERY=100
 
-            # Read last state
-            if [[ -f $STATE_FILE ]]; then
-                source "$STATE_FILE"
-            else
-                echo "last_notification=none" > "$STATE_FILE"
-                last_notification="none"
-            fi
-
             # Get battery level
             battery_level=$(${pkgs.polychromatic}/bin/polychromatic-cli -d mouse -k | grep Battery | sed 's/[^0-9]*//g')
 
             # Ignore erroneous 0% battery level
             if [[ "$battery_level" -eq 0 ]]; then
                 exit 0
+            fi
+
+            # Handle missing state file
+            if [[ ! -f $STATE_FILE ]]; then
+                if [[ "$battery_level" -eq $FULL_BATTERY ]]; then
+                    # If the state file is missing but battery is 100%, avoid notifying
+                    echo "last_notification=full" > "$STATE_FILE"
+                    exit 0
+                else
+                    echo "last_notification=none" > "$STATE_FILE"
+                    last_notification="none"
+                fi
+            else
+                source "$STATE_FILE"
             fi
 
             # Notify on low battery

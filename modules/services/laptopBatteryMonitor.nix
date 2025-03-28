@@ -30,16 +30,22 @@
             LOW_BATTERY=20
             FULL_BATTERY=100
 
-            # Read last state
-            if [[ -f $STATE_FILE ]]; then
-                source "$STATE_FILE"
-            else
-                echo "last_notification=none" > "$STATE_FILE"
-                last_notification="none"
-            fi
-
             # Get battery level
             battery_level=$(cat /sys/class/power_supply/BAT0/capacity)
+
+            # Handle missing state file
+            if [[ ! -f $STATE_FILE ]]; then
+                if [[ "$battery_level" -eq $FULL_BATTERY ]]; then
+                    # If the state file is missing but battery is 100%, avoid notifying
+                    echo "last_notification=full" > "$STATE_FILE"
+                    exit 0
+                else
+                    echo "last_notification=none" > "$STATE_FILE"
+                    last_notification="none"
+                fi
+            else
+                source "$STATE_FILE"
+            fi
 
             # Notify on low battery
             if [[ "$battery_level" -lt $LOW_BATTERY && "$last_notification" != "low" ]]; then
