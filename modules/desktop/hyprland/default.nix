@@ -257,9 +257,9 @@ in {
           "SUPER, mouse:272, movewindow"
           "SUPER, mouse:273, resizewindow"
         ];
-        bindl = [
-          ", switch:on:Lid Switch, exec, ${homeDir}/.local/scripts/cli.system.suspend"
-        ];
+        # bindl = [
+        #   ", switch:on:Lid Switch, exec, ${homeDir}/.local/scripts/cli.system.suspend"
+        # ];
         env = [
           "XDG_CURRENT_DESKTOP,Hyprland"
           "XDG_SESSION_TYPE,wayland"
