@@ -7,7 +7,8 @@
 }: let
   homeDir = config.home-manager.users.ben.home.homeDirectory;
   cloudflaredBlock = {
-    proxyCommand = "${pkgs.cloudflared}/bin/cloudflared access ssh --hostname %h.$CLOUDFLARED_DOMAIN";
+                    # waiting for https://github.com/NixOS/nixpkgs/issues/370185
+    proxyCommand = "${pkgs-stable.cloudflared}/bin/cloudflared access ssh --hostname %h.$CLOUDFLARED_DOMAIN";
     user = "ben";
     port = 22;
     identityFile = "${homeDir}/.ssh/lucidph3nx-ed25519";
