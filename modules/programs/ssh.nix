@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  pkgs-stable,
   ...
 }: let
   homeDir = config.home-manager.users.ben.home.homeDirectory;
@@ -22,7 +23,10 @@ in {
 
   config = lib.mkIf config.nx.programs.ssh.enable {
     home-manager.users.ben = {
-      home.packages = with pkgs; [cloudflared];
+      home.packages = with pkgs; [
+        # waiting for https://github.com/NixOS/nixpkgs/issues/370185
+        pkgs-stable.cloudflared
+      ];
       programs.ssh = {
         enable = true;
         matchBlocks = {
