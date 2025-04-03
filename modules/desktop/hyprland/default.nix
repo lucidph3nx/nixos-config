@@ -162,6 +162,7 @@ in {
         windowrulev2 = [
           # sometimes chromium thinks its fine to open in a tiny window
           "tile, class:(Chromium-browser)"
+          "tile, class:^(Minecraft.*)$"
         ];
         monitor = [
           ",preferred,auto,auto"
