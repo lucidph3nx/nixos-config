@@ -39,7 +39,7 @@ with config.theme; {
         source = let
           emojiRaw = builtins.fetchurl {
             url = "https://raw.githubusercontent.com/Mange/rofi-emoji/refs/heads/master/all_emojis.txt";
-            sha256 = "0yrb2asgjc9x6sy28j6ix6gqhblpbbd5ciywdms1ns06ffdh28zg";
+            sha256 = "1grr19rg5a8xl6mjnjc1fvmf7zx9jfj6y33qcasd2j1cvx8k5lbd";
           };
         in
           pkgs.runCommand "filtered-emojis" {nativeBuildInputs = [pkgs.ripgrep];} ''
