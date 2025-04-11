@@ -78,9 +78,11 @@ GM_addStyle(`
     margin-left: 0px !important;
   }
   /* hide sugested videos section */
+  /*
   #related {
     display: none !important;
   }
+  */
   /* note, the above requires the wide=1 cookie to be set */
 `)
 // add cookie to force wide mode
