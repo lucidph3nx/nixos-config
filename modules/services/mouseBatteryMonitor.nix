@@ -13,7 +13,7 @@
   };
   config = lib.mkIf config.nx.services.mouseBatteryMonitor.enable {
     hardware.openrazer = {
-      enable = false; # https://github.com/NixOS/nixpkgs/pull/384992
+      enable = true;
       # too many false positive 0% notifications
       batteryNotifier.enable = false;
     };
