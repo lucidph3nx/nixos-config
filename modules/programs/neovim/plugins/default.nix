@@ -27,5 +27,6 @@
     ./treesitter.nix
     ./undotree.nix
     ./vim-fugitive.nix
+    ./zenmode.nix
   ];
 }

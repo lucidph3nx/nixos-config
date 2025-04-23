@@ -39,13 +39,13 @@ in {
       applicationlauncher = "${homeDir}/.local/scripts/application.launcher";
       toggleTouchpad = "${homeDir}/.local/scripts/system.inputs.toggleTouchpad";
       # applications
-      terminal = "kitty";
+      terminal = "kitty --listen-on unix:/tmp/mykitty";
       browser = config.nx.programs.defaultWebBrowserSettings.cmd;
       newwindow = config.nx.programs.defaultWebBrowserSettings.newWindowCmd;
       calendar = "${newwindow} https://calendar.google.com";
-      filemanager = "kitty lf";
-      musicplayer = "kitty ncmpcpp";
-      obsidian = "kitty ${homeDir}/.local/scripts/cli.tmux.projectSessioniser ${homeDir}/documents/obsidian";
+      filemanager = "${terminal} lf";
+      musicplayer = "${terminal} ncmpcpp";
+      obsidian = "${terminal} ${homeDir}/.local/scripts/cli.tmux.projectSessioniser ${homeDir}/documents/obsidian";
       addtoshoppinglist = "${homeDir}/.local/scripts/home.shoppinglist.addItem";
       openshoppinglist = "${newwindow} https://www.notion.so/ph3nx/Shopping-List-92d98ac3dc86460285a399c0b1176fc5";
       # configuration

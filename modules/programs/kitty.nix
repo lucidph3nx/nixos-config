@@ -29,6 +29,9 @@ with config.theme; {
           enable_audio_bell no
           paste_actions no-op
 
+          # for zen-mode.nvim
+          allow_remote_control socket-only
+
           foreground                 ${foreground}
           background                 ${bg0}
           selection_foreground       ${grey2}
