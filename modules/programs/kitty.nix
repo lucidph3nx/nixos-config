@@ -30,6 +30,7 @@ with config.theme; {
           paste_actions no-op
 
           # for zen-mode.nvim
+          listen_on unix:/tmp/kitty
           allow_remote_control socket-only
 
           foreground                 ${foreground}

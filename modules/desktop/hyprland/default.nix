@@ -39,7 +39,7 @@ in {
       applicationlauncher = "${homeDir}/.local/scripts/application.launcher";
       toggleTouchpad = "${homeDir}/.local/scripts/system.inputs.toggleTouchpad";
       # applications
-      terminal = "kitty --listen-on unix:/tmp/mykitty";
+      terminal = "kitty";
       browser = config.nx.programs.defaultWebBrowserSettings.cmd;
       newwindow = config.nx.programs.defaultWebBrowserSettings.newWindowCmd;
       calendar = "${newwindow} https://calendar.google.com";
