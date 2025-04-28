@@ -10,8 +10,8 @@ GM_addStyle(`
   }
   
   ytd-rich-grid-renderer {
-    /* show more videos per row */
-    --ytd-rich-grid-items-per-row: 6 !important;
+    /* show more videos per row - Youtube used to look like this, but changed recently (2025-04-28) */
+    --ytd-rich-grid-items-per-row: var(--ytd-rich-grid-slim-items-per-row) !important;
   }
 
   html[dark], [dark],
