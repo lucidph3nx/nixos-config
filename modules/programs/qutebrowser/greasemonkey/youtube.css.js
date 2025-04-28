@@ -8,6 +8,11 @@ GM_addStyle(`
     border-radius: 0px !important;
     font-family: JetBrains Mono, monospace !important;
   }
+  
+  ytd-rich-grid-renderer {
+    /* show more videos per row */
+    --ytd-rich-grid-items-per-row: 6 !important;
+  }
 
   html[dark], [dark],
   html[darker-dark], [darker-dark]
