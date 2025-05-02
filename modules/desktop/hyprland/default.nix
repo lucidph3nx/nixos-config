@@ -149,8 +149,8 @@ in {
           vrr = 1;
           # when opening another program from terminal, swallow the terminal
           enable_swallow = true;
-          swallow_regex = "^(kitty)$";
-          swallow_exception_regex = "^(lf|wev)$";
+          swallow_regex = "^(kitty|lf)$";
+          swallow_exception_regex = "^(wev)$";
         };
         device = [
           {
