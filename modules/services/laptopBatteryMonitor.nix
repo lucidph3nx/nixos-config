@@ -33,31 +33,41 @@
             # Get battery level
             battery_level=$(cat /sys/class/power_supply/BAT0/capacity)
 
-            # Handle missing state file
-            if [[ ! -f $STATE_FILE ]]; then
+            # Load existing state
+            if [[ -f $STATE_FILE ]]; then
+                source "$STATE_FILE"
+            else
                 if [[ "$battery_level" -eq $FULL_BATTERY ]]; then
                     # If the state file is missing but battery is 100%, avoid notifying
                     echo "last_notification=full" > "$STATE_FILE"
+                    echo "last_id=" >> "$STATE_FILE"
                     exit 0
                 else
                     echo "last_notification=none" > "$STATE_FILE"
-                    last_notification="none"
+                    echo "last_id=" >> "$STATE_FILE"
                 fi
-            else
-                source "$STATE_FILE"
             fi
 
             # Notify on low battery
-            if [[ "$battery_level" -lt $LOW_BATTERY && "$last_notification" != "low" ]]; then
-                notify-send -i battery-low -u critical "Laptop Battery Low" "Battery level: $battery_level%. Please plug in."
+            if [[ "$battery_level" -lt $LOW_BATTERY ]]; then
+                if [[ "$last_notification" == "low" && -n "$last_id" ]]; then
+                    notif_id=$(notify-send -p -r "$last_id" -i battery-low -u critical "Laptop Battery Low" "Battery level: $battery_level%. Please plug in.")
+                else
+                    notif_id=$(notify-send -p -i battery-low -u critical "Laptop Battery Low" "Battery level: $battery_level%. Please plug in.")
+                fi
                 echo "last_notification=low" > "$STATE_FILE"
+                echo "last_id=$notif_id" >> "$STATE_FILE"
+
+            # Notify when fully charged
             elif [[ "$battery_level" -eq $FULL_BATTERY && "$last_notification" != "full" ]]; then
-                # Notify when fully charged
                 notify-send -i battery -u normal "Laptop Fully Charged" "Battery level: $battery_level%."
                 echo "last_notification=full" > "$STATE_FILE"
+                echo "last_id=" >> "$STATE_FILE"
+
+            # Reset state if conditions are normal (no notification)
             elif [[ "$battery_level" -ge $LOW_BATTERY && "$battery_level" -lt $FULL_BATTERY ]]; then
-                # Reset state if conditions are normal
                 echo "last_notification=none" > "$STATE_FILE"
+                echo "last_id=" >> "$STATE_FILE"
             fi
           '';
       in {
