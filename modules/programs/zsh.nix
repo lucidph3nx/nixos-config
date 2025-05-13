@@ -99,20 +99,23 @@ in {
           # these interfere with my keybindings below
           ZVM_INIT_MODE = "sourcing";
         };
-        initExtra = ''
-          # zsh-history-substring-search configuration
-          bindkey '^[[A' history-substring-search-up # or '\eOA'
-          bindkey '^[[B' history-substring-search-down # or '\eOB'
-          HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1
+        initContent = let
+          initExtra = lib.mkOrder 1000 ''
+            # zsh-history-substring-search configuration
+            bindkey '^[[A' history-substring-search-up # or '\eOA'
+            bindkey '^[[B' history-substring-search-down # or '\eOB'
+            HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1
 
-          # Custom keybindings
-          bindkey -s ^v "nvim\n"
-          bindkey -s ^p "python\n"
-          bindkey -s ^o "cli.tmux.projectSessioniser ~/documents/obsidian\n"
-          bindkey -s ^f "cli.tmux.projectSessioniser\n"
-          # utils
-          eval "$(direnv hook zsh)"
-        '';
+            # Custom keybindings
+            bindkey -s ^v "nvim\n"
+            bindkey -s ^p "python\n"
+            bindkey -s ^o "cli.tmux.projectSessioniser ~/documents/obsidian\n"
+            bindkey -s ^f "cli.tmux.projectSessioniser\n"
+            # utils
+            eval "$(direnv hook zsh)"
+          '';
+        in
+          lib.mkMerge [initExtra];
       };
       home.persistence."/persist/home/ben" = {
         directories = [
