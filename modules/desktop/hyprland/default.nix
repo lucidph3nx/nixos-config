@@ -74,6 +74,10 @@ in {
         debug = {
           disable_logs = false;
         };
+        ecosystem = {
+          # don't show update notifications each boot
+          no_update_news = true;
+        };
         exec = [
           # restart waybar, if for some reason it died
           "pkill waybar && hyprctl dispatch exec waybar"
