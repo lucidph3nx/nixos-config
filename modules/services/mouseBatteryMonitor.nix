@@ -13,7 +13,7 @@
   };
   config = lib.mkIf config.nx.services.mouseBatteryMonitor.enable {
     hardware.openrazer = {
-      enable = true;
+      enable = false; # temporary to prevent build failure of kernel module 2025-06-02
       # too many false positive 0% notifications
       batteryNotifier.enable = false;
     };
