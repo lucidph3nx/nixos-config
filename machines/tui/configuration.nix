@@ -24,7 +24,7 @@
         screenTimeout.duration = 600; # screen off after 10 minutes
         suspendTimeout.duration = 900; # suspend after 15 minutes
       };
-      hyprlock.oled = true;
+      # hyprlock.oled = true;
       wallpaper = {
         variant = "enso";
         resolution = "2880x1800";
@@ -93,6 +93,7 @@
     exfat
     ffmpeg
     gamescope
+    gphoto2
     inkscape
     mangohud
     ntfs3g
