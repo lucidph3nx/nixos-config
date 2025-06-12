@@ -86,6 +86,11 @@
           name = "searx.css.js";
           text = builtins.readFile ./greasemonkey/searx.css.js;
         })
+        # style for facebook
+        # (pkgs.writeTextFile {
+        #   name = "facebook.css.js";
+        #   text = builtins.readFile ./greasemonkey/facebook.css.js;
+        # })
         # delay load for reddit
         # interferes with reddit adblock, TODO: fix
         # (pkgs.writeTextFile {
