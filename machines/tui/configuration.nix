@@ -59,6 +59,7 @@
     gaming = {
       enable = true;
       prismlauncher.enable = true;
+      yuzu.enable = true;
     };
   };
 

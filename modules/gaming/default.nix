@@ -7,6 +7,7 @@
     ./lutris.nix
     ./prismlauncher.nix
     ./steam.nix
+    ./yuzu.nix
   ];
   options = {
     nx.gaming.enable =
