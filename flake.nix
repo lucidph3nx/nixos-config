@@ -66,6 +66,7 @@
             {allowUnfree = true;}
             extraConfig # Merge any extra configuration like rocmSupport
           ];
+          overlays = [self.overlays.modifications];
         };
         specialArgs = {inherit inputs outputs;};
         modules = let
@@ -77,6 +78,7 @@
                 {allowUnfree = true;}
                 extraConfig
               ];
+              overlays = [self.overlays.modifications];
             };
             _module.args.pkgs-master = import inputs.nixpkgs-master {
               inherit (pkgs.stdenv.targetPlatform) system;
@@ -84,6 +86,7 @@
                 {allowUnfree = true;}
                 extraConfig
               ];
+              overlays = [self.overlays.modifications];
             };
           };
         in

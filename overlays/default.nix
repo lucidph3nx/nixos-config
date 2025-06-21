@@ -1,6 +1,6 @@
 {
   outputs,
-  inputs,
+  inputs, # This 'inputs' argument holds the raw flake inputs
 }: let
   addPatches = pkg: patches:
     pkg.overrideAttrs (oldAttrs: {
@@ -18,5 +18,11 @@ in {
   };
   # Overlays for various pkgs (e.g. broken, not updated)
   modifications = final: prev: rec {
+    # use master for mpd
+    # waiting for https://nixpk.gs/pr-tracker.html?pr=418139
+    # mpd = inputs.nixpkgs-master.legacyPackages.${final.system}.mpd;
+    # use stable for qutebrowser
+    # I think its this https://github.com/fedora-python/lxml_html_clean/issues/24
+    # qutebrowser = inputs.nixpkgs-master.legacyPackages.${final.system}.qutebrowser;
   };
 }
