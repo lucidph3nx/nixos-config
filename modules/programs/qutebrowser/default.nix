@@ -25,7 +25,7 @@
     bitwarden-userscript =
       pkgs.writers.writePython3Bin "bitwarden" {
         flakeIgnore = ["E126" "E302" "E501" "E402" "E265" "W503"];
-        libraries = with pkgs.python312Packages; [tldextract pyperclip];
+        libraries = with pkgs.python313Packages; [tldextract pyperclip];
       }
       (builtins.readFile ./userscripts/bitwarden);
   in {
