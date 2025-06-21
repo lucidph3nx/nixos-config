@@ -20,9 +20,9 @@ in {
   modifications = final: prev: rec {
     # use master for mpd
     # waiting for https://nixpk.gs/pr-tracker.html?pr=418139
-    # mpd = inputs.nixpkgs-master.legacyPackages.${final.system}.mpd;
+    mpd = inputs.nixpkgs-master.legacyPackages.${final.system}.mpd;
     # use stable for qutebrowser
-    # I think its this https://github.com/fedora-python/lxml_html_clean/issues/24
-    # qutebrowser = inputs.nixpkgs-master.legacyPackages.${final.system}.qutebrowser;
+    # I think its this https://github.com/NixOS/nixpkgs/issues/418689
+    qutebrowser = inputs.nixpkgs-qutebrowserJune25.legacyPackages.${final.system}.qutebrowser;
   };
 }

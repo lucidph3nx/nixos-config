@@ -20,6 +20,8 @@
     # master branch, for some packages
     nixpkgs-master.url = "github:nixos/nixpkgs/master";
 
+    nixpkgs-qutebrowserJune25.url = "github:nixos/nixpkgs/9e83b64f727c88a7711a2c463a7b16eedb69a84c";
+
     # disk formatting
     disko = {
       url = "github:nix-community/disko";
