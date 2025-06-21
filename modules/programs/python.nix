@@ -14,8 +14,8 @@
   config = lib.mkIf config.nx.programs.python.enable {
     home-manager.users.ben = {
       home.packages = with pkgs; [
-        (python3.withPackages (python312Packages: [
-          python312Packages.requests
+        (python3.withPackages (python313Packages: [
+          python313Packages.requests
         ]))
       ];
     };
