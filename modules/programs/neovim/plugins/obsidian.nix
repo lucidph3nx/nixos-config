@@ -75,7 +75,6 @@
           			return string.format("[[%s]]", opts.id)
           		end
           	end,
-          	open_app_foreground = true,
           	disable_frontmatter = false,
           	note_frontmatter_func = function(note)
           		-- Ensure note.path is a string
