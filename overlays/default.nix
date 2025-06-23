@@ -18,10 +18,6 @@ in {
   };
   # Overlays for various pkgs (e.g. broken, not updated)
   modifications = final: prev: rec {
-    # use master for mpd
-    # waiting for https://nixpk.gs/pr-tracker.html?pr=418139
-    mpd = inputs.nixpkgs-master.legacyPackages.${final.system}.mpd;
-    # use stable for qutebrowser
     # I think its this https://github.com/NixOS/nixpkgs/issues/418689
     qutebrowser = inputs.nixpkgs-qutebrowserJune25.legacyPackages.${final.system}.qutebrowser;
   };
