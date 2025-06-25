@@ -18,7 +18,7 @@
     # stable repo for some packages
     nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-24.05";
     # master branch, for some packages
-    nixpkgs-master.url = "github:nixos/nixpkgs/master";
+    # nixpkgs-master.url = "github:nixos/nixpkgs/master";
 
     nixpkgs-qutebrowserJune25.url = "github:nixos/nixpkgs/9e83b64f727c88a7711a2c463a7b16eedb69a84c";
 
@@ -75,14 +75,6 @@
           defaults = {pkgs, ...}: {
             # allow modules to use stable and master packages as needed
             _module.args.pkgs-stable = import inputs.nixpkgs-stable {
-              inherit (pkgs.stdenv.targetPlatform) system;
-              config = lib.mkMerge [
-                {allowUnfree = true;}
-                extraConfig
-              ];
-              overlays = [self.overlays.modifications];
-            };
-            _module.args.pkgs-master = import inputs.nixpkgs-master {
               inherit (pkgs.stdenv.targetPlatform) system;
               config = lib.mkMerge [
                 {allowUnfree = true;}

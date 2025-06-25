@@ -1,7 +1,6 @@
 {
   pkgs,
   pkgs-stable,
-  pkgs-master,
   inputs,
   config,
   lib,
@@ -79,7 +78,6 @@
     extraSpecialArgs = {
       inherit inputs;
       inherit pkgs-stable;
-      inherit pkgs-master;
     };
     users = {
       ben.imports = [

@@ -1,8 +1,4 @@
 {
-  config,
-  pkgs-stable,
-  pkgs-master,
-  pkgs,
   inputs,
   ...
 }: {
