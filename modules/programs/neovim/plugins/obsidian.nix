@@ -1,11 +1,10 @@
 {
-  pkgs-stable,
   pkgs,
   ...
 }: {
   home-manager.users.ben.programs.neovim.plugins = [
     {
-      plugin = pkgs-stable.vimPlugins.obsidian-nvim;
+      plugin = pkgs.vimPlugins.obsidian-nvim;
       type = "lua";
       config =
         /*

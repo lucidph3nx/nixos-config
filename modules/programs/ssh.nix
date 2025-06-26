@@ -2,13 +2,11 @@
   config,
   lib,
   pkgs,
-  pkgs-stable,
   ...
 }: let
   homeDir = config.home-manager.users.ben.home.homeDirectory;
   cloudflaredBlock = {
-                    # waiting for https://github.com/NixOS/nixpkgs/issues/370185
-    proxyCommand = "${pkgs-stable.cloudflared}/bin/cloudflared access ssh --hostname %h.$CLOUDFLARED_DOMAIN";
+    proxyCommand = "${pkgs.cloudflared}/bin/cloudflared access ssh --hostname %h.$CLOUDFLARED_DOMAIN";
     user = "ben";
     port = 22;
     identityFile = "${homeDir}/.ssh/lucidph3nx-ed25519";
@@ -25,8 +23,7 @@ in {
   config = lib.mkIf config.nx.programs.ssh.enable {
     home-manager.users.ben = {
       home.packages = with pkgs; [
-        # waiting for https://github.com/NixOS/nixpkgs/issues/370185
-        pkgs-stable.cloudflared
+        cloudflared
       ];
       programs.ssh = {
         enable = true;

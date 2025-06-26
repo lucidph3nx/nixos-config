@@ -15,11 +15,9 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    # stable repo for some packages
-    nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-24.05";
-    # master branch, for some packages
-    # nixpkgs-master.url = "github:nixos/nixpkgs/master";
 
+    # specific versions of nixpkgs for use in overlays
+    nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-24.05"; # nixpkgs-master.url = "github:nixos/nixpkgs/master";
     nixpkgs-qutebrowserJune25.url = "github:nixos/nixpkgs/9e83b64f727c88a7711a2c463a7b16eedb69a84c";
 
     # disk formatting
@@ -37,7 +35,6 @@
     };
 
     home-manager = {
-      # url = "github:nix-community/home-manager/release-23.11";
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -72,17 +69,7 @@
         };
         specialArgs = {inherit inputs outputs;};
         modules = let
-          defaults = {pkgs, ...}: {
-            # allow modules to use stable and master packages as needed
-            _module.args.pkgs-stable = import inputs.nixpkgs-stable {
-              inherit (pkgs.stdenv.targetPlatform) system;
-              config = lib.mkMerge [
-                {allowUnfree = true;}
-                extraConfig
-              ];
-              overlays = [self.overlays.modifications];
-            };
-          };
+          defaults = {pkgs, ...}: {};
         in
           [
             defaults

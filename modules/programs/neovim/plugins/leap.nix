@@ -12,7 +12,7 @@
         '';
     }
     {
-      plugin = pkgs.pkgs.vimPlugins.flit-nvim;
+      plugin = pkgs.vimPlugins.flit-nvim;
       type = "lua";
       config =
         /*

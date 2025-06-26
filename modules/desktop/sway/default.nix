@@ -1,7 +1,6 @@
 {
   config,
   pkgs,
-  pkgs-stable,
   lib,
   ...
 }: let
@@ -188,7 +187,7 @@ in {
         };
         bars = [
           {
-            command = "${pkgs-stable.waybar}/bin/waybar";
+            command = "${pkgs.waybar}/bin/waybar";
           }
         ];
         window = {

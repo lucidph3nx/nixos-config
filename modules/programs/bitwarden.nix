@@ -1,7 +1,6 @@
 {
   config,
   pkgs,
-  pkgs-stable,
   lib,
   ...
 }: {
@@ -16,8 +15,7 @@
     home-manager.users.ben = {
       home.packages = with pkgs; [
         bitwarden-desktop
-        # https://github.com/nixos/nixpkgs/issues/380227
-        pkgs-stable.bitwarden-cli
+        bitwarden-cli
       ];
       home.persistence."/persist/home/ben" = {
         directories = [
