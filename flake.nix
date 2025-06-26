@@ -14,7 +14,9 @@
   };
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    # nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    # temp pin to just before libgit 1.9.1
+    nixpkgs.url = "github:nixos/nixpkgs/c736ff24eb207acb0d415be67edc7f9656ad2844";
 
     # specific versions of nixpkgs for use in overlays
     nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-24.05";
