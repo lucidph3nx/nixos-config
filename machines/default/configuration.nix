@@ -49,8 +49,13 @@
     };
     users = {
       ben.imports = [
-        ./home.nix
+        inputs.impermanence.nixosModules.home-manager.impermanence
       ];
+      ben.home = {
+        username = "ben";
+        homeDirectory = "/home/ben";
+        stateVersion = "24.05"; # Do Not Touch!
+      };
     };
   };
 

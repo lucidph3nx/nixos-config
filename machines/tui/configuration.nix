@@ -76,10 +76,20 @@
     };
     users = {
       ben.imports = [
-        ./home.nix
+        inputs.impermanence.nixosModules.home-manager.impermanence
       ];
+      ben.home = {
+        username = "ben";
+        homeDirectory = "/home/ben";
+        stateVersion = "24.05"; # Do Not Touch!
+      };
     };
   };
+  
+  # display settigs for hyprland
+  home-manager.users.ben.wayland.windowManager.hyprland.settings.monitor = [
+    "eDP-1,2880x1800@120.00000,0x0,1.5"
+  ];
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
