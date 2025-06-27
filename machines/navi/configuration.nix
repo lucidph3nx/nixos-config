@@ -56,7 +56,7 @@
       lutris.enable = true;
       # we don't need to persist steam
       # it already has its own drive on this machine
-      steam.persist = false; 
+      steam.persist = false;
       prismlauncher.enable = true;
     };
   };
@@ -79,10 +79,20 @@
     };
     users = {
       ben.imports = [
-        ./home.nix
+        inputs.impermanence.nixosModules.home-manager.impermanence
       ];
+      ben.home = {
+        username = "ben";
+        homeDirectory = "/home/ben";
+        stateVersion = "24.05"; # Do Not Touch!
+      };
     };
   };
+
+  # display settigs for hyprland
+  home-manager.users.ben.wayland.windowManager.hyprland.settings.monitor = [
+    "DP-3,5120x1440@239.76Hz,0x0,1"
+  ];
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
