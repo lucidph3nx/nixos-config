@@ -48,7 +48,6 @@
               tail = 100;
               buffer = 5000;
               sinceSeconds = -1;
-              fullScreen = false;
               textWrap = false;
               showTime = false;
             };
@@ -64,7 +63,7 @@
             };
           };
         };
-        aliases.aliases = {
+        aliases = {
           cr = "clusterroles";
           crb = "clusterrolebindings";
           dp = "deployments";
@@ -77,7 +76,7 @@
           ro = "roles";
           sec = "v1/secrets";
         };
-        views.views = {
+        views = {
           "v1/pods" = {
             sortColumn = "AGE:desc";
             columns = [
