@@ -28,6 +28,8 @@ with config.theme; {
           background_opacity 0.8
           enable_audio_bell no
           paste_actions no-op
+          cursor_trail 1
+          cursor_trail_decay 0.05 0.2
 
           # for zen-mode.nvim
           listen_on unix:/tmp/kitty
@@ -38,7 +40,7 @@ with config.theme; {
           selection_foreground       ${grey2}
           selection_background       ${bg_visual}
 
-          cursor                     ${foreground}
+          cursor                     ${green}
           cursor_text_color          ${bg1}
 
           url_color                  ${blue}
