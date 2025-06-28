@@ -84,6 +84,7 @@
         ".local/share/nix"
         ".local/state/nix"
         ".local/state/home-manager"
+        ".cache"
         "code"
         "documents"
         "games"
