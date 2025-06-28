@@ -18,7 +18,7 @@
 
     # specific versions of nixpkgs for use in overlays
     nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-24.05";
-    # nixpkgs-master.url = "github:nixos/nixpkgs/master";
+    nixpkgs-master.url = "github:nixos/nixpkgs/master";
     nixpkgs-qutebrowserJune25.url = "github:nixos/nixpkgs/9e83b64f727c88a7711a2c463a7b16eedb69a84c";
 
     # disk formatting

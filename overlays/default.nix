@@ -18,5 +18,8 @@ rec {
       # and then get its specific packages for the current system.
       obsidian-nvim = inputs.nixpkgs-stable.legacyPackages.${final.system}.vimPlugins.obsidian-nvim;
     };
+    # use master branch for bindfs
+    # while I wait for https://nixpk.gs/pr-tracker.html?pr=398248
+    bindfs = inputs.nixpkgs-master.legacyPackages.${final.system}.bindfs;
   };
 }
