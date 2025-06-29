@@ -11,6 +11,7 @@ in
 rec {
   modifications = final: prev: {
     # I think its this https://github.com/NixOS/nixpkgs/issues/418689
+    # keep an eye out for https://nixpk.gs/pr-tracker.html?pr=419713
     qutebrowser = inputs.nixpkgs-qutebrowserJune25.legacyPackages.${final.system}.qutebrowser;
 
     vimPlugins = (prev.vimPlugins or {}) // {
