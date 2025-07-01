@@ -10,17 +10,10 @@ let
 in
 rec {
   modifications = final: prev: {
-    # I think its this https://github.com/NixOS/nixpkgs/issues/418689
-    # keep an eye out for https://nixpk.gs/pr-tracker.html?pr=419713
-    qutebrowser = inputs.nixpkgs-qutebrowserJune25.legacyPackages.${final.system}.qutebrowser;
-
     vimPlugins = (prev.vimPlugins or {}) // {
       # Access nixpkgs-stable directly from the 'inputs' argument to this overlay file
       # and then get its specific packages for the current system.
       obsidian-nvim = inputs.nixpkgs-stable.legacyPackages.${final.system}.vimPlugins.obsidian-nvim;
     };
-    # use master branch for bindfs
-    # while I wait for https://nixpk.gs/pr-tracker.html?pr=398248
-    bindfs = inputs.nixpkgs-master.legacyPackages.${final.system}.bindfs;
   };
 }
