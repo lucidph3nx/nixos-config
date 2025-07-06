@@ -97,18 +97,24 @@
     cheese
     exfat
     ffmpeg
+    freetype # fonts needed for wine
     gamescope
     gphoto2
     inkscape
+    lm_sensors
     mangohud
     ntfs3g
     parted
     protontricks
+    protontricks
+    protonup
     protonup
     shotcut
     solvespace
     usbutils
+    v4l-utils
     wev
+    wineWowPackages.waylandFull
   ];
   # key remapping
   services.keyd = {
