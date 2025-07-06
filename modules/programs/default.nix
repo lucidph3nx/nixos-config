@@ -37,6 +37,7 @@
     ./tmux.nix
     ./tmuxSessioniser.nix
     ./vimiv.nix
+    ./virt-manager.nix
     ./webcord.nix
     ./zathura.nix
     ./zsh.nix
