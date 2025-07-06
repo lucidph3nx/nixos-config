@@ -36,6 +36,7 @@
       obsidian.enable = true;
       picard.enable = true;
       plexamp.enable = true;
+      virt-manager.enable = true;
     };
     services = {
       blocky.enable = false; # for roaming, slows startup at home
