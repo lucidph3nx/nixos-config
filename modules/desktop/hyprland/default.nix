@@ -116,7 +116,7 @@ in {
           inactive_timeout = 5;
         };
         decoration = {
-          rounding = 10;
+          rounding = 5;
           blur.enabled = true;
           shadow = {
             enabled = false;
