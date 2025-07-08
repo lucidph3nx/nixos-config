@@ -26,7 +26,6 @@
     services.greetd = {
       enable = true;
       restart = true;
-      package = pkgs.greetd.tuigreet;
       vt = 7; # the tty to run greetd on, changed so that systemd startup doesnt overwrite tuigreet
       settings = {
         default_session = {
