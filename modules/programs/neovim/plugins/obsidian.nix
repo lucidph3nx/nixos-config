@@ -133,8 +133,6 @@
 
           		return out
           	end,
-          	-- don't use built in mappings
-          	mappings = {},
           	ui = {
           		-- don't use obsidian.nvim colours
           		hl_groups = {},
