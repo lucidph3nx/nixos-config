@@ -137,10 +137,13 @@
           		-- don't use obsidian.nvim colours
           		hl_groups = {},
           	},
+            checkbox = {
+              order = { " ", "x", ">", "~" },
+            },
             attachments = {
               img_folder = "assets",
               img_name_func = function()
-                return string.format(os.date("%Y-%m-%d_%H%M%S"), "_pasted_image"
+                return string.format(os.date("%Y-%m-%d_%H%M%S"), "_pasted_image")
               end,
               confirm_img_paste = true,
             }
@@ -192,11 +195,14 @@
           vim.keymap.set("n", "<leader>on", vim.cmd.ObsidianNextDay, { desc = "[O]bsidian [N]ext Daily Note" })
           vim.keymap.set("n", "<leader>op", vim.cmd.ObsidianPrevDay, { desc = "[O]bsidian [P]revious Daily Note" })
 
-          vim.keymap.set("n", "<leader>ot", vim.cmd.ObsidianTemplate, { desc = "[O]bsidian [T]emplate" })
-          vim.keymap.set("n", "<leader>oo", vim.cmd.ObsidianOpen, { desc = "[O]bsidian [O]pen" })
-          vim.keymap.set("n", "<leader>of", vim.cmd.ObsidianFollow, { desc = "[O]bsidian [F]ollow" })
           vim.keymap.set("n", "<leader>ob", vim.cmd.ObsidianBacklinks, { desc = "[O]bsidian [B]acklinks" })
+          vim.keymap.set("n", "<leader>oc", vim.cmd.ObsidianToggleCheckbox, { desc = "[O]bsidian [C]heckbox" })
+          vim.keymap.set("n", "<leader>of", vim.cmd.ObsidianFollow, { desc = "[O]bsidian [F]ollow" })
+          vim.keymap.set("n", "<leader>ol", vim.cmd.ObsidianLinkNew, { desc = "[O]bsidian [L]ink" })
+          vim.keymap.set("n", "<leader>oo", vim.cmd.ObsidianOpen, { desc = "[O]bsidian [O]pen" })
           vim.keymap.set("n", "<leader>ost", vim.cmd.ObsidianTags, { desc = "[O]bsidian [S]earch [T]ags" })
+          vim.keymap.set("n", "<leader>ot", vim.cmd.ObsidianTemplate, { desc = "[O]bsidian [T]emplate" })
+          vim.keymap.set("v", "<leader>ol", vim.cmd.ObsidianLinkNew, { desc = "[O]bsidian [L]ink" })
         '';
     }
   ];
