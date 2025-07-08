@@ -173,13 +173,50 @@
           })
 
           -- custom commands for previous and next daily note
-          local offset_daily = function(offset)
-            local filename = vim.fn.expand("%:t:r")
-            local year, month, day = filename:match("(%d+)-(%d+)-(%d+)")
-            local date = os.time({ year = year, month = month, day = day })
-            local client = require("obsidian").get_client()
-            local note = client:_daily(date + (offset * 3600 * 24))
-            client:open_note(note)
+          local offset_daily = function(relative_offset_from_current_note)
+            local current_filename = vim.fn.expand("%:t:r") -- e.g., "2017-04-23"
+            local daily_date_format = "%Y-%m-%d"
+            local year_str, month_str, day_str = current_filename:match("(%d%d%d%d)%-(%d%d)%-(%d%d)")
+
+            if not (year_str and month_str and day_str) then
+              vim.notify("Current buffer filename is not a YYYY-MM-DD daily note. Cannot calculate relative day.", vim.log.levels.WARN)
+              return
+            end
+
+            -- Convert captured strings to numbers
+            local current_year = tonumber(year_str)
+            local current_month = tonumber(month_str)
+            local current_day = tonumber(day_str)
+
+            -- Get the timestamp for the current note's date (midday to avoid DST issues)
+            local current_note_timestamp = os.time({
+              year = current_year,
+              month = current_month,
+              day = current_day,
+              hour = 12, -- Set to midday to avoid issues with DST changes at midnight
+              min = 0,
+              sec = 0,
+            })
+
+            -- Calculate the timestamp for the *target* note (previous or next day from current)
+            local target_note_timestamp = current_note_timestamp + (relative_offset_from_current_note * 24 * 60 * 60)
+
+            -- Get today's timestamp (midday to avoid DST issues)
+            local today_timestamp = os.time({
+              year = os.date("%Y", os.time()),
+              month = os.date("%m", os.time()),
+              day = os.date("%d", os.time()),
+              hour = 12,
+              min = 0,
+              sec = 0,
+            })
+
+            -- Calculate the difference in days between the target note and today
+            -- Divide by seconds in a day (24*60*60) and round to nearest whole number
+            local total_offset_from_today = math.floor((target_note_timestamp - today_timestamp) / (24 * 60 * 60) + 0.5)
+
+            -- Call ObsidianToday with the calculated offset from today
+            vim.cmd("ObsidianToday " .. total_offset_from_today)
           end
 
           vim.api.nvim_create_user_command("ObsidianPrevDay", function(_)
