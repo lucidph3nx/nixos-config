@@ -137,6 +137,13 @@
           		-- don't use obsidian.nvim colours
           		hl_groups = {},
           	},
+            attachments = {
+              img_folder = "assets",
+              img_name_func = function()
+                return string.format(os.date("%Y-%m-%d_%H%M%S"), "_pasted_image"
+              end,
+              confirm_img_paste = true,
+            }
           })
 
           -- custom commands for previous and next daily note
