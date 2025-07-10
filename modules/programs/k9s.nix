@@ -87,8 +87,8 @@
               "READY"
               "RESTARTS"
               "STATUS"
-              "%CPU/L"
-              "%MEM/L"
+              "%CPU/R"
+              "%MEM/R"
               "NODE"
             ];
           };
