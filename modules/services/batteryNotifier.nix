@@ -8,6 +8,8 @@
 
   battery-notifier-script =
     pkgs.writers.writePython3Bin "battery-notifier" {
+      # Ignore linter errors for line length (E501) and line breaks (W503),
+      # as Nix path expansion makes these checks impractical.
       flakeIgnore = ["E501" "W503"];
     } ''
       import argparse
@@ -94,6 +96,10 @@
           parser.add_argument(
               "--ignore-zero", action="store_true", help="Ignore 0% battery readings"
           )
+          # New flag to indicate this run was triggered by a udev event
+          parser.add_argument(
+              "--event-driven", action="store_true", help="Run in event-driven mode"
+          )
           args = parser.parse_args()
 
           # --- Get Current Status ---
@@ -128,14 +134,20 @@
           if last_notification_type == "full" and status == "Discharging":
               close_notification(last_id)
               save_state(state_file, {"last_notification": "none", "last_id": "0"})
-              return
+              if args.event_driven:
+                  return
 
           if last_notification_type == "low" and level >= args.dismiss_threshold:
               close_notification(last_id)
               save_state(state_file, {"last_notification": "none", "last_id": "0"})
+              if args.event_driven:
+                  return
+
+          # If this was an event-driven run and no dismissal happened, we can stop.
+          if args.event_driven:
               return
 
-          # 2. Handle notification creation/update conditions
+          # 2. Handle notification creation/update conditions (polling only)
 
           # LOW state
           if last_notification_type == "low" or level <= args.low_threshold:
@@ -157,7 +169,6 @@
               if last_notification_type != "full":
                   title = f"{args.name} Fully Charged"
                   body = f"Level: {level}%. You can unplug."
-                  # Start with a new notification, so last_id is 0
                   new_id = send_notification(
                       "0", "battery-full-charged", title, body
                   )
@@ -175,6 +186,7 @@ in {
       type = lib.types.attrsOf (lib.types.submodule ({name, ...}: {
         options = {
           enable = lib.mkEnableOption "this battery notifier";
+          udevTrigger = lib.mkEnableOption "udev trigger for this device";
 
           lowThreshold = lib.mkOption {
             type = lib.types.int;
@@ -227,6 +239,15 @@ in {
   };
 
   config = {
+    # UDEV rule to trigger the script on power supply changes.
+    services.udev.extraRules = let
+      udev-devices = lib.filterAttrs (n: v: v.enable && v.udevTrigger) cfg.devices;
+      rules = lib.mapAttrsToList (name: device: ''
+        ACTION=="change", SUBSYSTEM=="power_supply", KERNEL=="BAT0", RUN+="${pkgs.systemd}/bin/systemctl --user start battery-notifier-event-${name}.service"
+      '') udev-devices;
+    in
+      lib.concatStringsSep "\n" rules;
+
     home-manager.users.ben = lib.mkIf (builtins.any (d: d.enable) (lib.attrValues cfg.devices)) {
       home.packages = with pkgs; [
         polychromatic
@@ -234,30 +255,54 @@ in {
         libnotify
       ];
 
-      systemd.user.services = lib.attrsets.mapAttrs' (name: device:
-        lib.nameValuePair "battery-notifier-${name}" {
-          Unit = {
-            Description = "Run battery notifier for ${name}";
-          };
-          Service = {
-            Type = "oneshot";
-            ExecStart = ''
-              ${battery-notifier-script}/bin/battery-notifier \
-                --name "${name}" \
-                --level-cmd '${device.levelCmd}' \
-                ${lib.optionalString (device.statusCmd != null) "--status-cmd '${device.statusCmd}'"} \
-                --low-threshold ${toString device.lowThreshold} \
-                --full-threshold ${toString device.fullThreshold} \
-                --dismiss-threshold ${toString device.dismissThreshold} \
-                ${lib.optionalString device.ignoreZero "--ignore-zero"}
-            '';
-          };
-        }) (lib.filterAttrs (n: v: v.enable) cfg.devices);
+      # MERGED systemd services definition
+      systemd.user.services =
+        # Polling services (triggered by timers)
+        (lib.attrsets.mapAttrs' (name: device:
+          lib.nameValuePair "battery-notifier-${name}" {
+            Unit = {
+              Description = "Run polling battery notifier for ${name}";
+            };
+            Service = {
+              Type = "oneshot";
+              ExecStart = ''
+                ${battery-notifier-script}/bin/battery-notifier \
+                  --name "${name}" \
+                  --level-cmd '${device.levelCmd}' \
+                  ${lib.optionalString (device.statusCmd != null) "--status-cmd '${device.statusCmd}'"} \
+                  --low-threshold ${toString device.lowThreshold} \
+                  --full-threshold ${toString device.fullThreshold} \
+                  --dismiss-threshold ${toString device.dismissThreshold} \
+                  ${lib.optionalString device.ignoreZero "--ignore-zero"}
+              '';
+            };
+          }) (lib.filterAttrs (n: v: v.enable) cfg.devices))
+        // # Event-driven services (triggered by udev)
+        (lib.attrsets.mapAttrs' (name: device:
+          lib.nameValuePair "battery-notifier-event-${name}" {
+            Unit = {
+              Description = "Run event-driven battery notifier for ${name}";
+            };
+            Service = {
+              Type = "oneshot";
+              ExecStart = ''
+                ${battery-notifier-script}/bin/battery-notifier \
+                  --name "${name}" \
+                  --level-cmd '${device.levelCmd}' \
+                  ${lib.optionalString (device.statusCmd != null) "--status-cmd '${device.statusCmd}'"} \
+                  --low-threshold ${toString device.lowThreshold} \
+                  --full-threshold ${toString device.fullThreshold} \
+                  --dismiss-threshold ${toString device.dismissThreshold} \
+                  ${lib.optionalString device.ignoreZero "--ignore-zero"} \
+                  --event-driven
+              '';
+            };
+          }) (lib.filterAttrs (n: v: v.enable && v.udevTrigger) cfg.devices));
 
       systemd.user.timers = lib.attrsets.mapAttrs' (name: device:
         lib.nameValuePair "battery-notifier-${name}" {
           Unit = {
-            Description = "Run battery notifier for ${name}";
+            Description = "Run battery notifier timer for ${name}";
           };
           Timer = device.timerConfig // {Unit = "battery-notifier-${name}.service";};
           Install = {
@@ -270,6 +315,7 @@ in {
     nx.services.batteryNotifier.devices = {
       laptop = {
         enable = config.nx.isLaptop;
+        udevTrigger = true;
         levelCmd = "cat /sys/class/power_supply/BAT0/capacity";
         statusCmd = "cat /sys/class/power_supply/BAT0/status";
         lowThreshold = 20;
@@ -277,6 +323,7 @@ in {
       };
       mouse = {
         enable = true;
+        udevTrigger = false; # The mouse doesn't have a standard udev event
         levelCmd = "${pkgs.polychromatic}/bin/polychromatic-cli -d mouse -k | grep Battery | sed 's/[^0-9]*//g' || echo 100";
         statusCmd = "if ${pkgs.polychromatic}/bin/polychromatic-cli -d mouse -k | grep -q '(charging)'; then echo 'Charging'; else echo 'Discharging'; fi";
         lowThreshold = 20;
