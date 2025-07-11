@@ -96,24 +96,21 @@
               title="Laptop Battery Low"
               body="Level: $current_level%."
               icon="battery-low"
-              urgency="critical"
 
               if [[ "$current_status" != "Discharging" ]]; then
-                # If it's low but plugged in, the message is less urgent.
                 body="$body Plugged in."
-                urgency="normal"
               else
                 body="$body Please plug in."
               fi
               
-              # Conditionally build the command to avoid an empty -r flag
-              # We add '-h bool:transient:false' to make the notification persistent.
+              # Conditionally build the command to avoid an empty -r flag.
+              # All notifications are now sent with 'critical' urgency to ensure they persist.
               if [[ -n "$last_id" ]]; then
                 # Replace existing notification
-                notif_id=$(dunstify -p -h bool:transient:false -r "$last_id" -u "$urgency" -i "$icon" "$title" "$body")
+                notif_id=$(dunstify -p -r "$last_id" -u critical -i "$icon" "$title" "$body")
               else
                 # Create a new notification
-                notif_id=$(dunstify -p -h bool:transient:false -u "$urgency" -i "$icon" "$title" "$body")
+                notif_id=$(dunstify -p -u critical -i "$icon" "$title" "$body")
               fi
 
               save_state "low" "$notif_id"
@@ -124,8 +121,8 @@
             if [[ "$current_level" -ge "$FULL_BATTERY" && "$current_status" != "Discharging" ]]; then
               # Only notify once when we first enter the 'full' state.
               if [[ "$last_notification" != "full" ]]; then
-                # We add '-h bool:transient:false' to make the notification persistent.
-                notif_id=$(dunstify -p -h bool:transient:false -i "battery-full-charged" -u normal "Laptop Fully Charged" "Level: $current_level%. You can unplug.")
+                # Sent as critical to ensure it persists until unplugged.
+                notif_id=$(dunstify -p -i "battery-full-charged" -u critical "Laptop Fully Charged" "Level: $current_level%. You can unplug.")
                 save_state "full" "$notif_id"
               fi
               exit 0
