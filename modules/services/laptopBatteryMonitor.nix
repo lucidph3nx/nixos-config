@@ -32,7 +32,7 @@
             LOW_BATTERY=20
             FULL_BATTERY=100
             DISMISS_THRESHOLD=50 # Dismiss the 'low battery' notification when the level is above this.
-
+            
             # --- System Paths ---
             BATTERY_PATH="/sys/class/power_supply/BAT0"
             STATE_FILE="$XDG_RUNTIME_DIR/laptop_battery_state"
@@ -107,9 +107,16 @@
               else
                 body="$body Please plug in."
               fi
+              
+              # Conditionally build the command to avoid an empty -r flag
+              if [[ -n "$last_id" ]]; then
+                # Replace existing notification
+                notif_id=$(dunstify -p -r "$last_id" -u "$urgency" -i "$icon" "$title" "$body")
+              else
+                # Create a new notification
+                notif_id=$(dunstify -p -u "$urgency" -i "$icon" "$title" "$body")
+              fi
 
-              # Send (or replace) the notification and save the new state.
-              notif_id=$(dunstify -p -r "$last_id" -u "$urgency" -i "$icon" "$title" "$body")
               save_state "low" "$notif_id"
               exit 0
             fi
@@ -123,7 +130,7 @@
               fi
               exit 0
             fi
-
+            
             # State: NORMAL (between low and full thresholds)
             # If we reach this point, no new notifications should be sent.
             # The dismissal logic at the top handles clearing old notifications when transitioning out of 'low' or 'full' states.
