@@ -73,16 +73,6 @@
 
             # --- Main State Machine ---
 
-            # 1. Handle transitions that DISMISS notifications first.
-
-            # Transition: from 'low' to 'normal'
-            # If the last notification was 'low' and the battery has charged above the dismiss threshold.
-            if [[ "$last_notification" == "low" && "$current_level" -ge "$DISMISS_THRESHOLD" ]]; then
-              close_notification
-              save_state "none" ""
-              exit 0
-            fi
-
             # Transition: from 'full' to 'normal'
             # If the last notification was 'full' and the user has unplugged the cable.
             if [[ "$last_notification" == "full" && "$current_status" == "Discharging" ]]; then
@@ -91,10 +81,18 @@
               exit 0
             fi
 
-            # 2. Handle transitions that CREATE or UPDATE notifications.
+            # State: LOW (handles creation, updates, and dismissal of the low battery notification)
+            # This block is entered if we were already in a low state, or if the battery just dropped below the threshold.
+            if [[ "$last_notification" == "low" || "$current_level" -le "$LOW_BATTERY" ]]; then
+              
+              # First, check if the condition is now resolved and the notification should be dismissed.
+              if [[ "$current_level" -ge "$DISMISS_THRESHOLD" ]]; then
+                close_notification
+                save_state "none" ""
+                exit 0
+              fi
 
-            # State: LOW (battery level is at or below the low threshold)
-            if [[ "$current_level" -le "$LOW_BATTERY" ]]; then
+              # If not dismissing, then we create or update the notification.
               title="Laptop Battery Low"
               body="Level: $current_level%."
               icon="battery-low"
@@ -132,10 +130,7 @@
             fi
             
             # State: NORMAL (between low and full thresholds)
-            # If we reach this point, no new notifications should be sent.
-            # The dismissal logic at the top handles clearing old notifications when transitioning out of 'low' or 'full' states.
-            # If the state was 'low' but the level is now above LOW_BATTERY but below DISMISS_THRESHOLD,
-            # the notification persists until the dismissal threshold is met.
+            # If we reach this point, no action is needed. The logic above handles all transitions.
           '';
       in {
         Unit = {
