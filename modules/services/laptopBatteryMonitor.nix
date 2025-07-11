@@ -107,12 +107,13 @@
               fi
               
               # Conditionally build the command to avoid an empty -r flag
+              # We add '-h bool:transient:false' to make the notification persistent.
               if [[ -n "$last_id" ]]; then
                 # Replace existing notification
-                notif_id=$(dunstify -p -r "$last_id" -u "$urgency" -i "$icon" "$title" "$body")
+                notif_id=$(dunstify -p -h bool:transient:false -r "$last_id" -u "$urgency" -i "$icon" "$title" "$body")
               else
                 # Create a new notification
-                notif_id=$(dunstify -p -u "$urgency" -i "$icon" "$title" "$body")
+                notif_id=$(dunstify -p -h bool:transient:false -u "$urgency" -i "$icon" "$title" "$body")
               fi
 
               save_state "low" "$notif_id"
@@ -123,7 +124,8 @@
             if [[ "$current_level" -ge "$FULL_BATTERY" && "$current_status" != "Discharging" ]]; then
               # Only notify once when we first enter the 'full' state.
               if [[ "$last_notification" != "full" ]]; then
-                notif_id=$(dunstify -p -i "battery-full-charged" -u normal "Laptop Fully Charged" "Level: $current_level%. You can unplug.")
+                # We add '-h bool:transient:false' to make the notification persistent.
+                notif_id=$(dunstify -p -h bool:transient:false -i "battery-full-charged" -u normal "Laptop Fully Charged" "Level: $current_level%. You can unplug.")
                 save_state "full" "$notif_id"
               fi
               exit 0
