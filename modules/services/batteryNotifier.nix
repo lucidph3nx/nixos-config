@@ -193,12 +193,14 @@ in {
     };
   };
 
-  config = lib.mkIf (builtins.any (d: d.enable) (lib.attrValues cfg.devices)) {
-    home-manager.users.ben = {
+  config = {
+    # The home-manager configuration is now conditional.
+    # It will only be included in the build if at least one device is enabled.
+    home-manager.users.ben = lib.mkIf (builtins.any (d: d.enable) (lib.attrValues cfg.devices)) {
       # add any packages needed for the battery notifier
       home.packages = with pkgs; [
         polychromatic # For mouse battery
-        dunst # For the notification daemon
+        dunst         # For the notification daemon
       ];
 
       # Dynamically generate services and timers for each configured device
@@ -221,8 +223,13 @@ in {
 
       systemd.user.timers = lib.attrsets.mapAttrs' (name: device:
         lib.nameValuePair "battery-notifier-${name}" {
-          timerConfig = device.timerConfig // {Unit = "battery-notifier-${name}.service";};
-          wantedBy = ["timers.target"];
+          Unit = {
+            Description = "Run battery notifier for ${name}";
+          };
+          Timer = device.timerConfig // { Unit = "battery-notifier-${name}.service"; };
+          Install = {
+            WantedBy = [ "timers.target" ];
+          };
         }) (lib.filterAttrs (n: v: v.enable) cfg.devices);
     };
 
