@@ -1,9 +1,10 @@
 {...}: {
   imports = [
+    ./batteryNotifier.nix
     ./blocky.nix
     ./greetd.nix
-    ./mouseBatteryMonitor.nix
-    ./laptopBatteryMonitor.nix
+    # ./mouseBatteryMonitor.nix
+    # ./laptopBatteryMonitor.nix
     ./mpd.nix
     ./pipewire.nix
     ./polkit.nix
