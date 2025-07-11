@@ -94,6 +94,7 @@
         eza
         fzf
         fzy
+        gemini-cli #TODO: remove after testing
         htop
         imagemagick
         jnv
