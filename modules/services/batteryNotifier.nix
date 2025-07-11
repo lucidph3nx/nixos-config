@@ -7,37 +7,29 @@
   cfg = config.nx.services.batteryNotifier;
 
   battery-notifier-script =
-    pkgs.writeScript "battery-notifier"
-    /*
-    python
-    */
-    ''
-      #!${pkgs.python3.withPackages (ps: [ps.pydbus])}/bin/python
+    pkgs.writers.writePython3Bin "battery-notifier" {
+      flakeIgnore = ["E501" "W503"];
+    } ''
       import argparse
       import json
       import os
       import subprocess
-      import sys
       from pathlib import Path
 
-      # --- D-Bus Setup for Notifications ---
-      try:
-          bus = __import__("pydbus").SessionBus()
-          notifications = bus.get("org.freedesktop.Notifications")
-      except Exception as e:
-          print(f"Error: Could not connect to D-Bus. Is a notification daemon running? {e}")
-          sys.exit(1)
 
       def get_command_output(cmd):
           """Executes a shell command and returns its output."""
           if not cmd:
               return None
           try:
-              result = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
+              result = subprocess.run(
+                  cmd, shell=True, check=True, capture_output=True, text=True
+              )
               return result.stdout.strip()
           except subprocess.CalledProcessError as e:
               print(f"Error running command '{cmd}': {e.stderr.strip()}")
               return None
+
 
       def save_state(state_file, state):
           """Saves the current state to a JSON file."""
@@ -45,34 +37,63 @@
           with open(state_file, "w") as f:
               json.dump(state, f)
 
+
       def load_state(state_file):
           """Loads state from a JSON file, or returns a default."""
           if not state_file.exists():
-              return {"last_notification": "none", "last_id": 0}
+              return {"last_notification": "none", "last_id": "0"}
           try:
               with open(state_file, "r") as f:
                   return json.load(f)
           except json.JSONDecodeError:
-              return {"last_notification": "none", "last_id": 0}
+              return {"last_notification": "none", "last_id": "0"}
+
 
       def close_notification(notif_id):
-          """Closes a notification by its ID."""
-          if notif_id > 0:
-              try:
-                  notifications.CloseNotification(notif_id)
-              except Exception:
-                  # Ignore if the notification was already closed by the user
-                  pass
+          """Closes a notification by its ID using dunstify."""
+          if notif_id != "0":
+              dunstify_path = "${pkgs.dunst}/bin/dunstify"
+              subprocess.run([dunstify_path, "-C", str(notif_id)])
+
+
+      def send_notification(last_id, icon, title, body):
+          """Sends or replaces a dunstify notification and returns the new ID."""
+          dunstify_path = "${pkgs.dunst}/bin/dunstify"
+          cmd = [
+              dunstify_path,
+              "-p",  # Print the new notification ID to stdout
+              "-i",
+              icon,
+              "-u",
+              "critical",  # Keep notifications persistent
+              "-r",
+              str(last_id),
+              title,
+              body,
+          ]
+          result = subprocess.run(cmd, capture_output=True, text=True)
+          return result.stdout.strip()
+
 
       def main():
-          parser = argparse.ArgumentParser(description="Monitor battery and send notifications.")
-          parser.add_argument("--name", required=True, help="Device name (e.g., 'Laptop', 'Mouse')")
-          parser.add_argument("--level-cmd", required=True, help="Command to get battery level")
-          parser.add_argument("--status-cmd", help="Command to get battery status (e.g., 'Charging')")
+          parser = argparse.ArgumentParser(
+              description="Monitor battery and send notifications."
+          )
+          parser.add_argument(
+              "--name", required=True, help="Device name (e.g., 'Laptop', 'Mouse')"
+          )
+          parser.add_argument(
+              "--level-cmd", required=True, help="Command to get battery level"
+          )
+          parser.add_argument(
+              "--status-cmd", help="Command to get battery status (e.g., 'Charging')"
+          )
           parser.add_argument("--low-threshold", type=int, default=20)
           parser.add_argument("--full-threshold", type=int, default=100)
           parser.add_argument("--dismiss-threshold", type=int, default=50)
-          parser.add_argument("--ignore-zero", action="store_true", help="Ignore 0% battery readings")
+          parser.add_argument(
+              "--ignore-zero", action="store_true", help="Ignore 0% battery readings"
+          )
           args = parser.parse_args()
 
           # --- Get Current Status ---
@@ -82,14 +103,21 @@
               return
 
           level = int(level_str)
-          status = get_command_output(args.status_cmd) if args.status_cmd else "Unknown"
+
+          if args.status_cmd:
+              status = get_command_output(args.status_cmd)
+          else:
+              status = "Unknown"
 
           if args.ignore_zero and level == 0:
               print(f"Ignoring 0% reading for {args.name} as requested.")
               return
 
           # --- Load State ---
-          state_file = Path(os.environ.get("XDG_RUNTIME_DIR", "/tmp")) / f"battery_notifier_{args.name}.json"
+          state_file = (
+              Path(os.environ.get("XDG_RUNTIME_DIR", "/tmp"))
+              / f"battery_notifier_{args.name}.json"
+          )
           state = load_state(state_file)
           last_notification_type = state["last_notification"]
           last_id = state["last_id"]
@@ -99,20 +127,19 @@
           # 1. Handle dismissal conditions first
           if last_notification_type == "full" and status == "Discharging":
               close_notification(last_id)
-              save_state(state_file, {"last_notification": "none", "last_id": 0})
+              save_state(state_file, {"last_notification": "none", "last_id": "0"})
               return
 
           if last_notification_type == "low" and level >= args.dismiss_threshold:
               close_notification(last_id)
-              save_state(state_file, {"last_notification": "none", "last_id": 0})
+              save_state(state_file, {"last_notification": "none", "last_id": "0"})
               return
 
           # 2. Handle notification creation/update conditions
-          app_name = "Battery Notifier"
 
           # LOW state
           if last_notification_type == "low" or level <= args.low_threshold:
-              if level < args.dismiss_threshold: # Only show/update if below dismiss level
+              if level < args.dismiss_threshold:
                   title = f"{args.name} Battery Low"
                   body = f"Level: {level}%."
                   if status and status != "Discharging":
@@ -120,8 +147,9 @@
                   else:
                       body += " Please plug in."
 
-                  new_id = notifications.Notify(app_name, last_id, "battery-low", title, body, [], {}, -1)
-                  save_state(state_file, {"last_notification": "low", "last_id": new_id})
+                  new_id = send_notification(last_id, "battery-low", title, body)
+                  state_to_save = {"last_notification": "low", "last_id": new_id}
+                  save_state(state_file, state_to_save)
               return
 
           # FULL state
@@ -129,9 +157,14 @@
               if last_notification_type != "full":
                   title = f"{args.name} Fully Charged"
                   body = f"Level: {level}%. You can unplug."
-                  new_id = notifications.Notify(app_name, 0, "battery-full-charged", title, body, [], {}, -1)
-                  save_state(state_file, {"last_notification": "full", "last_id": new_id})
+                  # Start with a new notification, so last_id is 0
+                  new_id = send_notification(
+                      "0", "battery-full-charged", title, body
+                  )
+                  state_to_save = {"last_notification": "full", "last_id": new_id}
+                  save_state(state_file, state_to_save)
               return
+
 
       if __name__ == "__main__":
           main()
@@ -194,22 +227,22 @@ in {
   };
 
   config = {
-    # The home-manager configuration is now conditional.
-    # It will only be included in the build if at least one device is enabled.
     home-manager.users.ben = lib.mkIf (builtins.any (d: d.enable) (lib.attrValues cfg.devices)) {
-      # add any packages needed for the battery notifier
       home.packages = with pkgs; [
-        polychromatic # For mouse battery
-        dunst         # For the notification daemon
+        polychromatic
+        dunst
+        libnotify
       ];
 
-      # Dynamically generate services and timers for each configured device
       systemd.user.services = lib.attrsets.mapAttrs' (name: device:
         lib.nameValuePair "battery-notifier-${name}" {
-          serviceConfig = {
+          Unit = {
+            Description = "Run battery notifier for ${name}";
+          };
+          Service = {
             Type = "oneshot";
             ExecStart = ''
-              ${battery-notifier-script} \
+              ${battery-notifier-script}/bin/battery-notifier \
                 --name "${name}" \
                 --level-cmd '${device.levelCmd}' \
                 ${lib.optionalString (device.statusCmd != null) "--status-cmd '${device.statusCmd}'"} \
@@ -226,14 +259,14 @@ in {
           Unit = {
             Description = "Run battery notifier for ${name}";
           };
-          Timer = device.timerConfig // { Unit = "battery-notifier-${name}.service"; };
+          Timer = device.timerConfig // {Unit = "battery-notifier-${name}.service";};
           Install = {
-            WantedBy = [ "timers.target" ];
+            WantedBy = ["timers.target"];
           };
         }) (lib.filterAttrs (n: v: v.enable) cfg.devices);
     };
 
-    # Devices are configured here
+    # devices are configured here
     nx.services.batteryNotifier.devices = {
       laptop = {
         enable = config.nx.isLaptop;
