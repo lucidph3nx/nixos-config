@@ -106,6 +106,7 @@
     inkscape
     mangohud
     ntfs3g
+    openscad
     parted
     protontricks
     protonup
