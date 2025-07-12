@@ -96,7 +96,6 @@
           parser.add_argument(
               "--ignore-zero", action="store_true", help="Ignore 0% battery readings"
           )
-          # New flag to indicate this run was triggered by a udev event
           parser.add_argument(
               "--event-driven", action="store_true", help="Run in event-driven mode"
           )
@@ -144,6 +143,7 @@
                   return
 
           # If this was an event-driven run and no dismissal happened, we can stop.
+          # The timer-based run will handle creating new notifications.
           if args.event_driven:
               return
 
@@ -241,12 +241,24 @@ in {
   config = {
     # UDEV rule to trigger the script on power supply changes.
     services.udev.extraRules = let
-      udev-devices = lib.filterAttrs (n: v: v.enable && v.udevTrigger) cfg.devices;
-      rules = lib.mapAttrsToList (name: device: ''
-        ACTION=="change", SUBSYSTEM=="power_supply", KERNEL=="BAT0", RUN+="${pkgs.systemd}/bin/systemctl --user start battery-notifier-event-${name}.service"
-      '') udev-devices;
-    in
-      lib.concatStringsSep "\n" rules;
+      # This wrapper script is run by udev (as root) and uses machinectl
+      # to correctly start the user service in the user's session.
+      udev-wrapper = pkgs.writeShellScriptBin "udev-battery-notifier" ''
+        #!${pkgs.runtimeShell}
+        # The device name (e.g., "laptop") is passed as the first argument
+        DEVICE_NAME=$1
+        # The user to run the service as.
+        USER="ben"
+        # Use machinectl to execute the command within the user's session scope.
+        # This is the standard systemd way to bridge a system event to a user action.
+        ${pkgs.systemd}/bin/machinectl shell \
+          ''${USER}@.host \
+          /bin/sh -c "systemctl --user --no-block start battery-notifier-event-''${DEVICE_NAME}.service"
+      '';
+    in ''
+      # This rule triggers whenever the AC adapter is plugged in or out.
+      ACTION=="change", SUBSYSTEM=="power_supply", ATTR{type}=="Mains", RUN+="${udev-wrapper}/bin/udev-battery-notifier laptop"
+    '';
 
     home-manager.users.ben = lib.mkIf (builtins.any (d: d.enable) (lib.attrValues cfg.devices)) {
       home.packages = with pkgs; [
@@ -255,7 +267,7 @@ in {
         libnotify
       ];
 
-      # MERGED systemd services definition
+      # Merged systemd services definition
       systemd.user.services =
         # Polling services (triggered by timers)
         (lib.attrsets.mapAttrs' (name: device:
@@ -277,7 +289,8 @@ in {
               '';
             };
           }) (lib.filterAttrs (n: v: v.enable) cfg.devices))
-        // # Event-driven services (triggered by udev)
+        //
+        # Event-driven services (triggered by udev)
         (lib.attrsets.mapAttrs' (name: device:
           lib.nameValuePair "battery-notifier-event-${name}" {
             Unit = {
@@ -290,10 +303,6 @@ in {
                   --name "${name}" \
                   --level-cmd '${device.levelCmd}' \
                   ${lib.optionalString (device.statusCmd != null) "--status-cmd '${device.statusCmd}'"} \
-                  --low-threshold ${toString device.lowThreshold} \
-                  --full-threshold ${toString device.fullThreshold} \
-                  --dismiss-threshold ${toString device.dismissThreshold} \
-                  ${lib.optionalString device.ignoreZero "--ignore-zero"} \
                   --event-driven
               '';
             };
@@ -311,11 +320,10 @@ in {
         }) (lib.filterAttrs (n: v: v.enable) cfg.devices);
     };
 
-    # devices are configured here
     nx.services.batteryNotifier.devices = {
       laptop = {
         enable = config.nx.isLaptop;
-        udevTrigger = true;
+        udevTrigger = true; # Enable the udev trigger for the laptop
         levelCmd = "cat /sys/class/power_supply/BAT0/capacity";
         statusCmd = "cat /sys/class/power_supply/BAT0/status";
         lowThreshold = 20;
