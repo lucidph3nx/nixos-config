@@ -68,3 +68,10 @@ When changes are ready to be committed and deployed, follow this specific sequen
 ### Temporary Testing Changes
 
 The user may request changes for testing purposes that should not be committed. In these cases, modify the necessary files and run `nh os switch` to apply the changes, but do not stage or commit them.
+
+### General Workflow Principles
+
+- **Atomic Changes:** Group all related modifications (e.g., creating a new module, importing it, and removing the old package entry) into a single logical change and commit them together.
+- **Git Tracking for Nix:** New files must be added to Git (and ideally committed) *before* Nix commands (like `nh os switch` or `nix flake check`) can recognize them.
+- **Efficiency of `nh os switch`/`nh os build`:** These commands can be time-consuming. Use them judiciously, only after a complete set of related changes has been applied, and then await user feedback before further iterations. Do not use them as part of an iterative debugging process unless explicitly instructed.
+- **Trusting User Feedback:** If the user confirms a fix, trust that feedback and move on, rather than attempting further "fixes" based on assumptions.
