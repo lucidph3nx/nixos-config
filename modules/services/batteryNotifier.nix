@@ -160,27 +160,27 @@
 
           # LOW state
           if level <= args.low_threshold:
-              if level < args.dismiss_threshold:
-                  title = f"{args.name} Battery Low"
-                  body = f"Level: {level}%."
+              title = f"{args.name} Battery Low"
+              body = f"Level: {level}%."
 
-                  icon = "battery-caution"
-                  if level <= (args.low_threshold / 2):
-                      icon = "battery-empty"
+              icon = "battery-caution"
+              if level <= (args.low_threshold / 2):
+                  icon = "battery-empty"
 
-                  if is_charging:
-                      body += " Plugged in."
-                      icon = "battery-low-charging"
-                  else:
-                      body += " Please plug in."
+              if is_charging:
+                  body += " Plugged in."
+                  icon = "battery-low-charging"
+              else:
+                  body += " Please plug in."
 
-                  new_id = send_notification(last_id, icon, title, body)
-                  state_to_save = {"last_notification": "low", "last_id": new_id, "full_notification_done": full_notification_done}
-                  save_state(state_file, state_to_save)
-              # If we are in the low state, and a notification was sent, we are done.
-              # Otherwise, if we are in the low state but above dismiss threshold,
-              # we might have just dismissed a notification, so we continue to check
-              # if a new notification is needed (which it won't be in this case).
+              new_id = send_notification(last_id, icon, title, body)
+              state_to_save = {
+                  "last_notification": "low",
+                  "last_id": new_id,
+                  "full_notification_done": full_notification_done,
+              }
+              save_state(state_file, state_to_save)
+              # If we are in the low state, a notification was sent, so we are done.
               return
 
           # FULL state
@@ -191,16 +191,12 @@
                   new_id = send_notification(
                       "0", "battery-full-charged", title, body
                   )
-                  state_to_save = {"last_notification": "full", "last_id": new_id, "full_notification_done": True}
+                  state_to_save = {
+                      "last_notification": "full",
+                      "last_id": new_id,
+                      "full_notification_done": True,
+                  }
                   save_state(state_file, state_to_save)
-
-          # NORMAL state (neither low nor full, and not charging to full)
-          # If there was a previous notification (low or full), dismiss it.
-          if last_notification_type != "none" and not (level >= args.full_threshold and is_charging):
-              close_notification(last_id)
-              state = {"last_notification": "none", "last_id": "0", "full_notification_done": full_notification_done}
-              save_state(state_file, state)
-              return
 
 
       if __name__ == "__main__":
