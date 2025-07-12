@@ -43,12 +43,16 @@
       def load_state(state_file):
           """Loads state from a JSON file, or returns a default."""
           if not state_file.exists():
-              return {"last_notification": "none", "last_id": "0"}
+              return {"last_notification": "none", "last_id": "0", "full_notification_done": False}
           try:
               with open(state_file, "r") as f:
-                  return json.load(f)
+                  state = json.load(f)
+                  # Add new keys with default values if they don't exist
+                  if "full_notification_done" not in state:
+                      state["full_notification_done"] = False
+                  return state
           except json.JSONDecodeError:
-              return {"last_notification": "none", "last_id": "0"}
+              return {"last_notification": "none", "last_id": "0", "full_notification_done": False}
 
 
       def close_notification(notif_id):
@@ -93,11 +97,9 @@
           parser.add_argument("--low-threshold", type=int, default=20)
           parser.add_argument("--full-threshold", type=int, default=100)
           parser.add_argument("--dismiss-threshold", type=int, default=50)
+          parser.add_argument("--re-notify-threshold", type=int, default=60)
           parser.add_argument(
               "--ignore-zero", action="store_true", help="Ignore 0% battery readings"
-          )
-          parser.add_argument(
-              "--event-driven", action="store_true", help="Run in event-driven mode"
           )
           args = parser.parse_args()
 
@@ -114,6 +116,9 @@
           else:
               status = "Unknown"
 
+          is_charging = status == "Charging" or status == "Full"
+          is_discharging = status == "Discharging"
+
           if args.ignore_zero and level == 0:
               print(f"Ignoring 0% reading for {args.name} as requested.")
               return
@@ -126,54 +131,75 @@
           state = load_state(state_file)
           last_notification_type = state["last_notification"]
           last_id = state["last_id"]
+          full_notification_done = state["full_notification_done"]
 
           # --- State Machine ---
 
-          # 1. Handle dismissal conditions first
-          if last_notification_type == "full" and status == "Discharging":
+          # 1. Handle dismissal conditions first.
+          # If a notification is dismissed, update the local state and continue,
+          # allowing a new notification to be created in the same run if needed.
+          if last_notification_type == "full" and is_discharging:
               close_notification(last_id)
-              save_state(state_file, {"last_notification": "none", "last_id": "0"})
-              if args.event_driven:
-                  return
+              state = {"last_notification": "none", "last_id": "0", "full_notification_done": True}
+              save_state(state_file, state)
+              last_notification_type, last_id, full_notification_done = state["last_notification"], state["last_id"], state["full_notification_done"]
 
           if last_notification_type == "low" and level >= args.dismiss_threshold:
               close_notification(last_id)
-              save_state(state_file, {"last_notification": "none", "last_id": "0"})
-              if args.event_driven:
-                  return
+              state = {"last_notification": "none", "last_id": "0", "full_notification_done": full_notification_done}
+              save_state(state_file, state)
+              last_notification_type, last_id = state["last_notification"], state["last_id"]
 
-          # If this was an event-driven run and no dismissal happened, we can stop.
-          # The timer-based run will handle creating new notifications.
-          if args.event_driven:
-              return
+          # Reset full_notification_done flag if battery drops below re-notify threshold while discharging
+          if status == "Discharging" and level <= args.re_notify_threshold:
+              state["full_notification_done"] = False
+              save_state(state_file, state)
+              full_notification_done = state["full_notification_done"]
 
-          # 2. Handle notification creation/update conditions (polling only)
+          # 2. Handle notification creation/update conditions.
 
           # LOW state
-          if last_notification_type == "low" or level <= args.low_threshold:
+          if level <= args.low_threshold:
               if level < args.dismiss_threshold:
                   title = f"{args.name} Battery Low"
                   body = f"Level: {level}%."
-                  if status and status != "Discharging":
+
+                  icon = "battery-caution"
+                  if level <= (args.low_threshold / 2):
+                      icon = "battery-empty"
+
+                  if is_charging:
                       body += " Plugged in."
+                      icon = "battery-low-charging"
                   else:
                       body += " Please plug in."
 
-                  new_id = send_notification(last_id, "battery-low", title, body)
-                  state_to_save = {"last_notification": "low", "last_id": new_id}
+                  new_id = send_notification(last_id, icon, title, body)
+                  state_to_save = {"last_notification": "low", "last_id": new_id, "full_notification_done": full_notification_done}
                   save_state(state_file, state_to_save)
+              # If we are in the low state, and a notification was sent, we are done.
+              # Otherwise, if we are in the low state but above dismiss threshold,
+              # we might have just dismissed a notification, so we continue to check
+              # if a new notification is needed (which it won't be in this case).
               return
 
           # FULL state
-          if level >= args.full_threshold and status != "Discharging":
-              if last_notification_type != "full":
+          if level >= args.full_threshold and is_charging:
+              if last_notification_type != "full" and not full_notification_done:
                   title = f"{args.name} Fully Charged"
                   body = f"Level: {level}%. You can unplug."
                   new_id = send_notification(
                       "0", "battery-full-charged", title, body
                   )
-                  state_to_save = {"last_notification": "full", "last_id": new_id}
+                  state_to_save = {"last_notification": "full", "last_id": new_id, "full_notification_done": True}
                   save_state(state_file, state_to_save)
+
+          # NORMAL state (neither low nor full, and not charging to full)
+          # If there was a previous notification (low or full), dismiss it.
+          if last_notification_type != "none" and not (level >= args.full_threshold and is_charging):
+              close_notification(last_id)
+              state = {"last_notification": "none", "last_id": "0", "full_notification_done": full_notification_done}
+              save_state(state_file, state)
               return
 
 
@@ -204,6 +230,12 @@ in {
             type = lib.types.int;
             default = 50;
             description = "The battery percentage at which to dismiss the low battery notification.";
+          };
+
+          reNotifyThreshold = lib.mkOption {
+            type = lib.types.int;
+            default = 60;
+            description = "The battery percentage at which to re-enable full battery notifications after it has been fully charged and discharged.";
           };
 
           ignoreZero = lib.mkOption {
@@ -285,6 +317,7 @@ in {
                   --low-threshold ${toString device.lowThreshold} \
                   --full-threshold ${toString device.fullThreshold} \
                   --dismiss-threshold ${toString device.dismissThreshold} \
+                  --re-notify-threshold ${toString device.reNotifyThreshold} \
                   ${lib.optionalString device.ignoreZero "--ignore-zero"}
               '';
             };
@@ -303,7 +336,11 @@ in {
                   --name "${name}" \
                   --level-cmd '${device.levelCmd}' \
                   ${lib.optionalString (device.statusCmd != null) "--status-cmd '${device.statusCmd}'"} \
-                  --event-driven
+                  --low-threshold ${toString device.lowThreshold} \
+                  --full-threshold ${toString device.fullThreshold} \
+                  --dismiss-threshold ${toString device.dismissThreshold} \
+                  --re-notify-threshold ${toString device.reNotifyThreshold} \
+                  ${lib.optionalString device.ignoreZero "--ignore-zero"}
               '';
             };
           }) (lib.filterAttrs (n: v: v.enable && v.udevTrigger) cfg.devices));
@@ -326,8 +363,9 @@ in {
         udevTrigger = true; # Enable the udev trigger for the laptop
         levelCmd = "cat /sys/class/power_supply/BAT0/capacity";
         statusCmd = "cat /sys/class/power_supply/BAT0/status";
-        lowThreshold = 20;
-        dismissThreshold = 50;
+        lowThreshold = 90;
+        dismissThreshold = 95;
+        reNotifyThreshold = 96;
       };
       mouse = {
         enable = true;
@@ -337,6 +375,7 @@ in {
         lowThreshold = 20;
         dismissThreshold = 50;
         ignoreZero = true;
+        reNotifyThreshold = 60;
       };
     };
   };
