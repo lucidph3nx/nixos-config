@@ -1,0 +1,54 @@
+# Gemini Project Guidance: nixos-config
+
+This document provides guidance for the Gemini AI assistant on how to interact with this NixOS configuration repository.
+
+## Project Overview
+
+- **Primary Goal:** This repository manages the personal NixOS configurations for multiple machines, all intended for a single user ("lucidph3nx").
+- **Design Philosophy:**
+    - Configurations are managed with Nix Flakes.
+    - Home Manager and NixOS options are often configured together within the same module for simplicity.
+    - The system aims for impermanence, with state managed via `impermanence`.
+    - Secrets are managed with `sops-nix` and an age key.
+    - The `unstable` channel is preferred for packages. Overlays are used to pin packages to `stable` or other versions only when necessary.
+
+## Common Commands
+
+- **Building/Testing Changes:** To validate configuration changes without applying them, use the `nh` helper command. This is the preferred method for checking for errors.
+    - `nh os build`
+- **Linting/Formatting:** Code is formatted with `alejandra`.
+    - `alejandra .`
+- **Flake Validation:** To check the flake for correctness across all defined systems, use:
+    - `nix flake check --all-systems`
+- **Updating Inputs:** To update all flake inputs, use:
+    - `nix flake update`
+- **Applying Configuration:** The user will typically handle applying the configuration manually with `nh os switch`. Do not attempt to apply changes unless explicitly asked.
+- **Editing Secrets:** Secrets are encrypted with `sops`. To edit a secret, use the `sops` command.
+    - `sops <path/to/secret.sops.yaml>`
+
+## Code Structure & Conventions
+
+### Adding New Packages/Applications
+
+1.  **Machine-Specific (Limited Use):** If a package is needed on only one machine, add it directly to that machine's `configuration.nix` (e.g., `machines/navi/configuration.nix`).
+2.  **Global (Simple Package):** If a package should be available on all machines and requires no special configuration, add it to the main list in `modules/programs/default.nix`.
+3.  **Global (With Configuration):** For applications that require configuration, files, or persisted state:
+    - Create a new module file (e.g., `modules/programs/new-app.nix`).
+    - In this file, define the necessary NixOS and/or Home Manager options.
+    - Import the new module into `modules/programs/default.nix`.
+    - Enable the module where needed (e.g., in a specific machine's configuration).
+
+### Adding New Services
+
+- Follow the same pattern as for applications with configuration, but place the new module within the `modules/services/` directory.
+
+### Naming Conventions
+
+- **Files:** Use lowercase for file and directory names.
+- **Nix Options:** Use either camelCase or kebab-case, maintaining consistency with the surrounding code.
+
+### Secrets Management
+
+- Secrets are co-located with the modules that use them (e.g., `modules/qutebrowser/secrets/`).
+- The public age key for encryption is located in the root `.sops.yaml` file. Do not ask for this key.
+- When adding a new secret, create a new `.sops.yaml` file in the appropriate module directory.
