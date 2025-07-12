@@ -33,6 +33,7 @@
     ./podman.nix
     ./python.nix
     ./qutebrowser
+    ./rmpc.nix
     ./signal.nix
     ./ssh.nix
     ./tmux.nix
