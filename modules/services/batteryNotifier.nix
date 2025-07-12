@@ -363,9 +363,9 @@ in {
         udevTrigger = true; # Enable the udev trigger for the laptop
         levelCmd = "cat /sys/class/power_supply/BAT0/capacity";
         statusCmd = "cat /sys/class/power_supply/BAT0/status";
-        lowThreshold = 90;
-        dismissThreshold = 95;
-        reNotifyThreshold = 96;
+        lowThreshold = 20;
+        dismissThreshold = 50;
+        reNotifyThreshold = 60;
       };
       mouse = {
         enable = true;
