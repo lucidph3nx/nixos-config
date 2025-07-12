@@ -1,6 +1,6 @@
-# Gemini Project Guidance: nixos-config
+# Agents Project Guidance: nixos-config
 
-This document provides guidance for the Gemini AI assistant on how to interact with this NixOS configuration repository.
+This document provides guidance for AI agents on how to interact with this NixOS configuration repository.
 
 ## Project Overview
 
