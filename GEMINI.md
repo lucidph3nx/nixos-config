@@ -52,3 +52,19 @@ This document provides guidance for the Gemini AI assistant on how to interact w
 - Secrets are co-located with the modules that use them (e.g., `modules/qutebrowser/secrets/`).
 - The public age key for encryption is located in the root `.sops.yaml` file. Do not ask for this key.
 - When adding a new secret, create a new `.sops.yaml` file in the appropriate module directory.
+
+## Workflows
+
+### Committing and Deploying Changes
+
+When changes are ready to be committed and deployed, follow this specific sequence:
+
+1.  **Commit:** Stage the changes and write a descriptive commit message.
+2.  **Build:** Verify the configuration builds successfully with `nh os build`.
+3.  **Check:** Run the flake checker with `nix flake check --all-systems`.
+4.  **Switch:** Apply the new configuration with `nh os switch`.
+5.  **Push:** If all previous steps succeed, push the changes with `git push`.
+
+### Temporary Testing Changes
+
+The user may request changes for testing purposes that should not be committed. In these cases, modify the necessary files and run `nh os switch` to apply the changes, but do not stage or commit them.
