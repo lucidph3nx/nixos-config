@@ -14,6 +14,7 @@
     ./dragon-drop.nix
     ./fastfetch.nix
     ./firefox
+    ./gemini-cli.nix
     ./gimp.nix
     ./git.nix
     ./homeAutomation.nix
@@ -94,7 +95,6 @@
         eza
         fzf
         fzy
-        gemini-cli #TODO: remove after testing
         htop
         imagemagick
         jnv
