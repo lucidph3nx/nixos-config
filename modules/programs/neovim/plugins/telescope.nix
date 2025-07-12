@@ -1,7 +1,4 @@
-{
-  pkgs,
-  ...
-}: {
+{pkgs, ...}: {
   home-manager.users.ben.home.packages = [
     pkgs.fzf
   ];

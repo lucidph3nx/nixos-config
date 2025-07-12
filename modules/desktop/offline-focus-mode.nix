@@ -55,7 +55,7 @@
               *)
                 echo "$MODE_TEXT"
                 ;;
-             esac 
+             esac
           '';
       };
       home.file.".local/scripts/desktop.system.setOfflineFocusMode" = {

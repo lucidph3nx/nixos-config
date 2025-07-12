@@ -69,6 +69,6 @@
       bg_green = "#b8bb26";
       bg_blue = "#83a598";
       bg_yellow = "#fabd2f";
-      })
+    })
   ];
 }

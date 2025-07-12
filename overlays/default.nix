@@ -1,14 +1,12 @@
 {
   outputs,
   inputs, # This 'inputs' argument holds the raw flake inputs
-}: 
-let
+}: let
   addPatches = pkg: patches:
     pkg.overrideAttrs (oldAttrs: {
       patches = (oldAttrs.patches or []) ++ patches;
     });
-in
-rec {
+in rec {
   modifications = final: prev: {
     # currently none here 🎉
   };

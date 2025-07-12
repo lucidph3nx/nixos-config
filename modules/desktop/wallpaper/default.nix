@@ -30,7 +30,7 @@ in {
     };
   };
   config = lib.mkIf config.nx.desktop.wallpaper.enable {
-    home-manager.users.ben = { lib, ... }: {
+    home-manager.users.ben = {lib, ...}: {
       # convert the svg to a png at activaion time
       home.activation.renderWallpaper = lib.hm.dag.entryAfter ["writeBoundary"] ''
         ${pkgs.imagemagick}/bin/convert ${configDir}/${variant}-wallpaper-${resolution}.svg ${configDir}/wallpaper-${resolution}.png

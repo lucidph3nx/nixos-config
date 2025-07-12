@@ -58,17 +58,17 @@ in {
     };
     # ssh signing keys
     sops.secrets."ssh/lucidph3nx-ed25519-signingkey" = {
-        owner = "ben";
-        mode = "0600";
-        path = "/home/ben/.ssh/lucidph3nx-ed25519-signingkey";
-        sopsFile = ./secrets/ssh.sops.yaml;
-      };
+      owner = "ben";
+      mode = "0600";
+      path = "/home/ben/.ssh/lucidph3nx-ed25519-signingkey";
+      sopsFile = ./secrets/ssh.sops.yaml;
+    };
     sops.secrets."ssh/lucidph3nx-ed25519-signingkey.pub" = {
-        owner = "ben";
-        mode = "0600";
-        path = "/home/ben/.ssh/lucidph3nx-ed25519-signingkey.pub";
-        sopsFile = ./secrets/ssh.sops.yaml;
-      };
+      owner = "ben";
+      mode = "0600";
+      path = "/home/ben/.ssh/lucidph3nx-ed25519-signingkey.pub";
+      sopsFile = ./secrets/ssh.sops.yaml;
+    };
     system.activationScripts.signingKeysFolderPermissions = ''
       mkdir -p /home/ben/.ssh
       chown ben:users /home/ben/.ssh
