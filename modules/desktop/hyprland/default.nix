@@ -46,6 +46,7 @@ in {
       filemanager = "${terminal} lf";
       musicplayer = "${terminal} ncmpcpp";
       obsidian = "${terminal} ${homeDir}/.local/scripts/cli.tmux.projectSessioniser ${homeDir}/documents/obsidian";
+      nixosconfig = "${terminal} ${homeDir}/.local/scripts/cli.tmux.projectSessioniser ${homeDir}/code/nixos-config";
       addtoshoppinglist = "${homeDir}/.local/scripts/home.shoppinglist.addItem";
       openshoppinglist = "${newwindow} https://www.notion.so/ph3nx/Shopping-List-92d98ac3dc86460285a399c0b1176fc5";
       # configuration
@@ -240,6 +241,7 @@ in {
           "ALT, l, exec, ${addtoshoppinglist}"
           "ALT SHIFT, l, exec, ${openshoppinglist}"
           "ALT, o, exec, ${obsidian}"
+          "ALT, n, exec, ${nixosconfig}"
           # media controls
           ", XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
           (lib.mkIf enableAudioControls ", XF86AudioRaiseVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+")
