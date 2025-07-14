@@ -104,8 +104,8 @@
             "{}"
           ];
           fonts = {
-            default_family = "JetBrainsMono Nerd Font";
-            default_size = "10pt";
+            default_family = "Quicksand Medium";
+            default_size = "12pt";
           };
           # false beacuse it causes a weird colour shift
           # https://github.com/qutebrowser/qutebrowser/issues/5528

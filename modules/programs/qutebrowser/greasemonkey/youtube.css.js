@@ -5,10 +5,10 @@
 // ==/UserScript==
 GM_addStyle(`
   * {
-    border-radius: 0px !important;
-    font-family: JetBrains Mono, monospace !important;
+    border-radius: 5px !important;
+    font-family: Quicksand, sans-serif !important;
   }
-  
+
   ytd-rich-grid-renderer {
     /* show more videos per row - Youtube used to look like this, but changed recently (2025-04-28) */
     --ytd-rich-grid-items-per-row: var(--ytd-rich-grid-slim-items-per-row) !important;
@@ -54,6 +54,13 @@ GM_addStyle(`
   .ytSearchboxComponentSearchButtonDark {
     border: 1px solid var(--system-theme-grey2) !important;
     border-color: var(--system-theme-grey2) !important;
+  }
+
+  .ytSearchboxComponentInputBox, .ytSearchboxComponentInputBoxDark {
+    border-radius: 5px 0 0 5px !important;
+  }
+  .ytSearchboxComponentSearchButton {
+    border-radius: 0 5px 5px 0 !important;
   }
 
   /* weird black bands around a "cinimatic video" */

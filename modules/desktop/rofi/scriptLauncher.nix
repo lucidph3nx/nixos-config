@@ -27,7 +27,7 @@
           scripts=$(echo "$scripts" | grep -v '^cli.')
 
           # Pass the list to rofi and store the selected script in a variable
-          selected_script=$(echo "$scripts" | rofi -monitor "$monitor" -dmenu -i -theme-str "$rofi_style_runscripts")
+          selected_script=$(echo "$scripts" | rofi -monitor "$monitor" -dmenu -i -font "JetBrainsMono NF 14" -theme-str "$rofi_style_runscripts")
           # Execute the selected script
           if [[ -n $selected_script ]]; then
               bash "/home/ben/.local/scripts/$selected_script"

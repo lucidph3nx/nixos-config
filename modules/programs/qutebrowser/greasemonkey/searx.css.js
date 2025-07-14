@@ -4,8 +4,14 @@
 // ==/UserScript==
 GM_addStyle(`
   * {
-    font-family: JetBrains Mono, monospace !important;
-    border-radius: 0px !important;
+    font-family: Quicksand, sans-serif !important;
+    /*border-radius: 5px !important;*/
+  }
+  #q {
+    border-radius: 5px 0 0 5px !important;
+  }
+  #send_search {
+    border-radius: 0 5px 5px 0 !important;
   }
   :root {
     --color-base-font: var(--system-theme-fg) !important;

@@ -4,22 +4,22 @@
 // ==/UserScript==
 GM_addStyle(`
   * {
-    border-radius: 0px !important;
+    border-radius: 5px !important;
     text-rendering: auto !important;
   }
 
   *:before {
-    border-radius: 0px !important;
+    border-radius: 5px !important;
     text-rendering: auto !important;
   }
 
   *:after {
-    border-radius: 0px !important;
+    border-radius: 5px !important;
     text-rendering: auto !important;
   }
 
   body {
-    font-family: JetBrains Mono, monospace !important;
+    font-family: Quicksand, sans-serif !important;
     --gm3-sys-color-surface-container-low: var(--system-theme-bg_dim) !important;
     --gm3-sys-color-surface: var(--system-theme-bg0) !important;
     --gm3-sys-color-surface-container-highest: var(--system-theme-bg3) !important;

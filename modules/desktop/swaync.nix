@@ -64,7 +64,7 @@ with config.theme; {
           */
           ''
             * {
-              font-family: JetBrainsMono Nerd Font, monospace;
+              font-family: Quicksand, sans-serif;
             }
             .notification-row {
               outline: none;
@@ -72,10 +72,10 @@ with config.theme; {
             .notification-row:focus,
             .notification-row:hover {
               background: none;
-              border-radius: 0px;
+              border-radius: 5px;
             }
             .notification {
-              border-radius: 0px;
+              border-radius: 5px;
               margin: 6px 12px;
               box-shadow: none;
               padding: 0;
@@ -88,7 +88,7 @@ with config.theme; {
             .notification-content {
               background: transparent;
               padding: 6px;
-              border-radius: 0px;
+              border-radius: 5px;
             }
             .close-button {
               background: ${bg0};
@@ -128,22 +128,22 @@ with config.theme; {
             }
 
             .notification-default-action {
-              border-radius: 0px;
+              border-radius: 5px;
             }
 
             /* When alternative actions are visible */
-            .notification-default-action:not(:only-child) {
-              border-bottom-left-radius: 0px;
-              border-bottom-right-radius: 0px;
-            }
+            /* .notification-default-action:not(:only-child) { */
+            /*   border-bottom-left-radius: 0px; */
+            /*   border-bottom-right-radius: 0px; */
+            /* } */
 
             /* add bottom border radius to eliminate clipping */
-            .notification-action:first-child {
-              border-bottom-left-radius: 0px;
-            }
+            /* .notification-action:first-child { */
+            /*   border-bottom-left-radius: 0px; */
+            /* } */
 
             .notification-action:last-child {
-              border-bottom-right-radius: 0px;
+              /* border-bottom-right-radius: 0px; */
               border-right: 1px solid ${grey0};
             }
 
@@ -216,7 +216,7 @@ with config.theme; {
               background: ${bg0};
               border: 1px solid ${grey0};
               box-shadow: none;
-              border-radius: 0px;
+              border-radius: 5px;
             }
             .widget-title > button:hover {
               color: ${bg_dim};
@@ -230,7 +230,7 @@ with config.theme; {
             }
             .widget-dnd > switch {
               font-size: initial;
-              border-radius: 0px;
+              /* border-radius: 10px; */
               background: ${bg0};
               border: 1px solid ${grey0};
               box-shadow: none;
@@ -240,7 +240,7 @@ with config.theme; {
             }
             .widget-dnd > switch slider {
               background: ${green};
-              border-radius: 0px;
+              /* border-radius: 5px; */
             }
 
             /* Label widget */

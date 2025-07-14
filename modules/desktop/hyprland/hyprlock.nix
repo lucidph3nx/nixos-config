@@ -45,7 +45,7 @@ in {
             text = ''cmd[update:1000] echo $(date +'%T')'';
             color = "rgba(${builtins.substring 1 6 (theme.foreground)}ff)";
             font_size = 95;
-            font_family = "JetBrainsMono Nerd Font";
+            font_family = "Quicksand";
             position = "0, 100";
             halign = "center";
             valign = "center";
@@ -55,7 +55,7 @@ in {
             text = ''cmd[update:1000] echo $(date +'%F')'';
             color = "rgba(${builtins.substring 1 6 (theme.foreground)}ff)";
             font_size = 22;
-            font_family = "JetBrainsMono Nerd Font";
+            font_family = "Quicksand";
             position = "0, 0";
             halign = "center";
             valign = "center";
@@ -72,7 +72,7 @@ in {
           inner_color = "rgba(${builtins.substring 1 6 (theme.bg_dim)}ff)";
           font_color = "rgba(${builtins.substring 1 6 (theme.green)}ff)";
           fade_on_empty = false;
-          rounding = 0;
+          rounding = 5;
           check_color = "rgba(${builtins.substring 1 6 (theme.bg_dim)}ff)";
           fail_color = "rgba(${builtins.substring 1 6 (theme.red)}ff)";
           placeholder_text = ''<i><span foreground="#${theme.foreground}">Input Password...</span></i>'';
