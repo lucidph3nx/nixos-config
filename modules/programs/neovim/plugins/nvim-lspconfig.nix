@@ -4,6 +4,7 @@
       helm-ls
       lua-language-server
       nil
+      rust-analyzer
       typescript-language-server
       yaml-language-server
     ];
