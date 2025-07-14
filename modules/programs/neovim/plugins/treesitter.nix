@@ -6,6 +6,7 @@
           bash
           clojure
           cmake
+          commonlisp
           css
           dockerfile
           gitcommit
@@ -20,21 +21,21 @@
           json5
           jsonc
           latex
-          mermaid
-          commonlisp
           lua
           markdown
+          mermaid
           nginx
           nix
           python
           rust
           scala
-          ssh_config
           sql
+          ssh_config
           tmux
           toml
           typescript
           vim
+          xml
           yaml
         ]);
       type = "lua";
