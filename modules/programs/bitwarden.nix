@@ -23,11 +23,11 @@
           ".config/Bitwarden CLI"
         ];
       };
-      # force wayland
       xdg.desktopEntries.bitwarden = {
-        name = "bitwarden";
+        name = "Bitwarden";
         comment = "Secure and free password manager for all of your devices";
         icon = "bitwarden";
+        # force wayland
         exec = "bitwarden --enable-features=UseOzonePlatform --ozone-platform=wayland";
         mimeType = ["x-scheme-handler/bitwarden"];
       };
