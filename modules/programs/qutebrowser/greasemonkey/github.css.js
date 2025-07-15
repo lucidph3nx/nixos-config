@@ -72,6 +72,9 @@ GM_addStyle(`
     --button-primary-bgColor-active: var(--system-theme-green) !important;
     --button-primary-fgColor-rest: var(--system-theme-bg0) !important;
 
+    --tooltip-fgColor: var(--system-theme-fg) !important;
+    --tooltip-bgColor: var(--system-theme-bg4) !important;
+
     --contribution-default-bgColor-4: var(--system-theme-green) !important;
     --contribution-default-bgColor-3: color-mix(in srgb, var(--system-theme-green) 75%, var(--system-theme-bg0) 25%) !important;
     --contribution-default-bgColor-2: color-mix(in srgb, var(--system-theme-green) 50%, var(--system-theme-bg0) 50%) !important;
