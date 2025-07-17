@@ -91,6 +91,10 @@
           name = "reddit.css.js";
           text = builtins.readFile ./greasemonkey/reddit.css.js;
         })
+        (pkgs.writeTextFile {
+          name = "reddit_custom_header.js";
+          text = builtins.readFile ./greasemonkey/reddit_custom_header.js;
+        })
         # style for facebook
         # (pkgs.writeTextFile {
         #   name = "facebook.css.js";
