@@ -86,6 +86,11 @@
           name = "searx.css.js";
           text = builtins.readFile ./greasemonkey/searx.css.js;
         })
+        # style for reddit
+        (pkgs.writeTextFile {
+          name = "reddit.css.js";
+          text = builtins.readFile ./greasemonkey/reddit.css.js;
+        })
         # style for facebook
         # (pkgs.writeTextFile {
         #   name = "facebook.css.js";
