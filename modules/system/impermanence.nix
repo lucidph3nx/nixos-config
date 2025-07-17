@@ -54,6 +54,7 @@
         "/var/lib/systemd/coredump"
         "/etc/NetworkManager/system-connections"
         "/etc/ssh"
+        "/nix/var/nix/profiles"
       ];
       files = [
         "/etc/machine-id"
