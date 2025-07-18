@@ -42,6 +42,7 @@ GM_addStyle(`
     --fgColor-attention: var(--system-theme-orange) !important;
     --fgColor-onEmphasis: var(--system-theme-bg0) !important;
     --button-primary-fgColor-resting: var(--system-theme-bg0) !important;
+    --button-primary-iconColor-rest: var(--system-theme-bg0) !important;
 
     --bgColor-default: var(--system-theme-bg0) !important;
     --bgColor-inset: var(--system-theme-bg_dim) !important;
