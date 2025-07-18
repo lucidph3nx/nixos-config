@@ -28,6 +28,7 @@ GM_addStyle(`
   .comment .author, .comment .submitter { color: var(--system-theme-blue) !important; }
   .md, .usertext-body { color: var(--system-theme-fg); }
   .md a, .usertext-body a { color: var(--system-theme-primary); }
+  .md code, .md pre { font-family: "JetBrainsMono NF", monospace !important; background-color: var(--system-theme-bg2) !important; color: var(--system-theme-fg) !important; border-radius: 5px; padding: 4px; }
   #header, #sr-header-area, #header-bottom-left, .side #search, .searchexpando, #header-bottom-right, .listing-chooser, .expando-button { display: none !important; }
   .morelink { background-image: none !important; background-color: var(--system-theme-bg2) !important; color: var(--system-theme-primary) !important; border: 1px solid var(--system-theme-bg4) !important; border-radius: 5px;}
   .morelink .nub, .morelink:hover .nub, .mlhn { display: none !important; }
