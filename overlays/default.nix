@@ -1,6 +1,6 @@
 {
   outputs,
-  inputs, # This 'inputs' argument holds the raw flake inputs
+  inputs,
 }: let
   addPatches = pkg: patches:
     pkg.overrideAttrs (oldAttrs: {
@@ -8,6 +8,8 @@
     });
 in rec {
   modifications = final: prev: {
-    # currently none here 🎉
+    # without this, darktable fails to build
+    # fix is merged, waiting for https://nixpk.gs/pr-tracker.html?pr=424658
+    darktable = inputs.nixpkgs-darktablejuly25.legacyPackages.${final.system}.darktable;
   };
 }
