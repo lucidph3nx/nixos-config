@@ -168,6 +168,7 @@
           		img_name_func = imgNameFunction,
           		confirm_img_paste = true,
           	},
+            legacy_commands = false, -- Disable legacy commands
           })
 
           -- custom commands for previous and next daily note
@@ -239,7 +240,7 @@
           })
 
           vim.opt.conceallevel = 2
-          vim.keymap.set("n", "<leader>od", vim.cmd.ObsidianToday, { desc = "[O]bsidian [D]aily note for Today" })
+          vim.keymap.set("n", "<leader>od", "<cmd>Obsidian today<cr>", { desc = "[O]bsidian [D]aily note for Today" })
           vim.keymap.set(
           	"n",
           	"<leader>oy",
@@ -256,15 +257,14 @@
           vim.keymap.set("n", "<leader>on", vim.cmd.ObsidianNextDay, { desc = "[O]bsidian [N]ext Daily Note" })
           vim.keymap.set("n", "<leader>op", vim.cmd.ObsidianPrevDay, { desc = "[O]bsidian [P]revious Daily Note" })
 
-          vim.keymap.set("n", "<leader>ob", vim.cmd.ObsidianBacklinks, { desc = "[O]bsidian [B]acklinks" })
-          vim.keymap.set("n", "<leader>oc", vim.cmd.ObsidianToggleCheckbox, { desc = "[O]bsidian [C]heckbox" })
-          vim.keymap.set("n", "<leader>of", vim.cmd.ObsidianFollow, { desc = "[O]bsidian [F]ollow" })
-          vim.keymap.set("n", "<leader>ol", vim.cmd.ObsidianLinkNew, { desc = "[O]bsidian [L]ink" })
-          vim.keymap.set("n", "<leader>oo", vim.cmd.ObsidianOpen, { desc = "[O]bsidian [O]pen" })
-          vim.keymap.set("n", "<leader>os", vim.cmd.ObsidianSearch, { desc = "[O]bsidian [S]earch" })
-          vim.keymap.set("n", "<leader>ost", vim.cmd.ObsidianTags, { desc = "[O]bsidian [S]earch [T]ags" })
-          vim.keymap.set("n", "<leader>ot", vim.cmd.ObsidianTemplate, { desc = "[O]bsidian [T]emplate" })
-          vim.keymap.set("v", "<leader>ol", vim.cmd.ObsidianLinkNew, { desc = "[O]bsidian [L]ink" })
+          vim.keymap.set("n", "<leader>ob", "<cmd>Obsidian backlinks<cr>", { desc = "[O]bsidian [B]acklinks" })
+          vim.keymap.set("n", "<leader>oc", "<cmd>Obsidian toggle_checkbox<cr>", { desc = "[O]bsidian [C]heckbox" })
+          vim.keymap.set("n", "<leader>of", "<cmd>Obsidian follow_link<cr>", { desc = "[O]bsidian [F]ollow" })
+          vim.keymap.set("n", "<leader>ol", "<cmd>Obsidian link_new<cr>", { desc = "[O]bsidian [L]ink" })
+          vim.keymap.set("n", "<leader>oo", "<cmd>Obsidian open<cr>", { desc = "[O]bsidian [O]pen" })
+          vim.keymap.set("n", "<leader>os", "<cmd>Obsidian search<cr>", { desc = "[O]bsidian [S]earch" })
+          vim.keymap.set("n", "<leader>ost", "<cmd>Obsidian tags<cr>", { desc = "[O]bsidian [S]earch [T]ags" })
+          vim.keymap.set("n", "<leader>ot", "<cmd>Obsidian template<cr>", { desc = "[O]bsidian [T]emplate" })
         '';
     }
   ];
