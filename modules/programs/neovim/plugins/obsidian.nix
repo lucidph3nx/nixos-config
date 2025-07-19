@@ -218,7 +218,7 @@
           	local total_offset_from_today = math.floor((target_note_timestamp - today_timestamp) / (24 * 60 * 60) + 0.5)
 
           	-- Call ObsidianToday with the calculated offset from today
-          	vim.cmd("ObsidianToday " .. total_offset_from_today)
+          	vim.cmd("Obsidian today " .. total_offset_from_today)
           end
 
           vim.api.nvim_create_user_command("ObsidianPrevDay", function(_)
