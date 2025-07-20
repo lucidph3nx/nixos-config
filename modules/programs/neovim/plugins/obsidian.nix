@@ -146,7 +146,11 @@
           	},
           	note_id_func = noteIdFunction,
           	notes_subdir = "notes",
-          	daily_notes = { folder = "dailies", date_format = "%Y-%m-%d", template = "daily_note.md" },
+          	daily_notes = { 
+              folder = "dailies", 
+              date_format = "%Y-%m-%d", 
+              template = "daily_note.md" 
+            },
           	templates = {
           		subdir = "templates",
           		substitutions = templateSubstitutions,
