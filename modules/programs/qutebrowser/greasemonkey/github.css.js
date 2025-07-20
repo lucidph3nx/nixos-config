@@ -52,6 +52,7 @@ GM_addStyle(`
     --bgColor-accent-muted: var(--system-theme-bg1) !important;
     --bgColor-danger-emphasis: var(--system-theme-red) !important;
     --bgColor-severe-emphasis: var(--system-theme-orange) !important;
+    --bgColor-neutral-emphasis: var(--system-theme-fg) !important;
     --overlay-bgColor: var(--system-theme-bg_dim) !important;
     --control-bgColor-rest: var(--system-theme-bg_dim) !important;
 
