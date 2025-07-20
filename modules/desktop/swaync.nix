@@ -152,6 +152,9 @@ with config.theme; {
               background-color: white;
               border-radius: 0px;
             }
+            .image {
+              border-radius: 0px;
+            }
 
             .summary {
               font-size: 16px;
