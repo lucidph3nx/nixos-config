@@ -246,7 +246,7 @@
           	"<leader>oy",
           	-- have to use Today-1 because Yesterday uses weekday only
           	function()
-          		vim.cmd("ObsidianToday -1")
+          		vim.cmd("Obsidian today -1")
           	end,
           	{ desc = "[O]bsidian [Y]esterday note" }
           )
