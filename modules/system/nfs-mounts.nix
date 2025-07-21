@@ -3,7 +3,7 @@
   lib,
   ...
 }: let
-  nasServerIP = "10.87.1.200";
+  nasServerIP = "10.87.42.200";
 in {
   options = {
     nx.system.nfs-mounts.enable =
