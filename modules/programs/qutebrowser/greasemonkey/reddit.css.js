@@ -3,16 +3,15 @@
 // @match        https://www.reddit.com/*
 // ==/UserScript==
 GM_addStyle(`
-  @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;700&display=swap');
   :root {
     --fontsize-small: 0.75rem;
     --fontsize-medium: 0.875rem;
     --fontsize-large: 1rem;
 
   }
-  * { font: "Quicksand", sans-serif !important;}
+  * { font: "Noto Sans", sans-serif !important;}
   body { 
-    font: normal x-small Quicksand,arial,sans-serif;
+    font: normal x-small Noto Sans,arial,sans-serif;
     background-color: var(--system-theme-bg0) !important; 
     color: var(--system-theme-fg) !important; 
     padding-top: 40px !important; 
@@ -49,10 +48,10 @@ GM_addStyle(`
   .tagline { font-size: var(--fontsize-small) !important; color: var(--system-theme-fg) !important; }
   .tagline a, .search-result-meta a { color: var(--system-theme-primary) !important; }
   .flat-list.buttons { font-size: x-small !important; }
-  .flairrichtext, .flair, .linkflairlabel { font: 500 12px "Quicksand", sans-serif !important};
+  .flairrichtext, .flair, .linkflairlabel { font: 500 12px "Noto Sans", sans-serif !important};
   .flaircolordark { color: var(--system-theme-bg0) !important;}
   .flair, .linkflairlabel { color: var(--system-theme-bg0) !important; background-color: var(--system-theme-orange) !important; border-color: var(--system-theme-bg0) !important}
-  .link .rank { font-family: Quicksand, sans-serif !important;}
+  .link .rank { font-family: Noto Sans, sans-serif !important;}
   .thumbnail { margin-right: 10px !important; }
 
   /* --- post --- */
@@ -61,7 +60,7 @@ GM_addStyle(`
   .usertext-edit .md-container { background-color: var(--system-theme-bg0) !important; border: 1px solid var(--system-theme-blue) !important; border-radius: 5px; }
   .titlebox form.toggle, .leavemoderator { color: var(--system-theme-grey2) !important; background-color: var(--system-theme-bg2) !important; }
   .titlebox { padding: 5px !important;}
-  .titlebox h1 { font-family: Quicksand, sans-serif !important;}
+  .titlebox h1 { font-family: Noto Sans, sans-serif !important;}
   .titlebox h1 a { color: var(--system-theme-fg) !important;}
   .linkinfo { background-color: var(--system-theme-bg2) !important; border: 1px solid var(--system-theme-blue) !important; border-radius: 5px; padding: 8px; }
   .sidebox .subtitle { color: var(--system-theme-grey2) !important; font-size: bold !important; }

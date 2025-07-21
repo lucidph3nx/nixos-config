@@ -6,7 +6,7 @@
 GM_addStyle(`
   body {
     background-color: var(--system-theme-bg0);
-    font-family: "Quicksand", sans-serif;
+    font-family: "Noto Sans", sans-serif;
     font-weight: 500;
   }
   .header {
@@ -16,7 +16,7 @@ GM_addStyle(`
     background-color: var(--system-theme-bg3);
     color: var(--system-theme-fg);
     border-radius: 5px !important;
-    font-family: "Quicksand", sans-serif;
+    font-family: "Noto Sans, sans-serif;
     font-weight: 500;
   }
   ::placeholder {

@@ -19,7 +19,7 @@ GM_addStyle(`
   }
 
   body {
-    font-family: Quicksand, sans-serif !important;
+    font-family: Noto Sans, sans-serif !important;
     --gm3-sys-color-surface-container-low: var(--system-theme-bg_dim) !important;
     --gm3-sys-color-surface: var(--system-theme-bg0) !important;
     --gm3-sys-color-surface-container-highest: var(--system-theme-bg3) !important;

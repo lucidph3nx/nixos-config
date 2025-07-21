@@ -104,7 +104,7 @@
             "{}"
           ];
           fonts = {
-            default_family = "Quicksand Medium";
+            default_family = "Noto Sans Medium";
             default_size = "12pt";
           };
           # false beacuse it causes a weird colour shift

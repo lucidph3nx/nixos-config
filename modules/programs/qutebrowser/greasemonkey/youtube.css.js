@@ -6,7 +6,7 @@
 GM_addStyle(`
   * {
     border-radius: 5px !important;
-    font-family: Quicksand, sans-serif !important;
+    font-family: Noto Sans, sans-serif !important;
   }
 
   ytd-rich-grid-renderer {

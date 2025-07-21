@@ -4,7 +4,7 @@
 // ==/UserScript==
 GM_addStyle(`
   :root {
-    --fontStack-sansSerif: "Quicksand", sans-serif !important;
+    --fontStack-sansSerif: "Noto Sans", sans-serif !important;
     --fontStack-monospace: "JetBrainsMono NF", monospace !important;
 
     /* bump all the font sizes up, just a little */

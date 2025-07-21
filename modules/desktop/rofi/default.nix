@@ -28,7 +28,7 @@ with config.theme; {
       programs.rofi = {
         enable = true;
         package = pkgs.rofi-wayland;
-        font = "Quicksand 14";
+        font = "Noto Sans 14";
         plugins = with pkgs; [
           (rofi-calc.override {
             rofi-unwrapped = rofi-wayland-unwrapped;

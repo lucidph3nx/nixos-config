@@ -4,7 +4,7 @@
 // ==/UserScript==
 GM_addStyle(`
   * {
-    font-family: Quicksand, sans-serif !important;
+    font-family: Noto Sans, sans-serif !important;
     /*border-radius: 5px !important;*/
   }
   #q {
