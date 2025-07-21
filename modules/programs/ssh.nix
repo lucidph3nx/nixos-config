@@ -39,20 +39,10 @@ in {
           "node2" = cloudflaredBlock;
           "node3" = cloudflaredBlock;
           "nas0" = {
-            hostname = "10.87.1.200";
+            hostname = "10.87.42.200";
             port = 220;
             user = "ben";
             identityFile = "${homeDir}/.ssh/lucidph3nx-ed25519";
-          };
-          "usg" = {
-            hostname = "10.87.0.1";
-            port = 22;
-            user = "ben";
-            # until unifi supports ed25519
-            identityFile = "${homeDir}/.ssh/lucidph3nx-rsa";
-            extraOptions = {
-              PubkeyAcceptedKeyTypes = "+ssh-rsa";
-            };
           };
         };
       };
