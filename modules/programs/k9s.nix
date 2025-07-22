@@ -93,6 +93,7 @@
             ];
           };
           "v1/nodes" = {
+            sortColumn = "NAME:asc";
             columns = [
               "AGE"
               "NAME"
