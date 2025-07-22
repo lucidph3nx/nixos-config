@@ -255,7 +255,7 @@
           	{ desc = "[O]bsidian [Y]esterday note" }
           )
           vim.keymap.set("n", "<leader>or", function()
-          	vim.cmd("ObsidianDailies -30 1")
+          	vim.cmd("Obsidian dailies -30 7")
           end, { desc = "[O]bsidian [R]ecent" })
           -- keybindings for custom commands
           vim.keymap.set("n", "<leader>on", vim.cmd.ObsidianNextDay, { desc = "[O]bsidian [N]ext Daily Note" })
