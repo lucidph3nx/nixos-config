@@ -85,11 +85,6 @@
           	return out
           end
 
-          -- Define follow_url_func separately
-          local followUrlFunction = function(url)
-          	vim.fn.jobstart({ "xdg-open", url })
-          end
-
           -- Define wiki_link_func separately
           local wikiLinkFunction = function(opts)
           	if opts.id == nil then
@@ -155,7 +150,6 @@
           		subdir = "templates",
           		substitutions = templateSubstitutions,
           	},
-          	follow_url_func = followUrlFunction,
           	new_notes_location = "notes_subdir",
           	wiki_link_func = wikiLinkFunction,
           	disable_frontmatter = false,
