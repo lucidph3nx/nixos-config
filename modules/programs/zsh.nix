@@ -28,7 +28,7 @@ in {
 
       programs.zsh = {
         enable = true;
-        dotDir = ".local/share/zsh";
+        dotDir = "$XDG_DATA_HOME/zsh";
         # source the zcompdump from persist if it exists
         # this is to speed up zsh startup in an impermanent environment
         completionInit = let
