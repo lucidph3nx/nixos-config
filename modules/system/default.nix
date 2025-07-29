@@ -18,5 +18,11 @@
       XDG_STATE_HOME = "$HOME/.local/state";
       XDG_CACHE_HOME = "$HOME/.cache";
     };
+    home-manager.users.ben.xdg = {
+      dataHome = "/home/ben/.local/share";
+      stateHome = "/home/ben/.local/state";
+      configHome = "/home/ben/.config";
+      cacheHome = "/home/ben/.cache";
+    };
   };
 }
