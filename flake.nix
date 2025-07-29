@@ -17,8 +17,8 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
     # specific versions of nixpkgs for use in overlays
-    nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-24.05";
-    # nixpkgs-master.url = "github:nixos/nixpkgs/master";
+    # nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-24.05";
+    nixpkgs-master.url = "github:nixos/nixpkgs/master";
     nixpkgs-darktablejuly25.url = "github:nixos/nixpkgs/9807714d6944a957c2e036f84b0ff8caf9930bc0";
 
     # disk formatting
