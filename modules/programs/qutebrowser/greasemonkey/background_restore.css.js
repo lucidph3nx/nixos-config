@@ -16,6 +16,6 @@
     const styleElements = document.querySelectorAll('style');
     if (styleElements.length > 0) {
         const lastStyleElement = styleElements[styleElements.length - 1];
-        lastStyleElement.innerHTML = '';
+        lastStyleElement.innerHTML = lastStyleElement.innerHTML.replace(/background-color:\s*[^;\}]+/gi, 'background-color: white');
     }
 })();
