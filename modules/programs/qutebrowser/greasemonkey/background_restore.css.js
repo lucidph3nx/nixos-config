@@ -1,13 +1,17 @@
 // ==UserScript==
-// @name    Restore White background
-// @match   https://www.rnz.co.nz/*
+// @name    Restore Default Background
+// @match   *://*/*
+// @exclude *://*.youtube.com/*
+// @exclude *://github.com/*
+// @exclude *://*.reddit.com/*
+// @exclude *://calendar.google.com/*
+// @exclude *://search.tinfoilforest.nz/*
 // @grant   GM_addStyle
+// @run-at  document-idle
 // ==/UserScript==
 
-// log messages to the console
-console.log("Restoring white background for sites that use body background-color.");
 GM_addStyle(`
   body {
-    background-color: white !important;
+    background-color: revert !important;
   }
 `);
