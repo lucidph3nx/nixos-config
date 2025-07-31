@@ -6,12 +6,16 @@
 // @exclude *://*.reddit.com/*
 // @exclude *://calendar.google.com/*
 // @exclude *://search.tinfoilforest.nz/*
-// @grant   GM_addStyle
+// @grant   none
 // @run-at  document-idle
 // ==/UserScript==
 
-GM_addStyle(`
-  body {
-    background-color: revert !important;
-  }
-`);
+(function() {
+    'use strict';
+
+    const styleElements = document.querySelectorAll('style');
+    if (styleElements.length > 0) {
+        const lastStyleElement = styleElements[styleElements.length - 1];
+        lastStyleElement.innerHTML = '';
+    }
+})();
