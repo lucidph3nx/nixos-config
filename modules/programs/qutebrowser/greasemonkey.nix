@@ -96,10 +96,10 @@
           text = builtins.readFile ./greasemonkey/reddit_custom_header.js;
         })
         # restore background-color for sites broken by userstyle
-        (pkgs.writeTextFile {
-          name = "background_restore.css.js";
-          text = builtins.readFile ./greasemonkey/background_restore.css.js;
-        })
+        # (pkgs.writeTextFile {
+        #   name = "background_restore.css.js";
+        #   text = builtins.readFile ./greasemonkey/background_restore.css.js;
+        # })
         # style for facebook
         # (pkgs.writeTextFile {
         #   name = "facebook.css.js";

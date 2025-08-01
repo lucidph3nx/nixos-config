@@ -11,11 +11,17 @@
 // ==/UserScript==
 
 (function() {
-    'use strict';
+  'use strict';
 
-    const styleElements = document.querySelectorAll('style');
-    if (styleElements.length > 0) {
-        const lastStyleElement = styleElements[styleElements.length - 1];
-        lastStyleElement.innerHTML = lastStyleElement.innerHTML.replace(/background-color:\s*[^;\}]+/gi, 'background-color: white');
+  const styleElements = document.querySelectorAll('style');
+  if (styleElements.length > 0) {
+    const lastStyleElement = styleElements[styleElements.length - 1];
+    lastStyleElement.innerHTML = '';
+  }
+  GM_addStyle(`
+    html {
+      background-color: white;
     }
+  `);
+
 })();

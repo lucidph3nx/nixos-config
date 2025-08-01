@@ -160,38 +160,38 @@
           };
         };
         hints.border = "0px solid black";
-        content.user_stylesheets = let
-          css = pkgs.writeTextFile {
-            name = "qutebrowser.css";
-            text =
-              /*
-              css
-              */
-              ''
-                /* try to prevent a flash of unstyled content */
-                body,
-                /* reddit things */
-                .premium-banner,
-                .infobar.welcome h1,
-                .button .cover,
-                .commentsignupbar__container,
-                .link.promotedlink.promoted,
-                .link.promotedlink.external,
-                .tabmenu li a,
-                .side,
-                body.with-listing-chooser.listing-chooser-collapsed .listing-chooser .grippy,
-                #header, #sr-header-area, #header-bottom-left, .side #search, .searchexpando, #header-bottom-right, .listing-chooser, .expando-button
-                {
-                  background-color: ${config.theme.bg0};
-                }
-                /* hide other stuff */
-                .subreddit-list {
-                  display: none;
-                }
-
-              '';
-          };
-        in ["${css}"];
+        # content.user_stylesheets = let
+        #   css = pkgs.writeTextFile {
+        #     name = "qutebrowser.css";
+        #     text =
+        #       /*
+        #       css
+        #       */
+        #       ''
+        #         /* try to prevent a flash of unstyled content */
+        #         body,
+        #         /* reddit things */
+        #         .premium-banner,
+        #         .infobar.welcome h1,
+        #         .button .cover,
+        #         .commentsignupbar__container,
+        #         .link.promotedlink.promoted,
+        #         .link.promotedlink.external,
+        #         .tabmenu li a,
+        #         .side,
+        #         body.with-listing-chooser.listing-chooser-collapsed .listing-chooser .grippy,
+        #         #header, #sr-header-area, #header-bottom-left, .side #search, .searchexpando, #header-bottom-right, .listing-chooser, .expando-button
+        #         {
+        #           background-color: ${config.theme.bg0};
+        #         }
+        #         /* hide other stuff */
+        #         .subreddit-list {
+        #           display: none;
+        #         }
+        #
+        #       '';
+        #   };
+        # in ["${css}"];
       };
     };
   };
