@@ -122,7 +122,6 @@ with config.theme; {
             }
             .notification-default-action:hover,
             .notification-action:hover {
-              -gtk-icon-effect: none;
               background: ${green};
               color: ${bg_dim};
             }
