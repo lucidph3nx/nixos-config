@@ -42,17 +42,23 @@
 
       def load_state(state_file):
           """Loads state from a JSON file, or returns a default."""
+          default_state = {
+              "last_notification": "none",
+              "last_id": "0",
+              "full_notification_done": False,
+              "last_status": "Unknown",
+          }
           if not state_file.exists():
-              return {"last_notification": "none", "last_id": "0", "full_notification_done": False}
+              return default_state
           try:
               with open(state_file, "r") as f:
                   state = json.load(f)
-                  # Add new keys with default values if they don't exist
-                  if "full_notification_done" not in state:
-                      state["full_notification_done"] = False
+                  # Add new keys with default values for backwards compatibility
+                  state.setdefault("full_notification_done", False)
+                  state.setdefault("last_status", "Unknown")
                   return state
           except json.JSONDecodeError:
-              return {"last_notification": "none", "last_id": "0", "full_notification_done": False}
+              return default_state
 
 
       def close_notification(notif_id):
@@ -110,93 +116,79 @@
               return
 
           level = int(level_str)
-
-          if args.status_cmd:
-              status = get_command_output(args.status_cmd)
-          else:
-              status = "Unknown"
-
-          is_charging = status == "Charging" or status == "Full"
+          status = get_command_output(args.status_cmd) or "Unknown"
+          is_charging = status in ["Charging", "Full"]
           is_discharging = status == "Discharging"
 
           if args.ignore_zero and level == 0:
               print(f"Ignoring 0% reading for {args.name} as requested.")
               return
 
-          # --- Load State ---
+          # --- Load and Manage State ---
           state_file = (
               Path(os.environ.get("XDG_RUNTIME_DIR", "/tmp"))
               / f"battery_notifier_{args.name}.json"
           )
           state = load_state(state_file)
           last_notification_type = state["last_notification"]
-          last_id = state["last_id"]
-          full_notification_done = state["full_notification_done"]
 
           # --- State Machine ---
 
-          # 1. Handle dismissal conditions first.
-          # If a notification is dismissed, update the local state and continue,
-          # allowing a new notification to be created in the same run if needed.
+          # 1. Handle dismissal conditions first
           if last_notification_type == "full" and is_discharging:
-              close_notification(last_id)
-              state = {"last_notification": "none", "last_id": "0", "full_notification_done": True}
-              save_state(state_file, state)
-              last_notification_type, last_id, full_notification_done = state["last_notification"], state["last_id"], state["full_notification_done"]
+              close_notification(state["last_id"])
+              state["last_notification"] = "none"
+              state["last_id"] = "0"
+              state["full_notification_done"] = True
 
           if last_notification_type == "low" and level >= args.dismiss_threshold:
-              close_notification(last_id)
-              state = {"last_notification": "none", "last_id": "0", "full_notification_done": full_notification_done}
-              save_state(state_file, state)
-              last_notification_type, last_id = state["last_notification"], state["last_id"]
+              close_notification(state["last_id"])
+              state["last_notification"] = "none"
+              state["last_id"] = "0"
 
-          # Reset full_notification_done flag if battery drops below re-notify threshold while discharging
-          if status == "Discharging" and level <= args.re_notify_threshold:
+          # Reset full_notification_done flag if battery drops below re-notify threshold
+          if is_discharging and level <= args.re_notify_threshold:
               state["full_notification_done"] = False
-              save_state(state_file, state)
-              full_notification_done = state["full_notification_done"]
 
-          # 2. Handle notification creation/update conditions.
+          # Re-read last notification type in case it was changed by dismissal logic
+          last_notification_type = state["last_notification"]
+          status_has_changed = status != state["last_status"]
 
-          # LOW state
+          # 2. Handle notification creation/update conditions
           if level <= args.low_threshold:
-              title = f"{args.name} Battery Low"
-              body = f"Level: {level}%."
+              # Notify if:
+              # 1. It's the first time entering the 'low' state.
+              # 2. It is discharging (persistent reminders).
+              # 3. The charging status has changed (e.g., just plugged in/out).
+              if last_notification_type != "low" or is_discharging or status_has_changed:
+                  title = f"{args.name} Battery Low"
+                  body = f"Level: {level}%."
+                  icon = "battery-caution"
+                  if level <= (args.low_threshold / 2):
+                      icon = "battery-empty"
+                  if is_charging:
+                      body += " Plugged in."
+                      icon = "battery-low-charging"
+                  else:
+                      body += " Please plug in."
 
-              icon = "battery-caution"
-              if level <= (args.low_threshold / 2):
-                  icon = "battery-empty"
+                  id_to_replace = state["last_id"] if last_notification_type == "low" else "0"
+                  new_id = send_notification(id_to_replace, icon, title, body)
+                  state["last_notification"] = "low"
+                  state["last_id"] = new_id
 
-              if is_charging:
-                  body += " Plugged in."
-                  icon = "battery-low-charging"
-              else:
-                  body += " Please plug in."
-
-              new_id = send_notification(last_id, icon, title, body)
-              state_to_save = {
-                  "last_notification": "low",
-                  "last_id": new_id,
-                  "full_notification_done": full_notification_done,
-              }
-              save_state(state_file, state_to_save)
-              # If we are in the low state, a notification was sent, so we are done.
-              return
-
-          # FULL state
-          if level >= args.full_threshold and is_charging:
-              if last_notification_type != "full" and not full_notification_done:
+          elif level >= args.full_threshold and is_charging:
+              if last_notification_type != "full" and not state["full_notification_done"]:
                   title = f"{args.name} Fully Charged"
                   body = f"Level: {level}%. You can unplug."
-                  new_id = send_notification(
-                      "0", "battery-full-charged", title, body
-                  )
-                  state_to_save = {
-                      "last_notification": "full",
-                      "last_id": new_id,
-                      "full_notification_done": True,
-                  }
-                  save_state(state_file, state_to_save)
+                  new_id = send_notification("0", "battery-full-charged", title, body)
+                  state["last_notification"] = "full"
+                  state["last_id"] = new_id
+                  state["full_notification_done"] = True
+
+          # 3. Always save the final state
+          state["last_status"] = status
+          save_state(state_file, state)
 
 
       if __name__ == "__main__":
