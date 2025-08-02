@@ -10,7 +10,6 @@
         colors = with config.theme; {
           webpage = {
             preferred_color_scheme = "${type}";
-            bg = "${bg0}";
           };
           keyhint = {
             fg = "${foreground}";
