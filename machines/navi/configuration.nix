@@ -89,6 +89,8 @@
     };
   };
 
+  services.hardware.openrgb.enable = true;
+
   # display settigs for hyprland
   home-manager.users.ben.wayland.windowManager.hyprland.settings.monitor = [
     "DP-3,5120x1440@239.76Hz,0x0,1"
