@@ -16,8 +16,8 @@ This document provides guidance for AI agents on how to interact with this NixOS
 
 - **Building/Testing Changes:** To validate configuration changes without applying them, use the `nh` helper command. This is the preferred method for checking for errors.
     - `nh os build`
-- **Linting/Formatting:** Code is formatted with `alejandra`.
-    - `alejandra .`
+- **Linting/Formatting:** Code is formatted with `nixfmt`.
+    - `nix fmt`
 - **Flake Validation:** To check the flake for correctness across all defined systems, use:
     - `nix flake check --all-systems`
 - **Updating Inputs:** To update all flake inputs, use:
@@ -42,10 +42,115 @@ This document provides guidance for AI agents on how to interact with this NixOS
 
 - Follow the same pattern as for applications with configuration, but place the new module within the `modules/services/` directory.
 
-### Naming Conventions
+### File naming and organisation
 
-- **Files:** Use lowercase for file and directory names.
-- **Nix Options:** Use either camelCase or kebab-case, maintaining consistency with the surrounding code.
+Names of files and directories should be in lowercase, with dashes between words — kebab case, not camel case.
+For instance, it should be `all-packages.nix`, not `allPackages.nix` or `AllPackages.nix`.
+
+### Formatting
+
+CI [enforces](./.github/workflows/lint.yml) all Nix files to be formatted using the [official Nix formatter](https://github.com/NixOS/nixfmt).
+
+You can ensure this locally using either of these commands:
+```
+nix-shell --run treefmt
+nix develop --command treefmt
+nix fmt
+```
+
+If you're starting your editor in `nix-shell` or `nix develop`, you can also set it up to automatically run `treefmt` on save.
+
+If you have any problems with formatting, please ping the [formatting team](https://nixos.org/community/teams/formatting/) via [@NixOS/nix-formatting](https://github.com/orgs/NixOS/teams/nix-formatting).
+
+### Syntax
+
+- Set up [editorconfig](https://editorconfig.org) for your editor, such that [the settings](./.editorconfig) are automatically applied.
+
+- Use `lowerCamelCase` for variable names, not `UpperCamelCase`.
+  Note, this rule does not apply to package attribute names, which instead follow the rules in [package naming](./pkgs/README.md#package-naming).
+
+- Functions should list their expected arguments as precisely as possible.
+  That is, write
+
+  ```nix
+  {
+    stdenv,
+    fetchurl,
+    perl,
+  }:
+  <...>
+  ```
+
+  instead of
+
+  ```nix
+  args: with args; <...>
+  ```
+
+  or
+
+  ```nix
+  {
+    stdenv,
+    fetchurl,
+    perl,
+    ...
+  }:
+  <...>
+  ```
+
+  For functions that are truly generic in the number of arguments, but have some required arguments, you should write them using an `@`-pattern:
+
+  ```nix
+  {
+    stdenv,
+    doCoverageAnalysis ? false,
+    ...
+  }@args:
+
+  stdenv.mkDerivation (args // { foo = if doCoverageAnalysis then "bla" else ""; })
+  ```
+
+  instead of
+
+  ```nix
+  args:
+
+  args.stdenv.mkDerivation (
+    args
+    // {
+      foo = if args ? doCoverageAnalysis && args.doCoverageAnalysis then "bla" else "";
+    }
+  )
+  ```
+
+- Unnecessary string conversions should be avoided.
+  Do
+
+  ```nix
+  { rev = version; }
+  ```
+
+  instead of
+
+  ```nix
+  { rev = "${version}"; }
+  ```
+
+- Building lists conditionally _should_ be done with `lib.optional(s)` instead of using `if cond then [ ... ] else null` or `if cond then [ ... ] else [ ]`.
+
+  ```nix
+  { buildInputs = lib.optional stdenv.hostPlatform.isDarwin iconv; }
+  ```
+
+  instead of
+
+  ```nix
+  { buildInputs = if stdenv.hostPlatform.isDarwin then [ iconv ] else null; }
+  ```
+
+  As an exception, an explicit conditional expression with null can be used when fixing a important bug without triggering a mass rebuild.
+  If this is done a follow up pull request _should_ be created to change the code to `lib.optional(s)`.
 
 ### Secrets Management
 
