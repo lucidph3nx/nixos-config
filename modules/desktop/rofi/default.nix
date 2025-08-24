@@ -7,12 +7,12 @@
 with config.theme; {
   imports = [
     # rofi launcher scripts
-    ./addToShoppingList.nix
-    ./applicationLauncher.nix
-    ./emojiPicker.nix
-    ./nvimSessionLauncher.nix
-    ./rofiCalculator.nix
-    ./scriptLauncher.nix
+    ./add-to-shopping-list.nix
+    ./application-launcher.nix
+    ./emoji-picker.nix
+    ./nvim-session-launcher.nix
+    ./rofi-calculator.nix
+    ./script-launcher.nix
     # rofi themeing (theme.rasi)
     ./theme.nix
   ];

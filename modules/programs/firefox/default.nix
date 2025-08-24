@@ -7,11 +7,11 @@
   homeDir = config.home-manager.users.ben.home.homeDirectory;
 in {
   imports = [
-    ./homePage.nix
+    ./home-page.nix
     ./tridactyl.nix
-    ./tridactylStyle.nix
-    ./userChrome.nix
-    ./userContent.nix
+    ./tridactyl-style.nix
+    ./user-chrome.nix
+    ./user-content.nix
   ];
   options = {
     nx.programs.firefox.enable =

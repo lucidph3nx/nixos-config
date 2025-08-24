@@ -1,7 +1,7 @@
 {pkgs, ...}: {
   home-manager.users.ben.home.packages = with pkgs; [
     stylua
-    alejandra
+    nixfmt
     black
     jq
   ];
@@ -18,7 +18,7 @@
           	formatters_by_ft = {
           		lua = { "stylua" },
           		python = { "black" },
-          		nix = { "alejandra", "injected" },
+          		nix = { "nixfmt", "injected" },
           		json = { "jq" },
           	},
           })

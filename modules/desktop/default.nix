@@ -1,6 +1,6 @@
 {...}: {
   imports = [
-    ./additionalTheming.nix
+    ./additional-theming.nix
     ./fonts.nix
     ./hyprland
     ./offline-focus-mode.nix

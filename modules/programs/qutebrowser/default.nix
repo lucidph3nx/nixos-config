@@ -5,7 +5,7 @@
   ...
 }: {
   imports = [
-    ./clearHistoryTask.nix
+    ./clear-history-task.nix
     ./colours.nix
     ./greasemonkey.nix
     ./keybindings.nix

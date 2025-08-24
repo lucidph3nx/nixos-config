@@ -1,12 +1,12 @@
 {...}: {
   imports = [
-    ./batteryNotifier.nix
+    ./battery-notifier.nix
     ./blocky.nix
     ./greetd.nix
     ./mpd.nix
     ./pipewire.nix
     ./polkit.nix
-    ./powerProfilesDaemon.nix
+    ./power-profiles-daemon.nix
     ./printer.nix
     ./syncthing
     ./udiskie.nix

@@ -9,8 +9,8 @@
   variant = config.nx.desktop.wallpaper.variant;
 in {
   imports = [
-    ./ensoWallpaper.nix
-    ./rainboxWallpaper.nix
+    ./enso-wallpaper.nix
+    ./rainbox-wallpaper.nix
   ];
   options = {
     nx.desktop.wallpaper.enable =

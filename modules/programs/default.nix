@@ -17,7 +17,7 @@
     ./gemini-cli.nix
     ./gimp.nix
     ./git.nix
-    ./homeAutomation.nix
+    ./home-automation.nix
     ./k9s.nix
     ./kitty.nix
     ./kubetools.nix
@@ -37,7 +37,7 @@
     ./signal.nix
     ./ssh.nix
     ./tmux.nix
-    ./tmuxSessioniser.nix
+    ./tmux-sessioniser.nix
     ./vimiv.nix
     ./virt-manager.nix
     ./webcord.nix
