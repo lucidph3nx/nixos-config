@@ -2,6 +2,7 @@
   home-manager.users.ben.home.packages = with pkgs; [
     stylua
     nixfmt
+    nixfmt-tree
     black
     jq
   ];
