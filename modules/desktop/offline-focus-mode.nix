@@ -3,25 +3,22 @@
   lib,
   pkgs,
   ...
-}: {
+}:
+{
   options = {
-    nx.desktop.offline-focus-mode.enable =
-      lib.mkEnableOption "Enable offline focus mode"
-      // {
-        default = false;
-      };
+    nx.desktop.offline-focus-mode.enable = lib.mkEnableOption "Enable offline focus mode" // {
+      default = false;
+    };
   };
   config = lib.mkIf config.nx.desktop.offline-focus-mode.enable {
     home-manager.users.ben = {
-      home.sessionPath = ["$HOME/.local/scripts"];
+      home.sessionPath = [ "$HOME/.local/scripts" ];
       # I'm going to call this thing 'system mode'
       # I will consist of a normal running mode and an 'offline focus mode'
       home.file.".local/scripts/cli.desktop.getSystemMode" = {
         executable = true;
         text =
-          /*
-          bash
-          */
+          # bash
           ''
             #!/bin/sh
             MODE_FILE="$XDG_RUNTIME_DIR/system_mode"
@@ -61,9 +58,7 @@
       home.file.".local/scripts/desktop.system.setOfflineFocusMode" = {
         executable = true;
         text =
-          /*
-          bash
-          */
+          # bash
           ''
             #!/bin/sh
             export MODE_FILE="$XDG_RUNTIME_DIR/system_mode"
@@ -74,9 +69,7 @@
       home.file.".local/scripts/desktop.system.setNormalMode" = {
         executable = true;
         text =
-          /*
-          bash
-          */
+          # bash
           ''
             #!/bin/sh
             export MODE_FILE="$XDG_RUNTIME_DIR/system_mode"

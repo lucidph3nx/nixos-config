@@ -1,13 +1,12 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   home-manager.users.ben.programs.neovim.plugins = [
     pkgs.vimPlugins.nvim-web-devicons
     {
       plugin = pkgs.vimPlugins.oil-nvim;
       type = "lua";
       config =
-        /*
-        lua
-        */
+        # lua
         ''
           require("oil").setup({
           	view_options = {

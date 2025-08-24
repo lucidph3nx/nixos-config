@@ -3,13 +3,12 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   options = {
-    nx.system.hardware-boot-switch.enable =
-      lib.mkEnableOption "Code to support printer"
-      // {
-        default = false;
-      };
+    nx.system.hardware-boot-switch.enable = lib.mkEnableOption "Code to support printer" // {
+      default = false;
+    };
   };
   config = lib.mkIf config.nx.system.hardware-boot-switch.enable {
     # this module supports a hardware based dual-boot switch
@@ -24,9 +23,7 @@
     };
 
     boot.loader.grub.extraConfig =
-      /*
-      bash
-      */
+      # bash
       ''
         # Look for hardware switch device by its hard-coded filesystem ID
         search --no-floppy --fs-uuid --set hdswitch 55AA-6922

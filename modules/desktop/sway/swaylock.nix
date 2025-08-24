@@ -3,14 +3,13 @@
   lib,
   ...
 }:
-with config.theme; {
+with config.theme;
+{
   options = {
-    nx.desktop.swaylock.enable =
-      lib.mkEnableOption "enables swaylock"
-      // {
-        # default to enable if sway is
-        default = config.nx.desktop.sway.enable;
-      };
+    nx.desktop.swaylock.enable = lib.mkEnableOption "enables swaylock" // {
+      # default to enable if sway is
+      default = config.nx.desktop.sway.enable;
+    };
   };
   config = lib.mkIf config.nx.desktop.swaylock.enable {
     home-manager.users.ben.programs.swaylock = {

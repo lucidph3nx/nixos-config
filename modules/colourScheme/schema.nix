@@ -6,42 +6,44 @@
 }:
 # This modules is used to define the schema for a colour scheme
 # It is then free to be used by all other modules
-with lib; let
+with lib;
+let
   themeType = types.submodule {
     options = {
-      name = mkOption {type = types.str;};
-      type = mkOption {type = types.str;};
-      foreground = mkOption {type = types.str;};
-      primary = mkOption {type = types.str;};
-      secondary = mkOption {type = types.str;};
-      red = mkOption {type = types.str;};
-      orange = mkOption {type = types.str;};
-      yellow = mkOption {type = types.str;};
-      green = mkOption {type = types.str;};
-      aqua = mkOption {type = types.str;};
-      blue = mkOption {type = types.str;};
-      purple = mkOption {type = types.str;};
-      grey0 = mkOption {type = types.str;};
-      grey1 = mkOption {type = types.str;};
-      grey2 = mkOption {type = types.str;};
-      statusline1 = mkOption {type = types.str;};
-      statusline2 = mkOption {type = types.str;};
-      statusline3 = mkOption {type = types.str;};
-      bg_dim = mkOption {type = types.str;};
-      bg0 = mkOption {type = types.str;};
-      bg1 = mkOption {type = types.str;};
-      bg2 = mkOption {type = types.str;};
-      bg3 = mkOption {type = types.str;};
-      bg4 = mkOption {type = types.str;};
-      bg5 = mkOption {type = types.str;};
-      bg_visual = mkOption {type = types.str;};
-      bg_red = mkOption {type = types.str;};
-      bg_green = mkOption {type = types.str;};
-      bg_blue = mkOption {type = types.str;};
-      bg_yellow = mkOption {type = types.str;};
+      name = mkOption { type = types.str; };
+      type = mkOption { type = types.str; };
+      foreground = mkOption { type = types.str; };
+      primary = mkOption { type = types.str; };
+      secondary = mkOption { type = types.str; };
+      red = mkOption { type = types.str; };
+      orange = mkOption { type = types.str; };
+      yellow = mkOption { type = types.str; };
+      green = mkOption { type = types.str; };
+      aqua = mkOption { type = types.str; };
+      blue = mkOption { type = types.str; };
+      purple = mkOption { type = types.str; };
+      grey0 = mkOption { type = types.str; };
+      grey1 = mkOption { type = types.str; };
+      grey2 = mkOption { type = types.str; };
+      statusline1 = mkOption { type = types.str; };
+      statusline2 = mkOption { type = types.str; };
+      statusline3 = mkOption { type = types.str; };
+      bg_dim = mkOption { type = types.str; };
+      bg0 = mkOption { type = types.str; };
+      bg1 = mkOption { type = types.str; };
+      bg2 = mkOption { type = types.str; };
+      bg3 = mkOption { type = types.str; };
+      bg4 = mkOption { type = types.str; };
+      bg5 = mkOption { type = types.str; };
+      bg_visual = mkOption { type = types.str; };
+      bg_red = mkOption { type = types.str; };
+      bg_green = mkOption { type = types.str; };
+      bg_blue = mkOption { type = types.str; };
+      bg_yellow = mkOption { type = types.str; };
     };
   };
-in {
+in
+{
   options = {
     theme = mkOption {
       type = themeType;

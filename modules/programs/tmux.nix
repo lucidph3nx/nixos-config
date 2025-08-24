@@ -3,13 +3,12 @@
   lib,
   ...
 }:
-with config.theme; {
+with config.theme;
+{
   options = {
-    nx.programs.tmux.enable =
-      lib.mkEnableOption "enables tmux"
-      // {
-        default = true;
-      };
+    nx.programs.tmux.enable = lib.mkEnableOption "enables tmux" // {
+      default = true;
+    };
   };
   config = lib.mkIf config.nx.programs.tmux.enable {
     home-manager.users.ben = {
@@ -21,9 +20,7 @@ with config.theme; {
         prefix = "C-a";
         terminal = "kitty";
         extraConfig =
-          /*
-          tmux
-          */
+          # tmux
           ''
             # appearance
             set -g status-left-length 30

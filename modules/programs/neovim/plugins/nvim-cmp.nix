@@ -1,12 +1,11 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   home-manager.users.ben.programs.neovim.plugins = [
     {
       plugin = pkgs.vimPlugins.cmp-nvim-lsp;
       type = "lua";
       config =
-        /*
-        lua
-        */
+        # lua
         ''
           require("cmp").setup()
         '';
@@ -15,9 +14,7 @@
       plugin = pkgs.vimPlugins.nvim-cmp;
       type = "lua";
       config =
-        /*
-        lua
-        */
+        # lua
         ''
           local cmp = require("cmp")
           local luasnip = require("luasnip")

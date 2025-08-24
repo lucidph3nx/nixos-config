@@ -3,13 +3,12 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   options = {
-    nx.programs.homeAutomation.enable =
-      lib.mkEnableOption "enables home automation scripts etc"
-      // {
-        default = false;
-      };
+    nx.programs.homeAutomation.enable = lib.mkEnableOption "enables home automation scripts etc" // {
+      default = false;
+    };
   };
   config = lib.mkIf config.nx.programs.homeAutomation.enable {
     # home-assistant API key
@@ -31,7 +30,7 @@
     };
     home-manager.users.ben = {
       # my scripts relevant to homeAutomation
-      home.sessionPath = ["$HOME/.local/scripts"];
+      home.sessionPath = [ "$HOME/.local/scripts" ];
 
       # This script returns the current humidity in my office via home assistant
       home.file.".local/scripts/cli.home.office.getHumidity" = {
@@ -132,32 +131,40 @@
         '';
       };
       # relevant home automation keyboard shortcuts in sway
-      wayland.windowManager.sway.config = lib.mkIf config.home-manager.users.ben.wayland.windowManager.sway.enable {
-        keybindings = let
-          super = "Mod4";
-          alt = "Mod1";
-          pageup = "Prior";
-          pagedown = "Next";
-          newwindow = config.nx.programs.defaultWebBrowserSettings.newWindowCmd;
-          homeDir = config.home-manager.users.ben.home.homeDirectory;
-        in {
-          "${super}+${pageup}" = "exec ${homeDir}/.local/scripts/home.office.openBlinds";
-          "${super}+${pagedown}" = "exec ${homeDir}/.local/scripts/home.office.closeBlinds";
-          "${alt}+h" = "exec ${newwindow} https://$HASS_DOMAIN";
-        };
-      };
-      wayland.windowManager.hyprland.settings = lib.mkIf config.home-manager.users.ben.wayland.windowManager.hyprland.enable {
-        bind = let
-          pageup = "Prior";
-          pagedown = "Next";
-          homeDir = config.home-manager.users.ben.home.homeDirectory;
-          newwindow = config.nx.programs.defaultWebBrowserSettings.newWindowCmd;
-        in [
-          "SUPER, ${pageup}, exec, ${homeDir}/.local/scripts/home.office.openBlinds"
-          "SUPER, ${pagedown}, exec, ${homeDir}/.local/scripts/home.office.closeBlinds"
-          "ALT, h, exec, ${newwindow} https://$HASS_DOMAIN"
-        ];
-      };
+      wayland.windowManager.sway.config =
+        lib.mkIf config.home-manager.users.ben.wayland.windowManager.sway.enable
+          {
+            keybindings =
+              let
+                super = "Mod4";
+                alt = "Mod1";
+                pageup = "Prior";
+                pagedown = "Next";
+                newwindow = config.nx.programs.defaultWebBrowserSettings.newWindowCmd;
+                homeDir = config.home-manager.users.ben.home.homeDirectory;
+              in
+              {
+                "${super}+${pageup}" = "exec ${homeDir}/.local/scripts/home.office.openBlinds";
+                "${super}+${pagedown}" = "exec ${homeDir}/.local/scripts/home.office.closeBlinds";
+                "${alt}+h" = "exec ${newwindow} https://$HASS_DOMAIN";
+              };
+          };
+      wayland.windowManager.hyprland.settings =
+        lib.mkIf config.home-manager.users.ben.wayland.windowManager.hyprland.enable
+          {
+            bind =
+              let
+                pageup = "Prior";
+                pagedown = "Next";
+                homeDir = config.home-manager.users.ben.home.homeDirectory;
+                newwindow = config.nx.programs.defaultWebBrowserSettings.newWindowCmd;
+              in
+              [
+                "SUPER, ${pageup}, exec, ${homeDir}/.local/scripts/home.office.openBlinds"
+                "SUPER, ${pagedown}, exec, ${homeDir}/.local/scripts/home.office.closeBlinds"
+                "ALT, h, exec, ${newwindow} https://$HASS_DOMAIN"
+              ];
+          };
       # This script turns off the grow lights
       home.file.".local/scripts/home.office.turnGrowlightsOff" = {
         executable = true;

@@ -3,16 +3,15 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   config = lib.mkIf config.nx.programs.qutebrowser.enable {
     home-manager.users.ben = {
       programs.qutebrowser.greasemonkey = with config.theme; [
         # general theme variables, to be used in other scripts
         # made available here to all sites
         (pkgs.writeText "theme.css.js"
-          /*
-          css
-          */
+          # css
           ''
             // ==UserScript==
             // @name    Userstyle (theme.css)
@@ -50,7 +49,8 @@
               --system-theme-bg_yellow: ${bg_yellow};
             }
             `)
-          '')
+          ''
+        )
         # css styling for qutebrowser startpage
         (pkgs.writeTextFile {
           name = "startpage.css.js";

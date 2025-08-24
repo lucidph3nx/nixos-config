@@ -3,7 +3,8 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   everforest-nvim = pkgs.vimUtils.buildVimPlugin {
     name = "everforest-nvim";
     src = pkgs.fetchFromGitHub {
@@ -13,15 +14,14 @@
       hash = "sha256-kVn6rUc26PtoqzKW/MNuks85sTLYx1lEE/l+7W0bDfg=";
     };
   };
-in {
+in
+{
   home-manager.users.ben.programs.neovim.plugins = lib.mkIf (config.theme.name == "everforest") [
     {
       plugin = everforest-nvim;
       type = "lua";
       config =
-        /*
-        lua
-        */
+        # lua
         ''
           local everforest = require("everforest")
           everforest.setup({

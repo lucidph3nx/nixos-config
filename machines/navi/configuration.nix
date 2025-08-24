@@ -4,11 +4,12 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
-    (import ./disko.nix {device = "/dev/nvme1n1";})
+    (import ./disko.nix { device = "/dev/nvme1n1"; })
     inputs.disko.nixosModules.default
     ../../modules
   ];
@@ -128,7 +129,7 @@
     enable = true;
     keyboards = {
       mouse = {
-        ids = ["1532:00b7:aa6166ef"]; # Razer Deathadder V3 Pro
+        ids = [ "1532:00b7:aa6166ef" ]; # Razer Deathadder V3 Pro
         settings = {
           main = {
             mouse1 = "playpause";
@@ -147,11 +148,13 @@
     };
     # FiiO K7 as default sink
     "10-default-sink" = {
-      "wireplumber.settings"."default.configured.audio.sink" = "alsa_output.usb-GuangZhou_FiiO_Electronics_Co._Ltd_FiiO_K7-00.analog-stereo";
+      "wireplumber.settings"."default.configured.audio.sink" =
+        "alsa_output.usb-GuangZhou_FiiO_Electronics_Co._Ltd_FiiO_K7-00.analog-stereo";
     };
     # AT2020USB-XLR as default source
     "10-default-source" = {
-      "wireplumber.settings"."default.configured.audio.source" = "alsa_input.usb-AT_AT2020USB-X_202011110001-00.mono-fallback";
+      "wireplumber.settings"."default.configured.audio.source" =
+        "alsa_input.usb-AT_AT2020USB-X_202011110001-00.mono-fallback";
     };
     "51-alsa-disable" = {
       "monitor.alsa.rules" = [
@@ -206,7 +209,7 @@
   # programs.virt-manager.enable = true;
   networking.firewall = {
     allowedTCPPorts = [
-      6600 #mpd
+      6600 # mpd
     ];
   };
 

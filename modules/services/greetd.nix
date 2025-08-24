@@ -3,13 +3,12 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   options = {
-    nx.services.greetd.enable =
-      lib.mkEnableOption "Add greetd/tuigreet setup"
-      // {
-        default = true;
-      };
+    nx.services.greetd.enable = lib.mkEnableOption "Add greetd/tuigreet setup" // {
+      default = true;
+    };
     nx.services.greetd.command = lib.mkOption {
       type = lib.types.str;
       default = "Hyprland";

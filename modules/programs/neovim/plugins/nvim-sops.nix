@@ -1,13 +1,12 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   home-manager.users.ben.programs.neovim.plugins = [
     {
       # plugin = pkgs.vimPlugins.nvim-sops;
       plugin = pkgs.vimPlugins.nvim-sops;
       type = "lua";
       config =
-        /*
-        lua
-        */
+        # lua
         ''
           require("nvim_sops").setup({
           	enabled = true,

@@ -3,13 +3,12 @@
   lib,
   ...
 }:
-with config.theme; {
+with config.theme;
+{
   options = {
-    nx.programs.kitty.enable =
-      lib.mkEnableOption "enables kitty"
-      // {
-        default = true;
-      };
+    nx.programs.kitty.enable = lib.mkEnableOption "enables kitty" // {
+      default = true;
+    };
   };
   config = lib.mkIf config.nx.programs.kitty.enable {
     home-manager.users.ben = {

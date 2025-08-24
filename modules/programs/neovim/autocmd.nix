@@ -1,10 +1,9 @@
-{...}: {
+{ ... }:
+{
   # Setting some helpful autocommands
   home-manager.users.ben.programs.neovim = {
     extraLuaConfig =
-      /*
-      lua
-      */
+      # lua
       ''
         local function augroup(name)
         	return vim.api.nvim_create_augroup("lucidph3nx_" .. name, { clear = true })

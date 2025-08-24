@@ -4,7 +4,8 @@
   lib,
   ...
 }:
-with config.theme; {
+with config.theme;
+{
   imports = [
     # rofi launcher scripts
     ./add-to-shopping-list.nix
@@ -17,11 +18,9 @@ with config.theme; {
     ./theme.nix
   ];
   options = {
-    nx.desktop.rofi.enable =
-      lib.mkEnableOption "enables rofi"
-      // {
-        default = true;
-      };
+    nx.desktop.rofi.enable = lib.mkEnableOption "enables rofi" // {
+      default = true;
+    };
   };
   config = lib.mkIf config.nx.desktop.rofi.enable {
     home-manager.users.ben = {
@@ -54,7 +53,7 @@ with config.theme; {
       };
 
       # my scripts relevant to rofi
-      home.sessionPath = ["$HOME/.local/scripts"];
+      home.sessionPath = [ "$HOME/.local/scripts" ];
     };
   };
 }

@@ -3,13 +3,12 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   options = {
-    nx.services.printer.enable =
-      lib.mkEnableOption "Configuration to support printer"
-      // {
-        default = false;
-      };
+    nx.services.printer.enable = lib.mkEnableOption "Configuration to support printer" // {
+      default = false;
+    };
   };
   config = lib.mkIf config.nx.services.printer.enable {
     # cups for printing

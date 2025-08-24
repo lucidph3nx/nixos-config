@@ -1,12 +1,11 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   home-manager.users.ben.programs.neovim.plugins = [
     {
       plugin = pkgs.vimPlugins.zen-mode-nvim;
       type = "lua";
       config =
-        /*
-        lua
-        */
+        # lua
         ''
           require("zen-mode").setup({
             window = {

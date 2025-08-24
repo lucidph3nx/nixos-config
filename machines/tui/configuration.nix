@@ -2,11 +2,12 @@
   pkgs,
   inputs,
   ...
-}: {
+}:
+{
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
-    (import ./disko.nix {device = "/dev/nvme0n1";})
+    (import ./disko.nix { device = "/dev/nvme0n1"; })
     inputs.disko.nixosModules.default
     ../../modules
   ];
@@ -129,7 +130,7 @@
         };
       };
       mouse = {
-        ids = ["1532:00b7:aa6166ef"]; # Razer Deathadder V3 Pro
+        ids = [ "1532:00b7:aa6166ef" ]; # Razer Deathadder V3 Pro
         settings = {
           main = {
             mouse1 = "volumedown";

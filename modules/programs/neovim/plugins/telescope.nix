@@ -1,4 +1,5 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   home-manager.users.ben.home.packages = [
     pkgs.fzf
   ];
@@ -7,9 +8,7 @@
       plugin = pkgs.vimPlugins.telescope-nvim;
       type = "lua";
       config =
-        /*
-        lua
-        */
+        # lua
         ''
           require("telescope").setup({
           	defaults = {

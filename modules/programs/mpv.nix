@@ -3,13 +3,12 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   options = {
-    nx.programs.mpv.enable =
-      lib.mkEnableOption "enables mpv"
-      // {
-        default = true;
-      };
+    nx.programs.mpv.enable = lib.mkEnableOption "enables mpv" // {
+      default = true;
+    };
   };
   config = lib.mkIf config.nx.programs.mpv.enable {
     home-manager.users.ben = {

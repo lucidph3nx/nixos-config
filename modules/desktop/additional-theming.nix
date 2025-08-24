@@ -3,7 +3,8 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   config = {
     home-manager.users.ben = {
       # set up the cusors and icon themes the way I like it
@@ -41,15 +42,16 @@
         enable = true;
         platformTheme.name = "adwaita";
         style =
-          if config.theme.type == "dark"
-          then {
-            name = "adwaita-dark";
-            package = pkgs.adwaita-qt;
-          }
-          else {
-            name = "adwaita";
-            package = pkgs.adwaita-qt;
-          };
+          if config.theme.type == "dark" then
+            {
+              name = "adwaita-dark";
+              package = pkgs.adwaita-qt;
+            }
+          else
+            {
+              name = "adwaita";
+              package = pkgs.adwaita-qt;
+            };
       };
     };
   };

@@ -3,13 +3,12 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   options = {
-    nx.services.mpd.enable =
-      lib.mkEnableOption "enables mpd service"
-      // {
-        default = true;
-      };
+    nx.services.mpd.enable = lib.mkEnableOption "enables mpd service" // {
+      default = true;
+    };
   };
   config = lib.mkIf config.nx.services.mpd.enable {
     home-manager.users.ben = {
@@ -55,9 +54,7 @@
       home.file.".local/scripts/ambient.play.radioactivefm" = {
         executable = true;
         text =
-          /*
-          sh
-          */
+          # sh
           ''
             #!/bin/sh
             mpc clear
@@ -70,9 +67,7 @@
       home.file.".local/scripts/ambient.play.rain" = {
         executable = true;
         text =
-          /*
-          sh
-          */
+          # sh
           ''
             #!/bin/sh
             mpc clear

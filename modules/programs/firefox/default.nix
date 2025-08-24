@@ -3,9 +3,11 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   homeDir = config.home-manager.users.ben.home.homeDirectory;
-in {
+in
+{
   imports = [
     ./home-page.nix
     ./tridactyl.nix
@@ -14,11 +16,9 @@ in {
     ./user-content.nix
   ];
   options = {
-    nx.programs.firefox.enable =
-      lib.mkEnableOption "enables firefox"
-      // {
-        default = true;
-      };
+    nx.programs.firefox.enable = lib.mkEnableOption "enables firefox" // {
+      default = true;
+    };
   };
   config = lib.mkIf config.nx.programs.firefox.enable {
     home-manager.users.ben = {
@@ -44,10 +44,7 @@ in {
               "browser.urlbar.update2.engineAliasRefresh" = true; # allow search engine updates
               "browser.sessionstore.resume_from_crash" = false; # disable session restore after crash (its just a shutdown)
               "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-              "ui.systemUsesDarkTheme" =
-                if config.theme.type == "dark"
-                then 1
-                else 0;
+              "ui.systemUsesDarkTheme" = if config.theme.type == "dark" then 1 else 0;
               "extensions.pocket.enabled" = false;
 
               # disable some gestures
@@ -77,10 +74,10 @@ in {
         };
       };
       xdg.mimeApps.defaultApplications = lib.mkIf (config.nx.programs.defaultWebBrowser == "firefox") {
-        "text/html" = ["firefox.desktop"];
-        "text/xml" = ["firefox.desktop"];
-        "x-scheme-handler/http" = ["firefox.desktop"];
-        "x-scheme-handler/https" = ["firefox.desktop"];
+        "text/html" = [ "firefox.desktop" ];
+        "text/xml" = [ "firefox.desktop" ];
+        "x-scheme-handler/http" = [ "firefox.desktop" ];
+        "x-scheme-handler/https" = [ "firefox.desktop" ];
       };
       home.persistence."/persist/home/ben" = {
         directories = [

@@ -3,54 +3,50 @@
   lib,
   ...
 }:
-with config.theme; {
+with config.theme;
+{
   options = {
-    nx.programs.firefox.hideUrlbar =
-      lib.mkEnableOption "hides the url bar in firefox by default"
-      // {
-        default = false;
-      };
+    nx.programs.firefox.hideUrlbar = lib.mkEnableOption "hides the url bar in firefox by default" // {
+      default = false;
+    };
   };
   config = lib.mkIf config.nx.programs.firefox.enable {
     home-manager.users.ben = {
       # heavy firefox customization
       # mostly inspired/copied from https://github.com/Dook97/firefox-qutebrowser-userchrome
-      programs.firefox.profiles.main.userChrome = let
-        hideUrlBar =
-          /*
-          css
-          */
-          ''
-            #nav-bar,
-            #urlbar {
-              transform: translateY(calc(0px - var(--urlbar-height-setting)));
-              opacity: 0;
-            }
-            #navigator-toolbox {
-              min-height: var(--tab-min-height) !important;
-              height: var(--tab-min-height) !important;
-            }
-            #navigator-toolbox:focus-within {
-              min-height: calc(var(--urlbar-height-setting) + var(--tab-min-height)) !important;
-              height: calc(var(--urlbar-height-setting) + var(--tab-min-height)) !important;
-              transform: translateY(calc(0px - var(--tab-min-height)));
-            }
-            #TabsToolbar {
-              transform: translateY(var(--tab-min-height));
-            }
-            #nav-bar:focus-within {
-              transform: translateY(var(--tab-min-height));
-              opacity: 1;
-            }
-            #urlbar:focus-within {
-              transform: translateY(0);
-              opacity: 1;
-            }
-          '';
-      in
-        /*
-        css
-        */
+      programs.firefox.profiles.main.userChrome =
+        let
+          hideUrlBar =
+            # css
+            ''
+              #nav-bar,
+              #urlbar {
+                transform: translateY(calc(0px - var(--urlbar-height-setting)));
+                opacity: 0;
+              }
+              #navigator-toolbox {
+                min-height: var(--tab-min-height) !important;
+                height: var(--tab-min-height) !important;
+              }
+              #navigator-toolbox:focus-within {
+                min-height: calc(var(--urlbar-height-setting) + var(--tab-min-height)) !important;
+                height: calc(var(--urlbar-height-setting) + var(--tab-min-height)) !important;
+                transform: translateY(calc(0px - var(--tab-min-height)));
+              }
+              #TabsToolbar {
+                transform: translateY(var(--tab-min-height));
+              }
+              #nav-bar:focus-within {
+                transform: translateY(var(--tab-min-height));
+                opacity: 1;
+              }
+              #urlbar:focus-within {
+                transform: translateY(0);
+                opacity: 1;
+              }
+            '';
+        in
+        # css
         ''
           :root {
             --tab-active-bg-color: ${bg2};
@@ -350,11 +346,7 @@ with config.theme; {
           /* --- AUTOHIDE NAVBAR ---------------------------------- */
 
           /* hide navbar unless focused */
-          ${
-            if config.nx.programs.firefox.hideUrlbar
-            then hideUrlBar
-            else ""
-          }
+          ${if config.nx.programs.firefox.hideUrlbar then hideUrlBar else ""}
         '';
     };
   };

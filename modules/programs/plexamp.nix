@@ -3,13 +3,12 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   options = {
-    nx.programs.plexamp.enable =
-      lib.mkEnableOption "enables plexamp"
-      // {
-        default = false;
-      };
+    nx.programs.plexamp.enable = lib.mkEnableOption "enables plexamp" // {
+      default = false;
+    };
   };
   config = lib.mkIf config.nx.programs.plexamp.enable {
     home-manager.users.ben = {

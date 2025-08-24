@@ -3,8 +3,9 @@
   lib,
   pkgs,
   ...
-}: {
-  imports = [./schema.nix];
+}:
+{
+  imports = [ ./schema.nix ];
 
   theme = lib.mkIf (config.nx.desktop.theme == "nightcity-kabuki") {
     name = "nightcity-kabuki";

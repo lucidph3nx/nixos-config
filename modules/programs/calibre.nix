@@ -3,13 +3,12 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   options = {
-    nx.programs.calibre.enable =
-      lib.mkEnableOption "enables calibre"
-      // {
-        default = false;
-      };
+    nx.programs.calibre.enable = lib.mkEnableOption "enables calibre" // {
+      default = false;
+    };
   };
   config = lib.mkIf config.nx.programs.calibre.enable {
     home-manager.users.ben = {

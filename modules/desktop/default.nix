@@ -1,4 +1,5 @@
-{...}: {
+{ ... }:
+{
   imports = [
     ./additional-theming.nix
     ./fonts.nix

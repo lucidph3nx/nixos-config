@@ -1,4 +1,5 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   home-manager.users.ben = {
     home.packages = with pkgs; [
       helm-ls
@@ -18,9 +19,7 @@
         plugin = pkgs.vimPlugins.nvim-lspconfig;
         type = "lua";
         config =
-          /*
-          lua
-          */
+          # lua
           ''
             local lspconfig = require("lspconfig")
             function add_lsp(server, options)

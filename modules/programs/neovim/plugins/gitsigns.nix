@@ -1,12 +1,11 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   home-manager.users.ben.programs.neovim.plugins = [
     {
       plugin = pkgs.vimPlugins.gitsigns-nvim;
       type = "lua";
       config =
-        /*
-        lua
-        */
+        # lua
         ''
           require("gitsigns").setup({
           	signcolumn = true,

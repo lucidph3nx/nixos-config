@@ -3,13 +3,12 @@
   lib,
   pkgs,
   ...
-}: {
+}:
+{
   options = {
-    nx.services.pipewire.enable =
-      lib.mkEnableOption "Enable pipewire for audio"
-      // {
-        default = true;
-      };
+    nx.services.pipewire.enable = lib.mkEnableOption "Enable pipewire for audio" // {
+      default = true;
+    };
   };
   config = lib.mkIf config.nx.services.pipewire.enable {
     services.pipewire = {

@@ -3,7 +3,8 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   homeDir = config.home-manager.users.ben.home.homeDirectory;
   cloudflaredBlock = {
     proxyCommand = "${pkgs.cloudflared}/bin/cloudflared access ssh --hostname %h.$CLOUDFLARED_DOMAIN";
@@ -11,13 +12,12 @@
     port = 22;
     identityFile = "${homeDir}/.ssh/lucidph3nx-ed25519";
   };
-in {
+in
+{
   options = {
-    nx.programs.ssh.enable =
-      lib.mkEnableOption "Configuration to support outbound ssh"
-      // {
-        default = true;
-      };
+    nx.programs.ssh.enable = lib.mkEnableOption "Configuration to support outbound ssh" // {
+      default = true;
+    };
   };
 
   config = lib.mkIf config.nx.programs.ssh.enable {
@@ -56,9 +56,7 @@ in {
       home.file.".local/scripts/home.ssh.allNodes" = {
         executable = true;
         text =
-          /*
-          sh
-          */
+          # sh
           ''
             #!/bin/sh
             kitty ssh node0 &
@@ -69,39 +67,41 @@ in {
       };
     };
     # ssh secrets
-    sops.secrets = let
-      sopsFile = ./secrets/ssh.sops.yaml;
-    in {
-      "ssh/lucidph3nx-ed25519" = {
-        owner = "ben";
-        mode = "0600";
-        path = "/home/ben/.ssh/lucidph3nx-ed25519";
-        sopsFile = sopsFile;
+    sops.secrets =
+      let
+        sopsFile = ./secrets/ssh.sops.yaml;
+      in
+      {
+        "ssh/lucidph3nx-ed25519" = {
+          owner = "ben";
+          mode = "0600";
+          path = "/home/ben/.ssh/lucidph3nx-ed25519";
+          sopsFile = sopsFile;
+        };
+        "ssh/lucidph3nx-ed25519.pub" = {
+          owner = "ben";
+          mode = "0600";
+          path = "/home/ben/.ssh/lucidph3nx-ed25519.pub";
+          sopsFile = sopsFile;
+        };
+        "ssh/lucidph3nx-rsa" = {
+          owner = "ben";
+          mode = "0600";
+          path = "/home/ben/.ssh/lucidph3nx-rsa";
+          sopsFile = sopsFile;
+        };
+        "ssh/lucidph3nx-rsa.pub" = {
+          owner = "ben";
+          mode = "0600";
+          path = "/home/ben/.ssh/lucidph3nx-rsa.pub";
+          sopsFile = sopsFile;
+        };
+        "config/cloudflared_domain" = {
+          owner = "ben";
+          mode = "0600";
+          sopsFile = sopsFile;
+        };
       };
-      "ssh/lucidph3nx-ed25519.pub" = {
-        owner = "ben";
-        mode = "0600";
-        path = "/home/ben/.ssh/lucidph3nx-ed25519.pub";
-        sopsFile = sopsFile;
-      };
-      "ssh/lucidph3nx-rsa" = {
-        owner = "ben";
-        mode = "0600";
-        path = "/home/ben/.ssh/lucidph3nx-rsa";
-        sopsFile = sopsFile;
-      };
-      "ssh/lucidph3nx-rsa.pub" = {
-        owner = "ben";
-        mode = "0600";
-        path = "/home/ben/.ssh/lucidph3nx-rsa.pub";
-        sopsFile = sopsFile;
-      };
-      "config/cloudflared_domain" = {
-        owner = "ben";
-        mode = "0600";
-        sopsFile = sopsFile;
-      };
-    };
     environment.sessionVariables = {
       CLOUDFLARED_DOMAIN = "$(cat ${config.sops.secrets."config/cloudflared_domain".path})";
     };

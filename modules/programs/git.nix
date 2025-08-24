@@ -3,15 +3,15 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   homeDir = config.home-manager.users.ben.home.homeDirectory;
-in {
+in
+{
   options = {
-    nx.programs.git.enable =
-      lib.mkEnableOption "enables git"
-      // {
-        default = true;
-      };
+    nx.programs.git.enable = lib.mkEnableOption "enables git" // {
+      default = true;
+    };
   };
   config = lib.mkIf config.nx.programs.git.enable {
     home-manager.users.ben = {

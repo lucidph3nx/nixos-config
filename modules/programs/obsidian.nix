@@ -3,13 +3,12 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   options = {
-    nx.programs.obsidian.enable =
-      lib.mkEnableOption "enables obsidian"
-      // {
-        default = false;
-      };
+    nx.programs.obsidian.enable = lib.mkEnableOption "enables obsidian" // {
+      default = false;
+    };
   };
   config = lib.mkIf config.nx.programs.obsidian.enable {
     home-manager.users.ben = {
@@ -29,7 +28,7 @@
         comment = "Knowledge base";
         icon = "obsidian";
         exec = "obsidian --enable-features=UseOzonePlatform --ozone-platform=wayland";
-        mimeType = ["x-scheme-handler/obsidian"];
+        mimeType = [ "x-scheme-handler/obsidian" ];
       };
     };
   };

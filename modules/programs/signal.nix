@@ -3,13 +3,12 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   options = {
-    nx.programs.signal.enable =
-      lib.mkEnableOption "enables signal-desktop"
-      // {
-        default = true;
-      };
+    nx.programs.signal.enable = lib.mkEnableOption "enables signal-desktop" // {
+      default = true;
+    };
   };
   config = lib.mkIf config.nx.programs.signal.enable {
     home-manager.users.ben = {

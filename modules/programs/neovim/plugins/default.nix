@@ -1,4 +1,5 @@
-{...}: {
+{ ... }:
+{
   imports = [
     ./autopairs.nix
     ./colorizer.nix

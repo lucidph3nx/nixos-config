@@ -3,13 +3,12 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   options = {
-    nx.programs.bitwarden.enable =
-      lib.mkEnableOption "enables bitwarden-desktop"
-      // {
-        default = true;
-      };
+    nx.programs.bitwarden.enable = lib.mkEnableOption "enables bitwarden-desktop" // {
+      default = true;
+    };
   };
   config = lib.mkIf config.nx.programs.bitwarden.enable {
     home-manager.users.ben = {
@@ -29,7 +28,7 @@
         icon = "bitwarden";
         # force wayland
         exec = "bitwarden --enable-features=UseOzonePlatform --ozone-platform=wayland";
-        mimeType = ["x-scheme-handler/bitwarden"];
+        mimeType = [ "x-scheme-handler/bitwarden" ];
       };
     };
   };

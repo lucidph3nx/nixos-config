@@ -2,13 +2,12 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   options = {
-    nx.udiskie.enable =
-      lib.mkEnableOption "Enable udiskie service, notifications and automounting"
-      // {
-        default = true;
-      };
+    nx.udiskie.enable = lib.mkEnableOption "Enable udiskie service, notifications and automounting" // {
+      default = true;
+    };
   };
   config = lib.mkIf config.nx.udiskie.enable {
     home-manager.users.ben.services.udiskie = {

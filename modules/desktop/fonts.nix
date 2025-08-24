@@ -1,4 +1,5 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   config = {
     fonts = {
       fontDir.enable = true;
@@ -10,10 +11,16 @@
       fontconfig = {
         enable = true;
         defaultFonts = {
-          serif = ["Noto Sans" "JetBrainsMono Nerd Font"];
-          sansSerif = ["Noto Sans" "JetBrainsMono Nerd Font"];
-          monospace = ["JetBrainsMono Nerd Font"];
-          emoji = ["Noto Color Emoji"];
+          serif = [
+            "Noto Sans"
+            "JetBrainsMono Nerd Font"
+          ];
+          sansSerif = [
+            "Noto Sans"
+            "JetBrainsMono Nerd Font"
+          ];
+          monospace = [ "JetBrainsMono Nerd Font" ];
+          emoji = [ "Noto Color Emoji" ];
         };
       };
     };

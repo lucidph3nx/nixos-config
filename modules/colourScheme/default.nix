@@ -2,7 +2,8 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   imports = [
     ./everforest.nix
     ./github-light.nix

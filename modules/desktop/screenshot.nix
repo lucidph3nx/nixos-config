@@ -3,15 +3,15 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   theme = config.theme;
-in {
+in
+{
   options = {
-    nx.desktop.screenshot.enable =
-      lib.mkEnableOption "enables screenshot utils"
-      // {
-        default = true;
-      };
+    nx.desktop.screenshot.enable = lib.mkEnableOption "enables screenshot utils" // {
+      default = true;
+    };
   };
   config = lib.mkIf config.nx.desktop.screenshot.enable {
     home-manager.users.ben.home = {
@@ -40,20 +40,24 @@ in {
         '';
       };
     };
-    home-manager.users.ben.wayland.windowManager = let
-      homeDir = config.home-manager.users.ben.home.homeDirectory;
-      screenshotToClipboard = "${homeDir}/.local/scripts/application.grim.screenshotToClipboard";
-    in {
-      # shortcuts for sway
-      sway.config.keybindings = let
-        super = "Mod4";
-      in {
-        "${super}+Shift+s" = "exec ${screenshotToClipboard}";
+    home-manager.users.ben.wayland.windowManager =
+      let
+        homeDir = config.home-manager.users.ben.home.homeDirectory;
+        screenshotToClipboard = "${homeDir}/.local/scripts/application.grim.screenshotToClipboard";
+      in
+      {
+        # shortcuts for sway
+        sway.config.keybindings =
+          let
+            super = "Mod4";
+          in
+          {
+            "${super}+Shift+s" = "exec ${screenshotToClipboard}";
+          };
+        # shortcuts for hyprland
+        hyprland.settings.bind = [
+          "SUPER SHIFT, S, exec, ${screenshotToClipboard}"
+        ];
       };
-      # shortcuts for hyprland
-      hyprland.settings.bind = [
-        "SUPER SHIFT, S, exec, ${screenshotToClipboard}"
-      ];
-    };
   };
 }

@@ -4,13 +4,12 @@
   lib,
   ...
 }:
-with config.theme; {
+with config.theme;
+{
   options = {
-    nx.desktop.swaync.enable =
-      lib.mkEnableOption "enables swaync"
-      // {
-        default = true;
-      };
+    nx.desktop.swaync.enable = lib.mkEnableOption "enables swaync" // {
+      default = true;
+    };
   };
   config = lib.mkIf config.nx.desktop.swaync.enable {
     home-manager.users.ben.home = {
@@ -19,9 +18,7 @@ with config.theme; {
       ];
       file = {
         ".config/swaync/config.json".text =
-          /*
-          json
-          */
+          # json
           ''
             {
               "$schema": "/etc/xdg/swaync/configSchema.json",
@@ -59,9 +56,7 @@ with config.theme; {
             }
           '';
         ".config/swaync/style.css".text =
-          /*
-          css
-          */
+          # css
           ''
             * {
               font-family: Quicksand, sans-serif;

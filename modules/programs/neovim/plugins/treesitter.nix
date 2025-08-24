@@ -1,8 +1,9 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   home-manager.users.ben.programs.neovim.plugins = [
     {
-      plugin = pkgs.vimPlugins.nvim-treesitter.withPlugins (treesitter-plugins:
-        with treesitter-plugins; [
+      plugin = pkgs.vimPlugins.nvim-treesitter.withPlugins (
+        treesitter-plugins: with treesitter-plugins; [
           bash
           clojure
           cmake
@@ -37,12 +38,11 @@
           vim
           xml
           yaml
-        ]);
+        ]
+      );
       type = "lua";
       config =
-        /*
-        lua
-        */
+        # lua
         ''
           require("nvim-treesitter.configs").setup({
           	highlight = {

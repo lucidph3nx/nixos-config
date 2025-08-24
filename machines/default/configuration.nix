@@ -4,11 +4,12 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
-    (import ./disko.nix {device = "/dev/vda";})
+    (import ./disko.nix { device = "/dev/vda"; })
     inputs.disko.nixosModules.default
     ../../modules
   ];

@@ -3,7 +3,8 @@
   lib,
   config,
   ...
-}: let
+}:
+let
   github-nvim-theme = pkgs.vimUtils.buildVimPlugin {
     name = "github-nvim-theme";
     src = pkgs.fetchFromGitHub {
@@ -14,15 +15,14 @@
     };
   };
   theme = config.theme;
-in {
+in
+{
   home-manager.users.ben.programs.neovim.plugins = lib.mkIf (config.theme.name == "github-light") [
     {
       plugin = github-nvim-theme;
       type = "lua";
       config =
-        /*
-        lua
-        */
+        # lua
         ''
           require("github-theme").setup({
           	groups = {

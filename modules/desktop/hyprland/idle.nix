@@ -2,7 +2,8 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   options = {
     nx.desktop.hyprland = {
       lockTimeout.enable = lib.mkOption {
@@ -42,37 +43,39 @@
   };
   config = lib.mkIf config.nx.desktop.hyprland.enable {
     home-manager.users.ben = {
-      services.hypridle = let
-        lockTimeout = config.nx.desktop.hyprland.lockTimeout.enable;
-        screenTimeout = config.nx.desktop.hyprland.screenTimeout.enable;
-        suspendTimeout = config.nx.desktop.hyprland.suspendTimeout.enable;
-        lockTimeoutDuration = config.nx.desktop.hyprland.lockTimeout.duration;
-        screenTimeoutDuration = config.nx.desktop.hyprland.screenTimeout.duration;
-        suspendTimeoutDuration = config.nx.desktop.hyprland.suspendTimeout.duration;
-      in {
-        enable = true;
-        settings = {
-          general = {
-            lock_cmd = "hyprctl dispatch exec hyprlock";
+      services.hypridle =
+        let
+          lockTimeout = config.nx.desktop.hyprland.lockTimeout.enable;
+          screenTimeout = config.nx.desktop.hyprland.screenTimeout.enable;
+          suspendTimeout = config.nx.desktop.hyprland.suspendTimeout.enable;
+          lockTimeoutDuration = config.nx.desktop.hyprland.lockTimeout.duration;
+          screenTimeoutDuration = config.nx.desktop.hyprland.screenTimeout.duration;
+          suspendTimeoutDuration = config.nx.desktop.hyprland.suspendTimeout.duration;
+        in
+        {
+          enable = true;
+          settings = {
+            general = {
+              lock_cmd = "hyprctl dispatch exec hyprlock";
+            };
+            listener = [
+              (lib.mkIf lockTimeout {
+                timeout = lockTimeoutDuration;
+                on-timeout = "hyprctl dispatch exec hyprlock";
+              })
+              (lib.mkIf screenTimeout {
+                timeout = screenTimeoutDuration;
+                on-timeout = "hyprctl dispatch dpms off";
+                on-resume = "hyprctl dispatch dpms on";
+              })
+              (lib.mkIf suspendTimeout {
+                timeout = suspendTimeoutDuration;
+                on-timeout = "systemctl suspend";
+                on-resume = "hyprctl dispatch exec hyprlock";
+              })
+            ];
           };
-          listener = [
-            (lib.mkIf lockTimeout {
-              timeout = lockTimeoutDuration;
-              on-timeout = "hyprctl dispatch exec hyprlock";
-            })
-            (lib.mkIf screenTimeout {
-              timeout = screenTimeoutDuration;
-              on-timeout = "hyprctl dispatch dpms off";
-              on-resume = "hyprctl dispatch dpms on";
-            })
-            (lib.mkIf suspendTimeout {
-              timeout = suspendTimeoutDuration;
-              on-timeout = "systemctl suspend";
-              on-resume = "hyprctl dispatch exec hyprlock";
-            })
-          ];
         };
-      };
     };
   };
 }

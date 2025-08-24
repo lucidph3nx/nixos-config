@@ -1,4 +1,5 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   home-manager.users.ben.programs.neovim.plugins = [
     # dependencies
     pkgs.vimPlugins.nvim-web-devicons
@@ -6,9 +7,7 @@
       plugin = pkgs.vimPlugins.lualine-nvim;
       type = "lua";
       config =
-        /*
-        lua
-        */
+        # lua
         ''
           require("lualine").setup({
           	options = {

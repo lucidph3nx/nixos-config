@@ -3,13 +3,12 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   options = {
-    nx.programs.anki.enable =
-      lib.mkEnableOption "enables anki"
-      // {
-        default = false;
-      };
+    nx.programs.anki.enable = lib.mkEnableOption "enables anki" // {
+      default = false;
+    };
   };
   config = lib.mkIf config.nx.programs.anki.enable {
     home-manager.users.ben = {

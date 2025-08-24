@@ -3,29 +3,26 @@
   lib,
   config,
   ...
-}: let
+}:
+let
   theme = config.theme;
-in {
+in
+{
   home-manager.users.ben.programs.neovim.plugins =
-    lib.mkIf (
-      config.theme.name
-      == "gruvbox-light"
-      || config.theme.name == "gruvbox-dark"
-    ) [
-      {
-        plugin = pkgs.vimPlugins.gruvbox-nvim;
-        type = "lua";
-        config =
-          /*
-          lua
-          */
-          ''
-            require("gruvbox").setup({
-            	overrides = {},
-            })
-            vim.o.background = "${theme.type}"
-            vim.cmd([[colorscheme gruvbox]])
-          '';
-      }
-    ];
+    lib.mkIf (config.theme.name == "gruvbox-light" || config.theme.name == "gruvbox-dark")
+      [
+        {
+          plugin = pkgs.vimPlugins.gruvbox-nvim;
+          type = "lua";
+          config =
+            # lua
+            ''
+              require("gruvbox").setup({
+              	overrides = {},
+              })
+              vim.o.background = "${theme.type}"
+              vim.cmd([[colorscheme gruvbox]])
+            '';
+        }
+      ];
 }

@@ -3,13 +3,12 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   options = {
-    nx.programs.k9s.enable =
-      lib.mkEnableOption "enables k9s"
-      // {
-        default = true;
-      };
+    nx.programs.k9s.enable = lib.mkEnableOption "enables k9s" // {
+      default = true;
+    };
   };
   config = lib.mkIf config.nx.programs.k9s.enable {
     home-manager.users.ben = {
@@ -221,12 +220,13 @@
           };
         };
       };
-      programs.zsh.initContent = let
-        initExtra = lib.mkOrder 1000 ''
-          bindkey -s ^k "k9s\n"
-        '';
-      in
-        lib.mkMerge [initExtra];
+      programs.zsh.initContent =
+        let
+          initExtra = lib.mkOrder 1000 ''
+            bindkey -s ^k "k9s\n"
+          '';
+        in
+        lib.mkMerge [ initExtra ];
     };
   };
 }

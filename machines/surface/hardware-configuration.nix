@@ -7,19 +7,29 @@
   pkgs,
   modulesPath,
   ...
-}: {
+}:
+{
   imports = [
     (modulesPath + "/profiles/qemu-guest.nix")
   ];
 
-  boot.initrd.availableKernelModules = ["xhci_pci" "nvme" "usb_storage" "usbhid" "sd_mod"];
-  boot.initrd.kernelModules = [];
-  boot.kernelModules = ["kvm-intel" "v4l2loopback"];
+  boot.initrd.availableKernelModules = [
+    "xhci_pci"
+    "nvme"
+    "usb_storage"
+    "usbhid"
+    "sd_mod"
+  ];
+  boot.initrd.kernelModules = [ ];
+  boot.kernelModules = [
+    "kvm-intel"
+    "v4l2loopback"
+  ];
   boot.kernelParams = [
     # stop screen flickering
     "i915.enable_psr=0"
   ];
-  boot.extraModulePackages = [];
+  boot.extraModulePackages = [ ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's

@@ -3,15 +3,15 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   homeDir = config.home-manager.users.ben.home.homeDirectory;
-in {
+in
+{
   options = {
-    nx.programs.zsh.enable =
-      lib.mkEnableOption "enables zsh"
-      // {
-        default = true;
-      };
+    nx.programs.zsh.enable = lib.mkEnableOption "enables zsh" // {
+      default = true;
+    };
   };
   config = lib.mkIf config.nx.programs.zsh.enable {
     # zsh bootstrap
@@ -31,16 +31,18 @@ in {
         dotDir = "${config.home-manager.users.ben.xdg.dataHome}/zsh";
         # source the zcompdump from persist if it exists
         # this is to speed up zsh startup in an impermanent environment
-        completionInit = let
-          dumpFile = "/persist/${homeDir}/.local/share/zsh/.zcompdump";
-        in ''
-          autoload -U compinit
-          if [[ -f ${dumpFile} ]]; then
-            compinit -d ${dumpFile}
-          else
-            compinit
-          fi
-        '';
+        completionInit =
+          let
+            dumpFile = "/persist/${homeDir}/.local/share/zsh/.zcompdump";
+          in
+          ''
+            autoload -U compinit
+            if [[ -f ${dumpFile} ]]; then
+              compinit -d ${dumpFile}
+            else
+              compinit
+            fi
+          '';
         history = {
           size = 10000;
           expireDuplicatesFirst = true;
@@ -99,23 +101,24 @@ in {
           # these interfere with my keybindings below
           ZVM_INIT_MODE = "sourcing";
         };
-        initContent = let
-          initExtra = lib.mkOrder 1000 ''
-            # zsh-history-substring-search configuration
-            bindkey '^[[A' history-substring-search-up # or '\eOA'
-            bindkey '^[[B' history-substring-search-down # or '\eOB'
-            HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1
+        initContent =
+          let
+            initExtra = lib.mkOrder 1000 ''
+              # zsh-history-substring-search configuration
+              bindkey '^[[A' history-substring-search-up # or '\eOA'
+              bindkey '^[[B' history-substring-search-down # or '\eOB'
+              HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1
 
-            # Custom keybindings
-            bindkey -s ^v "nvim\n"
-            bindkey -s ^p "python\n"
-            bindkey -s ^o "cli.tmux.projectSessioniser ~/documents/obsidian\n"
-            bindkey -s ^f "cli.tmux.projectSessioniser\n"
-            # utils
-            eval "$(direnv hook zsh)"
-          '';
-        in
-          lib.mkMerge [initExtra];
+              # Custom keybindings
+              bindkey -s ^v "nvim\n"
+              bindkey -s ^p "python\n"
+              bindkey -s ^o "cli.tmux.projectSessioniser ~/documents/obsidian\n"
+              bindkey -s ^f "cli.tmux.projectSessioniser\n"
+              # utils
+              eval "$(direnv hook zsh)"
+            '';
+          in
+          lib.mkMerge [ initExtra ];
       };
       home.persistence."/persist/home/ben" = {
         directories = [

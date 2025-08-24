@@ -3,13 +3,12 @@
   lib,
   ...
 }:
-with config.theme; {
+with config.theme;
+{
   options = {
-    nx.programs.zathura.enable =
-      lib.mkEnableOption "enables zathura"
-      // {
-        default = true;
-      };
+    nx.programs.zathura.enable = lib.mkEnableOption "enables zathura" // {
+      default = true;
+    };
   };
   config = lib.mkIf config.nx.programs.zathura.enable {
     home-manager.users.ben = {
@@ -22,7 +21,7 @@ with config.theme; {
         };
       };
       xdg.mimeApps.defaultApplications = {
-        "application/pdf" = ["org.pwmt.zathura.desktop"];
+        "application/pdf" = [ "org.pwmt.zathura.desktop" ];
       };
     };
   };

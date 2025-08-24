@@ -1,13 +1,12 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   home-manager.users.ben.programs.neovim.plugins = [
     pkgs.vimPlugins.nvim-web-devicons
     {
       plugin = pkgs.vimPlugins.nvim-tree-lua;
       type = "lua";
       config =
-        /*
-        lua
-        */
+        # lua
         ''
           require("nvim-tree").setup({
           	filters = {

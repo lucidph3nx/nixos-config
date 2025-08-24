@@ -1,4 +1,5 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   home-manager.users.ben = {
     home.packages = with pkgs; [
       nodejs_20
@@ -8,9 +9,7 @@
         plugin = pkgs.vimPlugins.copilot-lua;
         type = "lua";
         config =
-          /*
-          lua
-          */
+          # lua
           ''
             require("copilot").setup({
             	panel = {

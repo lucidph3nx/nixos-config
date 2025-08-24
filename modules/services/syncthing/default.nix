@@ -2,7 +2,8 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   imports = [
     ./secrets.nix
   ];
@@ -12,31 +13,23 @@
       // {
         default = false;
       };
-    nx.services.syncthing.obsidian.enable =
-      lib.mkEnableOption "Set up syncthing obsidian folder"
-      // {
-        default = false;
-      };
-    nx.services.syncthing.calibre.enable =
-      lib.mkEnableOption "Set up syncthing calibre folder"
-      // {
-        default = false;
-      };
-    nx.services.syncthing.music.enable =
-      lib.mkEnableOption "Set up syncthing music folder"
-      // {
-        default = false;
-      };
+    nx.services.syncthing.obsidian.enable = lib.mkEnableOption "Set up syncthing obsidian folder" // {
+      default = false;
+    };
+    nx.services.syncthing.calibre.enable = lib.mkEnableOption "Set up syncthing calibre folder" // {
+      default = false;
+    };
+    nx.services.syncthing.music.enable = lib.mkEnableOption "Set up syncthing music folder" // {
+      default = false;
+    };
     nx.services.syncthing.music.path = lib.mkOption {
       type = lib.types.str;
       default = "/persist/home/ben/music/";
       description = "location for music folder";
     };
-    nx.services.syncthing.photos.enable =
-      lib.mkEnableOption "Set up syncthing photos folder"
-      // {
-        default = false;
-      };
+    nx.services.syncthing.photos.enable = lib.mkEnableOption "Set up syncthing photos folder" // {
+      default = false;
+    };
   };
   config = lib.mkIf config.nx.services.syncthing.enable {
     services.syncthing = {
@@ -51,28 +44,32 @@
       overrideDevices = true;
       settings = {
         devices = {
-          "k8s" = {id = "FZVNVGQ-6TJDJLG-DRWSAWW-AQLKQM7-U36GWON-7ZQ7CLF-32MBYFN-SFHWHAX";};
-          "nas0" = {id = "7LANRKO-RRMWROL-PDMCTJX-WKSPOKO-LS3K35O-CJEMX7O-MHHIURW-GSF6FAS";};
+          "k8s" = {
+            id = "FZVNVGQ-6TJDJLG-DRWSAWW-AQLKQM7-U36GWON-7ZQ7CLF-32MBYFN-SFHWHAX";
+          };
+          "nas0" = {
+            id = "7LANRKO-RRMWROL-PDMCTJX-WKSPOKO-LS3K35O-CJEMX7O-MHHIURW-GSF6FAS";
+          };
         };
         folders = {
           "obsidian" = lib.mkIf config.nx.services.syncthing.obsidian.enable {
             id = "hgl5u-yejsp";
-            devices = ["k8s"];
+            devices = [ "k8s" ];
             path = "/persist/home/ben/documents/obsidian";
           };
           "calibre" = lib.mkIf config.nx.services.syncthing.calibre.enable {
             id = "bny6u-oz6gf";
-            devices = ["nas0"];
+            devices = [ "nas0" ];
             path = "/persist/home/ben/documents/calibre";
           };
           "music" = lib.mkIf config.nx.services.syncthing.music.enable {
             id = "dmuif-nefck";
-            devices = ["nas0"];
+            devices = [ "nas0" ];
             path = config.nx.services.syncthing.music.path;
           };
           "photos" = lib.mkIf config.nx.services.syncthing.photos.enable {
             id = "4ghtf-4leca";
-            devices = ["nas0"];
+            devices = [ "nas0" ];
             path = "/persist/home/ben/pictures/photos";
           };
         };
@@ -84,8 +81,8 @@
     };
     # don't start syncthing until network is online
     systemd.services.syncthing = {
-      after = ["network-online.target"];
-      wants = ["network-online.target"];
+      after = [ "network-online.target" ];
+      wants = [ "network-online.target" ];
     };
     # network ports for syncthing
     networking.firewall = {

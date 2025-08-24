@@ -1,13 +1,12 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   home-manager.users.ben.programs.neovim.plugins = [
     pkgs.vimPlugins.vim-rhubarb
     {
       plugin = pkgs.vimPlugins.vim-fugitive;
       type = "lua";
       config =
-        /*
-        lua
-        */
+        # lua
         ''
           -- autocommand to set keybindings only in fugitive buffers
           local augroup = vim.api.nvim_create_augroup("lucidph3nx_fugitive", {})

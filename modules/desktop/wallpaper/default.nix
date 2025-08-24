@@ -3,21 +3,21 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   configDir = "${config.home-manager.users.ben.home.homeDirectory}/.config";
   resolution = config.nx.desktop.wallpaper.resolution;
   variant = config.nx.desktop.wallpaper.variant;
-in {
+in
+{
   imports = [
     ./enso-wallpaper.nix
     ./rainbox-wallpaper.nix
   ];
   options = {
-    nx.desktop.wallpaper.enable =
-      lib.mkEnableOption "enables svg based dynamic wallpaper"
-      // {
-        default = true;
-      };
+    nx.desktop.wallpaper.enable = lib.mkEnableOption "enables svg based dynamic wallpaper" // {
+      default = true;
+    };
     nx.desktop.wallpaper.resolution = lib.mkOption {
       type = lib.types.str;
       default = "5120x1440";
@@ -30,11 +30,13 @@ in {
     };
   };
   config = lib.mkIf config.nx.desktop.wallpaper.enable {
-    home-manager.users.ben = {lib, ...}: {
-      # convert the svg to a png at activaion time
-      home.activation.renderWallpaper = lib.hm.dag.entryAfter ["writeBoundary"] ''
-        ${pkgs.imagemagick}/bin/convert ${configDir}/${variant}-wallpaper-${resolution}.svg ${configDir}/wallpaper-${resolution}.png
-      '';
-    };
+    home-manager.users.ben =
+      { lib, ... }:
+      {
+        # convert the svg to a png at activaion time
+        home.activation.renderWallpaper = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+          ${pkgs.imagemagick}/bin/convert ${configDir}/${variant}-wallpaper-${resolution}.svg ${configDir}/wallpaper-${resolution}.png
+        '';
+      };
   };
 }

@@ -2,11 +2,12 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   config = lib.mkIf config.nx.desktop.sway.enable {
     home-manager.users.ben.home = {
       # my scripts relevant to sway
-      sessionPath = ["$HOME/.local/scripts"];
+      sessionPath = [ "$HOME/.local/scripts" ];
       file.".local/scripts/cli.system.setSwayGaps" = {
         executable = true;
         text = ''

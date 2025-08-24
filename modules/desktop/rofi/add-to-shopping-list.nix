@@ -3,7 +3,8 @@
   lib,
   ...
 }:
-with config.theme; {
+with config.theme;
+{
   config = lib.mkIf config.nx.desktop.rofi.enable {
     # notion API key
     sops.secrets.notion_shopping_list_key = {
@@ -18,9 +19,7 @@ with config.theme; {
       file.".local/scripts/home.shoppinglist.addItem" = {
         executable = true;
         text =
-          /*
-          python
-          */
+          # python
           ''
             #!/usr/bin/env python3
             import os

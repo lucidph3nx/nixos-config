@@ -3,13 +3,12 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   options = {
-    nx.programs.gemini-cli.enable =
-      lib.mkEnableOption "enables gemini-cli"
-      // {
-        default = true;
-      };
+    nx.programs.gemini-cli.enable = lib.mkEnableOption "enables gemini-cli" // {
+      default = true;
+    };
   };
   config = lib.mkIf config.nx.programs.gemini-cli.enable {
     home-manager.users.ben = {

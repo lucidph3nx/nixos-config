@@ -3,9 +3,11 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   kubeDir = "${config.home-manager.users.ben.home.homeDirectory}/.config/kube";
-in {
+in
+{
   options = {
     nx.programs.kubetools.enable =
       lib.mkEnableOption "enables some cli tools for managing kubernetes"

@@ -4,11 +4,12 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
-    (import ./disko.nix {device = "/dev/nvme0n1";})
+    (import ./disko.nix { device = "/dev/nvme0n1"; })
     inputs.disko.nixosModules.default
     inputs.nixos-hardware.nixosModules.microsoft-surface-pro-intel
     inputs.nixos-hardware.nixosModules.microsoft-surface-common

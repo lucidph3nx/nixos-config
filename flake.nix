@@ -41,69 +41,77 @@
     };
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    home-manager,
-    nixos-hardware,
-    ...
-  } @ inputs: let
-    inherit (self) outputs;
-    # Reusable function for creating system configurations
-    mkSystem = {
-      system,
-      configFile,
-      extraModules ? [],
-      extraConfig ? {},
-    }: let
-      lib = nixpkgs.lib; # Inherit lib from nixpkgs
-    in
-      nixpkgs.lib.nixosSystem {
-        inherit system;
-        pkgs = import nixpkgs {
-          inherit system;
-          config = lib.mkMerge [
-            {allowUnfree = true;}
-            extraConfig # Merge any extra configuration like rocmSupport
-          ];
-          overlays = [self.overlays.modifications];
-        };
-        specialArgs = {inherit inputs outputs;};
-        modules = let
-          defaults = {pkgs, ...}: {};
+  outputs =
+    {
+      self,
+      nixpkgs,
+      home-manager,
+      nixos-hardware,
+      ...
+    }@inputs:
+    let
+      inherit (self) outputs;
+      # Reusable function for creating system configurations
+      mkSystem =
+        {
+          system,
+          configFile,
+          extraModules ? [ ],
+          extraConfig ? { },
+        }:
+        let
+          lib = nixpkgs.lib; # Inherit lib from nixpkgs
         in
-          [
-            defaults
-            ./machines/${configFile}/configuration.nix
-            home-manager.nixosModules.default
-            inputs.impermanence.nixosModules.impermanence
-          ]
-          ++ extraModules;
-      };
-  in {
-    overlays = import ./overlays {inherit inputs outputs;};
-    nixosConfigurations = {
-      default = mkSystem {
-        system = "x86_64-linux";
-        configFile = "default";
-      };
-      navi = mkSystem {
-        system = "x86_64-linux";
-        configFile = "navi";
-        extraConfig = {rocmSupport = true;};
-      };
-      surface = mkSystem {
-        system = "x86_64-linux";
-        configFile = "surface";
-        extraModules = [
-          nixos-hardware.nixosModules.microsoft-surface-common
-          nixos-hardware.nixosModules.microsoft-surface-pro-intel
-        ];
-      };
-      tui = mkSystem {
-        system = "x86_64-linux";
-        configFile = "tui";
+        nixpkgs.lib.nixosSystem {
+          inherit system;
+          pkgs = import nixpkgs {
+            inherit system;
+            config = lib.mkMerge [
+              { allowUnfree = true; }
+              extraConfig # Merge any extra configuration like rocmSupport
+            ];
+            overlays = [ self.overlays.modifications ];
+          };
+          specialArgs = { inherit inputs outputs; };
+          modules =
+            let
+              defaults = { pkgs, ... }: { };
+            in
+            [
+              defaults
+              ./machines/${configFile}/configuration.nix
+              home-manager.nixosModules.default
+              inputs.impermanence.nixosModules.impermanence
+            ]
+            ++ extraModules;
+        };
+    in
+    {
+      overlays = import ./overlays { inherit inputs outputs; };
+      nixosConfigurations = {
+        default = mkSystem {
+          system = "x86_64-linux";
+          configFile = "default";
+        };
+        navi = mkSystem {
+          system = "x86_64-linux";
+          configFile = "navi";
+          extraConfig = {
+            rocmSupport = true;
+          };
+        };
+        surface = mkSystem {
+          system = "x86_64-linux";
+          configFile = "surface";
+          extraModules = [
+            nixos-hardware.nixosModules.microsoft-surface-common
+            nixos-hardware.nixosModules.microsoft-surface-pro-intel
+          ];
+        };
+        tui = mkSystem {
+          system = "x86_64-linux";
+          configFile = "tui";
+        };
       };
     };
-  };
 }

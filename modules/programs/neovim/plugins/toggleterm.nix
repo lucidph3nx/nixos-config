@@ -1,12 +1,11 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   home-manager.users.ben.programs.neovim.plugins = [
     {
       plugin = pkgs.vimPlugins.toggleterm-nvim;
       type = "lua";
       config =
-        /*
-        lua
-        */
+        # lua
         ''
           require("toggleterm").setup({
           	open_mapping = [[<C-Space>]],

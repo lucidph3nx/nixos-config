@@ -1,4 +1,5 @@
-{...}: {
+{ ... }:
+{
   imports = [
     ./hardware-boot-switch.nix
     ./impermanence.nix

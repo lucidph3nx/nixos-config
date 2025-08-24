@@ -1,6 +1,8 @@
-{...}: let
+{ ... }:
+let
   locale = "en_NZ.UTF-8";
-in {
+in
+{
   # Set your time zone.
   time.timeZone = "Pacific/Auckland";
 

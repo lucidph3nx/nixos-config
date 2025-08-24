@@ -3,7 +3,8 @@
   lib,
   ...
 }:
-with config.theme; {
+with config.theme;
+{
   config = lib.mkIf config.nx.desktop.rofi.enable {
     home-manager.users.ben.home.file.".config/rofi/theme.rasi".text = ''
       * {

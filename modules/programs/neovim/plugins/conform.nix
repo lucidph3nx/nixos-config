@@ -1,4 +1,5 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   home-manager.users.ben.home.packages = with pkgs; [
     stylua
     nixfmt
@@ -11,9 +12,7 @@
       plugin = pkgs.vimPlugins.conform-nvim;
       type = "lua";
       config =
-        /*
-        lua
-        */
+        # lua
         ''
           require("conform").setup({
           	formatters_by_ft = {
@@ -21,6 +20,11 @@
           		python = { "black" },
           		nix = { "nixfmt", "injected" },
           		json = { "jq" },
+          	},
+          	formatters = {
+          		nixfmt = {
+          			command = "${pkgs.nixfmt}/bin/nixfmt",
+          		},
           	},
           })
           -- Keybindings

@@ -3,12 +3,11 @@
   lib,
   ...
 }:
-with config.theme; {
+with config.theme;
+{
   config = lib.mkIf config.nx.programs.firefox.enable {
     home-manager.users.ben.programs.firefox.profiles.main.userContent =
-      /*
-      css
-      */
+      # css
       ''
         /* gmail checker extension */
         @-moz-document url-prefix("moz-extension://c99d673f-ecaa-4c0f-8dc7-f7da7a89e166") {

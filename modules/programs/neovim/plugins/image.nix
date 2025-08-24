@@ -1,13 +1,12 @@
-{pkgs, ...}: {
-  home-manager.users.ben.programs.neovim.extraLuaPackages = ps: [ps.magick];
+{ pkgs, ... }:
+{
+  home-manager.users.ben.programs.neovim.extraLuaPackages = ps: [ ps.magick ];
   home-manager.users.ben.programs.neovim.plugins = [
     {
       plugin = pkgs.vimPlugins.image-nvim;
       type = "lua";
       config =
-        /*
-        lua
-        */
+        # lua
         ''
           require("image").setup({
           	backend = "kitty",

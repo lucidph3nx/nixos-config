@@ -2,7 +2,8 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   config = lib.mkIf config.nx.programs.qutebrowser.enable {
     sops.secrets = {
       "bookmarks.sops" = {

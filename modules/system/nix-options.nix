@@ -1,8 +1,12 @@
-{...}: {
+{ ... }:
+{
   # nix options for all machines
   nix = {
     settings = {
-      experimental-features = ["nix-command" "flakes"];
+      experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
       trusted-substituters = [
         "https://nix-community.cachix.org"
         "https://lucidph3nx-nixos-config.cachix.org"

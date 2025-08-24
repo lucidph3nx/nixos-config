@@ -3,16 +3,15 @@
   lib,
   pkgs,
   ...
-}: {
+}:
+{
   config = lib.mkIf config.nx.desktop.hyprland.enable {
     home-manager.users.ben = {
-      home.sessionPath = ["$HOME/.local/scripts"];
+      home.sessionPath = [ "$HOME/.local/scripts" ];
       home.file.".local/scripts/cli.system.setHyprGaps" = {
         executable = true;
         text =
-          /*
-          bash
-          */
+          # bash
           ''
             #!/bin/sh
             width=$(hyprctl monitors -j | jq '.[0].width')
@@ -32,9 +31,7 @@
       home.file.".local/scripts/system.inputs.toggleTouchpad" = lib.mkIf config.nx.isLaptop {
         executable = true;
         text =
-          /*
-          bash
-          */
+          # bash
           ''
             #!/bin/sh
             export STATUS_FILE="$XDG_RUNTIME_DIR/touchpad_status"
@@ -57,9 +54,7 @@
       home.file.".local/scripts/cli.hyprland.switchWorkspaceOnWindowClose" = {
         executable = true;
         text =
-          /*
-          bash
-          */
+          # bash
           ''
             #!/bin/sh
             function handle {
@@ -83,9 +78,7 @@
       home.file.".local/scripts/cli.system.suspend" = {
         executable = true;
         text =
-          /*
-          bash
-          */
+          # bash
           ''
             #!/bin/sh
             hyprctl dispatch exec hyprlock ;
@@ -96,9 +89,7 @@
       home.file.".local/scripts/cli.system.inhibitIdle" = {
         executable = true;
         text =
-          /*
-          bash
-          */
+          # bash
           ''
             #!/bin/sh
             LOCKFILE="/tmp/systemd_inhibit.lock"

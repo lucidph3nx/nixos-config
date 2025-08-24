@@ -3,7 +3,8 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   options = {
     nx.services.blocky.enable =
       lib.mkEnableOption "Add a local blocky DNS server and set it as the default nameserver"
@@ -27,7 +28,10 @@
         };
         bootstrapDns = {
           upstream = "https://one.one.one.one/dns-query";
-          ips = ["1.1.1.1" "1.0.0.1"];
+          ips = [
+            "1.1.1.1"
+            "1.0.0.1"
+          ];
         };
         upstreams.groups.default = [
           "tcp-tls:one.one.one.one:853"
@@ -97,19 +101,17 @@
     };
     # don't start blocky until network is online
     systemd.services.blocky = {
-      after = ["network-online.target"];
-      wants = ["network-online.target"];
+      after = [ "network-online.target" ];
+      wants = [ "network-online.target" ];
     };
     home-manager.users.ben.home = {
       # making sure scripts are on path if not set elsewhere
-      sessionPath = ["$HOME/.local/scripts"];
+      sessionPath = [ "$HOME/.local/scripts" ];
       # utility scripts for blocky
       file.".local/scripts/services.blocky.pause" = {
         executable = true;
         text =
-          /*
-          bash
-          */
+          # bash
           ''
             #!/bin/sh
             response=$(${pkgs.blocky}/bin/blocky blocking disable --duration 10m --groups default 2>&1)

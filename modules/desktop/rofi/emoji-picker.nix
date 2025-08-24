@@ -4,15 +4,14 @@
   pkgs,
   ...
 }:
-with config.theme; {
+with config.theme;
+{
   config = lib.mkIf config.nx.desktop.rofi.enable {
     home-manager.users.ben.home = {
       file.".local/scripts/application.rofi.emojipicker" = {
         executable = true;
         text =
-          /*
-          bash
-          */
+          # bash
           ''
             #!/bin/sh
             if [ "$XDG_SESSION_DESKTOP" = sway ]; then
@@ -36,13 +35,14 @@ with config.theme; {
       # a custom emoji list for rofi-emoji
       # I want to filter out skintone, gendered emoji and country flags that I don't use
       file.".config/rofi-emoji/custom_emoji_list.txt" = {
-        source = let
-          emojiRaw = builtins.fetchurl {
-            url = "https://raw.githubusercontent.com/Mange/rofi-emoji/refs/heads/master/all_emojis.txt";
-            sha256 = "1grr19rg5a8xl6mjnjc1fvmf7zx9jfj6y33qcasd2j1cvx8k5lbd";
-          };
-        in
-          pkgs.runCommand "filtered-emojis" {nativeBuildInputs = [pkgs.ripgrep];} ''
+        source =
+          let
+            emojiRaw = builtins.fetchurl {
+              url = "https://raw.githubusercontent.com/Mange/rofi-emoji/refs/heads/master/all_emojis.txt";
+              sha256 = "1grr19rg5a8xl6mjnjc1fvmf7zx9jfj6y33qcasd2j1cvx8k5lbd";
+            };
+          in
+          pkgs.runCommand "filtered-emojis" { nativeBuildInputs = [ pkgs.ripgrep ]; } ''
             cat ${emojiRaw} | ${pkgs.ripgrep}/bin/rg -v '([🏻-🏿♀♂⚧👩👨]|country-flag|subdivision-flag)' > $out
             if [ $? -ne 0 ]; then
               echo "ripgrep failed!" >&2

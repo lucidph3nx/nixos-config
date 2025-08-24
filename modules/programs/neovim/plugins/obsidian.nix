@@ -1,12 +1,11 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   home-manager.users.ben.programs.neovim.plugins = [
     {
       plugin = pkgs.vimPlugins.obsidian-nvim;
       type = "lua";
       config =
-        /*
-        lua
-        */
+        # lua
         ''
           -- Helper function to get the date of the next specified weekday
           local getNextWeekday = function(dayOfWeek)

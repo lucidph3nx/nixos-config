@@ -1,12 +1,11 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   home-manager.users.ben.programs.neovim.plugins = [
     {
       plugin = pkgs.vimPlugins.nvim-colorizer-lua;
       type = "lua";
       config =
-        /*
-        lua
-        */
+        # lua
         ''
           require("colorizer").setup({
           	filetypes = { "*" },

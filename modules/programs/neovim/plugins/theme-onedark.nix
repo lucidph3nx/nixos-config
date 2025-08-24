@@ -3,17 +3,17 @@
   lib,
   config,
   ...
-}: let
+}:
+let
   theme = config.theme;
-in {
+in
+{
   home-manager.users.ben.programs.neovim.plugins = lib.mkIf (config.theme.name == "onedark") [
     {
       plugin = pkgs.vimPlugins.onedark-nvim;
       type = "lua";
       config =
-        /*
-        lua
-        */
+        # lua
         ''
           require("onedark").setup({
           	highlights = {

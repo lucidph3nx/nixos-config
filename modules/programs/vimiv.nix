@@ -3,13 +3,12 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   options = {
-    nx.programs.vimiv.enable =
-      lib.mkEnableOption "enables vimiv"
-      // {
-        default = true;
-      };
+    nx.programs.vimiv.enable = lib.mkEnableOption "enables vimiv" // {
+      default = true;
+    };
   };
   config = lib.mkIf config.nx.programs.vimiv.enable {
     home-manager.users.ben = {
@@ -211,8 +210,8 @@
         };
       };
       xdg.mimeApps.defaultApplications = {
-        "image/jpeg" = ["vimiv.desktop"];
-        "image/png" = ["vimiv.desktop"];
+        "image/jpeg" = [ "vimiv.desktop" ];
+        "image/png" = [ "vimiv.desktop" ];
       };
     };
   };

@@ -2,15 +2,14 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   config = lib.mkIf config.nx.desktop.waybar.enable {
     home-manager.users.ben.home = {
       file.".local/scripts/cli.mpd.nowPlaying" = {
         executable = true;
         text =
-          /*
-          bash
-          */
+          # bash
           ''
             #!/bin/sh
 
@@ -66,9 +65,7 @@
       file.".local/scripts/cli.audio.outputEnabled" = lib.mkIf config.nx.externalAudio.enable {
         executable = true;
         text =
-          /*
-          bash
-          */
+          # bash
           ''
             #!/bin/sh
             # Find the nick of the current default sink
@@ -84,9 +81,7 @@
       file.".local/scripts/cli.audio.getOutput" = {
         executable = true;
         text =
-          /*
-          bash
-          */
+          # bash
           ''
             #!/bin/sh
             # a handy little lookup table to provide icons

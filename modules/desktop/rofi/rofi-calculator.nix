@@ -3,14 +3,13 @@
   lib,
   ...
 }:
-with config.theme; {
+with config.theme;
+{
   config = lib.mkIf config.nx.desktop.rofi.enable {
     home-manager.users.ben.home.file.".local/scripts/application.rofi.calculator" = {
       executable = true;
       text =
-        /*
-        bash
-        */
+        # bash
         ''
           #!/bin/sh
           if [ "$XDG_SESSION_DESKTOP" = sway ]; then

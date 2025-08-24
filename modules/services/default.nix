@@ -1,4 +1,5 @@
-{...}: {
+{ ... }:
+{
   imports = [
     ./battery-notifier.nix
     ./blocky.nix

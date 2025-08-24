@@ -1,10 +1,9 @@
-{...}: {
+{ ... }:
+{
   # Setting various vim options
   home-manager.users.ben.programs.neovim = {
     extraLuaConfig =
-      /*
-      lua
-      */
+      # lua
       ''
         local set = vim.opt
         -- Make line numbers default

@@ -7,14 +7,25 @@
   pkgs,
   modulesPath,
   ...
-}: {
+}:
+{
   imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
   ];
 
-  boot.initrd.availableKernelModules = ["xhci_pci" "thunderbolt" "vmd" "nvme" "usb_storage" "sd_mod"];
-  boot.initrd.kernelModules = ["dm-snapshot"];
-  boot.kernelModules = ["kvm-intel" "v4l2loopback"];
+  boot.initrd.availableKernelModules = [
+    "xhci_pci"
+    "thunderbolt"
+    "vmd"
+    "nvme"
+    "usb_storage"
+    "sd_mod"
+  ];
+  boot.initrd.kernelModules = [ "dm-snapshot" ];
+  boot.kernelModules = [
+    "kvm-intel"
+    "v4l2loopback"
+  ];
   boot.extraModprobeConfig = ''
     options v4l2loopback exclusive_caps=1 max_buffers=2 video_nr=9 card_label=a6400
   '';

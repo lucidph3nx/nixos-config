@@ -2,12 +2,11 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   config = lib.mkIf config.nx.programs.firefox.enable {
     home-manager.users.ben.home.file.".config/tridactyl/tridactylrc".text =
-      /*
-      tridactyl
-      */
+      # tridactyl
       ''
         " Unbind
         unbind --mode=normal t

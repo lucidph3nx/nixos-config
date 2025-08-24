@@ -2,13 +2,12 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   options = {
-    nx.programs.neovim.enable =
-      lib.mkEnableOption "Set up Neovim"
-      // {
-        default = true;
-      };
+    nx.programs.neovim.enable = lib.mkEnableOption "Set up Neovim" // {
+      default = true;
+    };
   };
   imports = [
     ./abbreviations.nix

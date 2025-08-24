@@ -2,7 +2,8 @@
   lib,
   config,
   ...
-}: {
+}:
+{
   imports = [
     ./lutris.nix
     ./mednafen.nix
@@ -12,11 +13,9 @@
     ./yuzu.nix
   ];
   options = {
-    nx.gaming.enable =
-      lib.mkEnableOption "enables gaming related modules"
-      // {
-        default = false;
-      };
+    nx.gaming.enable = lib.mkEnableOption "enables gaming related modules" // {
+      default = false;
+    };
   };
   config = lib.mkIf config.nx.gaming.enable {
     hardware.graphics = {

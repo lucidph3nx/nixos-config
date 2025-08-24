@@ -1,10 +1,9 @@
-{...}: {
+{ ... }:
+{
   # Setting my abbreviations
   home-manager.users.ben.programs.neovim = {
     extraConfig =
-      /*
-      vim
-      */
+      # vim
       ''
         " markdown
         ab ch - [ ]

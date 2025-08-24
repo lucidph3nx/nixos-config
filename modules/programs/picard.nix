@@ -3,13 +3,12 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   options = {
-    nx.programs.picard.enable =
-      lib.mkEnableOption "enables picard"
-      // {
-        default = false;
-      };
+    nx.programs.picard.enable = lib.mkEnableOption "enables picard" // {
+      default = false;
+    };
   };
   config = lib.mkIf config.nx.programs.picard.enable {
     home-manager.users.ben = {
