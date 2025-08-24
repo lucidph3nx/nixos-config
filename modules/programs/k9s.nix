@@ -107,113 +107,113 @@
         skins.skin = with config.theme; {
           k9s = {
             body = {
-              fgColor = "${foreground}";
-              bgColor = "${bg0}";
-              logoColor = "${green}";
+              fgColor = foreground;
+              bgColor = bg0;
+              logoColor = green;
             };
             prompt = {
-              fgColor = "${foreground}";
-              bgColor = "${bg0}";
-              suggestColor = "${orange}";
+              fgColor = foreground;
+              bgColor = bg0;
+              suggestColor = orange;
             };
             info = {
-              fgColor = "${grey1}";
-              sectionColor = "${green}";
+              fgColor = grey1;
+              sectionColor = green;
             };
             dialog = {
-              fgColor = "${foreground}";
-              bgColor = "${bg0}";
-              buttonFgColor = "${foreground}";
-              buttonBgColor = "${green}";
-              buttonFocusFgColor = "${bg1}";
-              buttonFocusBgColor = "${blue}";
-              labelFgColor = "${orange}";
-              fieldFgColor = "${blue}";
+              fgColor = foreground;
+              bgColor = bg0;
+              buttonFgColor = foreground;
+              buttonBgColor = green;
+              buttonFocusFgColor = bg1;
+              buttonFocusBgColor = blue;
+              labelFgColor = orange;
+              fieldFgColor = blue;
             };
             frame = {
               border = {
-                fgColor = "${green}";
-                focusColor = "${green}";
+                fgColor = green;
+                focusColor = green;
               };
               menu = {
-                fgColor = "${grey1}";
-                keyColor = "${yellow}";
-                numKeyColor = "${yellow}";
+                fgColor = grey1;
+                keyColor = yellow;
+                numKeyColor = yellow;
               };
               crumbs = {
-                fgColor = "${bg1}";
-                bgColor = "${green}";
-                activeColor = "${yellow}";
+                fgColor = bg1;
+                bgColor = green;
+                activeColor = yellow;
               };
               status = {
-                newColor = "${blue}";
-                modifyColor = "${green}";
-                addColor = "${grey1}";
-                pendingColor = "${orange}";
-                errorColor = "${red}";
-                highlightColor = "${yellow}";
-                killColor = "${purple}";
-                completedColor = "${grey1}";
+                newColor = blue;
+                modifyColor = green;
+                addColor = grey1;
+                pendingColor = orange;
+                errorColor = red;
+                highlightColor = yellow;
+                killColor = purple;
+                completedColor = grey1;
               };
               title = {
-                fgColor = "${blue}";
-                bgColor = "${bg0}";
-                highlightColor = "${purple}";
-                counterColor = "${foreground}";
-                filterColor = "${blue}";
+                fgColor = blue;
+                bgColor = bg0;
+                highlightColor = purple;
+                counterColor = foreground;
+                filterColor = blue;
               };
             };
             views = {
               charts = {
-                bgColor = "${bg0}";
+                bgColor = bg0;
                 defaultDialColors = [
-                  "${green}"
-                  "${red}"
+                  green
+                  red
                 ];
                 defaultChartColors = [
-                  "${green}"
-                  "${red}"
+                  green
+                  red
                 ];
               };
               table = {
-                fgColor = "${yellow}";
-                bgColor = "${bg0}";
-                cursorFgColor = "${bg1}";
-                cursorBgColor = "${blue}";
-                markColor = "${yellow}";
+                fgColor = yellow;
+                bgColor = bg0;
+                cursorFgColor = bg1;
+                cursorBgColor = blue;
+                markColor = yellow;
                 header = {
-                  fgColor = "${grey1}";
-                  bgColor = "${bg0}";
-                  sorterColor = "${orange}";
+                  fgColor = grey1;
+                  bgColor = bg0;
+                  sorterColor = orange;
                 };
               };
               xray = {
-                fgColor = "${blue}";
-                bgColor = "${bg0}";
-                cursorColor = "${foreground}";
-                graphicColor = "${yellow}";
+                fgColor = blue;
+                bgColor = bg0;
+                cursorColor = foreground;
+                graphicColor = yellow;
                 showIcons = false;
               };
               yaml = {
-                keyColor = "${green}";
-                colonColor = "${grey1}";
-                valueColor = "${grey1}";
+                keyColor = green;
+                colonColor = grey1;
+                valueColor = grey1;
               };
               logs = {
-                fgColor = "${grey1}";
-                bgColor = "${bg0}";
+                fgColor = grey1;
+                bgColor = bg0;
                 indicator = {
-                  fgColor = "${blue}";
-                  bgColor = "${bg0}";
-                  toggleOnColor = "${primary}";
-                  toggleOffColor = "${grey1}";
+                  fgColor = blue;
+                  bgColor = bg0;
+                  toggleOnColor = primary;
+                  toggleOffColor = grey1;
                 };
               };
               help = {
-                fgColor = "${grey1}";
-                bgColor = "${bg0}";
+                fgColor = grey1;
+                bgColor = bg0;
                 indicator = {
-                  fgColor = "${blue}";
+                  fgColor = blue;
                 };
               };
             };
