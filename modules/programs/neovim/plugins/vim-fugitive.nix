@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, lib, pkgs, ... }:
 {
   home-manager.users.ben.programs.neovim.plugins = [
     pkgs.vimPlugins.vim-rhubarb
