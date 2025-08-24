@@ -44,6 +44,7 @@ GM_addStyle(`
     --button-primary-fgColor-resting: var(--system-theme-bg0) !important;
     --button-primary-iconColor-rest: var(--system-theme-bg0) !important;
     --button-primary-bgColor-hover: color-mix(in srgb, var(--system-theme-green) 75%, var(--system-theme-bg0) 25%) !important;
+    --button-danger-bgColor-hover: color-mix(in srgb, var(--system-theme-red) 75%, var(--system-theme-bg0) 25%) !important;
 
     --bgColor-default: var(--system-theme-bg0) !important;
     --bgColor-inset: var(--system-theme-bg_dim) !important;
