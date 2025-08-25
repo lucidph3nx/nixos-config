@@ -6,7 +6,7 @@
 }:
 {
   imports = [
-    ./colourScheme
+    ./colour-scheme
     ./desktop
     ./gaming
     ./programs
