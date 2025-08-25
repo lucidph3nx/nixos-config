@@ -87,17 +87,24 @@ If you have any problems with formatting, please ping the [formatting team](http
   args: with args; <...>
   ```
 
-  or
+  **Important exception: NixOS modules must use `...`**
+
+  NixOS modules (files that define `options` and `config` sections) require `...` because the module system passes additional arguments automatically. For modules, use:
 
   ```nix
   {
-    stdenv,
-    fetchurl,
-    perl,
+    config,
+    lib,
+    pkgs,
     ...
   }:
-  <...>
+  {
+    options = { ... };
+    config = { ... };
+  }
   ```
+
+  Only remove `...` from simple package definitions or pure configuration files that are not part of the NixOS module system.
 
   For functions that are truly generic in the number of arguments, but have some required arguments, you should write them using an `@`-pattern:
 
