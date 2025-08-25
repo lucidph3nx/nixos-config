@@ -26,6 +26,9 @@
         set.wrap = false
         set.linebreak = true
 
+        -- don't fold
+        set.foldlevel = 99
+
         -- save undo history
         set.undofile = true
         -- no swap file
