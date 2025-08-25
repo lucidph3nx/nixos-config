@@ -31,7 +31,12 @@ in
   };
   config = lib.mkIf config.nx.desktop.wallpaper.enable {
     home-manager.users.ben =
-      { config, lib, pkgs, ... }:
+      {
+        config,
+        lib,
+        pkgs,
+        ...
+      }:
       {
         # convert the svg to a png at activaion time
         home.activation.renderWallpaper = lib.hm.dag.entryAfter [ "writeBoundary" ] ''

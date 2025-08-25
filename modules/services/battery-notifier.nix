@@ -206,7 +206,13 @@ in
     devices = lib.mkOption {
       type = lib.types.attrsOf (
         lib.types.submodule (
-          { name, config, lib, pkgs, ... }:
+          {
+            name,
+            config,
+            lib,
+            pkgs,
+            ...
+          }:
           {
             options = {
               enable = lib.mkEnableOption "this battery notifier";
