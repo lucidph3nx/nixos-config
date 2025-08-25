@@ -33,26 +33,26 @@
             custom = {
               name = "custom";
               type = "custom";
-              Background = "${bg0}";
-              Foreground = "${foreground}";
-              LightBlue = "${primary}";
-              AccentBlue = "${blue}";
-              AccentPurple = "${purple}";
-              AccentCyan = "${aqua}";
-              AccentGreen = "${green}";
-              AccentYellow = "${yellow}";
-              AccentRed = "${red}";
-              Comment = "${grey1}";
-              Gray = "${grey1}";
-              DiffAdded = "${green}";
-              DiffRemoved = "${red}";
-              DiffModified = "${blue}";
+              Background = bg0;
+              Foreground = foreground;
+              LightBlue = primary;
+              AccentBlue = blue;
+              AccentPurple = purple;
+              AccentCyan = aqua;
+              AccentGreen = green;
+              AccentYellow = yellow;
+              AccentRed = red;
+              Comment = grey1;
+              Gray = grey1;
+              DiffAdded = green;
+              DiffRemoved = red;
+              DiffModified = blue;
               GradientColors = [
-                "${red}"
-                "${yellow}"
-                "${green}"
-                "${blue}"
-                "${purple}"
+                red
+                yellow
+                green
+                blue
+                purple
               ];
             };
           };

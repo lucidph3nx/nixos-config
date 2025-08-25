@@ -16,8 +16,8 @@ with config.theme;
         enable = true;
         options = {
           selection-clipboard = "clipboard";
-          default-bg = "${bg_dim}";
-          default-fg = "${foreground}";
+          default-bg = bg_dim;
+          default-fg = foreground;
         };
       };
       xdg.mimeApps.defaultApplications = {

@@ -16,12 +16,12 @@ in
           {
             text =
               let
-                colourbg = "${bg_dim}";
-                colour1 = "${red}";
-                colour2 = "${yellow}";
-                colour3 = "${green}";
-                colour4 = "${blue}";
-                colour5 = "${purple}";
+                colourbg = bg_dim;
+                colour1 = red;
+                colour2 = yellow;
+                colour3 = green;
+                colour4 = blue;
+                colour5 = purple;
               in
               # svg
               ''
@@ -104,12 +104,12 @@ in
           {
             text =
               let
-                colourbg = "${bg_dim}";
-                colour1 = "${red}";
-                colour2 = "${yellow}";
-                colour3 = "${green}";
-                colour4 = "${blue}";
-                colour5 = "${purple}";
+                colourbg = bg_dim;
+                colour1 = red;
+                colour2 = yellow;
+                colour3 = green;
+                colour4 = blue;
+                colour5 = purple;
               in
               # svg
               ''
