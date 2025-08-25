@@ -104,6 +104,7 @@
     exfat
     ffmpeg
     freetype # fonts needed for wine
+    claude-code
     gamescope
     gphoto2
     inkscape
