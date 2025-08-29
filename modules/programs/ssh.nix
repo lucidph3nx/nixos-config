@@ -27,6 +27,8 @@ in
       ];
       programs.ssh = {
         enable = true;
+        # https://github.com/nix-community/home-manager/blob/77f348da3176dc68b20a73dab94852a417daf361/modules/programs/ssh.nix#L633C17-L641
+        enableDefaultConfig = false; # deprecated, setting to false silences warning
         matchBlocks = {
           "*" = {
             # don't ask to check host key for new hosts
