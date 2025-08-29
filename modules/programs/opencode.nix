@@ -12,20 +12,13 @@
   };
   config = lib.mkIf config.nx.programs.opencode.enable {
     home-manager.users.ben = {
-      home.packages = with pkgs; [
-        opencode
-      ];
-      home.persistence."/persist/home/ben" = {
-        directories = [
-          ".config/opencode"
-        ];
-      };
-      home.file.".config/opencode/opencode.jsonc" = {
-        text = builtins.toJSON ({
+      programs.opencode = {
+        enable = true;
+        settings = {
           theme = "everforest";
           permission = {
             edit = "allow";
-            "webfetch" = "allow";
+            webfetch = "allow";
             bash = {
               "git push" = "ask";
               "git commit" = "ask";
@@ -34,7 +27,12 @@
               "*" = "ask";
             };
           };
-        });
+        };
+      };
+      home.persistence."/persist/home/ben" = {
+        directories = [
+          ".config/opencode"
+        ];
       };
     };
   };
