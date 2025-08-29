@@ -29,6 +29,7 @@
     ./neovim
     ./nh.nix
     ./obsidian.nix
+    ./opencode.nix
     ./picard.nix
     ./plexamp.nix
     ./podman.nix

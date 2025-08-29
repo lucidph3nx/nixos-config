@@ -46,5 +46,6 @@ rec {
     };
     # use master for gemini-cli - things move quickly
     gemini-cli = inputs.nixpkgs-master.legacyPackages.${final.system}.gemini-cli;
+    opencode = inputs.nixpkgs-master.legacyPackages.${final.system}.opencode;
   };
 }
