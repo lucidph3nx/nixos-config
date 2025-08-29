@@ -27,7 +27,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     impermanence.url = "github:nix-community/impermanence";
-    nixos-hardware.url = "github:NixOS/nixos-hardware/master";
 
     # sops
     sops-nix = {
@@ -46,7 +45,6 @@
       self,
       nixpkgs,
       home-manager,
-      nixos-hardware,
       ...
     }@inputs:
     let
@@ -89,24 +87,12 @@
     {
       overlays = import ./overlays { inherit inputs outputs; };
       nixosConfigurations = {
-        default = mkSystem {
-          system = "x86_64-linux";
-          configFile = "default";
-        };
         navi = mkSystem {
           system = "x86_64-linux";
           configFile = "navi";
           extraConfig = {
             rocmSupport = true;
           };
-        };
-        surface = mkSystem {
-          system = "x86_64-linux";
-          configFile = "surface";
-          extraModules = [
-            nixos-hardware.nixosModules.microsoft-surface-common
-            nixos-hardware.nixosModules.microsoft-surface-pro-intel
-          ];
         };
         tui = mkSystem {
           system = "x86_64-linux";
