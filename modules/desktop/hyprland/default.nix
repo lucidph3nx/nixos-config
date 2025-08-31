@@ -209,6 +209,7 @@ in
             "SUPER, 7, workspace, 7"
             "SUPER, 8, workspace, 8"
             "SUPER, 9, workspace, 9"
+            "SUPER, TAB, workspace, previous"
             # move active window to workspace
             "SUPER SHIFT, 1, movetoworkspacesilent, 1"
             "SUPER SHIFT, 2, movetoworkspacesilent, 2"
