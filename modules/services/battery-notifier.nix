@@ -300,6 +300,12 @@ in
         ACTION=="change", SUBSYSTEM=="power_supply", ATTR{type}=="Mains", RUN+="${udev-wrapper}/bin/udev-battery-notifier laptop"
       '';
 
+    hardware.openrazer = lib.mkIf config.nx.services.batteryNotifier.devices.mouse.enable {
+      enable = true;
+      # too many false positive 0% notifications
+      batteryNotifier.enable = false;
+    };
+
     home-manager.users.ben = lib.mkIf (builtins.any (d: d.enable) (lib.attrValues cfg.devices)) {
       home.packages = with pkgs; [
         polychromatic
