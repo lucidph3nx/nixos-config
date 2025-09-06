@@ -32,6 +32,8 @@
       home.persistence."/persist/home/ben" = {
         directories = [
           ".config/opencode"
+          ".local/share/opencode"
+          ".local/state/opencode"
         ];
       };
     };
