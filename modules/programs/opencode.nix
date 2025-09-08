@@ -29,6 +29,8 @@
           };
         };
       };
+      xdg.configFile."opencode/opencode.json".source =
+        config.home-manager.users.ben.xdg.configFile."opencode/config.json".source;
       home.persistence."/persist/home/ben" = {
         directories = [
           ".config/opencode"
