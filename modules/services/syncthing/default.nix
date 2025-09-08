@@ -75,9 +75,6 @@
         };
         options.urAccepted = -1;
       };
-      extraFlags = [
-        "--no-default-folder"
-      ];
     };
     # don't start syncthing until network is online
     systemd.services.syncthing = {
