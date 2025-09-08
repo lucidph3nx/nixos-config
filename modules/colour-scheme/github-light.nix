@@ -9,6 +9,7 @@
 
   theme = lib.mkIf (config.nx.desktop.theme == "github-light") {
     name = "github-light";
+    opencodename = "github";
     type = "light";
     foreground = "#24292f";
     primary = "#0366d6";

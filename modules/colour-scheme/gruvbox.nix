@@ -9,6 +9,7 @@
   theme = lib.mkMerge [
     (lib.mkIf (config.nx.desktop.theme == "gruvbox-light") {
       name = "gruvbox-light";
+      opencodename = "gruvbox";
       type = "light";
       foreground = "#3c3836";
       primary = "#79740e";
@@ -41,6 +42,7 @@
     })
     (lib.mkIf (config.nx.desktop.theme == "gruvbox-dark") {
       name = "gruvbox-dark";
+      opencodename = "gruvbox";
       type = "dark";
       foreground = "#ebdbb2";
       primary = "#458588";

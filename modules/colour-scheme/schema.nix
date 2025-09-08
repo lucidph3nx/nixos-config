@@ -11,6 +11,7 @@ let
   themeType = types.submodule {
     options = {
       name = mkOption { type = types.str; };
+      opencodename = mkOption { type = types.str; };
       type = mkOption { type = types.str; };
       foreground = mkOption { type = types.str; };
       primary = mkOption { type = types.str; };
@@ -49,6 +50,7 @@ in
       type = themeType;
       default = {
         name = "default";
+        opencodename = "github";
         type = "light";
         foreground = "#24292f";
         primary = "#0366d6";

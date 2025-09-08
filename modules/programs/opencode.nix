@@ -15,7 +15,7 @@
       programs.opencode = {
         enable = true;
         settings = {
-          theme = "everforest";
+          theme = config.theme.opencodename;
           permission = {
             edit = "allow";
             webfetch = "allow";
