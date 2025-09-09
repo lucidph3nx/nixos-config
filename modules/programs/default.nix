@@ -112,6 +112,7 @@
           p7zip
           pdftk
           ripgrep
+          socat
           sops
           unrar
           unzip
