@@ -14,17 +14,24 @@
           # bash
           ''
             #!/bin/sh
-            width=$(hyprctl monitors -j | jq '.[0].width')
+            # Get monitor width with error handling
+            width=$(hyprctl monitors -j 2>/dev/null | jq -r '.[0].width // empty' 2>/dev/null)
+            
+            # Check if we got a valid width
+            if [ -z "$width" ] || [ "$width" = "null" ]; then
+              echo "Error: Could not get monitor width" >&2
+              exit 1
+            fi
 
             # Check if running in super-ultrawide
-            if [ $width -gt 5000 ]; then
-              hyprctl keyword workspace "w[t1], gapsout:5 $((width / 4))"
-              hyprctl keyword workspace "s[true], gapsout:50 $((width / 4))"
+            if [ "$width" -gt 5000 ]; then
+              hyprctl keyword workspace "w[t1], gapsout:5 $((width / 4))" || echo "Warning: Failed to set workspace gaps" >&2
+              hyprctl keyword workspace "s[true], gapsout:50 $((width / 4))" || echo "Warning: Failed to set workspace gaps" >&2
             else
               # unsetting is not possible, for now set to default
               # https://github.com/hyprwm/Hyprland/issues/5691
-              hyprctl keyword workspace "w[t1], gapsout:5 5"
-              hyprctl keyword workspace "s[true], gapsout:50 50"
+              hyprctl keyword workspace "w[t1], gapsout:5 5" || echo "Warning: Failed to set workspace gaps" >&2
+              hyprctl keyword workspace "s[true], gapsout:50 50" || echo "Warning: Failed to set workspace gaps" >&2
             fi
           '';
       };
@@ -57,22 +64,52 @@
           # bash
           ''
             #!/bin/sh
+            
+            # Cleanup function
+            cleanup() {
+              echo "Script interrupted, cleaning up..."
+              exit 0
+            }
+            
+            # Trap signals for clean exit
+            trap cleanup INT TERM
+            
             function handle {
               if [[ "$1" == closewindow* ]]; then
                 echo "Close Window detected"
 
-                active_workspace=$(hyprctl activeworkspace -j | jq '.id')
+                # Get workspace info with error handling
+                active_workspace=$(hyprctl activeworkspace -j 2>/dev/null | jq -r '.id // empty' 2>/dev/null)
+                if [ -z "$active_workspace" ] || [ "$active_workspace" = "null" ]; then
+                  echo "Warning: Could not get active workspace" >&2
+                  return
+                fi
+                
                 if [[ "$active_workspace" -ne 1 ]]; then
-                  windows_count=$(hyprctl activeworkspace -j | jq '.windows')
+                  windows_count=$(hyprctl activeworkspace -j 2>/dev/null | jq -r '.windows // empty' 2>/dev/null)
+                  if [ -z "$windows_count" ] || [ "$windows_count" = "null" ]; then
+                    echo "Warning: Could not get window count" >&2
+                    return
+                  fi
+                  
                   if [[ "$windows_count" -eq 0 ]]; then
-                    echo $windows_count
+                    echo "$windows_count"
                     echo "Empty workspace detected"
-                    hyprctl dispatch workspace m-1
+                    hyprctl dispatch workspace m-1 || echo "Warning: Failed to switch workspace" >&2
                   fi
                 fi
               fi
             }
-            ${pkgs.socat}/bin/socat - "UNIX-CONNECT:$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock" | while read -r line; do handle "$line"; done
+            
+            # Main loop with error recovery
+            while true; do
+              if ! ${pkgs.socat}/bin/socat - "UNIX-CONNECT:$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock" 2>/dev/null | while read -r line; do handle "$line"; done; then
+                echo "Socket connection lost, retrying in 5 seconds..." >&2
+                sleep 5
+              else
+                break
+              fi
+            done
           '';
       };
       home.file.".local/scripts/cli.system.suspend" = {
@@ -81,7 +118,20 @@
           # bash
           ''
             #!/bin/sh
-            hyprctl dispatch exec hyprlock ;
+            # Start hyprlock and wait for it to be ready
+            hyprctl dispatch exec hyprlock
+            
+            # Wait for hyprlock to actually start (check for process)
+            for i in {1..20}; do
+              if pgrep -x hyprlock > /dev/null; then
+                break
+              fi
+              sleep 0.1
+            done
+            
+            # Give hyprlock a moment to fully initialize
+            sleep 0.5
+            
             pkill -SIGUSR2 waybar
             systemctl suspend
           '';
@@ -92,23 +142,52 @@
           # bash
           ''
             #!/bin/sh
-            LOCKFILE="/tmp/systemd_inhibit.lock"
+            # Use XDG_RUNTIME_DIR for better security and automatic cleanup
+            LOCKFILE="$XDG_RUNTIME_DIR/systemd_inhibit.lock"
 
             start_inhibit() {
+                # Clean up any stale processes first
+                if [[ -f "$LOCKFILE" ]]; then
+                    old_pid=$(cat "$LOCKFILE" 2>/dev/null)
+                    if [ -n "$old_pid" ] && ! kill -0 "$old_pid" 2>/dev/null; then
+                        echo "Cleaning up stale lockfile"
+                        rm -f "$LOCKFILE"
+                    fi
+                fi
+                
+                if [[ -f "$LOCKFILE" ]]; then
+                    echo "Inhibit already running."
+                    return
+                fi
+                
                 systemd-inhibit --what=idle --why="Preventing idle for a task" sleep infinity &
                 echo $! > "$LOCKFILE"
             }
 
             stop_inhibit() {
                 if [[ -f "$LOCKFILE" ]]; then
-                    kill "$(cat "$LOCKFILE")"
+                    pid=$(cat "$LOCKFILE" 2>/dev/null)
+                    if [ -n "$pid" ]; then
+                        # Kill the process gracefully
+                        if kill "$pid" 2>/dev/null; then
+                            echo "Stopped inhibit process $pid"
+                        else
+                            echo "Warning: Could not stop process $pid (may have already exited)"
+                        fi
+                    fi
                     rm -f "$LOCKFILE"
                 fi
             }
 
             status_inhibit() {
                 if [[ -f "$LOCKFILE" ]]; then
-                    echo "Inhibit Active"
+                    pid=$(cat "$LOCKFILE" 2>/dev/null)
+                    if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+                        echo "Inhibit Active (PID: $pid)"
+                    else
+                        echo "Inhibit Inactive (stale lockfile)"
+                        rm -f "$LOCKFILE"
+                    fi
                 else
                     echo "Inhibit Inactive"
                 fi
@@ -116,11 +195,12 @@
 
             case $1 in
                 start)
+                    start_inhibit
                     if [[ -f "$LOCKFILE" ]]; then
-                        echo "Inhibit already running."
-                    else
-                        start_inhibit
                         echo "Inhibit started."
+                    else
+                        echo "Failed to start inhibit."
+                        exit 1
                     fi
                     ;;
                 stop)
@@ -132,15 +212,28 @@
                     ;;
                 statusjson)
                     if [[ -f "$LOCKFILE" ]]; then
-                        echo '{"text": "IDLE INHIBIT", "class": "active"}'
+                        pid=$(cat "$LOCKFILE" 2>/dev/null)
+                        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+                            echo '{"text": "IDLE INHIBIT", "class": "active"}'
+                        else
+                            rm -f "$LOCKFILE"
+                            echo '{"text": "", "class": "inactive"}'
+                        fi
                     else
                         echo '{"text": "", "class": "inactive"}'
                     fi
                     ;;
                 toggle)
                     if [[ -f "$LOCKFILE" ]]; then
-                        stop_inhibit
-                        echo "Inhibit toggled off."
+                        pid=$(cat "$LOCKFILE" 2>/dev/null)
+                        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+                            stop_inhibit
+                            echo "Inhibit toggled off."
+                        else
+                            rm -f "$LOCKFILE"
+                            start_inhibit
+                            echo "Inhibit toggled on."
+                        fi
                     else
                         start_inhibit
                         echo "Inhibit toggled on."
