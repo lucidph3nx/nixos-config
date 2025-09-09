@@ -67,7 +67,7 @@ in
               # (lib.mkIf (config.theme.name == "github-light") "swaybg -i ${homeDir}/.config/wallpaper_github_light-${resolution}.png --mode fill")
               # "swaybg --color ${builtins.substring 1 6 (theme.bg_dim)}"
               "hypridle"
-              (lib.mkIf (config.nx.isLaptop == false) "steam -silent") # couldn't figure out xdg-autostart
+              (lib.mkIf (config.nx.isLaptop == false) "steam -silent -no-cef-sandbox") # couldn't figure out xdg-autostart
               "${homeDir}/.local/scripts/game.inputRemapper.defaults"
               # default to 70% brightness
               (lib.mkIf config.nx.isLaptop "${pkgs.brightnessctl}/bin/brightnessctl s 70%")
