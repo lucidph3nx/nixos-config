@@ -10,11 +10,11 @@ GM_addStyle(`
 
   }
   * { font: "Noto Sans", sans-serif !important;}
-  body { 
+  body {
     font: normal x-small Noto Sans,arial,sans-serif;
-    background-color: var(--system-theme-bg0) !important; 
-    color: var(--system-theme-fg) !important; 
-    padding-top: 40px !important; 
+    background-color: var(--system-theme-bg0) !important;
+    color: var(--system-theme-fg) !important;
+    padding-top: 40px !important;
   }
   .content { margin-left: 0px !important; border: none !important; background-color: var(--system-theme-bg_dim) !important; padding: 10px 0; }
   .side { background-color: var(--system-theme-bg_dim) !important; padding: 10px; box-sizing: border-box; border-color: var(--system-theme-bg2) !important; border-width: 1px; border-style: solid; border-radius: 5px; }
@@ -70,7 +70,7 @@ GM_addStyle(`
   .dropdown.lightdrop .selected, .commentarea .menuarea { color: var(--system-theme-fg) !important;}
   .comment .child, .comment .showreplies {border-left: 1px solid var(--system-theme-bg2) !important;}
   .fancy-toggle-button .remove { background-image: none !important; background-color: var(--system-theme-bg2) !important; color: var(--system-theme-red) !important;}
-  
+
   /* --- Header & Dropdowns --- */
   #custom-header-container { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 5px 10px; background-color: var(--system-theme-bg1); border-bottom: 1px solid var(--system-theme-bg4); height: 40px; box-sizing: border-box; position: fixed; top: 0; left: 0; right: 0; z-index: 2000; }
   .header-left, .header-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
@@ -118,3 +118,6 @@ GM_addStyle(`
   .search-options-popup { display: none; position: absolute; top: 105%; left: 0; width: 100%; background-color: var(--system-theme-bg1); border: 1px solid var(--system-theme-bg4); border-radius: 5px; padding: 8px 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000; white-space: nowrap; box-sizing: border-box; }
   #custom-search-wrapper > form:focus-within .search-options-popup { display: block; }
 `);
+
+// add cookie to force old reddit
+document.cookie = 'redesign_optout=true;';
