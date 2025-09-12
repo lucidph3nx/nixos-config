@@ -116,6 +116,7 @@
     usbutils
     v4l-utils
     wev
+    wgnord
     wineWowPackages.waylandFull
   ];
   # key remapping
