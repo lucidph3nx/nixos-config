@@ -97,7 +97,7 @@ in
             repeat_delay = "225";
             repeat_rate = "60";
             follow_mouse = 2;
-            sensitivity = 0;
+            sensitivity = -0.5;
             touchpad = {
               # feels right for a touchpad
               natural_scroll = true;
