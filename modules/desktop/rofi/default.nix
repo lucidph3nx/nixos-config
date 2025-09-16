@@ -26,13 +26,11 @@ with config.theme;
     home-manager.users.ben = {
       programs.rofi = {
         enable = true;
-        package = pkgs.rofi-wayland;
+        package = pkgs.rofi;
         font = "Noto Sans 14";
         plugins = with pkgs; [
-          (rofi-calc.override {
-            rofi-unwrapped = rofi-wayland-unwrapped;
-          })
-          rofi-emoji-wayland
+          rofi-calc
+          rofi-emoji
         ];
         extraConfig = {
           steal-focus = true;
