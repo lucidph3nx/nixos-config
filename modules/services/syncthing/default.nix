@@ -30,6 +30,9 @@
     nx.services.syncthing.photos.enable = lib.mkEnableOption "Set up syncthing photos folder" // {
       default = false;
     };
+    nx.services.syncthing.darktable.enable = lib.mkEnableOption "Set up syncthing darktable folder" // {
+      default = false;
+    };
   };
   config = lib.mkIf config.nx.services.syncthing.enable {
     services.syncthing = {
@@ -72,6 +75,11 @@
             devices = [ "nas0" ];
             path = "/persist/home/ben/pictures/photos";
           };
+          "darktable" = lib.mkIf config.nx.services.syncthing.darktable.enable {
+            id = "x7g7m-4z7qg";
+            devices = [ "nas0" ];
+            path = "/persist/home/ben/.config/darktable";
+          };
         };
         options.urAccepted = -1;
       };
@@ -110,6 +118,10 @@
     system.activationScripts.photosFolder = lib.mkIf config.nx.services.syncthing.photos.enable ''
       mkdir -p /home/ben/pictures/photos
       chown ben:users /home/ben/pictures/photos
+    '';
+    system.activationScripts.darktableFolder = lib.mkIf config.nx.services.syncthing.darktable.enable ''
+      mkdir -p /home/ben/.config/darktable
+      chown ben:users /home/ben/.config/darktable
     '';
 
     # persist the syncthing config with home-manager impermanence module
