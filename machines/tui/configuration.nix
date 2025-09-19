@@ -47,6 +47,7 @@
         calibre.enable = true;
         music.enable = true;
         photos.enable = true;
+        darktable.enable = true;
       };
       printer.enable = true;
     };
