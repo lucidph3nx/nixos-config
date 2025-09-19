@@ -104,7 +104,8 @@ in
             };
           };
           gestures = {
-            workspace_swipe = lib.mkIf config.nx.isLaptop true;
+            # was removed in a recent version of hyprland, didn't use it much anyway
+            # workspace_swipe = lib.mkIf config.nx.isLaptop true;
           };
           general = {
             gaps_in = 5;
