@@ -20,10 +20,6 @@
           ".config/darktable"
         ];
       };
-      # settings file
-      # home.file.".config/darktable/darktablerc" = {
-      #   source = ./files/darktablerc;
-      # };
       wayland.windowManager.hyprland.settings =
         lib.mkIf (config.home-manager.users.ben.wayland.windowManager.hyprland.enable)
           {
