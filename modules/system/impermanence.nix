@@ -44,14 +44,14 @@
     environment.persistence."/persist/system" = {
       hideMounts = true;
       directories = [
-        "/var/log"
+        "/etc/NetworkManager/system-connections"
+        "/etc/ssh"
+        "/nix/var/nix/profiles"
         "/var/lib/bluetooth"
         "/var/lib/nixos"
         "/var/lib/sops-nix"
         "/var/lib/systemd/coredump"
-        "/etc/NetworkManager/system-connections"
-        "/etc/ssh"
-        "/nix/var/nix/profiles"
+        "/var/log"
       ];
       files = [
         "/etc/machine-id"

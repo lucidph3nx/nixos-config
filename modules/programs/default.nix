@@ -38,10 +38,11 @@
     ./rmpc.nix
     ./signal.nix
     ./ssh.nix
-    ./tmux.nix
     ./tmux-sessioniser.nix
+    ./tmux.nix
     ./vimiv.nix
     ./virt-manager.nix
+    ./waydroid.nix
     ./webcord.nix
     ./zathura.nix
     ./zsh.nix
