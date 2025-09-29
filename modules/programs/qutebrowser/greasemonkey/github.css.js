@@ -38,7 +38,7 @@ GM_addStyle(`
     --fgColor-muted: var(--system-theme-grey2) !important;
     --fgColor-accent: var(--system-theme-primary) !important;
     --fgColor-done: var(--system-theme-purple) !important;
-    --fgColor-danger: var(--system-theme-red) !important; 
+    --fgColor-danger: var(--system-theme-red) !important;
     --fgColor-attention: var(--system-theme-orange) !important;
     --fgColor-onEmphasis: var(--system-theme-bg0) !important;
     --button-primary-fgColor-resting: var(--system-theme-bg0) !important;
@@ -47,6 +47,7 @@ GM_addStyle(`
     --button-danger-bgColor-hover: color-mix(in srgb, var(--system-theme-red) 75%, var(--system-theme-bg0) 25%) !important;
 
     --bgColor-default: var(--system-theme-bg0) !important;
+    --bgColor-emphasis: var(--system-theme-grey1) !important;
     --bgColor-inset: var(--system-theme-bg_dim) !important;
     --bgColor-muted: var(--system-theme-bg_dim) !important;
     --bgColor-accent-emphasis: var(--system-theme-blue) !important;
@@ -83,7 +84,7 @@ GM_addStyle(`
     --contribution-default-bgColor-3: color-mix(in srgb, var(--system-theme-green) 75%, var(--system-theme-bg0) 25%) !important;
     --contribution-default-bgColor-2: color-mix(in srgb, var(--system-theme-green) 50%, var(--system-theme-bg0) 50%) !important;
     --contribution-default-bgColor-1: color-mix(in srgb, var(--system-theme-green) 25%, var(--system-theme-bg0) 75%) !important;
-    --contribution-default-bgColor-0: color-mix(in srgb, var(--system-theme-green) 10%, var(--system-theme-bg0) 90%) !important;   
+    --contribution-default-bgColor-0: color-mix(in srgb, var(--system-theme-green) 10%, var(--system-theme-bg0) 90%) !important;
 
     --display-auburn-fgColor: var(--system-theme-red) !important;
     --display-blue-fgColor: var(--system-theme-blue) !important;
@@ -101,7 +102,7 @@ GM_addStyle(`
     --display-plum-fgColor: var(--system-theme-purple) !important;
     --display-lemon-fgColor: var(--system-theme-yellow) !important;
     --display-indigo-fgColor: var(--system-theme-blue) !important;
-    
+
     /* CODE BLOCKS */
     --color-prettylights-syntax-entity: var(--system-theme-orange) !important;
     --color-prettylights-syntax-entity-tag: var(--system-theme-blue) !important;
