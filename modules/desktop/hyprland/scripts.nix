@@ -118,21 +118,42 @@
           # bash
           ''
             #!/bin/sh
-            # Start hyprlock and wait for it to be ready
-            hyprctl dispatch exec hyprlock
+            # Prevent multiple instances of this script
+            lockfile="/tmp/suspend_script.lock"
+            if [ -f "$lockfile" ]; then
+              exit 0
+            fi
+            touch "$lockfile"
             
-            # Wait for hyprlock to actually start (check for process)
-            for i in {1..20}; do
-              if pgrep -x hyprlock > /dev/null; then
-                break
-              fi
-              sleep 0.1
-            done
+            # Cleanup function
+            cleanup() {
+              rm -f "$lockfile"
+            }
+            trap cleanup EXIT
             
-            # Give hyprlock a moment to fully initialize
-            sleep 0.5
+            # Start hyprlock if not already running
+            if ! pgrep -x hyprlock > /dev/null; then
+              hyprctl dispatch exec hyprlock
+              
+              # Wait for hyprlock to actually start (check for process)
+              for i in {1..20}; do
+                if pgrep -x hyprlock > /dev/null; then
+                  break
+                fi
+                sleep 0.1
+              done
+              
+              # Give hyprlock a moment to fully initialize
+              sleep 0.5
+            else
+              # If hyprlock is already running, just wait a bit to ensure stability
+              sleep 0.2
+            fi
             
             pkill -SIGUSR2 waybar
+            
+            # Add a small delay before suspending to let everything settle
+            sleep 0.3
             systemctl suspend
           '';
       };

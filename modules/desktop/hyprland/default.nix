@@ -186,6 +186,10 @@ in
             # hide waybar on SUPER_L keyup (actually resets which loads it as hidden)
             "SUPER, SUPER_L, exec, pkill -SIGUSR2 waybar"
           ];
+          bindl = [
+            # suspend (works even when locked)
+            "SUPER, s, exec, ${homeDir}/.local/scripts/cli.system.suspend"
+          ];
           bind = [
             # show waybar on SUPER_L keydown
             ", SUPER_L, exec, pkill -SIGUSR1 waybar"
@@ -237,7 +241,6 @@ in
             "SUPER, c, exec, ${calculator}"
             "SUPER, f, exec, ${nvimsessionlauncher}"
             "SUPER SHIFT, F, fullscreen"
-            "SUPER, s, exec, ${homeDir}/.local/scripts/cli.system.suspend"
             "SUPER, i, exec, ${homeDir}/.local/scripts/cli.system.inhibitIdle toggle"
             # Notification Center
             "SUPER, n, exec, ${pkgs.swaynotificationcenter}/bin/swaync-client -t -sw"
