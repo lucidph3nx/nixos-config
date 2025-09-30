@@ -21,40 +21,41 @@
         config =
           # lua
           ''
-            local lspconfig = require("lspconfig")
-            function add_lsp(server, options)
-            	if not options["cmd"] then
-            		options["cmd"] = server["document_config"]["default_config"]["cmd"]
+            local default_capabilities = require("cmp_nvim_lsp").default_capabilities()
+            
+            function add_lsp(name, options)
+            	options = options or {}
+            	if not options.capabilities then
+            		options.capabilities = default_capabilities
             	end
-            	if not options["capabilities"] then
-            		options["capabilities"] = require("cmp_nvim_lsp").default_capabilities()
-            	end
-
-            	if vim.fn.executable(options["cmd"][1]) == 1 then
-            		server.setup(options)
+            	
+            	local cmd = options.cmd or vim.lsp.config[name].cmd
+            	if cmd and vim.fn.executable(cmd[1]) == 1 then
+            		vim.lsp.config[name] = vim.tbl_extend('force', vim.lsp.config[name] or {}, options)
+            		vim.lsp.enable(name)
             	end
             end
 
-            add_lsp(lspconfig.clojure_lsp, {})
-            add_lsp(lspconfig.cssls, {})
-            add_lsp(lspconfig.dockerls, {})
-            add_lsp(lspconfig.eslint, {})
-            add_lsp(lspconfig.gopls, {})
-            add_lsp(lspconfig.graphql, {})
-            add_lsp(lspconfig.helm_ls, {})
-            add_lsp(lspconfig.html, {})
-            add_lsp(lspconfig.jsonls, {})
-            add_lsp(lspconfig.lua_ls, {})
-            add_lsp(lspconfig.nil_ls, {
+            add_lsp('clojure_lsp')
+            add_lsp('cssls')
+            add_lsp('dockerls')
+            add_lsp('eslint')
+            add_lsp('gopls')
+            add_lsp('graphql')
+            add_lsp('helm_ls')
+            add_lsp('html')
+            add_lsp('jsonls')
+            add_lsp('lua_ls')
+            add_lsp('nil_ls', {
             	settings = { ["nil"] = {
             		formatting = { command = { "alejandra" } },
             	} },
             })
-            add_lsp(lspconfig.pylsp, {})
-            add_lsp(lspconfig.rust_analyzer, {})
-            add_lsp(lspconfig.sqlls, {})
-            add_lsp(lspconfig.ts_ls, {})
-            add_lsp(lspconfig.yamlls, {
+            add_lsp('pylsp')
+            add_lsp('rust_analyzer')
+            add_lsp('sqlls')
+            add_lsp('ts_ls')
+            add_lsp('yamlls', {
             	settings = { ["yamlls"] = {
             		keyOrdering = false,
             	} },
