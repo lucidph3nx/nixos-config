@@ -63,6 +63,10 @@ GM_addStyle(`
     border-radius: 0 5px 5px 0 !important;
   }
 
+  .ytChipShapeActive {
+    background-color: var(--system-theme-primary) !important;
+  }
+
   /* weird black bands around a "cinimatic video" */
   .ytd-watch-flexy[full-bleed-player] #full-bleed-container.ytd-watch-flexy {
     background-color: var(--system-theme-bg) !important;
