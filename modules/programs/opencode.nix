@@ -23,7 +23,7 @@
             bash = {
               "git *" = "allow";
               "git diff *" = "allow";
-              "git commit *" = "ask";
+              "git commit *" = "allow";
               "git push *" = "ask";
               "grep *" = "allow";
               "rg *" = "allow";
