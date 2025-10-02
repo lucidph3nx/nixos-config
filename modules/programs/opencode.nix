@@ -3,13 +3,12 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   options = {
-    nx.programs.opencode.enable =
-      lib.mkEnableOption "enables opencode"
-      // {
-        default = true;
-      };
+    nx.programs.opencode.enable = lib.mkEnableOption "enables opencode" // {
+      default = true;
+    };
   };
   config = lib.mkIf config.nx.programs.opencode.enable {
     home-manager.users.ben = {
@@ -35,6 +34,12 @@
               "nh os build" = "allow";
               "nh os switch" = "ask";
               "*" = "ask";
+            };
+          };
+          agent = {
+            creative = {
+              enabled = true;
+              temperature = 0.8;
             };
           };
         };
