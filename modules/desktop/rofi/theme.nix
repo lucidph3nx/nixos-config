@@ -54,7 +54,7 @@ with config.theme;
         border-radius: 5px;
       }
       element-text selected {
-        color: ${bg_visual};
+        color: ${bg0};
       }
     '';
   };
