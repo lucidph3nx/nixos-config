@@ -35,15 +35,42 @@
           "E402"
           "E265"
           "W503"
+          "W293"
         ];
         libraries = with pkgs.python313Packages; [
           tldextract
           pyperclip
         ];
       } (builtins.readFile ./userscripts/bitwarden);
+      bitwarden-prefetch = pkgs.writers.writePython3Bin "bitwarden-prefetch" {
+        flakeIgnore = [
+          "E501"
+          "E265"
+          "E302"
+          "W292"
+        ];
+        libraries = with pkgs.python313Packages; [ ];
+      } (builtins.readFile ./userscripts/bitwarden-prefetch);
     in
     {
       home-manager.users.ben = {
+        # systemd unit to prefetch bitwarden cache
+        systemd.user.services.bitwarden-prefetch = {
+          Unit = {
+            Description = "Prefetch Bitwarden vault cache for faster qutebrowser access";
+            After = [ "network-online.target" ];
+            Wants = [ "network-online.target" ];
+          };
+          Service = {
+            Type = "oneshot";
+            ExecStart = "${bitwarden-prefetch}/bin/bitwarden-prefetch";
+            # Only run if session key exists
+            ExecCondition = "/bin/sh -c 'test -f $${XDG_RUNTIME_DIR:-/tmp}/bw_session_key'";
+          };
+          Install = {
+            WantedBy = [ "default.target" ];
+          };
+        };
         # systemd unit to fetch qutebrowser dicts
         systemd.user.services.qutebrowser-setup = {
           Unit = {
@@ -172,6 +199,18 @@
                   "top": 5,
                   "right": 5,
               }
+              
+              # prefetch bitwarden cache on startup (runs in background)
+              import subprocess
+              import os
+              try:
+                  session_file = os.path.join(os.getenv("XDG_RUNTIME_DIR", "/tmp"), "bw_session_key")
+                  if os.path.exists(session_file):
+                      subprocess.Popen(["${bitwarden-prefetch}/bin/bitwarden-prefetch"], 
+                                     stdout=subprocess.DEVNULL, 
+                                     stderr=subprocess.DEVNULL)
+              except:
+                  pass  # silently ignore errors
             '';
           quickmarks = {
             "fm" = "messenger.com";

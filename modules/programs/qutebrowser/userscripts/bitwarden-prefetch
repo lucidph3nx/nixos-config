@@ -1,0 +1,85 @@
+#!/usr/bin/env python3
+
+"""
+Prefetch and cache Bitwarden vault items for faster qutebrowser userscript performance.
+This script can be run periodically via cron or systemd timer to keep the cache warm.
+"""
+
+import os
+import sys
+import json
+import subprocess
+import time
+
+def get_cache_file_path():
+    """Get the path to store the cached vault items."""
+    runtime_dir = os.getenv("XDG_RUNTIME_DIR", "/tmp")
+    return os.path.join(runtime_dir, "bw_vault_cache.json")
+
+def get_cache_timestamp_file_path():
+    """Get the path to store the cache timestamp."""
+    runtime_dir = os.getenv("XDG_RUNTIME_DIR", "/tmp")
+    return os.path.join(runtime_dir, "bw_vault_cache_timestamp")
+
+def get_session_file_path():
+    """Get the path to store the session key."""
+    runtime_dir = os.getenv("XDG_RUNTIME_DIR", "/tmp")
+    return os.path.join(runtime_dir, "bw_session_key")
+
+def get_session_key():
+    """Get existing session key from file."""
+    session_file = get_session_file_path()
+    if not os.path.exists(session_file):
+        print("No active Bitwarden session found. Please run 'bw unlock' first.", file=sys.stderr)
+        return None
+
+    try:
+        with open(session_file, "r", encoding="utf-8") as f:
+            return f.read().strip()
+    except Exception as e:
+        print(f"Error reading session key: {e}", file=sys.stderr)
+        return None
+
+def prefetch_vault_items():
+    """Prefetch all vault items and cache them."""
+    session_key = get_session_key()
+    if not session_key:
+        return False
+
+    print("Prefetching Bitwarden vault items...")
+
+    try:
+        # Fetch all items
+        process = subprocess.run(
+            ["bw", "list", "items", "--session", session_key],
+            capture_output=True,
+            text=True
+        )
+
+        if process.returncode != 0:
+            print(f"Bitwarden CLI error: {process.stderr.strip()}", file=sys.stderr)
+            return False
+
+        items = json.loads(process.stdout.strip())
+
+        # Cache the items
+        cache_file = get_cache_file_path()
+        with open(cache_file, "w", encoding="utf-8") as f:
+            json.dump(items, f)
+
+        # Update timestamp
+        timestamp_file = get_cache_timestamp_file_path()
+        with open(timestamp_file, "w", encoding="utf-8") as f:
+            f.write(str(time.time()))
+
+        print(f"Successfully cached {len(items)} vault items")
+        return True
+
+    except Exception as e:
+        print(f"Error prefetching vault items: {e}", file=sys.stderr)
+        return False
+
+
+if __name__ == "__main__":
+    success = prefetch_vault_items()
+    sys.exit(0 if success else 1)
