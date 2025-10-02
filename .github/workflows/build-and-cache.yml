@@ -5,6 +5,9 @@ name: build-and-cache
 jobs:
   build-linux:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        config: [navi, tui]
     steps:
       - uses: jlumbroso/free-disk-space@v1.3.1
         with:
@@ -22,7 +25,5 @@ jobs:
           authToken: ${{ secrets.CACHIX_TOKEN }}
           extraPullNames: nix-community
           name: lucidph3nx-nixos-config
-      - name: 'Build NixOS configs for: navi, default, tui'
-        run: |-
-          nix build --print-build-logs '.#nixosConfigurations.navi.config.system.build.toplevel'
-          nix build --print-build-logs '.#nixosConfigurations.tui.config.system.build.toplevel'
+      - name: Build NixOS config for ${{ matrix.config }}
+        run: nix build --print-build-logs '.#nixosConfigurations.${{ matrix.config }}.config.system.build.toplevel'
