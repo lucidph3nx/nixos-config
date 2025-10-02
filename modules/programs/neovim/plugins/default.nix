@@ -18,6 +18,7 @@
     ./obsidian.nix
     ./oil.nix
     ./telescope.nix
+    ./theme-catpuccin.nix
     ./theme-everforest.nix
     ./theme-github-light.nix
     ./theme-gruvbox.nix

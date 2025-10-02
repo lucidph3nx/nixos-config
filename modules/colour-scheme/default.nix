@@ -5,6 +5,7 @@
 }:
 {
   imports = [
+    ./catppuccin-latte.nix
     ./everforest.nix
     ./github-light.nix
     ./gruvbox.nix
@@ -15,6 +16,7 @@
     nx.desktop.theme = lib.mkOption {
       default = "everforest";
       type = lib.types.enum [
+        "catppuccin-latte"
         "everforest"
         "github-light"
         "gruvbox-dark"

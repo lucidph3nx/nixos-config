@@ -18,7 +18,7 @@
     externalAudio.enable = true; # using external dac
     deviceLocation = "office";
     desktop = {
-      theme = "everforest";
+      theme = "catppuccin-latte";
       hyprland.disableWorkspaceAnimations = true;
       wallpaper.variant = "enso";
     };
