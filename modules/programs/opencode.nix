@@ -27,6 +27,8 @@
               "git push *" = "ask";
               "grep *" = "allow";
               "rg *" = "allow";
+              "find *" = "allow";
+              "tree *" = "allow";
               "sed *" = "allow";
               "ls *" = "allow";
               "mkdir *" = "allow";
