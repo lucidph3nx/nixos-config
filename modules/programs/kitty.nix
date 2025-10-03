@@ -4,6 +4,7 @@
   ...
 }:
 with config.theme;
+let background = if type == "dark" then bg0 else bg_dim; in
 {
   options = {
     nx.programs.kitty.enable = lib.mkEnableOption "enables kitty" // {
@@ -36,7 +37,7 @@ with config.theme;
           allow_remote_control socket-only
 
           foreground                 ${foreground}
-          background                 ${bg0}
+          background                 ${background}
           selection_foreground       ${grey2}
           selection_background       ${bg_visual}
 
