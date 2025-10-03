@@ -115,6 +115,7 @@
           ripgrep
           socat
           sops
+          sqlite
           unrar
           unzip
           xdg-utils
