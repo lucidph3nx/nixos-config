@@ -23,6 +23,7 @@
               "git *" = "allow";
               "git diff *" = "allow";
               "git commit *" = "allow";
+              "git push" = "ask";
               "git push *" = "ask";
               "grep *" = "allow";
               "rg *" = "allow";
