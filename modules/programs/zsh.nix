@@ -90,7 +90,7 @@ in
           # nvim
           v = "nvim";
           # youtube music download script
-          ytm-download = "yt-dlp  --add-metadata --format m4a --youtube-skip-dash-manifest -i -o '~/music/%(artist)s/%(album)s/%(title)s.%(ext)s' --sponsorblock-remove 'music_offtopic' --";
+          ytm-download = "yt-dlp  --add-metadata --format m4a -i -o '~/music/%(artist)s/%(album)s/%(title)s.%(ext)s' --sponsorblock-remove 'music_offtopic' --";
           # git aliases
           gP = "git pull";
           gcb = "git checkout -b";
