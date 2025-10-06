@@ -1,7 +1,9 @@
 name: build-and-cache
 "on":
-  - push
-  - workflow_dispatch
+  push:
+    paths-ignore:
+      - '.github/workflows/**'
+  workflow_dispatch:
 jobs:
   build-linux:
     runs-on: ubuntu-latest
