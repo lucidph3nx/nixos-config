@@ -140,10 +140,10 @@
           	},
           	note_id_func = noteIdFunction,
           	notes_subdir = "notes",
-          	daily_notes = { 
-              folder = "dailies", 
-              date_format = "%Y-%m-%d", 
-              template = "daily_note.md" 
+          	daily_notes = {
+              folder = "dailies",
+              date_format = "%Y-%m-%d",
+              template = "daily_note.md"
             },
           	templates = {
           		subdir = "templates",
@@ -237,6 +237,14 @@
           })
 
           vim.opt.conceallevel = 2
+          -- remove default smart action keybind
+          vim.api.nvim_create_autocmd("User", {
+             pattern = "ObsidianNoteEnter",
+             callback = function(ev)
+                vim.keymap.del("n", "<CR>", { buffer = ev.buf })
+             end,
+          })
+
           vim.keymap.set("n", "<leader>od", "<cmd>Obsidian today<cr>", { desc = "[O]bsidian [D]aily note for Today" })
           vim.keymap.set(
           	"n",
