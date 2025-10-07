@@ -124,6 +124,11 @@
       chown ben:users /home/ben/.config/darktable
     '';
 
+    # Set env for OBSIDIAN_VAULT_PATH when obsidian folder is enabled
+    home-manager.users.ben.home.sessionVariables = lib.mkIf config.nx.services.syncthing.obsidian.enable {
+      OBSIDIAN_VAULT_PATH = "/home/ben/documents/obsidian";
+    };
+
     # persist the syncthing config with home-manager impermanence module
     home-manager.users.ben.home.persistence."/persist/home/ben" = {
       allowOther = true;
