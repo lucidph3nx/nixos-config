@@ -25,4 +25,14 @@
   };
   # no password for sudo
   security.sudo.wheelNeedsPassword = false;
+
+  # increase ulimit
+  security.pam.loginLimits = [
+    {
+      domain = "*";
+      type = "soft";
+      item = "nofile";
+      value = "8192";
+    }
+  ];
 }
