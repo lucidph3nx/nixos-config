@@ -12,6 +12,9 @@
   };
   config = lib.mkIf config.nx.programs.opencode.enable {
     home-manager.users.ben = {
+      home.packages = with pkgs; [
+        nodejs_24
+      ];
       programs.opencode = {
         enable = true;
         settings = {
