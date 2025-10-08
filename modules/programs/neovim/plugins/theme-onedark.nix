@@ -50,6 +50,15 @@ in
           			bg = "none",
           			fmt = "italic",
           		},
+              ObsidianBullet = {
+                fg = "${theme.grey0}",
+                bg = "none",
+                fmt = "bold",
+              },
+              ObsidianHighlightText = {
+                fg = "${theme.bg0}",
+                bg = "${theme.primary}",
+              }
           	},
           })
           vim.cmd("colorscheme onedark")
