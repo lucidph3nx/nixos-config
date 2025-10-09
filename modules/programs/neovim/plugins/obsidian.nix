@@ -152,7 +152,9 @@
           	new_notes_location = "notes_subdir",
           	wiki_link_func = wikiLinkFunction,
           	disable_frontmatter = false,
-          	note_frontmatter_func = noteFrontmatterFunction,
+            frontmatter = {
+              func = noteFrontmatterFunction,
+            },
           	ui = {
           		-- don't use obsidian.nvim colours
           		hl_groups = {},
