@@ -29,7 +29,7 @@
       darktable.enable = true;
       firefox.hideUrlbar = true;
       homeAutomation.enable = true;
-      libreoffice.enable = true;
+      libreoffice.enable = false; # build broken as of 2025-10-09
       obsidian.enable = true;
       picard.enable = true;
       plexamp.enable = true;
