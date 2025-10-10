@@ -15,18 +15,9 @@ rec {
     gemini-cli = inputs.nixpkgs-master.legacyPackages.${final.system}.gemini-cli;
     opencode = inputs.nixpkgs-master.legacyPackages.${final.system}.opencode;
 
-    # user master for fluxcd, waiting for https://nixpk.gs/pr-tracker.html?pr=447904
-    fluxcd = inputs.nixpkgs-master.legacyPackages.${final.system}.fluxcd;
-
-    # use master for brlaser, waiting for https://nixpk.gs/pr-tracker.html?pr=448946
-    brlaser = inputs.nixpkgs-master.legacyPackages.${final.system}.brlaser;
-
     # use stable for solvespace due to build failure in unstable
     # probably related to https://github.com/NixOS/nixpkgs/issues/445447
     solvespace = inputs.nixpkgs-stable.legacyPackages.${final.system}.solvespace;
-
-    # use master for shotcut, waiting for https://nixpk.gs/pr-tracker.html?pr=421788
-    shotcut = inputs.nixpkgs-master.legacyPackages.${final.system}.shotcut;
 
     # use older nixpkgs for calibre to avoid hipblaslt memory issues during build
     calibre = inputs.nixpkgs-calibre-fix.legacyPackages.${final.system}.calibre;
