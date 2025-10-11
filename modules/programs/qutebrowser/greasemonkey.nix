@@ -95,6 +95,10 @@
           name = "reddit_custom_header.js";
           text = builtins.readFile ./greasemonkey/reddit_custom_header.js;
         })
+        (pkgs.writeTextFile {
+          name = "reddit_custom_footernix-pr-tracker.js";
+          text = builtins.readFile ./greasemonkey/nix-pr-tracker.js;
+        })
         # restore background-color for sites broken by userstyle
         # (pkgs.writeTextFile {
         #   name = "background_restore.css.js";
