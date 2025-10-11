@@ -11,12 +11,11 @@ let
 in
 rec {
   modifications = final: prev: {
-    # use master for gemini-cli - things move quickly
-    gemini-cli = inputs.nixpkgs-master.legacyPackages.${final.system}.gemini-cli;
+    # use master for opencode, need the bleeding edge
     opencode = inputs.nixpkgs-master.legacyPackages.${final.system}.opencode;
 
     # use stable for solvespace due to build failure in unstable
-    # probably related to https://github.com/NixOS/nixpkgs/issues/445447
+    # waiting for https://github.com/NixOS/nixpkgs/pull/450801
     solvespace = inputs.nixpkgs-stable.legacyPackages.${final.system}.solvespace;
 
     # use older nixpkgs for calibre to avoid hipblaslt memory issues during build
