@@ -243,7 +243,7 @@
           vim.api.nvim_create_autocmd("User", {
              pattern = "ObsidianNoteEnter",
              callback = function(ev)
-                vim.keymap.del("n", "<CR>", { buffer = ev.buf })
+                pcall(vim.keymap.del, "n", "<CR>", { buffer = ev.buf })
              end,
           })
 
