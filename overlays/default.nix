@@ -14,10 +14,6 @@ rec {
     # use master for opencode, need the bleeding edge
     opencode = inputs.nixpkgs-master.legacyPackages.${final.system}.opencode;
 
-    # use stable for solvespace due to build failure in unstable
-    # waiting for https://github.com/NixOS/nixpkgs/pull/450801
-    solvespace = inputs.nixpkgs-stable.legacyPackages.${final.system}.solvespace;
-
     # use older nixpkgs for calibre to avoid hipblaslt memory issues during build
     calibre = inputs.nixpkgs-calibre-fix.legacyPackages.${final.system}.calibre;
 
