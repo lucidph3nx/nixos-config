@@ -24,7 +24,7 @@ rec {
         # https://github.com/obsidian-nvim/obsidian.nvim/issues/387
         obsidian-nvim = prev.vimUtils.buildVimPlugin {
           pname = "obsidian-nvim";
-          version = "2025-10-09";
+          version = "2025-10-12";
           checkInputs = with prev.vimPlugins; [
             fzf-lua
             mini-nvim
@@ -40,8 +40,8 @@ rec {
           src = prev.fetchFromGitHub {
             owner = "obsidian-nvim";
             repo = "obsidian.nvim";
-            rev = "a1d2617a5d1db4b8c53a3431943168e7a28a38d7";
-            hash = "sha256-6uYT4Eyi+nGRzC7YUEwM5ScbVf6MnN+PghNq8ugzSCU=";
+            rev = "6b2a22a74d1c883e797764c28f75aa6b532a1ae4";
+            hash = "sha256-hG1Dji1Xrl7yLLB5nN7twCuldIZt6GYWwJJaYCcGTqc=";
           };
         };
       };
