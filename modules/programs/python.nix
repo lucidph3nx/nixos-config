@@ -22,8 +22,8 @@
             src = fetchFromGitHub {
               owner = "github";
               repo = "spec-kit";
-              rev = "main";
-              sha256 = "sha256-iPYro9Uje9L2me8HBgNVo+bloNk6LSzB0tIoQzzZ+d4=";
+              rev = "e6d6f3cdee99752baee578896797400a72430ec0";
+              sha256 = "sha256-A5WQ6/YeEfYrGRxO/V7grKB3O2wv4WIXBvNBAYxAx4Y=";
             };
             build-system = with python313Packages; [
               hatchling
