@@ -108,8 +108,8 @@
     lm_sensors
     mangohud
     ntfs3g
+    openscad
     parted
-    protontricks
     protontricks
     protonup
     protonup
