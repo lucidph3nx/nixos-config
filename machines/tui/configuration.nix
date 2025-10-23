@@ -69,6 +69,19 @@
     efi.canTouchEfiVariables = true;
   };
 
+  # Fix suspend/resume issues
+  boot.kernelParams = [
+    "mem_sleep_default=deep"
+    "nvme.noacpi=1"
+    "acpi_osi=Linux"
+  ];
+
+  # Additional power management
+  powerManagement = {
+    enable = true;
+    powertop.enable = true;
+  };
+
   networking.hostName = "tui";
 
   # home-manager is awesome
