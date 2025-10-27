@@ -53,6 +53,7 @@
       sops = {
         ageKeys.enable = true;
       };
+      hardware-boot-switch.enable = true;
     };
     gaming = {
       enable = true;
