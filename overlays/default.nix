@@ -15,7 +15,7 @@ rec {
     opencode = inputs.nixpkgs-master.legacyPackages.${final.system}.opencode;
 
     # use older nixpkgs for calibre to avoid hipblaslt memory issues during build
-    calibre = inputs.nixpkgs-calibre-fix.legacyPackages.${final.system}.calibre;
+    calibre = inputs.nixpkgs-stable.legacyPackages.${final.system}.calibre;
 
     vimPlugins =
       prev.vimPlugins
