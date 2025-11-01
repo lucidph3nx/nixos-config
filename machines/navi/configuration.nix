@@ -115,7 +115,7 @@
     openscad
     parted
     protontricks
-    protonup
+    protonup-ng
     shotcut
     solvespace
     usbutils
