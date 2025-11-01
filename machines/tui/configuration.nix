@@ -30,7 +30,6 @@
     };
     programs = {
       calibre.enable = true;
-      cura.enable = true;
       darktable.enable = true;
       firefox.hideUrlbar = true;
       homeAutomation.enable = true;
