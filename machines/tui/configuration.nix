@@ -70,9 +70,11 @@
 
   # Fix suspend/resume issues
   boot.kernelParams = [
-    "mem_sleep_default=deep"
+    "mem_sleep_default=s2idle"  # Use s2idle instead of deep sleep
     "nvme.noacpi=1"
     "acpi_osi=Linux"
+    "i915.enable_psr=0"         # Disable panel self refresh for Intel graphics
+    "i915.enable_fbc=0"         # Disable framebuffer compression
   ];
 
   # Additional power management
@@ -80,6 +82,34 @@
     enable = true;
     powertop.enable = true;
   };
+
+  # Systemd services to handle suspend/resume more reliably
+  systemd.services = {
+    "suspend-fix" = {
+      description = "Fix graphics after suspend";
+      wantedBy = [ "suspend.target" ];
+      before = [ "systemd-suspend.service" ];
+      script = ''
+        # Ensure all graphics processes are properly handled
+        ${pkgs.kmod}/bin/modprobe -r i915
+        sleep 1
+        ${pkgs.kmod}/bin/modprobe i915
+      '';
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+      };
+    };
+  };
+
+  # Additional hardware support for suspend/resume
+  services.udev.extraRules = ''
+    # Disable USB autosuspend for devices that might cause issues
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="8087", ATTR{power/autosuspend}="-1"
+  '';
+
+  # Ensure proper ACPI handling
+  services.acpid.enable = true;
 
   networking.hostName = "tui";
 
