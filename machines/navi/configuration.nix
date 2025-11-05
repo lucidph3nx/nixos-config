@@ -27,7 +27,10 @@
       calibre.enable = true;
       cura.enable = true;
       darktable.enable = true;
-      firefox.hideUrlbar = true;
+      firefox = {
+        enable = false;
+        hideUrlbar = true;
+      };
       homeAutomation.enable = true;
       libreoffice.enable = false; # build broken as of 2025-10-09
       obsidian.enable = true;
