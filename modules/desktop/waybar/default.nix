@@ -153,7 +153,7 @@ with config.theme;
             (lib.mkIf enableMpd "custom/mpd")
           ];
           modules-center = [
-            "custom/system-mode"
+            (lib.mkIf config.nx.desktop.offline-focus-mode.enable "custom/system-mode")
           ];
           modules-right = [
             "cpu"

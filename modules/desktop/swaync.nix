@@ -15,6 +15,7 @@ with config.theme;
     home-manager.users.ben.home = {
       packages = [
         pkgs.libnotify
+        pkgs.swaynotificationcenter
       ];
       file = {
         ".config/swaync/config.json".text =
