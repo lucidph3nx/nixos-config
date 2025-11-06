@@ -163,7 +163,7 @@ in
             disable_splash_rendering = true;
             vrr = 1;
             # when opening another program from terminal, swallow the terminal
-            enable_swallow = true;
+            enable_swallow = false;
             swallow_regex = "^(kitty|lf)$";
             swallow_exception_regex = "^(wev)$";
           };
