@@ -128,7 +128,6 @@ in
           plugin.hy3 = {
             autotile = {
               enable = true;
-              trigger_width = 1280;
             };
           };
           cursor = {

@@ -99,9 +99,12 @@
   services.hardware.openrgb.enable = true;
 
   # display settigs for hyprland
-  home-manager.users.ben.wayland.windowManager.hyprland.settings.monitor = [
-    "DP-3,5120x1440@239.76Hz,0x0,1"
-  ];
+  home-manager.users.ben.wayland.windowManager.hyprland.settings = {
+    monitor = [
+      "DP-3,5120x1440@239.76Hz,0x0,1"
+    ];
+    plugin.hy3.autotile.trigger_width = 1280;
+  };
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
