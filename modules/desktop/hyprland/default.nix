@@ -122,7 +122,14 @@ in
               builtins.substring 1 6 (theme.blue)
             }ff) rgba(${builtins.substring 1 6 (theme.purple)}ff) 45deg";
             "col.inactive_border" = "rgba(${builtins.substring 1 6 (theme.bg2)}ff)";
-            layout = "dwindle"; # TODO: figure out hy3
+            # layout = "dwindle"; # TODO: figure out hy3
+            layout = "hy3";
+          };
+          plugin.hy3 = {
+            autotile = {
+              enable = true;
+              trigger_width = 1280;
+            };
           };
           cursor = {
             inactive_timeout = 5;
@@ -204,6 +211,9 @@ in
             "SUPER SHIFT, J, movewindow, d"
             "SUPER SHIFT, K, movewindow, u"
             "SUPER SHIFT, L, movewindow, r"
+            # hy3
+            "SUPER SHIFT, B, exec, hyprctl dispatch hy3:makegroup h"
+            "SUPER SHIFT, V, exec, hyprctl dispatch hy3:makegroup v"
             # switch workspace
             "SUPER, 1, workspace, 1"
             "SUPER, 2, workspace, 2"
@@ -322,7 +332,7 @@ in
         };
         xwayland.enable = true;
         plugins = [
-          # pkgs.hyprlandPlugins.hy3
+          pkgs.hyprlandPlugins.hy3
         ];
       };
     home-manager.users.ben.home.packages = with pkgs; [
