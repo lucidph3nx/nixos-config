@@ -35,7 +35,7 @@ GM_addStyle(`
     --bgColor-success-emphasis: var(--system-theme-green) !important;
     --fgColor-success: var(--system-theme-green) !important;
     --fgColor-default: var(--system-theme-fg) !important;
-    --fgColor-muted: var(--system-theme-grey2) !important;
+    --fgColor-muted: var(--system-theme-grey1) !important;
     --fgColor-accent: var(--system-theme-primary) !important;
     --fgColor-done: var(--system-theme-purple) !important;
     --fgColor-danger: var(--system-theme-red) !important;
