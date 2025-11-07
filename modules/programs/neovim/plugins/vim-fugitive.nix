@@ -37,7 +37,7 @@
 
           		-- keymap for git pull with rebase
           		vim.keymap.set("n", "<leader>P", function()
-          			vim.cmd.Git("pull --rebase")
+                vim.cmd.Git('pull --rebase --autostash')
           		end, { buffer = bufnr, desc = "[P]ull with rebase" })
 
           		-- open git repo in browser (requires vim-rhubarb)
