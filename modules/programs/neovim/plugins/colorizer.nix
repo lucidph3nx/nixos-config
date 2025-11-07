@@ -8,7 +8,7 @@
         # lua
         ''
           require("colorizer").setup({
-          	filetypes = { "*" },
+            filetypes = { "css", "html", "scss", "nix" },
           	user_default_options = {
           		-- don't colorize names
           		names = false,
