@@ -60,7 +60,7 @@
     };
     gaming = {
       enable = true;
-      lutris.enable = true;
+      lutris.enable = false; # isnt able to build 2025-11-08
       # we don't need to persist steam
       # it already has its own drive on this machine
       steam.persist = false;
