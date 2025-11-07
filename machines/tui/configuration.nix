@@ -83,25 +83,6 @@
     powertop.enable = true;
   };
 
-  # Systemd services to handle suspend/resume more reliably
-  systemd.services = {
-    "suspend-fix" = {
-      description = "Fix graphics after suspend";
-      wantedBy = [ "suspend.target" ];
-      before = [ "systemd-suspend.service" ];
-      script = ''
-        # Ensure all graphics processes are properly handled
-        ${pkgs.kmod}/bin/modprobe -r i915
-        sleep 1
-        ${pkgs.kmod}/bin/modprobe i915
-      '';
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-      };
-    };
-  };
-
   # Additional hardware support for suspend/resume
   services.udev.extraRules = ''
     # Disable USB autosuspend for devices that might cause issues
