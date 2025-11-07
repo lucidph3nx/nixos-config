@@ -12,9 +12,7 @@
           	view_options = {
           		show_hidden = true,
           	},
-          	-- don't want to disable netrw,
-          	-- that causes a bunch of other functionality to break
-          	default_file_explorer = false,
+          	default_file_explorer = true,
           })
           vim.keymap.set("n", "-", vim.cmd.Oil, { desc = "open parent directory" })
         '';
