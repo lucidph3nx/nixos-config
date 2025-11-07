@@ -22,13 +22,13 @@
           # lua
           ''
             local default_capabilities = require("cmp_nvim_lsp").default_capabilities()
-            
+
             function add_lsp(name, options)
             	options = options or {}
             	if not options.capabilities then
             		options.capabilities = default_capabilities
             	end
-            	
+
             	local cmd = options.cmd or vim.lsp.config[name].cmd
             	if cmd and vim.fn.executable(cmd[1]) == 1 then
             		vim.lsp.config[name] = vim.tbl_extend('force', vim.lsp.config[name] or {}, options)
@@ -36,12 +36,9 @@
             	end
             end
 
-            add_lsp('clojure_lsp')
             add_lsp('cssls')
             add_lsp('dockerls')
             add_lsp('eslint')
-            add_lsp('gopls')
-            add_lsp('graphql')
             add_lsp('helm_ls')
             add_lsp('html')
             add_lsp('jsonls')
@@ -52,8 +49,6 @@
             	} },
             })
             add_lsp('pylsp')
-            add_lsp('rust_analyzer')
-            add_lsp('sqlls')
             add_lsp('ts_ls')
             add_lsp('yamlls', {
             	settings = { ["yamlls"] = {

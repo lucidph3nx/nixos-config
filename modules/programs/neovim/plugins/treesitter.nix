@@ -5,9 +5,7 @@
       plugin = pkgs.vimPlugins.nvim-treesitter.withPlugins (
         treesitter-plugins: with treesitter-plugins; [
           bash
-          clojure
           cmake
-          commonlisp
           css
           dockerfile
           gitcommit
@@ -24,14 +22,9 @@
           latex
           lua
           markdown
-          mermaid
-          nginx
           nix
           python
-          rust
-          scala
           sql
-          ssh_config
           tmux
           toml
           typescript
