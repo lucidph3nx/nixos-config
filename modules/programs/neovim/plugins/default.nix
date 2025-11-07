@@ -3,7 +3,6 @@
   imports = [
     ./autopairs.nix
     ./colorizer.nix
-    ./comment.nix
     ./conform.nix
     ./copilot.nix
     ./gitsigns.nix
