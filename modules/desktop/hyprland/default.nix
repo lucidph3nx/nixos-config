@@ -44,13 +44,14 @@ in
       # configure for user
       home-manager.users.ben.wayland.windowManager.hyprland =
         let
+          scriptsDir = "${homeDir}/.local/scripts";
           # scripts
-          emojipicker = "${homeDir}/.local/scripts/application.rofi.emojipicker";
-          runscripts = "${homeDir}/.local/scripts/application.scripts.launcher";
-          calculator = "${homeDir}/.local/scripts/application.rofi.calculator";
-          nvimsessionlauncher = "${homeDir}/.local/scripts/application.nvim.sessionLauncher";
-          applicationlauncher = "${homeDir}/.local/scripts/application.launcher";
-          toggleTouchpad = "${homeDir}/.local/scripts/system.inputs.toggleTouchpad";
+          emojipicker = "${scriptsDir}/application.rofi.emojipicker";
+          runscripts = "${scriptsDir}/application.scripts.launcher";
+          calculator = "${scriptsDir}/application.rofi.calculator";
+          nvimsessionlauncher = "${scriptsDir}/application.nvim.sessionLauncher";
+          applicationlauncher = "${scriptsDir}/application.launcher";
+          toggleTouchpad = "${scriptsDir}/system.inputs.toggleTouchpad";
           # applications
           terminal = "kitty";
           browser = config.nx.programs.defaultWebBrowserSettings.cmd;
@@ -58,9 +59,9 @@ in
           calendar = "${newwindow} https://calendar.google.com";
           filemanager = "${terminal} lf";
           musicplayer = "${terminal} ncmpcpp";
-          obsidian = "${terminal} ${homeDir}/.local/scripts/cli.tmux.projectSessioniser ${homeDir}/documents/obsidian";
-          nixosconfig = "${terminal} ${homeDir}/.local/scripts/cli.tmux.projectSessioniser ${homeDir}/code/nixos-config";
-          addtoshoppinglist = "${homeDir}/.local/scripts/home.shoppinglist.addItem";
+          obsidian = "${terminal} ${scriptsDir}/cli.tmux.projectSessioniser ${homeDir}/documents/obsidian";
+          nixosconfig = "${terminal} ${scriptsDir}/cli.tmux.projectSessioniser ${homeDir}/code/nixos-config";
+          addtoshoppinglist = "${scriptsDir}/home.shoppinglist.addItem";
           openshoppinglist = "${newwindow} https://www.notion.so/ph3nx/Shopping-List-92d98ac3dc86460285a399c0b1176fc5";
           # configuration
           enableAudioControls = config.nx.externalAudio.enable == false;
@@ -80,12 +81,12 @@ in
                 # "swaybg --color ${builtins.substring 1 6 (theme.bg_dim)}"
                 "hypridle"
                 (lib.mkIf (config.nx.isLaptop == false) "steam -silent -no-cef-sandbox") # couldn't figure out xdg-autostart
-                "${homeDir}/.local/scripts/game.inputRemapper.defaults"
+                "${scriptsDir}/game.inputRemapper.defaults"
                 # default to 70% brightness
                 (lib.mkIf config.nx.isLaptop "${pkgs.brightnessctl}/bin/brightnessctl s 70%")
                 # default to keyboard backlight off
                 (lib.mkIf config.nx.isLaptop "${pkgs.brightnessctl}/bin/brightnessctl --device='asus::kbd_backlight' set 0")
-                ".local/scripts/cli.hyprland.switchWorkspaceOnWindowClose"
+                "${scriptsDir}/cli.hyprland.switchWorkspaceOnWindowClose"
                 "waybar"
               ];
             debug = {
@@ -98,7 +99,7 @@ in
             exec = [
               # restart waybar, if for some reason it died
               "pkill waybar && hyprctl dispatch exec waybar"
-              "${homeDir}/.local/scripts/cli.system.setHyprGaps"
+              "${scriptsDir}/cli.system.setHyprGaps"
             ];
             input = {
               # Te Reo Macrons
@@ -206,7 +207,7 @@ in
             ];
             bindl = [
               # suspend (works even when locked)
-              "SUPER, s, exec, ${homeDir}/.local/scripts/cli.system.suspend"
+              "SUPER, s, exec, ${scriptsDir}/cli.system.suspend"
             ];
             bind = [
               # show waybar on SUPER_L keydown
@@ -262,7 +263,7 @@ in
               "SUPER, c, exec, ${calculator}"
               "SUPER, f, exec, ${nvimsessionlauncher}"
               "SUPER SHIFT, F, fullscreen"
-              "SUPER, i, exec, ${homeDir}/.local/scripts/cli.system.inhibitIdle toggle"
+              "SUPER, i, exec, ${scriptsDir}/cli.system.inhibitIdle toggle"
               # Notification Center
               "SUPER, n, exec, ${pkgs.swaynotificationcenter}/bin/swaync-client -t -sw"
               "SUPER SHIFT, N, exec, ${pkgs.swaynotificationcenter}/bin/swaync-client --close-all && ${pkgs.swaynotificationcenter}/bin/swaync-client --close-panel"
@@ -293,14 +294,14 @@ in
               # on my asus laptop, one of the function keys presses Super_L+p for some reason for touchpad disable
               (lib.mkIf config.nx.isLaptop "SUPER, p, exec, ${toggleTouchpad}")
               # print screen
-              ", Print, exec, ${homeDir}/.local/scripts/application.grim.fullScreenshotToFile"
+              ", Print, exec, ${scriptsDir}/application.grim.fullScreenshotToFile"
             ];
             bindm = [
               "SUPER, mouse:272, movewindow"
               "SUPER, mouse:273, resizewindow"
             ];
             # bindl = [
-            #   ", switch:on:Lid Switch, exec, ${homeDir}/.local/scripts/cli.system.suspend"
+            #   ", switch:on:Lid Switch, exec, ${scriptsDir}/cli.system.suspend"
             # ];
             env = [
               "XDG_CURRENT_DESKTOP,Hyprland"
