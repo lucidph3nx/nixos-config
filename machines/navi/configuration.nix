@@ -19,7 +19,10 @@
     deviceLocation = "office";
     desktop = {
       theme = "onedark";
-      hyprland.disableWorkspaceAnimations = true;
+      hyprland = {
+        layout = "dwindle";
+        disableWorkspaceAnimations = true;
+      };
       wallpaper.variant = "enso";
     };
     programs = {

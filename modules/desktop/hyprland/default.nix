@@ -19,6 +19,14 @@ in
       enable = lib.mkEnableOption "enable the Hyprland desktop module" // {
         default = true;
       };
+      layout = lib.mkOption {
+        type = lib.types.enum [
+          "dwindle"
+          "hy3"
+        ];
+        default = "dwindle";
+        description = "sets the default layout for Hyprland";
+      };
       disableWorkspaceAnimations = lib.mkOption {
         type = lib.types.bool;
         default = false;
@@ -26,7 +34,10 @@ in
       };
     };
   };
-  config = {
+  config = let
+    layout = config.nx.desktop.hyprland.layout;
+    in
+    {
     # enable for system
     programs.hyprland.enable = true;
     # configure for user
@@ -122,13 +133,15 @@ in
               builtins.substring 1 6 (theme.blue)
             }ff) rgba(${builtins.substring 1 6 (theme.purple)}ff) 45deg";
             "col.inactive_border" = "rgba(${builtins.substring 1 6 (theme.bg2)}ff)";
-            # layout = "dwindle"; # TODO: figure out hy3
-            layout = "hy3";
+            layout = layout;
           };
-          plugin.hy3 = {
-            autotile = {
-              enable = true;
-            };
+          plugin = {
+            hy3 =
+              lib.mkIf (layout == "hy3") {
+                autotile = {
+                  enable = true;
+                };
+              };
           };
           cursor = {
             inactive_timeout = 5;
@@ -211,8 +224,8 @@ in
             "SUPER SHIFT, K, movewindow, u"
             "SUPER SHIFT, L, movewindow, r"
             # hy3
-            "SUPER SHIFT, B, exec, hyprctl dispatch hy3:makegroup h"
-            "SUPER SHIFT, V, exec, hyprctl dispatch hy3:makegroup v"
+            (lib.mkIf (layout == "hy3") "SUPER SHIFT, B, exec, hyprctl dispatch hy3:makegroup h")
+            (lib.mkIf (layout == "hy3") "SUPER SHIFT, V, exec, hyprctl dispatch hy3:makegroup v")
             # switch workspace
             "SUPER, 1, workspace, 1"
             "SUPER, 2, workspace, 2"
@@ -331,7 +344,7 @@ in
         };
         xwayland.enable = true;
         plugins = [
-          pkgs.hyprlandPlugins.hy3
+          (lib.mkIf (layout == "hy3") pkgs.hyprlandPlugins.hy3)
         ];
       };
     home-manager.users.ben.home.packages = with pkgs; [
