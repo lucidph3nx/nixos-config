@@ -24,6 +24,8 @@ in
     home-manager.users.ben.programs.hyprlock =
       let
         oled = config.nx.desktop.hyprlock.oled;
+        # Convert hex color to rgba format (remove # and add ff for alpha)
+        toRgba = color: "rgba(${builtins.substring 1 6 color}ff)";
       in
       {
         enable = true;
@@ -45,7 +47,7 @@ in
             {
               monitor = "";
               text = ''cmd[update:1000] echo $(date +'%T')'';
-              color = "rgba(${builtins.substring 1 6 (theme.foreground)}ff)";
+              color = toRgba theme.foreground;
               font_size = 95;
               font_family = "JetBrainsMono Nerd Font";
               position = "0, 100";
@@ -55,7 +57,7 @@ in
             {
               monitor = "";
               text = ''cmd[update:1000] echo $(date +'%F')'';
-              color = "rgba(${builtins.substring 1 6 (theme.foreground)}ff)";
+              color = toRgba theme.foreground;
               font_size = 22;
               font_family = "JetBrainsMono Nerd Font";
               position = "0, 0";
@@ -70,13 +72,13 @@ in
             dots_size = 0.2; # Scale of input-field height, 0.2 - 0.8
             dots_spacing = 0.35; # Scale of dots' absolute size, 0.0 - 1.0
             dots_center = false;
-            outer_color = "rgba(${builtins.substring 1 6 (theme.bg1)}ff)";
-            inner_color = "rgba(${builtins.substring 1 6 (theme.bg_dim)}ff)";
-            font_color = "rgba(${builtins.substring 1 6 (theme.green)}ff)";
+            outer_color = toRgba theme.bg1;
+            inner_color = toRgba theme.bg_dim;
+            font_color = toRgba theme.green;
             fade_on_empty = false;
             rounding = 5;
-            check_color = "rgba(${builtins.substring 1 6 (theme.bg_dim)}ff)";
-            fail_color = "rgba(${builtins.substring 1 6 (theme.red)}ff)";
+            check_color = toRgba theme.bg_dim;
+            fail_color = toRgba theme.red;
             placeholder_text = ''<i><span foreground="#${theme.foreground}">Input Password...</span></i>'';
             hide_input = false;
             position = "0, -100";

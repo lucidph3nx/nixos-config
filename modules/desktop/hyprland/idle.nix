@@ -45,12 +45,9 @@
     home-manager.users.ben = {
       services.hypridle =
         let
-          lockTimeout = config.nx.desktop.hyprland.lockTimeout.enable;
-          screenTimeout = config.nx.desktop.hyprland.screenTimeout.enable;
-          suspendTimeout = config.nx.desktop.hyprland.suspendTimeout.enable;
-          lockTimeoutDuration = config.nx.desktop.hyprland.lockTimeout.duration;
-          screenTimeoutDuration = config.nx.desktop.hyprland.screenTimeout.duration;
-          suspendTimeoutDuration = config.nx.desktop.hyprland.suspendTimeout.duration;
+          lockCfg = config.nx.desktop.hyprland.lockTimeout;
+          screenCfg = config.nx.desktop.hyprland.screenTimeout;
+          suspendCfg = config.nx.desktop.hyprland.suspendTimeout;
         in
         {
           enable = true;
@@ -59,17 +56,17 @@
               lock_cmd = "hyprctl dispatch exec hyprlock";
             };
             listener = [
-              (lib.mkIf lockTimeout {
-                timeout = lockTimeoutDuration;
+              (lib.mkIf lockCfg.enable {
+                timeout = lockCfg.duration;
                 on-timeout = "hyprctl dispatch exec hyprlock";
               })
-              (lib.mkIf screenTimeout {
-                timeout = screenTimeoutDuration;
+              (lib.mkIf screenCfg.enable {
+                timeout = screenCfg.duration;
                 on-timeout = "hyprctl dispatch dpms off";
                 on-resume = "hyprctl dispatch dpms on";
               })
-              (lib.mkIf suspendTimeout {
-                timeout = suspendTimeoutDuration;
+              (lib.mkIf suspendCfg.enable {
+                timeout = suspendCfg.duration;
                 on-timeout = "systemctl suspend";
                 on-resume = "hyprctl dispatch exec hyprlock";
               })
