@@ -6,21 +6,17 @@
 }:
 {
   options = {
-    nx.programs.webcord.enable = lib.mkEnableOption "enables webcord" // {
+    nx.programs.discord.enable = lib.mkEnableOption "enables discord" // {
       default = true;
     };
   };
-  config = lib.mkIf config.nx.programs.webcord.enable {
+  config = lib.mkIf config.nx.programs.discord.enable {
     home-manager.users.ben = {
       home.packages = with pkgs; [
-        # webcord
-        # on 2025-11-11 webcord stopped building due to using an old electron version
-        # so I've temporarily switched to discord
         discord
       ];
       home.persistence."/persist/home/ben" = {
         directories = [
-          ".config/WebCord"
           ".config/discord"
         ];
       };
@@ -29,7 +25,7 @@
           {
             windowrulev2 = [
               # silently open on workspace 2
-              "workspace 2 silent,class:(WebCord)"
+              "workspace 2 silent,class:(discord)"
             ];
           };
     };

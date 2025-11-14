@@ -229,7 +229,6 @@ in
               { instance = "teams-for-linux"; }
               { instance = "prospect mail"; }
               { instance = "discord"; }
-              { instance = "webcord"; }
             ];
           };
           floating = {

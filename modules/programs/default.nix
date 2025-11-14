@@ -42,7 +42,7 @@
     ./vimiv.nix
     ./virt-manager.nix
     ./waydroid.nix
-    ./webcord.nix
+    ./discord.nix
     ./zathura.nix
     ./zsh.nix
   ];
