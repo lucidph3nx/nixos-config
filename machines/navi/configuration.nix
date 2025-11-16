@@ -39,7 +39,7 @@
       obsidian.enable = true;
       picard.enable = true;
       plexamp.enable = true;
-      waydroid.enable = true;
+      waydroid.enable = false;
     };
     services = {
       syncthing = {
