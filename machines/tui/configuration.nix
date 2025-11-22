@@ -38,6 +38,7 @@
       picard.enable = true;
       plexamp.enable = true;
       virt-manager.enable = true;
+      wgnord.enable = true;
     };
     services = {
       blocky.enable = false; # for roaming, slows startup at home
@@ -140,7 +141,6 @@
     usbutils
     v4l-utils
     wev
-    wgnord
     wineWowPackages.waylandFull
   ];
   # key remapping

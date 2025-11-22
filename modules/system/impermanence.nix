@@ -51,6 +51,7 @@
         "/var/lib/nixos"
         "/var/lib/sops-nix"
         "/var/lib/systemd/coredump"
+        "/var/lib/wgnord"
         "/var/log"
       ];
       files = [
@@ -61,6 +62,7 @@
     system.activationScripts.persistDirs = ''
       mkdir -p /persist/system/var/log
       mkdir -p /persist/system/var/lib/nixos
+      mkdir -p /persist/system/var/lib/wgnord
       mkdir -p /persist/cache
       chown -R ben:users /persist/cache
       mkdir -p /persist/home/ben
