@@ -9,7 +9,7 @@ let
     let
       pname = "yuzu";
       version = "EA-4176";
-      url = "https://archive.org/download/citra-qt-and-yuzu-EA/Linux-Yuzu-EA-4176.AppImage";
+      url = "https://raw.githubusercontent.com/vvsx87/yuzu-binaries/refs/heads/master/Linux-Yuzu-EA-4176.AppImage";
       sha256 = "sha256-bUTVL8br2POy5HB1FszlNQNChdRWcwIlG6/RCceXIlg=";
     in
     pkgs.appimageTools.wrapType2 {
