@@ -46,6 +46,7 @@
       directories = [
         "/etc/NetworkManager/system-connections"
         "/etc/ssh"
+        "/etc/wireguard"
         "/nix/var/nix/profiles"
         "/var/lib/bluetooth"
         "/var/lib/nixos"
@@ -63,6 +64,7 @@
       mkdir -p /persist/system/var/log
       mkdir -p /persist/system/var/lib/nixos
       mkdir -p /persist/system/var/lib/wgnord
+      mkdir -p /persist/system/etc/wireguard
       mkdir -p /persist/cache
       chown -R ben:users /persist/cache
       mkdir -p /persist/home/ben
