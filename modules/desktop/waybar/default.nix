@@ -159,6 +159,7 @@ with config.theme;
             "cpu"
             "memory"
             "network"
+            (lib.mkIf config.nx.programs.wgnord.enable "custom/vpn-status")
             (lib.mkIf isLaptop "battery")
             "power-profiles-daemon"
             "systemd-failed-units"
@@ -181,6 +182,13 @@ with config.theme;
           "network" = {
             "format-ethernet" = "󰈀 {ifname}";
             "format-wifi" = "󱚽 {essid} ({signalStrength}%)";
+          };
+          "custom/vpn-status" = lib.mkIf config.nx.programs.wgnord.enable {
+            "return-type" = "json";
+            "interval" = 5;
+            "exec" = "cli.system.vpnStatus json";
+            "format" = "{}";
+            "tooltip" = true;
           };
           "custom/mpd" = lib.mkIf enableMpd {
             "return-type" = "string";
@@ -350,6 +358,24 @@ with config.theme;
           #power-profiles-daemon {
             padding-left: 10px;
             padding-right: 10px;
+          }
+          #custom-vpn-status {
+            padding-left: 12px;
+            padding-right: 12px;
+            min-width: 20px;
+            font-family: "Nerd Font", monospace;
+          }
+          #custom-vpn-status.connected {
+            color: ${bg0};
+            background-color: ${blue};
+          }
+          #custom-vpn-status.disconnected {
+            color: ${bg0};
+            background-color: ${grey0};
+          }
+          #custom-vpn-status.error {
+            color: ${bg0};
+            background-color: ${red};
           }
         '';
     };

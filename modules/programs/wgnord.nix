@@ -16,6 +16,39 @@
     # Make wgnord available system-wide
     environment.systemPackages = [
       pkgs.wgnord
+      (pkgs.writeShellScriptBin "cli.system.vpnStatus" /* shell */ ''
+        #!/bin/sh
+
+        # Check if JSON output is requested
+        if [ "$1" = "json" ]; then
+          # JSON output for waybar
+          if ${pkgs.iproute2}/bin/ip link show wgnord > /dev/null 2>&1; then
+            server_ip="$(sudo ${pkgs.wireguard-tools}/bin/wg show wgnord endpoints 2>/dev/null | ${pkgs.gawk}/bin/awk '{print $2}' | ${pkgs.coreutils}/bin/cut -d: -f1)"
+            if [ -n "$server_ip" ]; then
+              printf '{"text": "󰌾", "class": "connected", "tooltip": "VPN Connected: %s"}' "$server_ip"
+            else
+              printf '{"text": "󰌾", "class": "error", "tooltip": "VPN Interface up but no endpoint"}'
+            fi
+          else
+            printf '{"text": "󰌿", "class": "disconnected", "tooltip": "VPN Disconnected"}'
+          fi
+        else
+          # Human-readable output
+          if ${pkgs.iproute2}/bin/ip link show wgnord > /dev/null 2>&1; then
+            server_ip="$(sudo ${pkgs.wireguard-tools}/bin/wg show wgnord endpoints 2>/dev/null | ${pkgs.gawk}/bin/awk '{print $2}' | ${pkgs.coreutils}/bin/cut -d: -f1)"
+            if [ -n "$server_ip" ]; then
+              printf "\033[32mConnected to: %s\n\033[0m" "$server_ip"
+              exit 0
+            else
+              printf "\033[33mInterface up but no endpoint found\n\033[0m"
+              exit 1
+            fi
+          else
+            printf "\033[31mNo active VPN connection\n\033[0m"
+            exit 1
+          fi
+        fi
+      '')
     ];
 
     # Create wgnord configuration directory with proper permissions
@@ -30,10 +63,11 @@
         PrivateKey = PRIVKEY
         Address = 10.5.0.2/32
         DNS = 103.86.96.100,103.86.99.100
+        PostUp = ip route add 127.0.0.0/8 dev lo table main priority 1
 
         [Peer]
         PublicKey = SERVER_PUBKEY
-        AllowedIPs = 0.0.0.0/0, ::/0
+        AllowedIPs = 0.0.0.0/1, 128.0.0.0/1, ::/0
         Endpoint = SERVER_IP:51820
         PersistentKeepalive = 25
       '';
