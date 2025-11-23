@@ -16,7 +16,7 @@
     # Make wgnord available system-wide
     environment.systemPackages = [
       pkgs.wgnord
-      (pkgs.writeShellScriptBin "cli.system.vpnStatus" /* shell */ ''
+      (pkgs.writeShellScriptBin "cli.system.vpnStatus" /* bash */ ''
         #!/bin/sh
 
         # Check if JSON output is requested
@@ -51,6 +51,29 @@
       '')
     ];
 
+    # Helper scripts for VPN management
+    home-manager.users.ben = {
+      home.sessionPath = [ "$HOME/.local/scripts" ];
+
+      home.file.".local/scripts/system.networking.vpnConnect" = {
+        executable = true;
+        text = /* bash */ ''
+          #!/bin/sh
+          sudo ${pkgs.wgnord}/bin/wgnord c nz
+          ${pkgs.libnotify}/bin/notify-send -i security-high -t 2000 -e NordVPN "Connected to vpn"
+        '';
+      };
+
+      home.file.".local/scripts/system.networking.vpnDisconnect" = {
+        executable = true;
+        text = /* bash */ ''
+          #!/bin/sh
+          sudo ${pkgs.wgnord}/bin/wgnord d
+          ${pkgs.libnotify}/bin/notify-send -i security-low -t 2000 -e NordVPN "Disconnected from vpn"
+        '';
+      };
+    };
+
     # Create wgnord configuration directory with proper permissions
     systemd.tmpfiles.rules = [
       "d /var/lib/wgnord 0755 root root - -"
@@ -75,7 +98,7 @@
     };
 
     # Copy template and countries files to wgnord directory on activation
-    system.activationScripts.wgnord-setup = ''
+    system.activationScripts.wgnord-setup = /* bash */ ''
       if [ ! -f /var/lib/wgnord/template.conf ]; then
         cp /etc/wgnord-template.conf /var/lib/wgnord/template.conf
         chmod 644 /var/lib/wgnord/template.conf
