@@ -186,7 +186,7 @@ with config.theme;
           "custom/vpn-status" = lib.mkIf config.nx.programs.wgnord.enable {
             "return-type" = "json";
             "interval" = 5;
-            "exec" = "cli.system.vpnStatus json";
+            "exec" = "${homeDir}/.local/scripts/cli.system.vpnStatus json";
             "format" = "{}";
             "tooltip" = true;
           };

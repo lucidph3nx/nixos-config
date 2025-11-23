@@ -16,44 +16,48 @@
     # Make wgnord available system-wide
     environment.systemPackages = [
       pkgs.wgnord
-      (pkgs.writeShellScriptBin "cli.system.vpnStatus" /* bash */ ''
-        #!/bin/sh
-
-        # Check if JSON output is requested
-        if [ "$1" = "json" ]; then
-          # JSON output for waybar
-          if ${pkgs.iproute2}/bin/ip link show wgnord > /dev/null 2>&1; then
-            server_ip="$(sudo ${pkgs.wireguard-tools}/bin/wg show wgnord endpoints 2>/dev/null | ${pkgs.gawk}/bin/awk '{print $2}' | ${pkgs.coreutils}/bin/cut -d: -f1)"
-            if [ -n "$server_ip" ]; then
-              printf '{"text": "󰌾", "class": "connected", "tooltip": "VPN Connected: %s"}' "$server_ip"
-            else
-              printf '{"text": "󰌾", "class": "error", "tooltip": "VPN Interface up but no endpoint"}'
-            fi
-          else
-            printf '{"text": "󰌿", "class": "disconnected", "tooltip": "VPN Disconnected"}'
-          fi
-        else
-          # Human-readable output
-          if ${pkgs.iproute2}/bin/ip link show wgnord > /dev/null 2>&1; then
-            server_ip="$(sudo ${pkgs.wireguard-tools}/bin/wg show wgnord endpoints 2>/dev/null | ${pkgs.gawk}/bin/awk '{print $2}' | ${pkgs.coreutils}/bin/cut -d: -f1)"
-            if [ -n "$server_ip" ]; then
-              printf "\033[32mConnected to: %s\n\033[0m" "$server_ip"
-              exit 0
-            else
-              printf "\033[33mInterface up but no endpoint found\n\033[0m"
-              exit 1
-            fi
-          else
-            printf "\033[31mNo active VPN connection\n\033[0m"
-            exit 1
-          fi
-        fi
-      '')
     ];
 
     # Helper scripts for VPN management
     home-manager.users.ben = {
       home.sessionPath = [ "$HOME/.local/scripts" ];
+
+      home.file.".local/scripts/cli.system.vpnStatus" = {
+        executable = true;
+        text = /* bash */ ''
+          #!/bin/sh
+
+          # Check if JSON output is requested
+          if [ "$1" = "json" ]; then
+            # JSON output for waybar
+            if ${pkgs.iproute2}/bin/ip link show wgnord > /dev/null 2>&1; then
+              server_ip="$(sudo ${pkgs.wireguard-tools}/bin/wg show wgnord endpoints 2>/dev/null | ${pkgs.gawk}/bin/awk '{print $2}' | ${pkgs.coreutils}/bin/cut -d: -f1)"
+              if [ -n "$server_ip" ]; then
+                printf '{"text": "󰌾", "class": "connected", "tooltip": "VPN Connected: %s"}' "$server_ip"
+              else
+                printf '{"text": "󰌾", "class": "error", "tooltip": "VPN Interface up but no endpoint"}'
+              fi
+            else
+              printf '{"text": "󰌿", "class": "disconnected", "tooltip": "VPN Disconnected"}'
+            fi
+          else
+            # Human-readable output
+            if ${pkgs.iproute2}/bin/ip link show wgnord > /dev/null 2>&1; then
+              server_ip="$(sudo ${pkgs.wireguard-tools}/bin/wg show wgnord endpoints 2>/dev/null | ${pkgs.gawk}/bin/awk '{print $2}' | ${pkgs.coreutils}/bin/cut -d: -f1)"
+              if [ -n "$server_ip" ]; then
+                printf "\033[32mConnected to: %s\n\033[0m" "$server_ip"
+                exit 0
+              else
+                printf "\033[33mInterface up but no endpoint found\n\033[0m"
+                exit 1
+              fi
+            else
+              printf "\033[31mNo active VPN connection\n\033[0m"
+              exit 1
+            fi
+          fi
+        '';
+      };
 
       home.file.".local/scripts/system.networking.vpnConnect" = {
         executable = true;
