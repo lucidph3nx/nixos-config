@@ -52,6 +52,9 @@ in
           nvimsessionlauncher = "${scriptsDir}/application.nvim.sessionLauncher";
           applicationlauncher = "${scriptsDir}/application.launcher";
           toggleTouchpad = "${scriptsDir}/system.inputs.toggleTouchpad";
+          volumeUp = "${scriptsDir}/system.audio.volumeUp";
+          volumeDown = "${scriptsDir}/system.audio.volumeDown";
+          toggleMute = "${scriptsDir}/system.audio.toggleMute";
           # applications
           terminal = "kitty";
           browser = config.nx.programs.defaultWebBrowserSettings.cmd;
@@ -280,9 +283,9 @@ in
               "ALT, o, exec, ${obsidian}"
               "ALT, n, exec, ${nixosconfig}"
               # media controls
-              ", XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
-              (lib.mkIf enableAudioControls ", XF86AudioRaiseVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+")
-              (lib.mkIf enableAudioControls ", XF86AudioLowerVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%-")
+              ", XF86AudioMute, exec, ${toggleMute}"
+              (lib.mkIf enableAudioControls ", XF86AudioRaiseVolume, exec, ${volumeUp}")
+              (lib.mkIf enableAudioControls ", XF86AudioLowerVolume, exec, ${volumeDown}")
               ", XF86AudioPlay, exec, ${pkgs.playerctl}/bin/playerctl play-pause"
               ", Pause, exec, ${pkgs.playerctl}/bin/playerctl play-pause"
               ", Scroll_Lock, exec, ${pkgs.playerctl}/bin/playerctl stop" # this is fn+k on my asus laptop

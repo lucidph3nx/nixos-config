@@ -58,6 +58,122 @@
             fi
           '';
       };
+      home.file.".local/scripts/system.audio.volumeUp" = {
+        executable = true;
+        text =
+          # bash
+          ''
+            #!/bin/sh
+            # Raise volume
+            wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+
+            
+            # Get current volume percentage
+            volume=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int($2 * 100)}')
+            
+            # Determine icon based on volume level
+            if [ "$volume" -eq 0 ]; then
+              icon="audio-volume-muted"
+            elif [ "$volume" -le 33 ]; then
+              icon="audio-volume-low"
+            elif [ "$volume" -le 66 ]; then
+              icon="audio-volume-medium"
+            else
+              icon="audio-volume-high"
+            fi
+            
+            # Notification ID file
+            ID_FILE="$XDG_RUNTIME_DIR/volume_notification_id"
+            
+            # Send notification and store/reuse ID
+            if [ -f "$ID_FILE" ]; then
+              notify_id=$(cat "$ID_FILE")
+              ${pkgs.libnotify}/bin/notify-send -r "$notify_id" -p -t 2000 -u low -i "$icon" "Volume" "Raised to ''${volume}%" > "$ID_FILE"
+            else
+              ${pkgs.libnotify}/bin/notify-send -p -t 2000 -u low -i "$icon" "Volume" "Raised to ''${volume}%" > "$ID_FILE"
+            fi
+          '';
+      };
+      home.file.".local/scripts/system.audio.volumeDown" = {
+        executable = true;
+        text =
+          # bash
+          ''
+            #!/bin/sh
+            # Lower volume
+            wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%-
+            
+            # Get current volume percentage
+            volume=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int($2 * 100)}')
+            
+            # Determine icon based on volume level
+            if [ "$volume" -eq 0 ]; then
+              icon="audio-volume-muted"
+            elif [ "$volume" -le 33 ]; then
+              icon="audio-volume-low"
+            elif [ "$volume" -le 66 ]; then
+              icon="audio-volume-medium"
+            else
+              icon="audio-volume-high"
+            fi
+            
+            # Notification ID file
+            ID_FILE="$XDG_RUNTIME_DIR/volume_notification_id"
+            
+            # Send notification and store/reuse ID
+            if [ -f "$ID_FILE" ]; then
+              notify_id=$(cat "$ID_FILE")
+              ${pkgs.libnotify}/bin/notify-send -r "$notify_id" -p -t 2000 -u low -i "$icon" "Volume" "Lowered to ''${volume}%" > "$ID_FILE"
+            else
+              ${pkgs.libnotify}/bin/notify-send -p -t 2000 -u low -i "$icon" "Volume" "Lowered to ''${volume}%" > "$ID_FILE"
+            fi
+          '';
+      };
+      home.file.".local/scripts/system.audio.toggleMute" = {
+        executable = true;
+        text =
+          # bash
+          ''
+            #!/bin/sh
+            # Toggle mute
+            wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+            
+            # Check if muted
+            mute_status=$(wpctl get-volume @DEFAULT_AUDIO_SINK@)
+            
+            # Notification ID file (same as volume scripts)
+            ID_FILE="$XDG_RUNTIME_DIR/volume_notification_id"
+            
+            # Send notification and store/reuse ID
+            if echo "$mute_status" | grep -q "MUTED"; then
+              if [ -f "$ID_FILE" ]; then
+                notify_id=$(cat "$ID_FILE")
+                ${pkgs.libnotify}/bin/notify-send -r "$notify_id" -p -t 2000 -u low -i audio-volume-muted "Volume" "Muted" > "$ID_FILE"
+              else
+                ${pkgs.libnotify}/bin/notify-send -p -t 2000 -u low -i audio-volume-muted "Volume" "Muted" > "$ID_FILE"
+              fi
+            else
+              volume=$(echo "$mute_status" | awk '{print int($2 * 100)}')
+              
+              # Determine icon based on volume level
+              if [ "$volume" -eq 0 ]; then
+                icon="audio-volume-muted"
+              elif [ "$volume" -le 33 ]; then
+                icon="audio-volume-low"
+              elif [ "$volume" -le 66 ]; then
+                icon="audio-volume-medium"
+              else
+                icon="audio-volume-high"
+              fi
+              
+              if [ -f "$ID_FILE" ]; then
+                notify_id=$(cat "$ID_FILE")
+                ${pkgs.libnotify}/bin/notify-send -r "$notify_id" -p -t 2000 -u low -i "$icon" "Volume" "Unmuted at ''${volume}%" > "$ID_FILE"
+              else
+                ${pkgs.libnotify}/bin/notify-send -p -t 2000 -u low -i "$icon" "Volume" "Unmuted at ''${volume}%" > "$ID_FILE"
+              fi
+            fi
+          '';
+      };
       home.file.".local/scripts/cli.hyprland.switchWorkspaceOnWindowClose" = {
         executable = true;
         text =
