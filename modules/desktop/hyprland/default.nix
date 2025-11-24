@@ -55,6 +55,8 @@ in
           volumeUp = "${scriptsDir}/system.audio.volumeUp";
           volumeDown = "${scriptsDir}/system.audio.volumeDown";
           toggleMute = "${scriptsDir}/system.audio.toggleMute";
+          brightnessUp = "${scriptsDir}/system.display.brightnessUp";
+          brightnessDown = "${scriptsDir}/system.display.brightnessDown";
           # applications
           terminal = "kitty";
           browser = config.nx.programs.defaultWebBrowserSettings.cmd;
@@ -292,8 +294,8 @@ in
               ", XF86AudioStop, exec, ${pkgs.playerctl}/bin/playerctl stop"
               ", XF86AudioNext, exec, ${pkgs.playerctl}/bin/playerctl next"
               ", XF86AudioPrev, exec, ${pkgs.playerctl}/bin/playerctl previous"
-              (lib.mkIf config.nx.isLaptop ", XF86MonBrightnessUp, exec, ${pkgs.brightnessctl}/bin/brightnessctl s +10%")
-              (lib.mkIf config.nx.isLaptop ", XF86MonBrightnessDown, exec, ${pkgs.brightnessctl}/bin/brightnessctl s 10%-")
+              (lib.mkIf config.nx.isLaptop ", XF86MonBrightnessUp, exec, ${brightnessUp}")
+              (lib.mkIf config.nx.isLaptop ", XF86MonBrightnessDown, exec, ${brightnessDown}")
               # on my asus laptop, one of the function keys presses Super_L+p for some reason for touchpad disable
               (lib.mkIf config.nx.isLaptop "SUPER, p, exec, ${toggleTouchpad}")
               # print screen
