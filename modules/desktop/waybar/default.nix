@@ -160,7 +160,7 @@ with config.theme;
             "memory"
             "network"
             (lib.mkIf config.nx.programs.wgnord.enable "custom/vpn-status")
-            (lib.mkIf isLaptop "battery")
+            (lib.mkIf isLaptop "custom/battery")
             "power-profiles-daemon"
             "systemd-failed-units"
           ];
@@ -195,15 +195,10 @@ with config.theme;
             "interval" = 1;
             "exec" = "${homeDir}/.local/scripts/cli.mpd.nowPlaying";
           };
-          "battery" = {
-            "format-icons" = [
-              "󱊡"
-              "󱊢"
-              "󱊣"
-            ];
-            "format-charging" = "󰂄 {capacity}%";
-            "format" = "{icon} {capacity}%";
-            "interval" = "5";
+          "custom/battery" = lib.mkIf isLaptop {
+            "return-type" = "string";
+            "interval" = 5;
+            "exec" = "${homeDir}/.local/scripts/cli.system.batteryStatus";
           };
           "power-profiles-daemon" = {
             "format" = "{icon}";

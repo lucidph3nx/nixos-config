@@ -268,6 +268,46 @@
             fi
           '';
       };
+      home.file.".local/scripts/cli.system.batteryStatus" = lib.mkIf config.nx.isLaptop {
+        executable = true;
+        text =
+          # bash
+          ''
+            #!/bin/sh
+            # Get battery capacity
+            capacity=$(cat /sys/class/power_supply/BAT0/capacity 2>/dev/null || echo "0")
+            
+            # Check if charging
+            status=$(cat /sys/class/power_supply/BAT0/status 2>/dev/null || echo "Unknown")
+            
+            # Determine icon based on charging status and capacity
+            if [ "$status" = "Charging" ] || [ "$status" = "Full" ]; then
+              icon="󰂄"
+            elif [ "$capacity" -le 10 ]; then
+              icon="󰂎"
+            elif [ "$capacity" -le 20 ]; then
+              icon="󰁺"
+            elif [ "$capacity" -le 30 ]; then
+              icon="󰁻"
+            elif [ "$capacity" -le 40 ]; then
+              icon="󰁼"
+            elif [ "$capacity" -le 50 ]; then
+              icon="󰁽"
+            elif [ "$capacity" -le 60 ]; then
+              icon="󰁾"
+            elif [ "$capacity" -le 70 ]; then
+              icon="󰁿"
+            elif [ "$capacity" -le 80 ]; then
+              icon="󰂀"
+            elif [ "$capacity" -le 90 ]; then
+              icon="󰂁"
+            else
+              icon="󰂂"
+            fi
+            
+            echo "''${icon} ''${capacity}%"
+          '';
+      };
       home.file.".local/scripts/cli.hyprland.switchWorkspaceOnWindowClose" = {
         executable = true;
         text =
