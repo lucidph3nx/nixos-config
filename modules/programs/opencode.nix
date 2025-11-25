@@ -37,6 +37,8 @@
               "mkdir *" = "allow";
               "npm *" = "allow";
               "rm *" = "allow";
+              "nix fmt" = "allow";
+              "nix fmt *" = "allow";
               "nh os build" = "allow";
               "nh os switch" = "ask";
               "*" = "ask";
