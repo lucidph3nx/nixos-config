@@ -110,7 +110,12 @@
                     else
                         ${tmux} send-keys -t $selected_name "nvim" C-m
                     fi
-                    ${tmux} attach-session -t $selected_name
+                    # Check if we have a proper terminal before attempting to attach
+                    if [[ -t 0 ]] && [[ -t 1 ]] && [[ -t 2 ]]; then
+                        ${tmux} attach-session -t $selected_name
+                    else
+                        echo "Session '$selected_name' created in detached mode. Use 'tmux attach-session -t $selected_name' to connect."
+                    fi
                     exit 0
                 fi
 
@@ -128,7 +133,12 @@
                 if [[ -n $TMUX ]]; then
                   ${tmux} switch-client -t $selected_name
                 else
-                  ${tmux} attach-session -t $selected_name
+                  # Check if we have a proper terminal before attempting to attach
+                  if [[ -t 0 ]] && [[ -t 1 ]] && [[ -t 2 ]]; then
+                    ${tmux} attach-session -t $selected_name
+                  else
+                    echo "Session '$selected_name' available. Use 'tmux attach-session -t $selected_name' to connect."
+                  fi
                 fi
               '';
           };
