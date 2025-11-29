@@ -90,7 +90,7 @@
         PrivateKey = PRIVKEY
         Address = 10.5.0.2/32
         DNS = 103.86.96.100,103.86.99.100
-        PostUp = ip route add 127.0.0.0/8 dev lo table main priority 1
+        PostUp = ip route add 127.0.0.0/8 dev lo table main priority 1 || true
 
         [Peer]
         PublicKey = SERVER_PUBKEY
