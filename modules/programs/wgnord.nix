@@ -13,6 +13,9 @@
     # Ensure WireGuard is available
     networking.wireguard.enable = true;
 
+    # Allow traffic on wgnord interface
+    networking.firewall.trustedInterfaces = [ "wgnord" ];
+
     # Make wgnord available system-wide
     environment.systemPackages = [
       pkgs.wgnord
