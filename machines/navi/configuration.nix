@@ -40,6 +40,7 @@
       picard.enable = true;
       plexamp.enable = true;
       waydroid.enable = false;
+      wgnord.enable = true;
     };
     services = {
       syncthing = {
