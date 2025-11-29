@@ -93,7 +93,8 @@
         PrivateKey = PRIVKEY
         Address = 10.5.0.2/32
         DNS = 103.86.96.100,103.86.99.100
-        PostUp = ip route add 127.0.0.0/8 dev lo table main priority 1 || true
+        PostUp = ip route add SERVER_IP via $(ip route | awk '/default/ { print $3 }') dev $(ip route | awk '/default/ { print $5 }') || true; ip route add 127.0.0.0/8 dev lo table main priority 1 || true
+        PostDown = ip route del SERVER_IP || true
 
         [Peer]
         PublicKey = SERVER_PUBKEY
