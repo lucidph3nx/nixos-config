@@ -75,6 +75,7 @@ with config.theme;
               margin: 6px 12px;
               box-shadow: none;
               padding: 0;
+              color: ${foreground};
               border: 1px solid ${grey0};
             }
             .notification:hover {
