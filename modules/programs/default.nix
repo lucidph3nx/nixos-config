@@ -102,8 +102,10 @@
           direnv
           dust
           eza
+          fdupes
           fzf
           fzy
+          google-cloud-sdk
           htop
           imagemagick
           jnv
