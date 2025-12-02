@@ -71,6 +71,22 @@
             WantedBy = [ "default.target" ];
           };
         };
+
+        # systemd timer to refresh bitwarden cache periodically
+        systemd.user.timers.bitwarden-prefetch = {
+          Unit = {
+            Description = "Timer for Bitwarden vault cache refresh";
+            Requires = [ "bitwarden-prefetch.service" ];
+          };
+          Timer = {
+            OnBootSec = "5min"; # Run 5 minutes after boot
+            OnUnitActiveSec = "30min"; # Then every 30 minutes
+            Unit = "bitwarden-prefetch.service";
+          };
+          Install = {
+            WantedBy = [ "timers.target" ];
+          };
+        };
         # systemd unit to fetch qutebrowser dicts
         systemd.user.services.qutebrowser-setup = {
           Unit = {
@@ -199,18 +215,33 @@
                   "top": 5,
                   "right": 5,
               }
-              
-              # prefetch bitwarden cache on startup (runs in background)
+
+              # prefetch bitwarden cache on startup (synchronous to ensure cache is ready)
               import subprocess
               import os
+              import threading
+              import time
+
+              def prefetch_with_timeout():
+                  try:
+                      session_file = os.path.join(os.getenv("XDG_RUNTIME_DIR", "/tmp"), "bw_session_key")
+                      if os.path.exists(session_file):
+                          # Run prefetch with a reasonable timeout
+                          result = subprocess.run(["${bitwarden-prefetch}/bin/bitwarden-prefetch"], 
+                                                timeout=10,  # 10 second timeout
+                                                capture_output=True)
+                  except:
+                      pass  # silently ignore errors including timeouts
+
+              # Run prefetch in background thread to avoid blocking qutebrowser startup
+              # but with a timeout to ensure it completes reasonably quickly
               try:
-                  session_file = os.path.join(os.getenv("XDG_RUNTIME_DIR", "/tmp"), "bw_session_key")
-                  if os.path.exists(session_file):
-                      subprocess.Popen(["${bitwarden-prefetch}/bin/bitwarden-prefetch"], 
-                                     stdout=subprocess.DEVNULL, 
-                                     stderr=subprocess.DEVNULL)
+                  prefetch_thread = threading.Thread(target=prefetch_with_timeout, daemon=True)
+                  prefetch_thread.start()
+                  # Give it a moment to start, but don't block qutebrowser startup entirely
+                  time.sleep(0.5)
               except:
-                  pass  # silently ignore errors
+                  pass
             '';
           quickmarks = {
             "fm" = "messenger.com";
