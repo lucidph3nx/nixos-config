@@ -39,6 +39,7 @@
       obsidian.enable = true;
       picard.enable = true;
       plexamp.enable = true;
+      rclone.enable = true;
       waydroid.enable = false;
       wgnord.enable = true;
     };

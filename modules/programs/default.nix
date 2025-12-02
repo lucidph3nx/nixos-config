@@ -34,6 +34,7 @@
     ./podman.nix
     ./python.nix
     ./qutebrowser
+    ./rclone.nix
     ./rmpc.nix
     ./signal.nix
     ./ssh.nix
