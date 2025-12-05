@@ -64,8 +64,8 @@
           Service = {
             Type = "oneshot";
             ExecStart = "${bitwarden-prefetch}/bin/bitwarden-prefetch";
-            # Only run if session key exists
-            ExecCondition = "/bin/sh -c 'test -f $${XDG_RUNTIME_DIR:-/tmp}/bw_session_key'";
+            # Only run if session key exists (using systemd's %t which expands to runtime directory)
+            ExecCondition = "/bin/sh -c 'test -f %t/bw_session_key'";
           };
           Install = {
             WantedBy = [ "default.target" ];
