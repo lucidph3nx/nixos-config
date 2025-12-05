@@ -19,7 +19,6 @@
     # specific versions of nixpkgs for use in overlays
     nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-25.05";
     nixpkgs-master.url = "github:nixos/nixpkgs/master";
-    nixpkgs-calibre-fix.url = "github:nixos/nixpkgs/7df7ff7d8e00218376575f0acdcc5d66741351ee";
 
     # disk formatting
     disko = {
