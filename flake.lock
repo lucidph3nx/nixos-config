@@ -72,29 +72,13 @@
         "type": "github"
       }
     },
-    "nixpkgs-calibre-fix": {
-      "locked": {
-        "lastModified": 1759381078,
-        "narHash": "sha256-gTrEEp5gEspIcCOx9PD8kMaF1iEmfBcTbO0Jag2QhQs=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "7df7ff7d8e00218376575f0acdcc5d66741351ee",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "7df7ff7d8e00218376575f0acdcc5d66741351ee",
-        "type": "github"
-      }
-    },
     "nixpkgs-master": {
       "locked": {
-        "lastModified": 1764961661,
-        "narHash": "sha256-Zqn1z2zdzcVS7JUJEEUqLdVLGnxTM/Rvxn6ZdScZq9Y=",
+        "lastModified": 1764967807,
+        "narHash": "sha256-wfzJ34vPnUtoS5tbNAGmaKD5GXcXswYFAtkCnd97T0s=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "b411e36dc5a654b03d2836f8838bb8acf68024b0",
+        "rev": "5c256c99c04c4a7b0501a0b3586c15f1cea51b65",
         "type": "github"
       },
       "original": {
@@ -126,7 +110,6 @@
         "home-manager": "home-manager",
         "impermanence": "impermanence",
         "nixpkgs": "nixpkgs",
-        "nixpkgs-calibre-fix": "nixpkgs-calibre-fix",
         "nixpkgs-master": "nixpkgs-master",
         "nixpkgs-stable": "nixpkgs-stable",
         "sops-nix": "sops-nix"
