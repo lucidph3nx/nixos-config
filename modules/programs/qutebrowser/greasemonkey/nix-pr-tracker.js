@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @include     /github\.com\/([\w-]+\/[\w-]+)\/pull\/(\d+).*$/
 // @grant       none
-// @version     1.9
+// @version     1.10
 // @author      Bryan Lai <bryanlais@gmail.com>
 // @description 10/29/2023, 11:47:39 AM
 // ==/UserScript==
@@ -18,9 +18,8 @@
 
     // e.g. this would only show up under github.com/NixOS/nixpkgs/pull/
     'NixOS/nixpkgs': [
-      'staging-next',
       'master',
-      'nixpkgs-unstable',
+      'nixos-unstable',
     ],
 
   }
@@ -86,10 +85,12 @@
         `&ensp;<a href="${compareLink}/${commitHash}...${branch.name}" id="${branch.id}"><b>${branch.name}</b></a>`
     }
 
-    const branchIndicate = (success, branch) => {
+    const branchIndicate = (success, branch, isUnknown = false) => {
       const branchInfo = document.querySelector(`#${branch.id}`)
       let indicator = '⚠️ '
-      if (success) {
+      if (isUnknown) {
+        indicator = '❓ '
+      } else if (success) {
         indicator = '✅ '
       } else {
         // swap the comparison to show how far behind the branch is
@@ -103,11 +104,38 @@
       // this trick uses pagination to not return files or commits
       // only need to know whether 'ahead' or 'behind'
     )
-      .then(async (response) => await response.text())
-      .then((text) => JSON.parse(text))
-      .then((json) => json.status === 'ahead' || json.status === 'identical')
-      .then((success) => { branchIndicate(success, branch) })
-      .catch((e) => { console.log(e) })
+      .then(async (response) => {
+        if (!response.ok) {
+          // If compare API fails, try commits API as fallback
+          return fetch(`https://api.github.com/repos/${prRepo}/commits?sha=${branch.name}&per_page=1`)
+            .then(async (r) => {
+              if (!r.ok) throw new Error('Both APIs failed')
+              // If we can fetch the branch, check if commit exists in branch
+              return fetch(`https://api.github.com/repos/${prRepo}/compare/${branch.name}...${commitHash}?per_page=1`)
+                .then(async (compareResp) => {
+                  if (!compareResp.ok) {
+                    // Comparison too large or failed - mark as unknown
+                    return { status: 'unknown' }
+                  }
+                  return await compareResp.text()
+                })
+            })
+        }
+        return await response.text()
+      })
+      .then((text) => typeof text === 'string' ? JSON.parse(text) : text)
+      .then((json) => {
+        if (json.status === 'unknown') {
+          branchIndicate(false, branch, true)
+        } else {
+          const success = json.status === 'ahead' || json.status === 'identical'
+          branchIndicate(success, branch)
+        }
+      })
+      .catch((e) => {
+        console.log('Branch check failed:', e)
+        branchIndicate(false, branch, true)
+      })
 
     branches.forEach(fetchBranchStatus)
   }
