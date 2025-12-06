@@ -14,10 +14,6 @@ rec {
     # use master for opencode, need the bleeding edge
     opencode = inputs.nixpkgs-master.legacyPackages.${final.system}.opencode;
 
-    # Temporarily pin linuxPackages_latest to 6.17 due to v4l2loopback incompatibility with 6.18+
-    # waiting for https://nixpk.gs/pr-tracker.html?pr=467572
-    linuxPackages_latest = prev.linuxPackages_6_17;
-
     vimPlugins = prev.vimPlugins // {
       obsidian-nvim = prev.vimUtils.buildVimPlugin {
         pname = "obsidian-nvim";
