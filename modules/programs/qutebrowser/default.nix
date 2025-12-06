@@ -63,12 +63,15 @@
           };
           Service = {
             Type = "oneshot";
-            ExecStart = "${bitwarden-prefetch}/bin/bitwarden-prefetch";
+            # Use a wrapper script to properly pass the password from the secret file
+            ExecStart = pkgs.writeShellScript "bitwarden-prefetch-wrapper" ''
+              export PATH="${pkgs.bitwarden-cli}/bin:$PATH"
+              export BITWARDEN_PASSWORD="$(cat ${config.sops.secrets.bitwarden_password.path})"
+              exec ${bitwarden-prefetch}/bin/bitwarden-prefetch
+            '';
             # Allow the service to exit successfully even when no session exists
             # This prevents the timer from showing as failed when BW is not unlocked
             SuccessExitStatus = "0 1";
-            # Pass the Bitwarden password from the secret file
-            Environment = "BITWARDEN_PASSWORD=$(cat ${config.sops.secrets.bitwarden_password.path})";
           };
           Install = {
             WantedBy = [ "default.target" ];

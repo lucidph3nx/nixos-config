@@ -34,7 +34,8 @@ def unlock_bitwarden():
 
     try:
         process = subprocess.run(
-            ["bw", "unlock", "--raw", master_pass],
+            ["bw", "unlock", "--raw"],
+            input=master_pass,
             capture_output=True,
             text=True
         )
