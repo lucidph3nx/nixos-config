@@ -31,7 +31,7 @@
       cura.enable = true;
       darktable.enable = true;
       firefox = {
-        enable = false;
+        enable = true;
         hideUrlbar = true;
       };
       homeAutomation.enable = true;
