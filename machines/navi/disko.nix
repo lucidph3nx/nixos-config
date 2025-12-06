@@ -17,7 +17,7 @@
           };
           esp = {
             name = "ESP";
-            size = "500M";
+            size = "1GB";
             type = "EF00";
             content = {
               type = "filesystem";
