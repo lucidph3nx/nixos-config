@@ -61,6 +61,11 @@
           name = "youtube_sponsorblock.js";
           text = builtins.readFile ./greasemonkey/youtube_sponsorblock.js;
         })
+        # dearrow for youtube titles
+        (pkgs.writeTextFile {
+          name = "youtube_dearrow.js";
+          text = builtins.readFile ./greasemonkey/youtube_dearrow.js;
+        })
         # some css styling for youtube
         (pkgs.writeTextFile {
           name = "youtube.css.js";
