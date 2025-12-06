@@ -12,7 +12,7 @@ in
 rec {
   modifications = final: prev: {
     # use master for opencode, need the bleeding edge
-    opencode = inputs.nixpkgs-master.legacyPackages.${final.system}.opencode;
+    opencode = inputs.nixpkgs-master.legacyPackages.${final.stdenv.hostPlatform.system}.opencode;
 
     vimPlugins = prev.vimPlugins // {
       obsidian-nvim = prev.vimUtils.buildVimPlugin {
