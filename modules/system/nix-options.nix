@@ -7,6 +7,10 @@
         "nix-command"
         "flakes"
       ];
+      trusted-users = [
+        "root"
+        "@wheel"
+      ];
       trusted-substituters = [
         "https://nix-community.cachix.org"
         "https://lucidph3nx-nixos-config.cachix.org"
