@@ -26,27 +26,65 @@ def get_session_file_path():
     runtime_dir = os.getenv("XDG_RUNTIME_DIR", "/tmp")
     return os.path.join(runtime_dir, "bw_session_key")
 
-def get_session_key():
-    """Get existing session key from file."""
-    session_file = get_session_file_path()
-    if not os.path.exists(session_file):
-        print("No active Bitwarden session found. Please run 'bw unlock' first.", file=sys.stderr)
+def unlock_bitwarden():
+    """Unlock Bitwarden using the password from environment variable."""
+    master_pass = os.getenv("BITWARDEN_PASSWORD")
+    if not master_pass:
         return None
 
     try:
-        with open(session_file, "r", encoding="utf-8") as f:
-            return f.read().strip()
+        process = subprocess.run(
+            ["bw", "unlock", "--raw", master_pass],
+            capture_output=True,
+            text=True
+        )
+
+        if process.returncode != 0:
+            print(f"Failed to unlock Bitwarden: {process.stderr.strip()}", file=sys.stderr)
+            return None
+
+        return process.stdout.strip()
     except Exception as e:
-        print(f"Error reading session key: {e}", file=sys.stderr)
+        print(f"Error unlocking Bitwarden: {e}", file=sys.stderr)
         return None
+
+def get_session_key():
+    """Get existing session key from file, or create one if BITWARDEN_PASSWORD is set."""
+    session_file = get_session_file_path()
+
+    # Try to read existing session file
+    if os.path.exists(session_file):
+        try:
+            with open(session_file, "r", encoding="utf-8") as f:
+                return f.read().strip()
+        except Exception as e:
+            print(f"Error reading session key: {e}", file=sys.stderr)
+            # Fall through to try unlocking
+
+    # No session file exists, try to unlock with environment variable
+    session_key = unlock_bitwarden()
+    if session_key:
+        try:
+            # Save the session key for future use
+            with open(session_file, "w", encoding="utf-8") as f:
+                f.write(session_key)
+            print("Created new Bitwarden session", file=sys.stderr)
+            return session_key
+        except Exception as e:
+            print(f"Error saving session key: {e}", file=sys.stderr)
+            # Return the key anyway, even if we couldn't save it
+            return session_key
+
+    # No session available and can't create one
+    return None
 
 def prefetch_vault_items():
     """Prefetch all vault items and cache them."""
     session_key = get_session_key()
     if not session_key:
+        # Exit code 1 to indicate no session available
+        # systemd service is configured to treat this as success
         return False
-
-    print("Prefetching Bitwarden vault items...")
 
     try:
         # Fetch all items
@@ -57,8 +95,35 @@ def prefetch_vault_items():
         )
 
         if process.returncode != 0:
-            print(f"Bitwarden CLI error: {process.stderr.strip()}", file=sys.stderr)
-            return False
+            error_msg = process.stderr.strip()
+            # Check if this is a session expiry error
+            if "not logged in" in error_msg.lower() or "invalid" in error_msg.lower():
+                # Session has expired - remove the stale session file and try again
+                session_file = get_session_file_path()
+                try:
+                    os.remove(session_file)
+                    print("Removed expired Bitwarden session file", file=sys.stderr)
+                except Exception:
+                    pass
+
+                # Try to get a fresh session key
+                session_key = get_session_key()
+                if not session_key:
+                    return False
+
+                # Retry with fresh session
+                process = subprocess.run(
+                    ["bw", "list", "items", "--session", session_key],
+                    capture_output=True,
+                    text=True
+                )
+
+                if process.returncode != 0:
+                    print(f"Bitwarden CLI error after retry: {process.stderr.strip()}", file=sys.stderr)
+                    return False
+            else:
+                print(f"Bitwarden CLI error: {error_msg}", file=sys.stderr)
+                return False
 
         items = json.loads(process.stdout.strip())
 

@@ -64,8 +64,11 @@
           Service = {
             Type = "oneshot";
             ExecStart = "${bitwarden-prefetch}/bin/bitwarden-prefetch";
-            # Only run if session key exists (using systemd's %t which expands to runtime directory)
-            ExecCondition = "/bin/sh -c 'test -f %t/bw_session_key'";
+            # Allow the service to exit successfully even when no session exists
+            # This prevents the timer from showing as failed when BW is not unlocked
+            SuccessExitStatus = "0 1";
+            # Pass the Bitwarden password from the secret file
+            Environment = "BITWARDEN_PASSWORD=$(cat ${config.sops.secrets.bitwarden_password.path})";
           };
           Install = {
             WantedBy = [ "default.target" ];
