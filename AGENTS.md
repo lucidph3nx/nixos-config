@@ -14,15 +14,16 @@ This document provides guidance for AI agents on how to interact with this NixOS
 
 ## Common Commands
 
-- **Building/Testing Changes:** To validate configuration changes without applying them, use the `nh` helper command. This is the preferred method for checking for errors.
-    - `nh os build`
+- **Building/Testing Changes:** To validate configuration changes without applying them, use the native Nix build command. This is more efficient for agents than `nh` which produces verbose output.
+    - `nix build .#nixosConfigurations.navi.config.system.build.toplevel`
 - **Linting/Formatting:** Code is formatted with `nixfmt`.
-    - `nix fmt`
+    - `nixfmt .`
 - **Flake Validation:** To check the flake for correctness across all defined systems, use:
     - `nix flake check --all-systems`
 - **Updating Inputs:** To update all flake inputs, use:
     - `nix flake update`
-- **Applying Configuration:** The user will typically handle applying the configuration manually with `nh os switch`. Do not attempt to apply changes unless explicitly asked.
+- **Applying Configuration:** The user will typically handle applying the configuration manually. Do not attempt to apply changes unless explicitly asked.
+    - `nixos-rebuild switch --flake .`
 - **Editing Secrets:** Secrets are encrypted with `sops`. To edit a secret, use the `sops` command.
     - `sops <path/to/secret.sops.yaml>`
 
@@ -49,18 +50,10 @@ For instance, it should be `all-packages.nix`, not `allPackages.nix` or `AllPack
 
 ### Formatting
 
-CI [enforces](./.github/workflows/lint.yml) all Nix files to be formatted using the [official Nix formatter](https://github.com/NixOS/nixfmt).
-
-You can ensure this locally using either of these commands:
+All Nix files should be formatted using `nixfmt`:
 ```
-nix-shell --run treefmt
-nix develop --command treefmt
-nix fmt
+nixfmt .
 ```
-
-If you're starting your editor in `nix-shell` or `nix develop`, you can also set it up to automatically run `treefmt` on save.
-
-If you have any problems with formatting, please ping the [formatting team](https://nixos.org/community/teams/formatting/) via [@NixOS/nix-formatting](https://github.com/orgs/NixOS/teams/nix-formatting).
 
 ### Syntax
 
@@ -172,18 +165,18 @@ If you have any problems with formatting, please ping the [formatting team](http
 When changes are ready to be committed and deployed, follow this specific sequence:
 
 1.  **Commit:** Stage the changes and write a descriptive commit message.
-2.  **Build:** Verify the configuration builds successfully with `nh os build`.
+2.  **Build:** Verify the configuration builds successfully with `nix build .#nixosConfigurations.navi.config.system.build.toplevel`.
 3.  **Check:** Run the flake checker with `nix flake check --all-systems`.
-4.  **Switch:** Apply the new configuration with `nh os switch`.
+4.  **Switch:** Apply the new configuration with `nixos-rebuild switch --flake .`.
 5.  **Push:** If all previous steps succeed, push the changes with `git push`.
 
 ### Temporary Testing Changes
 
-The user may request changes for testing purposes that should not be committed. In these cases, modify the necessary files and run `nh os switch` to apply the changes, but do not stage or commit them.
+The user may request changes for testing purposes that should not be committed. In these cases, modify the necessary files and run `nixos-rebuild switch --flake .` to apply the changes, but do not stage or commit them.
 
 ### General Workflow Principles
 
 - **Atomic Changes:** Group all related modifications (e.g., creating a new module, importing it, and removing the old package entry) into a single logical change and commit them together.
-- **Git Tracking for Nix:** New files must be added to Git (and ideally committed) *before* Nix commands (like `nh os switch` or `nix flake check`) can recognize them.
-- **Efficiency of `nh os switch`/`nh os build`:** These commands can be time-consuming. Use them judiciously, only after a complete set of related changes has been applied, and then await user feedback before further iterations. Do not use them as part of an iterative debugging process unless explicitly instructed.
+- **Git Tracking for Nix:** New files must be added to Git (and ideally committed) *before* Nix commands (like `nix build` or `nix flake check`) can recognize them.
+- **Efficiency:** Build commands can be time-consuming. Use them judiciously, only after a complete set of related changes has been applied, and then await user feedback before further iterations. Do not use them as part of an iterative debugging process unless explicitly instructed.
 - **Trusting User Feedback:** If the user confirms a fix, trust that feedback and move on, rather than attempting further "fixes" based on assumptions.
