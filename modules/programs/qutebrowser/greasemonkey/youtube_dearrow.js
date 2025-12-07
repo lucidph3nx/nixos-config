@@ -4,10 +4,63 @@
 // @description  Replace clickbait YouTube titles with crowdsourced alternatives
 // @match        *://*.youtube.com/*
 // @exclude      *://*.youtube.com/subscribe_embed?*
+// @exclude      *://accounts.youtube.com/*
 // ==/UserScript==
 
-(function () {
+(function() {
   'use strict';
+
+  const pageLoadId = window.performance?.timing?.navigationStart || Date.now();
+  
+  if (window.dearrowScriptLoadedId === pageLoadId) {
+    return;
+  }
+  
+  window.dearrowScriptLoadedId = pageLoadId;
+
+  // ===== EARLY CSS INJECTION (ANTI-FLICKER) =====
+  (function injectEarlyCSS() {
+    const style = document.createElement('style');
+    style.id = 'dearrow-antiflicker-css';
+    style.textContent = `
+      ytd-rich-grid-media ytd-thumbnail img:not(.cb-visible, .cbCustomThumbnailCanvas, .yt-spec-avatar-shape__image),
+      ytd-rich-grid-media yt-thumbnail-view-model img:not(.cb-visible, .cbCustomThumbnailCanvas, .yt-spec-avatar-shape__image),
+      ytd-video-renderer ytd-thumbnail img:not(.cb-visible, .cbCustomThumbnailCanvas, .yt-spec-avatar-shape__image),
+      ytd-video-renderer yt-thumbnail-view-model img:not(.cb-visible, .cbCustomThumbnailCanvas, .yt-spec-avatar-shape__image),
+      ytd-compact-video-renderer ytd-thumbnail img:not(.cb-visible, .cbCustomThumbnailCanvas, .yt-spec-avatar-shape__image),
+      ytd-compact-video-renderer yt-thumbnail-view-model img:not(.cb-visible, .cbCustomThumbnailCanvas, .yt-spec-avatar-shape__image),
+      ytd-grid-video-renderer ytd-thumbnail img:not(.cb-visible, .cbCustomThumbnailCanvas, .yt-spec-avatar-shape__image),
+      ytd-grid-video-renderer yt-thumbnail-view-model img:not(.cb-visible, .cbCustomThumbnailCanvas, .yt-spec-avatar-shape__image),
+      ytd-playlist-video-renderer ytd-thumbnail img:not(.cb-visible, .cbCustomThumbnailCanvas, .yt-spec-avatar-shape__image),
+      ytd-playlist-panel-video-renderer ytd-thumbnail img:not(.cb-visible, .cbCustomThumbnailCanvas, .yt-spec-avatar-shape__image),
+      ytd-rich-grid-slim-media ytd-thumbnail img:not(.cb-visible, .cbCustomThumbnailCanvas, .yt-spec-avatar-shape__image),
+      ytd-reel-item-renderer ytd-thumbnail img:not(.cb-visible, .cbCustomThumbnailCanvas, .yt-spec-avatar-shape__image),
+      yt-lockup-view-model yt-thumbnail-view-model img:not(.cb-visible, .cbCustomThumbnailCanvas, .yt-spec-avatar-shape__image),
+      ytd-video-preview ytd-thumbnail img:not(.cb-visible, .cbCustomThumbnailCanvas, .yt-spec-avatar-shape__image),
+      ytd-video-preview yt-thumbnail-view-model img:not(.cb-visible, .cbCustomThumbnailCanvas, .yt-spec-avatar-shape__image),
+      ytd-thumbnail img:not(.cb-visible, .cbCustomThumbnailCanvas, .yt-spec-avatar-shape__image),
+      yt-thumbnail-view-model img:not(.cb-visible, .cbCustomThumbnailCanvas, .yt-spec-avatar-shape__image),
+      .ytp-ce-covering-image:not(.cb-visible),
+      div.ytp-autonav-endscreen-upnext-thumbnail:not(.cb-visible),
+      div.ytp-videowall-still-image:not(.cb-visible),
+      div.ytp-modern-videowall-still-image:not(.cb-visible) {
+        visibility: hidden !important;
+      }
+      .cb-visible {
+        visibility: visible !important;
+      }
+    `;
+    
+    if (document.head) {
+      document.head.appendChild(style);
+    } else {
+      document.addEventListener('DOMContentLoaded', () => {
+        if (document.head && !document.getElementById('dearrow-antiflicker-css')) {
+          document.head.appendChild(style);
+        }
+      });
+    }
+  })();
 
   // ===== CONFIGURATION =====
 
@@ -39,6 +92,7 @@
     thumbnailCacheServer: 'https://dearrow-thumb.ajay.app', // DeArrow thumbnail cache server
     thumbnailFallback: 'randomTime', // 'randomTime', 'original', 'blank' - what to do when no crowdsourced thumbnail
     thumbnailFallbackOnError: 'original', // 'original', 'blank' - what to show if thumbnail fetch fails
+    hideWhileFetching: true, // Hide thumbnails while fetching custom ones (anti-flicker)
 
     // Layout settings
     titleMaxLines: 3, // Maximum number of lines for video titles (default YouTube is 2)
@@ -64,13 +118,6 @@
       priority: 2,
     },
 
-    grid: {
-      container: 'ytd-rich-grid-media, ytd-video-renderer, ytd-movie-renderer, ytd-compact-video-renderer, ytd-compact-radio-renderer, ytd-compact-movie-renderer, ytd-playlist-video-renderer, ytd-playlist-panel-video-renderer, ytd-grid-video-renderer, ytd-grid-movie-renderer, ytd-rich-grid-slim-media, ytd-radio-renderer, ytd-reel-item-renderer, ytd-compact-playlist-renderer, ytd-playlist-renderer, ytd-grid-playlist-renderer, ytd-grid-show-renderer, ytd-structured-description-video-lockup-renderer, ytd-hero-playlist-thumbnail-renderer, yt-lockup-view-model, ytm-shorts-lockup-view-model',
-      title: '#video-title, #movie-title, .yt-lockup-metadata-view-model-wiz__title .yt-core-attributed-string, .yt-lockup-metadata-view-model__title .yt-core-attributed-string, .ShortsLockupViewModelHostMetadataTitle .yt-core-attributed-string, .shortsLockupViewModelHostMetadataTitle .yt-core-attributed-string',
-      iconPlacement: 'inline',
-      priority: 2,
-    },
-
     miniplayer: {
       container: '.miniplayer #info-bar',
       title: 'yt-formatted-string',
@@ -81,22 +128,18 @@
 
   // ===== DATA CACHING =====
 
+  const CACHE_LIMIT = 10000;
+  const EVICTION_BATCH_SIZE = 20;
+  
   const brandingCache = new Map();
-  const durationCache = new Map(); // Cache video durations
+  const durationCache = new Map();
 
   const getCachedBranding = (videoID) => {
     if (!DEARROW_CONFIG.cacheEnabled) return null;
 
     const cached = brandingCache.get(videoID);
     if (!cached) return null;
-
-    // Cache expiry (5 minutes)
-    const age = Date.now() - cached.timestamp;
-    if (age > 300000) {
-      brandingCache.delete(videoID);
-      return null;
-    }
-
+    cached.lastUsed = Date.now();
     return cached.data;
   };
 
@@ -105,14 +148,29 @@
 
     brandingCache.set(videoID, {
       data: data,
-      timestamp: Date.now(),
+      lastUsed: Date.now(),
+      fullReply: true,
     });
+    if (brandingCache.size > CACHE_LIMIT) {
+      const numberToDelete = brandingCache.size - CACHE_LIMIT + EVICTION_BATCH_SIZE;
+      
+      // Sort by lastUsed and delete oldest entries
+      const sortedEntries = Array.from(brandingCache.entries())
+        .sort((a, b) => a[1].lastUsed - b[1].lastUsed);
+      
+      for (let i = 0; i < numberToDelete && i < sortedEntries.length; i++) {
+        brandingCache.delete(sortedEntries[i][0]);
+      }
+      
+      if (DEARROW_CONFIG.debugMode) {
+        console.log(`DeArrow: Cache limit exceeded, evicted ${numberToDelete} oldest entries. Cache size: ${brandingCache.size}`);
+      }
+    }
   };
 
   // ===== UTILITY FUNCTIONS =====
 
   const cleanEmojis = (title) => {
-    // Remove emoji characters (Unicode ranges)
     return title
       .replace(
         /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}]/gu,
@@ -124,16 +182,10 @@
 
   const toSentenceCase = (title) => {
     if (!DEARROW_CONFIG.formatOriginalTitles) return title;
-
-    // Clean up excessive spacing
     title = title.replace(/\s+/g, ' ').trim();
-
-    // Optional: Clean emojis
     if (DEARROW_CONFIG.cleanEmojis) {
       title = cleanEmojis(title);
     }
-
-    // Convert to lowercase and capitalize first letter
     title = title.toLowerCase();
     return title.charAt(0).toUpperCase() + title.slice(1);
   };
@@ -160,36 +212,25 @@
     const words = title.toLowerCase().split(' ');
     return words
       .map((word, index) => {
-        // Always capitalize first and last word
         if (index === 0 || index === words.length - 1) {
           return word.charAt(0).toUpperCase() + word.slice(1);
         }
-
-        // Don't capitalize small words unless at start/end
         if (smallWords.includes(word)) {
           return word;
         }
-
         return word.charAt(0).toUpperCase() + word.slice(1);
       })
       .join(' ');
   };
 
   const formatTitle = (title, isCustom) => {
-    // Clean up excessive spacing
     title = title.replace(/\s+/g, ' ').trim();
-
-    // Optional: Clean emojis
     if (DEARROW_CONFIG.cleanEmojis) {
       title = cleanEmojis(title);
     }
-
-    // Don't format if configured to keep original
     if (DEARROW_CONFIG.titleFormatting === 'original') {
       return title;
     }
-
-    // Apply formatting
     switch (DEARROW_CONFIG.titleFormatting) {
       case 'sentence':
         return toSentenceCase(title);
@@ -203,24 +244,18 @@
   };
 
   const extractVideoID = (element, context) => {
-    // Method 1: From current URL (watch page)
     if (context === 'watch') {
       const urlParams = new URLSearchParams(window.location.search);
       const videoID = urlParams.get('v');
       if (videoID) return videoID;
-      
-      // Don't spam logs if we're still waiting for page to load
       return null;
     }
-
-    // Method 2: From link href
     const link = element.querySelector('a[href*="watch?v="], a[href*="/shorts/"]');
     if (link) {
       const match = link.href.match(/(?:watch\?v=|shorts\/)([a-zA-Z0-9_-]{11})/);
       if (match) return match[1];
     }
 
-    // Method 3: From thumbnail link
     const thumbnail = element.querySelector('a#thumbnail');
     if (thumbnail) {
       const match = thumbnail.href.match(/(?:watch\?v=|shorts\/)([a-zA-Z0-9_-]{11})/);
@@ -232,43 +267,135 @@
 
   // ===== API INTEGRATION =====
 
-  // Track active API requests to prevent duplicates
   const activeRequests = new Map();
+  const ENABLE_DUAL_FETCH = true;
+  const sha256 = async (message) => {
+    const msgBuffer = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+  };
 
-  const fetchBrandingData = async (videoID) => {
-    // Check cache first
+  const getHashPrefix = async (videoID) => {
+    const hash = await sha256(videoID);
+    return hash.slice(0, 4);
+  };
+
+  const fetchFromThumbnailCache = async (videoID) => {
+    try {
+      const url = `${DEARROW_CONFIG.thumbnailCacheServer}/api/v1/branding/${videoID}`;
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), DEARROW_CONFIG.fetchTimeout);
+
+      const response = await fetch(url, {
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        return null;
+      }
+
+      const data = await response.json();
+      
+      return {
+        videoID,
+        data,
+        source: 'thumbnail-cache'
+      };
+    } catch (error) {
+      if (DEARROW_CONFIG.debugMode && error.name !== 'AbortError') {
+        console.log('DeArrow: Thumbnail cache fetch failed for', videoID, error);
+      }
+      return null;
+    }
+  };
+
+  const fetchBrandingData = async (videoID, queryByHash = false, waitForFullReply = false) => {
     const cached = getCachedBranding(videoID);
     if (cached !== null) {
-      if (DEARROW_CONFIG.debugMode) console.log('DeArrow: Using cached data for', videoID);
-      return cached;
+      const cachedEntry = brandingCache.get(videoID);
+      if (waitForFullReply && cachedEntry && !cachedEntry.fullReply) {
+        if (DEARROW_CONFIG.debugMode) {
+          console.log('DeArrow: Have thumbnail cache data, fetching full reply for', videoID);
+        }
+      } else {
+        return cached;
+      }
     }
 
-    // Check if there's already an active request for this videoID
     if (activeRequests.has(videoID)) {
-      if (DEARROW_CONFIG.debugMode) console.log('DeArrow: Reusing active request for', videoID);
       return activeRequests.get(videoID);
     }
-
-    // Create new request promise
     const requestPromise = (async () => {
       try {
-        const url = `${DEARROW_CONFIG.apiServer}/api/branding?videoID=${videoID}&fetchAll=true`;
-
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), DEARROW_CONFIG.fetchTimeout);
-
-        const response = await fetch(url, {
-          signal: controller.signal,
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-          // 404 is normal for videos without DeArrow data - don't spam logs
-          if (DEARROW_CONFIG.debugMode && response.status !== 404) {
-            console.log('DeArrow: API error', response.status, 'for', videoID);
+        let url;
+        
+        const fetchMainAPI = async () => {
+          if (queryByHash) {
+            const hashPrefix = await getHashPrefix(videoID);
+            url = `${DEARROW_CONFIG.apiServer}/api/branding/${hashPrefix}?fetchAll=true`;
+            if (DEARROW_CONFIG.debugMode) {
+              console.log(`DeArrow: Fetching batch for hash prefix ${hashPrefix} (includes ${videoID})`);
+            }
+          } else {
+            url = `${DEARROW_CONFIG.apiServer}/api/branding?videoID=${videoID}&fetchAll=true`;
           }
-          // Return minimal data structure - no thumbnail replacement without videoDuration
+
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), DEARROW_CONFIG.fetchTimeout);
+
+          const response = await fetch(url, {
+            signal: controller.signal,
+          });
+
+          clearTimeout(timeoutId);
+
+          if (!response.ok) {
+            return {
+              videoID,
+              data: {
+                titles: [],
+                thumbnails: [],
+                randomTime: null,
+                videoDuration: null,
+              },
+              source: 'main-api'
+            };
+          }
+
+          const data = await response.json();
+          
+          return {
+            videoID,
+            data: data,
+            source: 'main-api',
+            isHash: queryByHash
+          };
+        };
+        const mainAPIPromise = fetchMainAPI();
+        let fastestResult;
+        
+        if (ENABLE_DUAL_FETCH && !queryByHash && !waitForFullReply) {
+          const thumbnailCachePromise = fetchFromThumbnailCache(videoID);
+          fastestResult = await Promise.race([
+            mainAPIPromise.then(r => r || null),
+            thumbnailCachePromise.then(r => r || null)
+          ]);
+          
+          mainAPIPromise.then(mainResult => {
+            if (mainResult && mainResult.source === 'main-api') {
+              cacheBrandingData(videoID, mainResult.data);
+            }
+          }).catch(() => {});
+        } else {
+          fastestResult = await mainAPIPromise;
+        }
+        
+        if (!fastestResult) {
           return {
             titles: [],
             thumbnails: [],
@@ -277,28 +404,51 @@
           };
         }
 
-        const data = await response.json();
-
-        // Cache the response
-        cacheBrandingData(videoID, data);
-
-        if (DEARROW_CONFIG.debugMode) console.log('DeArrow: Fetched data for', videoID, data);
-
-        return data;
-      } catch (error) {
-        if (error.name === 'AbortError') {
-          if (DEARROW_CONFIG.debugMode) console.log('DeArrow: Fetch timeout for', videoID);
+        if (fastestResult.isHash) {
+          const results = fastestResult.data;
+          
+          if (!results[videoID]) {
+            results[videoID] = {
+              titles: [],
+              thumbnails: [],
+              randomTime: null,
+              videoDuration: null,
+            };
+          }
+          
+          for (const [batchVideoID, batchData] of Object.entries(results)) {
+            cacheBrandingData(batchVideoID, batchData);
+          }
+          
+          if (DEARROW_CONFIG.debugMode) {
+            console.log(`DeArrow: Fetched batch of ${Object.keys(results).length} videos (requested ${videoID})`);
+          }
+          
+          return results[videoID];
         } else {
-          if (DEARROW_CONFIG.debugMode) console.error('DeArrow: Fetch error for', videoID, error);
+          const fullReply = fastestResult.source === 'main-api';
+          brandingCache.set(videoID, {
+            data: fastestResult.data,
+            lastUsed: Date.now(),
+            fullReply: fullReply
+          });
+          
+          if (DEARROW_CONFIG.debugMode) {
+            console.log(`DeArrow: Fetched data for ${videoID} from ${fastestResult.source}`);
+          }
+          
+          return fastestResult.data;
+        }
+      } catch (error) {
+        if (DEARROW_CONFIG.debugMode) {
+          console.error('DeArrow: Fetch error for', videoID, error);
         }
         return null;
       } finally {
-        // Clean up the active request after completion
         activeRequests.delete(videoID);
       }
     })();
 
-    // Store the promise in active requests
     activeRequests.set(videoID, requestPromise);
     return requestPromise;
   };
@@ -309,24 +459,19 @@
     const container = document.createElement('span');
     container.className = 'dearrow-icon-container';
 
-    // Always show on watch page, show on hover for others
     if (context === 'watch') {
       container.classList.add('dearrow-always-visible');
     }
-
-    // Create button with YouTube's button structure
     const button = document.createElement('button');
     button.className = 'yt-spec-button-shape-next yt-spec-button-shape-next--tonal yt-spec-button-shape-next--mono yt-spec-button-shape-next--size-s yt-spec-button-shape-next--icon-only-default';
     button.title = 'DeArrow: Hover to see original';
     button.dataset.originalTitle = originalTitle;
     button.dataset.dearrowTitle = modifiedTitle;
 
-    // Add icon wrapper
     const iconWrapper = document.createElement('div');
     iconWrapper.className = 'yt-spec-button-shape-next__icon';
     iconWrapper.setAttribute('aria-hidden', 'true');
 
-    // Create SVG icon
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('width', '24');
     svg.setAttribute('height', '24');
@@ -347,7 +492,6 @@
     iconWrapper.appendChild(svg);
     button.appendChild(iconWrapper);
 
-    // Add touch feedback (YouTube standard)
     const touchFeedback = document.createElement('yt-touch-feedback-shape');
     touchFeedback.className = 'yt-spec-touch-feedback-shape yt-spec-touch-feedback-shape--touch-response';
     touchFeedback.setAttribute('aria-hidden', 'true');
@@ -362,7 +506,6 @@
     touchFeedback.appendChild(fill);
     button.appendChild(touchFeedback);
 
-    // Prevent default button behavior
     button.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -383,7 +526,6 @@
     const parent = titleElement.parentNode;
 
     if (placement === 'append') {
-      // For watch page - set up flex layout on parent to position button properly
       if (parent) {
         parent.style.display = 'flex';
         parent.style.alignItems = 'flex-start';
@@ -392,27 +534,20 @@
         parent.style.width = '100%';
       }
 
-      // Ensure title element can wrap
       titleElement.style.flex = '1 1 0';
       titleElement.style.minWidth = '0';
-
-      // For watch page - insert after the title element
       titleElement.parentNode.insertBefore(icon, titleElement.nextSibling);
     } else if (placement === 'inline') {
-      // For video cards - position button absolutely at top-right
       if (parent) {
         parent.style.position = 'relative';
-        parent.style.paddingRight = '36px'; // Make room for smaller button
+        parent.style.paddingRight = '36px';
       }
 
-      // Position icon absolutely and scale it down
       icon.style.position = 'absolute';
       icon.style.top = '0';
-      icon.style.right = '20px'; // Move left to avoid 3-dot menu
+      icon.style.right = '20px';
       icon.style.transform = 'scale(0.75)';
       icon.style.transformOrigin = 'top right';
-
-      // For video cards - append to parent (becomes sibling to title)
       titleElement.parentNode.appendChild(icon);
     }
   };
@@ -423,23 +558,17 @@
     const button = iconContainer.querySelector('button');
 
     button.addEventListener('mouseenter', () => {
-      // Revert title
       titleElement.textContent = originalTitle;
       titleElement.setAttribute('title', originalTitle);
-
-      // Revert thumbnail if available
       if (thumbnailElement && thumbnailElement.dataset.dearrowOriginalSrc) {
-        thumbnailElement.dataset.dearrowCurrentSrc = thumbnailElement.src; // Store current for restore
+        thumbnailElement.dataset.dearrowCurrentSrc = thumbnailElement.src;
         thumbnailElement.src = thumbnailElement.dataset.dearrowOriginalSrc;
       }
     });
 
     button.addEventListener('mouseleave', () => {
-      // Restore modified title
       titleElement.textContent = modifiedTitle;
       titleElement.setAttribute('title', modifiedTitle);
-
-      // Restore DeArrow thumbnail if available
       if (thumbnailElement && thumbnailElement.dataset.dearrowCurrentSrc) {
         thumbnailElement.src = thumbnailElement.dataset.dearrowCurrentSrc;
       }
@@ -447,44 +576,36 @@
   };
 
   // ===== MAIN PROCESSING LOGIC =====
+  
+  const shouldProcessTitle = () => DEARROW_CONFIG.replaceTitles;
+  const shouldProcessThumbnail = () => DEARROW_CONFIG.replaceThumbnails;
 
   const processVideoTitle = async (element, context) => {
     try {
-      // Extract video ID
+      if (!shouldProcessTitle()) return;
+      
       const videoID = extractVideoID(element, context);
       if (!videoID) {
         if (DEARROW_CONFIG.debugMode)
-          console.log('DeArrow: No video ID found for context:', context, element);
+          console.log('DeArrow: No video ID found for context:', context);
         return;
       }
 
-      // Find title element
       const contextConfig = TITLE_CONTEXTS[context];
       const titleElement = element.querySelector(contextConfig.title);
       if (!titleElement) {
-        if (DEARROW_CONFIG.debugMode)
-          console.log(
-            'DeArrow: No title element found for context:',
-            context,
-            'selector:',
-            contextConfig.title,
-            element
-          );
         return;
       }
 
-      // Store original title
       const originalTitle = titleElement.textContent.trim();
       if (!originalTitle) return;
 
-      // Check if already processed
       if (titleElement.dataset.dearrowProcessed) return;
       titleElement.dataset.dearrowProcessed = 'true';
 
-      // Fetch branding data
-      const brandingData = await fetchBrandingData(videoID);
+      const queryByHash = (context === 'watch' || context === 'related');
+      const brandingData = await fetchBrandingData(videoID, queryByHash);
 
-      // Determine new title
       let newTitle;
       let isCustom = false;
 
@@ -493,35 +614,25 @@
         brandingData.titles[0].votes >= 0 &&
         DEARROW_CONFIG.useCrowdsourcedTitles
       ) {
-        // Use crowdsourced title
         newTitle = brandingData.titles[0].title;
         isCustom = true;
-
         if (DEARROW_CONFIG.formatCustomTitles) {
           newTitle = formatTitle(newTitle, isCustom);
         }
       } else {
-        // Format original title
         newTitle = formatTitle(originalTitle, false);
       }
 
-      // Only proceed if title actually changed
-      if (newTitle === originalTitle) {
-        if (DEARROW_CONFIG.debugMode) console.log('DeArrow: Title unchanged for', videoID);
-        return;
-      }
+      if (newTitle === originalTitle) return;
 
-      // Replace title
       titleElement.textContent = newTitle;
       titleElement.setAttribute('title', newTitle);
 
-      // Process thumbnail if enabled - always try, even without brandingData
       let thumbnailElement = null;
-      if (DEARROW_CONFIG.replaceThumbnails) {
+      if (shouldProcessThumbnail()) {
         thumbnailElement = await processVideoThumbnail(element, videoID, brandingData);
       }
 
-      // Add DeArrow icon with hover behavior
       if (DEARROW_CONFIG.showIcon) {
         const icon = createDeArrowIcon(originalTitle, newTitle, context);
         insertIcon(icon, titleElement, contextConfig.iconPlacement);
@@ -540,13 +651,8 @@
 
   // ===== YOUTUBE INNERTUBE API =====
 
-  // Alea PRNG - matches official DeArrow extension (seedrandom library)
-  // This provides deterministic randomness for consistent thumbnail selection
   const alea = (seed) => {
-    // Convert seed to string if needed
     seed = seed.toString();
-    
-    // Mash function for seed mixing
     let n = 0xefc8249d;
     const mash = (data) => {
       data = data.toString();
@@ -560,10 +666,9 @@
         h -= n;
         n += h * 0x100000000; // 2^32
       }
-      return (n >>> 0) * 2.3283064365386963e-10; // 2^-32
+      return (n >>> 0) * 2.3283064365386963e-10;
     };
 
-    // Initialize state
     let s0 = mash(' ');
     let s1 = mash(' ');
     let s2 = mash(' ');
@@ -576,9 +681,8 @@
     s2 -= mash(seed);
     if (s2 < 0) s2 += 1;
 
-    // Return random function
     return () => {
-      const t = 2091639 * s0 + c * 2.3283064365386963e-10; // 2^-32
+      const t = 2091639 * s0 + c * 2.3283064365386963e-10;
       s0 = s1;
       s1 = s2;
       return s2 = t - (c = t | 0);
@@ -586,7 +690,6 @@
   };
 
   const fetchVideoMetadata = async (videoID) => {
-    // Check cache first
     if (durationCache.has(videoID)) {
       return durationCache.get(videoID);
     }
@@ -618,12 +721,7 @@
 
       clearTimeout(timeoutId);
 
-      if (!response.ok) {
-        if (DEARROW_CONFIG.debugMode) {
-          console.log('DeArrow: InnerTube API error', response.status, 'for', videoID);
-        }
-        return null;
-      }
+      if (!response.ok) return null;
 
       const data = await response.json();
       const duration = data?.videoDetails?.lengthSeconds;
@@ -639,18 +737,18 @@
 
       return null;
     } catch (error) {
-      if (error.name === 'AbortError') {
-        if (DEARROW_CONFIG.debugMode) {
-          console.log('DeArrow: InnerTube API timeout for', videoID);
-        }
-      } else if (DEARROW_CONFIG.debugMode) {
-        console.error('DeArrow: InnerTube API fetch error for', videoID, error);
-      }
       return null;
     }
   };
 
   // ===== THUMBNAIL PROCESSING =====
+
+  const isStillValid = (element, videoID) => {
+    if (!document.contains(element)) return false;
+    const currentVideoID = extractVideoID(element, 'related');
+    if (currentVideoID !== videoID) return false;
+    return true;
+  };
 
   const getThumbnailUrl = (videoID, time, generateNow = false, officialTime = false) => {
     const params = new URLSearchParams({
@@ -670,14 +768,13 @@
   };
 
   const findThumbnailImage = (element) => {
-    // Try multiple selectors for thumbnail images
     const selectors = [
-      'img#img', // Standard thumbnail
-      'img.yt-core-image', // New YouTube components
-      'yt-image img', // Image wrapper
-      'ytd-thumbnail img', // Thumbnail component
-      'a#thumbnail img', // Link wrapper
-      '.yt-lockup-view-model img', // New lockup components
+      'img#img',
+      'img.yt-core-image',
+      'yt-image img',
+      'ytd-thumbnail img',
+      'a#thumbnail img',
+      '.yt-lockup-view-model img',
     ];
 
     for (const selector of selectors) {
@@ -691,52 +788,33 @@
   };
 
   const getVideoDuration = async (element, videoID, brandingData = null) => {
-    // Method 0: PRIORITY - Use videoDuration from brandingData if available (from DeArrow API)
-    // This is the FASTEST method and avoids InnerTube API calls
     if (brandingData?.videoDuration) {
-      if (DEARROW_CONFIG.debugMode) {
-        console.log('DeArrow: Using videoDuration from brandingData (FAST):', brandingData.videoDuration);
-      }
       return brandingData.videoDuration;
     }
-
-    // Try to extract video duration from the page
-    
-    // Method 1: Check for duration in video data attributes
     const videoData = element.querySelector('a[href*="watch"]');
     if (videoData) {
-      const durationAttr = videoData.getAttribute('data-duration') || 
-                          videoData.getAttribute('aria-label');
+      const durationAttr = videoData.getAttribute('data-duration') || videoData.getAttribute('aria-label');
       if (durationAttr) {
-        // Try parsing duration attribute
         const match = durationAttr.match(/(\d+):(\d+)(?::(\d+))?/);
         if (match) {
           const hours = match[3] ? parseInt(match[1], 10) : 0;
           const minutes = match[3] ? parseInt(match[2], 10) : parseInt(match[1], 10);
           const seconds = match[3] ? parseInt(match[3], 10) : parseInt(match[2], 10);
           const duration = hours * 3600 + minutes * 60 + seconds;
-          
           if (duration > 0 && duration < 86400) {
-            if (DEARROW_CONFIG.debugMode) {
-              console.log('DeArrow: Found duration', duration, 'seconds from data attribute');
-            }
             return duration;
           }
         }
       }
     }
     
-    // Method 2: From time display on thumbnail - try multiple selectors
     const timeSelectors = [
-      // Modern YouTube selectors
       'ytd-thumbnail-overlay-time-status-renderer span.style-scope.ytd-thumbnail-overlay-time-status-renderer',
       'ytd-thumbnail-overlay-time-status-renderer #text',
       '.ytd-thumbnail-overlay-time-status-renderer #text',
-      // Older selectors
       '#overlays #text',
       '.badge-shape-wiz__text',
       'span.ytd-thumbnail-overlay-time-status-renderer',
-      // Watch page
       '.ytp-time-duration',
     ];
     
@@ -745,29 +823,20 @@
         const timeDisplay = element.querySelector(selector);
         if (timeDisplay && timeDisplay.textContent) {
           const timeText = timeDisplay.textContent.trim();
-          // Match formats: "10:32", "1:23:45", etc.
           const match = timeText.match(/^(\d+):(\d+)(?::(\d+))?$/);
           if (match) {
             const hours = match[3] ? parseInt(match[1], 10) : 0;
             const minutes = match[3] ? parseInt(match[2], 10) : parseInt(match[1], 10);
             const seconds = match[3] ? parseInt(match[3], 10) : parseInt(match[2], 10);
             const duration = hours * 3600 + minutes * 60 + seconds;
-            
-            if (duration > 0 && duration < 86400) { // Sanity check: 0 < duration < 24 hours
-              if (DEARROW_CONFIG.debugMode) {
-                console.log('DeArrow: Found duration', duration, 'seconds from selector', selector, 'text:', timeText);
-              }
-              
+            if (duration > 0 && duration < 86400) {
               return duration;
             }
           }
         }
-      } catch (e) {
-        // Selector might not work, continue to next
-      }
+      } catch (e) {}
     }
     
-    // Method 3: From aria-label on thumbnail or metadata elements
     const labelElements = [
       element.querySelector('a#thumbnail'),
       element.querySelector('a.ytd-thumbnail'),
@@ -780,7 +849,6 @@
       const ariaLabel = el.getAttribute?.('aria-label');
       if (!ariaLabel) continue;
       
-      // Match patterns like "10 minutes, 32 seconds" or "1 hour, 23 minutes, 45 seconds"
       const hourMatch = ariaLabel.match(/(\d+)\s+hour/i);
       const minMatch = ariaLabel.match(/(\d+)\s+minute/i);
       const secMatch = ariaLabel.match(/(\d+)\s+second/i);
@@ -790,29 +858,19 @@
         const minutes = minMatch ? parseInt(minMatch[1], 10) : 0;
         const seconds = secMatch ? parseInt(secMatch[1], 10) : 0;
         const duration = hours * 3600 + minutes * 60 + seconds;
-        
         if (duration > 0) {
-          if (DEARROW_CONFIG.debugMode) {
-            console.log('DeArrow: Found duration', duration, 'seconds from aria-label');
-          }
-          
           return duration;
         }
       }
     }
     
-    // Method 4: Check if we're on watch page and can access player
     if (window.location.pathname === '/watch') {
       const player = document.querySelector('video');
       if (player && player.duration && !isNaN(player.duration) && player.duration > 0) {
-        if (DEARROW_CONFIG.debugMode) {
-          console.log('DeArrow: Found duration', player.duration, 'seconds from video player');
-        }
         return player.duration;
       }
     }
     
-    // Method 5: Fallback to YouTube InnerTube API
     if (videoID) {
       const duration = await fetchVideoMetadata(videoID);
       if (duration) {
@@ -820,16 +878,11 @@
       }
     }
     
-    if (DEARROW_CONFIG.debugMode) {
-      console.log('DeArrow: Could not find duration for element', element);
-    }
-    
     return null;
   };
 
   // ===== THUMBNAIL QUEUE SYSTEM =====
   
-  // Limit concurrent thumbnail generations (like official extension)
   const MAX_CONCURRENT_THUMBNAILS = 6;
   const activeThumbnailRequests = new Map();
   const thumbnailQueue = [];
@@ -857,13 +910,10 @@
   };
 
   const processVideoThumbnail = async (element, videoID, brandingData) => {
-    // Check if already processing this thumbnail
     if (activeThumbnailRequests.has(videoID)) {
-      if (DEARROW_CONFIG.debugMode) console.log('DeArrow: Reusing active thumbnail request for', videoID);
       return activeThumbnailRequests.get(videoID);
     }
 
-    // Create promise for this thumbnail
     const promise = new Promise((resolve) => {
       thumbnailQueue.push({ resolve, videoID, element, brandingData });
       processThumbnailQueue();
@@ -875,178 +925,163 @@
 
   const processVideoThumbnailInternal = async (element, videoID, brandingData) => {
     try {
-      // Check thumbnail fallback setting first
-      if (DEARROW_CONFIG.thumbnailFallback === 'original') {
-        return null; // Don't replace thumbnails unless we have crowdsourced data
-      }
-
-      // Find thumbnail image
-      const thumbnailImg = findThumbnailImage(element);
-      if (!thumbnailImg) {
-        if (DEARROW_CONFIG.debugMode) console.log('DeArrow: No thumbnail found for', videoID);
+      if (DEARROW_CONFIG.thumbnailFallback === 'original' && 
+          (!brandingData?.thumbnails?.[0] || brandingData.thumbnails[0].votes < 0)) {
         return null;
       }
 
-      // Check if already processed
-      if (thumbnailImg.dataset.dearrowProcessed) return thumbnailImg;
+      const thumbnailImg = findThumbnailImage(element);
+      if (!thumbnailImg) return null;
+
+      if (thumbnailImg.dataset.dearrowProcessed) {
+        return thumbnailImg;
+      }
       thumbnailImg.dataset.dearrowProcessed = 'true';
+
+      const originalSrc = thumbnailImg.src;
+      thumbnailImg.dataset.dearrowOriginalSrc = originalSrc;
+
+      const shouldHideWhileFetching = DEARROW_CONFIG.hideWhileFetching && 
+        (brandingData?.thumbnails?.[0] || brandingData?.randomTime !== null);
+
+      if (!shouldHideWhileFetching) {
+        thumbnailImg.classList.add('cb-visible');
+      }
 
       // Get thumbnail data
       let thumbnailTime = null;
       let isOfficialTime = false;
 
-      // Priority 1: Use crowdsourced thumbnail if available
       if (brandingData?.thumbnails?.[0] && brandingData.thumbnails[0].votes >= 0) {
         thumbnailTime = brandingData.thumbnails[0].timestamp;
-        isOfficialTime = true; // This is a crowdsourced timestamp
+        isOfficialTime = true;
       }
-      // Priority 2: Use randomTime from API if available
       else if (brandingData?.randomTime !== null && brandingData?.randomTime !== undefined) {
-        // randomTime is a fraction (0.0-1.0), multiply by video duration to get timestamp
         let duration = brandingData.videoDuration;
         if (!duration) {
-          // Try to get duration from page or API (passing brandingData to avoid InnerTube calls)
           duration = await getVideoDuration(element, videoID, brandingData);
         }
         
         if (duration) {
-          // Apply same 90% limit as official extension if randomTime > 0.9
           let randomTime = brandingData.randomTime;
           if (randomTime > 0.9) {
             randomTime -= 0.9;
           }
           thumbnailTime = randomTime * duration;
           isOfficialTime = false;
-          
-          if (DEARROW_CONFIG.debugMode) {
-            console.log('DeArrow: Using randomTime from API:', brandingData.randomTime, 'adjusted:', randomTime, 'duration:', duration);
-          }
         } else {
-          if (DEARROW_CONFIG.debugMode) {
-            console.log('DeArrow: Cannot convert randomTime fraction without duration for', videoID);
-          }
+          thumbnailImg.classList.add('cb-visible');
           return null;
         }
       }
-      // Priority 3: Generate random timestamp ourselves (RandomTime fallback)
       else if (DEARROW_CONFIG.thumbnailFallback === 'randomTime') {
-        // Try to get video duration - now prioritizes brandingData.videoDuration
         let duration = brandingData?.videoDuration;
         if (!duration) {
           duration = await getVideoDuration(element, videoID, brandingData);
         }
         
         if (duration) {
-          // Use Alea PRNG with videoID as seed (matches official extension)
           const rng = alea(videoID);
           let randomFraction = rng();
-          
-          // Don't allow random times past 90% of the video (matches official extension)
           if (randomFraction > 0.9) {
             randomFraction -= 0.9;
           }
-          
           thumbnailTime = randomFraction * duration;
           isOfficialTime = false;
-          
-          if (DEARROW_CONFIG.debugMode) {
-            console.log('DeArrow: Generated deterministic random timestamp for', videoID, ':', thumbnailTime, 'of', duration, 'fraction:', randomFraction);
-          }
         } else {
-          if (DEARROW_CONFIG.debugMode) {
-            console.log('DeArrow: Cannot generate random thumbnail without duration for', videoID);
-          }
+          thumbnailImg.classList.add('cb-visible');
           return null;
         }
       }
 
       if (thumbnailTime === null) {
-        if (DEARROW_CONFIG.debugMode)
-          console.log('DeArrow: No thumbnail time available for', videoID);
+        thumbnailImg.classList.add('cb-visible');
         return null;
       }
 
-      // Store original thumbnail
-      const originalSrc = thumbnailImg.src;
-      thumbnailImg.dataset.dearrowOriginalSrc = originalSrc;
+      if (!isStillValid(element, videoID)) {
+        return null;
+      }
 
-      // Optimistic loading strategy (non-blocking, matches official extension behavior)
-      // Try cached version first, then request generation if needed
       const cachedThumbnailUrl = getThumbnailUrl(videoID, thumbnailTime, false, isOfficialTime);
       const generateUrl = getThumbnailUrl(videoID, thumbnailTime, true, isOfficialTime);
+      const preloadImage = new Image();
+      
+      try {
+        await new Promise((resolve, reject) => {
+          preloadImage.onload = resolve;
+          preloadImage.onerror = () => {
+            const generateImg = new Image();
+            generateImg.onload = () => resolve(generateUrl);
+            generateImg.onerror = reject;
+            generateImg.src = generateUrl;
+          };
+          preloadImage.src = cachedThumbnailUrl;
+        });
 
-      // Immediately set the thumbnail to the cached URL (optimistic)
-      thumbnailImg.src = cachedThumbnailUrl;
-      thumbnailImg.srcset = ''; // Clear srcset to prevent fallback
-
-      // Handle load/error events to trigger generation if needed
-      const onError = () => {
-        // Cache miss - trigger generation by loading generateUrl
-        if (DEARROW_CONFIG.debugMode) {
-          console.log('DeArrow: Thumbnail not cached, requesting generation for', videoID, 'at time', thumbnailTime);
+        if (!isStillValid(element, videoID)) {
+          return null;
         }
 
-        // Try generation URL
-        const generateImg = new Image();
-        generateImg.onload = () => {
-          // Generation succeeded, update actual thumbnail
-          thumbnailImg.src = generateUrl;
-          if (DEARROW_CONFIG.debugMode) {
-            console.log('DeArrow: Replaced thumbnail (generated) for', videoID);
-          }
-        };
-        generateImg.onerror = () => {
-          // Generation failed completely
-          if (DEARROW_CONFIG.thumbnailFallbackOnError === 'blank') {
-            thumbnailImg.src =
-              'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="16" height="9"%3E%3Crect fill="%23282828" width="16" height="9"/%3E%3C/svg%3E';
+        thumbnailImg.src = preloadImage.src === cachedThumbnailUrl ? cachedThumbnailUrl : generateUrl;
+        thumbnailImg.srcset = '';
+        
+        await new Promise((resolve) => {
+          if (thumbnailImg.complete) {
+            resolve();
           } else {
-            // Restore original
-            thumbnailImg.src = originalSrc;
+            thumbnailImg.addEventListener('load', resolve, { once: true });
           }
-          if (DEARROW_CONFIG.debugMode) {
-            console.log('DeArrow: Thumbnail generation failed for', videoID, 'at time', thumbnailTime);
-          }
-        };
-        generateImg.src = generateUrl;
-      };
+        });
 
-      const onLoad = () => {
-        // Cached thumbnail loaded successfully
-        if (DEARROW_CONFIG.debugMode) {
-          console.log('DeArrow: Replaced thumbnail (cached) for', videoID, 'at time', thumbnailTime);
+        if (!isStillValid(element, videoID)) {
+          return null;
         }
-      };
 
-      // Attach listeners
-      thumbnailImg.addEventListener('error', onError, { once: true });
-      thumbnailImg.addEventListener('load', onLoad, { once: true });
+        thumbnailImg.classList.add('cb-visible');
+        return thumbnailImg;
 
-      // Return the thumbnail element for hover functionality
-      return thumbnailImg;
+      } catch (error) {
+        if (DEARROW_CONFIG.thumbnailFallbackOnError === 'blank') {
+          thumbnailImg.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="16" height="9"%3E%3Crect fill="%23282828" width="16" height="9"/%3E%3C/svg%3E';
+        } else {
+          thumbnailImg.src = originalSrc;
+        }
+        thumbnailImg.classList.add('cb-visible');
+        return null;
+      }
     } catch (error) {
-      if (DEARROW_CONFIG.debugMode) console.error('DeArrow: Error processing thumbnail:', error);
+      const thumbnailImg = findThumbnailImage(element);
+      if (thumbnailImg) {
+        thumbnailImg.classList.add('cb-visible');
+      }
       return null;
     }
   };
 
   // ===== DOM OBSERVATION =====
 
+  let lastThumbnailCheck = 0;
+  let thumbnailCheckTimeout = null;
+  const DEBOUNCE_DELAY = 50;
+  let lastGarbageCollection = 0;
+  const GARBAGE_COLLECTION_INTERVAL = 5000;
+  
+  const runGarbageCollection = () => {
+    const now = performance.now();
+    if (now - lastGarbageCollection < GARBAGE_COLLECTION_INTERVAL) return;
+    lastGarbageCollection = now;
+  };
+
   const setupIntersectionObserver = () => {
     if (window.dearrowIntersectionObserver) return;
 
-    // Batch processing for better performance
     let batchedElements = [];
     let batchTimeout = null;
 
     const processBatch = () => {
       if (batchedElements.length === 0) return;
       
-      if (DEARROW_CONFIG.debugMode) {
-        console.log('DeArrow: Processing batch of', batchedElements.length, 'videos');
-      }
-
-      // Process all videos in parallel (like official extension)
       const promises = batchedElements.map(({ element, context }) => {
         return processVideoTitle(element, context).catch((error) => {
           if (DEARROW_CONFIG.debugMode) {
@@ -1055,12 +1090,7 @@
         });
       });
 
-      Promise.all(promises).then(() => {
-        if (DEARROW_CONFIG.debugMode) {
-          console.log('DeArrow: Batch processing complete');
-        }
-      });
-
+      Promise.all(promises);
       batchedElements = [];
       batchTimeout = null;
     };
@@ -1070,32 +1100,24 @@
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const element = entry.target;
-            const context = element.matches(TITLE_CONTEXTS.related.container) ? 'related' : 'grid';
-            
-            // Add to batch instead of processing immediately
+            const context = element.matches(TITLE_CONTEXTS.related.container) ? 'related' : element;
             batchedElements.push({ element, context });
-            
-            // Debounce batch processing
             if (batchTimeout) clearTimeout(batchTimeout);
-            batchTimeout = setTimeout(processBatch, 50); // 50ms batch window
-
-            observer.unobserve(element); // Process once
+            batchTimeout = setTimeout(processBatch, 50);
+            observer.unobserve(element);
           }
         });
       },
       {
         root: null,
-        rootMargin: '100px', // Start processing slightly before visible
+        rootMargin: '100px',
         threshold: 0.1,
       }
     );
 
-    // Observe all video containers
     const videos = document.querySelectorAll(
-      `${TITLE_CONTEXTS.related.container}, ${TITLE_CONTEXTS.grid.container}`
+      `${TITLE_CONTEXTS.related.container}`
     );
-    if (DEARROW_CONFIG.debugMode)
-      console.log('DeArrow: Found', videos.length, 'video containers to observe');
     videos.forEach((video) => {
       if (!video.dataset.dearrowObserved) {
         video.dataset.dearrowObserved = 'true';
@@ -1105,17 +1127,13 @@
 
     window.dearrowIntersectionObserver = observer;
 
-    // Re-observe on navigation/new content with debouncing
     let mutationTimeout = null;
     const mutationObserver = new MutationObserver(() => {
-      // Debounce: wait 200ms after last mutation before processing (increased from 100ms)
       clearTimeout(mutationTimeout);
       mutationTimeout = setTimeout(() => {
         const newVideos = document.querySelectorAll(
-          `${TITLE_CONTEXTS.related.container}:not([data-dearrow-observed]), ${TITLE_CONTEXTS.grid.container}:not([data-dearrow-observed])`
+          `${TITLE_CONTEXTS.related.container}:not([data-dearrow-observed])`
         );
-        if (DEARROW_CONFIG.debugMode && newVideos.length > 0)
-          console.log('DeArrow: Found', newVideos.length, 'new video containers via mutation');
         newVideos.forEach((video) => {
           video.dataset.dearrowObserved = 'true';
           observer.observe(video);
@@ -1132,43 +1150,60 @@
   };
 
   const observeYouTubePage = () => {
-    const delay = 1000; // Check interval
+    const delay = 1000;
+    let lastProcessedWatchUrl = null;
 
-    // Process watch page title
-    const processWatchPage = () => {
-      // Only process if we're actually on a watch page with a video ID in URL
-      if (!window.location.pathname.includes('/watch') || !window.location.search.includes('v=')) {
+    const processWatchPageDebounced = () => {
+      const now = performance.now();
+      if (now - lastThumbnailCheck < DEBOUNCE_DELAY || thumbnailCheckTimeout) {
+        if (!thumbnailCheckTimeout) {
+          thumbnailCheckTimeout = setTimeout(() => {
+            thumbnailCheckTimeout = null;
+            lastThumbnailCheck = performance.now();
+            processWatchPageImmediate();
+          }, DEBOUNCE_DELAY);
+        }
         return;
       }
       
+      lastThumbnailCheck = now;
+      processWatchPageImmediate();
+    };
+
+    const processWatchPageImmediate = () => {
+      if (!window.location.pathname.includes('/watch') || !window.location.search.includes('v=')) {
+        lastProcessedWatchUrl = null;
+        return;
+      }
+      
+      const currentUrl = window.location.href;
+      if (currentUrl === lastProcessedWatchUrl) return;
+      
       const watchContainer = document.querySelector(TITLE_CONTEXTS.watch.container);
       if (watchContainer) {
+        lastProcessedWatchUrl = currentUrl;
         processVideoTitle(watchContainer, 'watch');
       }
     };
 
-    // Process related/grid videos (lazy load or immediate)
     const processRelatedVideos = () => {
       if (DEARROW_CONFIG.lazyLoadRelated) {
-        // Use Intersection Observer for lazy loading
         setupIntersectionObserver();
       } else {
-        // Process all immediately
         const videos = document.querySelectorAll(
-          `${TITLE_CONTEXTS.related.container}, ${TITLE_CONTEXTS.grid.container}`
+          `${TITLE_CONTEXTS.related.container}`
         );
         videos.forEach((video) => {
-          const context = video.matches(TITLE_CONTEXTS.related.container) ? 'related' : 'grid';
-          processVideoTitle(video, context);
+          processVideoTitle(video, 'related');
         });
       }
     };
 
-    // Main observer loop
     if (!window.dearrowIntervalID) {
       window.dearrowIntervalID = setInterval(() => {
-        processWatchPage();
+        processWatchPageDebounced();
         processRelatedVideos();
+        runGarbageCollection();
       }, delay);
     }
   };
@@ -1178,13 +1213,10 @@
   const injectStyles = () => {
     const style = document.createElement('style');
 
-    // Build container selectors for title max lines - combine both contexts
     const allContainers = new Set([
       ...TITLE_CONTEXTS.related.container.split(', '),
-      ...TITLE_CONTEXTS.grid.container.split(', '),
     ]);
 
-    // Build CSS rules - target both the link element and the span inside
     const titleLineClampRules = [];
     for (const container of allContainers) {
       titleLineClampRules.push(`${container} #video-title:not(.ta-title-container)`);
@@ -1195,18 +1227,14 @@
     }
 
     const cssContent = `
-      /* Custom title element should inherit all styling from original */
       .dearrow-custom-title {
         display: inline;
       }
 
-      /* Original title is hidden by default when DeArrow is active */
       .dearrow-original-title {
         display: none;
       }
 
-      /* Allow titles to expand to ${DEARROW_CONFIG.titleMaxLines} lines instead of YouTube's default 2 */
-      /* Must set display and box-orient for -webkit-line-clamp to work */
       ${titleLineClampRules.join(',\n      ')} {
         display: -webkit-box !important;
         -webkit-box-orient: vertical !important;
@@ -1222,17 +1250,14 @@
         flex-shrink: 0;
       }
 
-      /* Always visible on watch page */
       .dearrow-icon-container.dearrow-always-visible {
         display: inline-flex !important;
       }
 
-      /* Show on hover for video cards */
       *:hover > .dearrow-icon-container:not(.dearrow-always-visible) {
         display: inline-flex !important;
       }
 
-      /* YouTube button styling fallback */
       .dearrow-icon-container .yt-spec-button-shape-next {
         position: relative;
         display: inline-flex;
@@ -1274,23 +1299,14 @@
         width: 32px;
       }
 
-      .dearrow-icon-container .yt-spec-button-shape-next__icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      /* Context-specific adjustments */
       #video-title .dearrow-icon-container {
         margin-left: 4px;
       }
 
-      /* Watch page styling */
       ytd-watch-metadata .dearrow-icon-container {
         vertical-align: middle;
       }
 
-      /* SVG icon styling */
       .dearrow-icon-circle {
         stroke: var(--system-theme-blue, #3ea6ff);
         transition: stroke 0.2s ease;
@@ -1302,25 +1318,18 @@
     `;
     
     style.textContent = cssContent;
-    console.log('DeArrow: Injecting CSS with', titleLineClampRules.length, 'line-clamp rules');
     document.head.appendChild(style);
   };
 
   // ===== INITIALIZATION =====
 
   const init = () => {
-    if (DEARROW_CONFIG.debugMode) console.log('DeArrow: Initializing...');
-
-    // Inject CSS
+    if (window.dearrowInitialized) return;
     injectStyles();
-
-    // Start observing
     observeYouTubePage();
-
-    if (DEARROW_CONFIG.debugMode) console.log('DeArrow: Initialized successfully');
+    window.dearrowInitialized = true;
   };
 
-  // Start when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
