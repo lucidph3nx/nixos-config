@@ -11,11 +11,11 @@
   'use strict';
 
   const pageLoadId = window.performance?.timing?.navigationStart || Date.now();
-  
+
   if (window.dearrowScriptLoadedId === pageLoadId) {
     return;
   }
-  
+
   window.dearrowScriptLoadedId = pageLoadId;
 
   // ===== EARLY CSS INJECTION (ANTI-FLICKER) =====
@@ -50,7 +50,7 @@
         visibility: visible !important;
       }
     `;
-    
+
     if (document.head) {
       document.head.appendChild(style);
     } else {
@@ -130,7 +130,7 @@
 
   const CACHE_LIMIT = 10000;
   const EVICTION_BATCH_SIZE = 20;
-  
+
   const brandingCache = new Map();
   const durationCache = new Map();
 
@@ -153,15 +153,15 @@
     });
     if (brandingCache.size > CACHE_LIMIT) {
       const numberToDelete = brandingCache.size - CACHE_LIMIT + EVICTION_BATCH_SIZE;
-      
+
       // Sort by lastUsed and delete oldest entries
       const sortedEntries = Array.from(brandingCache.entries())
         .sort((a, b) => a[1].lastUsed - b[1].lastUsed);
-      
+
       for (let i = 0; i < numberToDelete && i < sortedEntries.length; i++) {
         brandingCache.delete(sortedEntries[i][0]);
       }
-      
+
       if (DEARROW_CONFIG.debugMode) {
         console.log(`DeArrow: Cache limit exceeded, evicted ${numberToDelete} oldest entries. Cache size: ${brandingCache.size}`);
       }
@@ -285,7 +285,7 @@
   const fetchFromThumbnailCache = async (videoID) => {
     try {
       const url = `${DEARROW_CONFIG.thumbnailCacheServer}/api/v1/branding/${videoID}`;
-      
+
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), DEARROW_CONFIG.fetchTimeout);
 
@@ -300,7 +300,7 @@
       }
 
       const data = await response.json();
-      
+
       return {
         videoID,
         data,
@@ -333,7 +333,7 @@
     const requestPromise = (async () => {
       try {
         let url;
-        
+
         const fetchMainAPI = async () => {
           if (queryByHash) {
             const hashPrefix = await getHashPrefix(videoID);
@@ -368,7 +368,7 @@
           }
 
           const data = await response.json();
-          
+
           return {
             videoID,
             data: data,
@@ -378,14 +378,14 @@
         };
         const mainAPIPromise = fetchMainAPI();
         let fastestResult;
-        
+
         if (ENABLE_DUAL_FETCH && !queryByHash && !waitForFullReply) {
           const thumbnailCachePromise = fetchFromThumbnailCache(videoID);
           fastestResult = await Promise.race([
             mainAPIPromise.then(r => r || null),
             thumbnailCachePromise.then(r => r || null)
           ]);
-          
+
           mainAPIPromise.then(mainResult => {
             if (mainResult && mainResult.source === 'main-api') {
               cacheBrandingData(videoID, mainResult.data);
@@ -394,7 +394,7 @@
         } else {
           fastestResult = await mainAPIPromise;
         }
-        
+
         if (!fastestResult) {
           return {
             titles: [],
@@ -406,7 +406,7 @@
 
         if (fastestResult.isHash) {
           const results = fastestResult.data;
-          
+
           if (!results[videoID]) {
             results[videoID] = {
               titles: [],
@@ -415,15 +415,15 @@
               videoDuration: null,
             };
           }
-          
+
           for (const [batchVideoID, batchData] of Object.entries(results)) {
             cacheBrandingData(batchVideoID, batchData);
           }
-          
+
           if (DEARROW_CONFIG.debugMode) {
             console.log(`DeArrow: Fetched batch of ${Object.keys(results).length} videos (requested ${videoID})`);
           }
-          
+
           return results[videoID];
         } else {
           const fullReply = fastestResult.source === 'main-api';
@@ -432,11 +432,11 @@
             lastUsed: Date.now(),
             fullReply: fullReply
           });
-          
+
           if (DEARROW_CONFIG.debugMode) {
             console.log(`DeArrow: Fetched data for ${videoID} from ${fastestResult.source}`);
           }
-          
+
           return fastestResult.data;
         }
       } catch (error) {
@@ -471,6 +471,7 @@
     const iconWrapper = document.createElement('div');
     iconWrapper.className = 'yt-spec-button-shape-next__icon';
     iconWrapper.setAttribute('aria-hidden', 'true');
+    iconWrapper.style.cssText = 'display: flex; align-items: center; justify-content: center;';
 
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('width', '24');
@@ -576,14 +577,14 @@
   };
 
   // ===== MAIN PROCESSING LOGIC =====
-  
+
   const shouldProcessTitle = () => DEARROW_CONFIG.replaceTitles;
   const shouldProcessThumbnail = () => DEARROW_CONFIG.replaceThumbnails;
 
   const processVideoTitle = async (element, context) => {
     try {
       if (!shouldProcessTitle()) return;
-      
+
       const videoID = extractVideoID(element, context);
       if (!videoID) {
         if (DEARROW_CONFIG.debugMode)
@@ -807,7 +808,7 @@
         }
       }
     }
-    
+
     const timeSelectors = [
       'ytd-thumbnail-overlay-time-status-renderer span.style-scope.ytd-thumbnail-overlay-time-status-renderer',
       'ytd-thumbnail-overlay-time-status-renderer #text',
@@ -817,7 +818,7 @@
       'span.ytd-thumbnail-overlay-time-status-renderer',
       '.ytp-time-duration',
     ];
-    
+
     for (const selector of timeSelectors) {
       try {
         const timeDisplay = element.querySelector(selector);
@@ -836,23 +837,23 @@
         }
       } catch (e) {}
     }
-    
+
     const labelElements = [
       element.querySelector('a#thumbnail'),
       element.querySelector('a.ytd-thumbnail'),
       element.querySelector('#meta'),
       element
     ];
-    
+
     for (const el of labelElements) {
       if (!el) continue;
       const ariaLabel = el.getAttribute?.('aria-label');
       if (!ariaLabel) continue;
-      
+
       const hourMatch = ariaLabel.match(/(\d+)\s+hour/i);
       const minMatch = ariaLabel.match(/(\d+)\s+minute/i);
       const secMatch = ariaLabel.match(/(\d+)\s+second/i);
-      
+
       if (minMatch || secMatch || hourMatch) {
         const hours = hourMatch ? parseInt(hourMatch[1], 10) : 0;
         const minutes = minMatch ? parseInt(minMatch[1], 10) : 0;
@@ -863,26 +864,26 @@
         }
       }
     }
-    
+
     if (window.location.pathname === '/watch') {
       const player = document.querySelector('video');
       if (player && player.duration && !isNaN(player.duration) && player.duration > 0) {
         return player.duration;
       }
     }
-    
+
     if (videoID) {
       const duration = await fetchVideoMetadata(videoID);
       if (duration) {
         return duration;
       }
     }
-    
+
     return null;
   };
 
   // ===== THUMBNAIL QUEUE SYSTEM =====
-  
+
   const MAX_CONCURRENT_THUMBNAILS = 6;
   const activeThumbnailRequests = new Map();
   const thumbnailQueue = [];
@@ -892,7 +893,7 @@
     while (activeThumbnailCount < MAX_CONCURRENT_THUMBNAILS && thumbnailQueue.length > 0) {
       const { resolve, videoID, element, brandingData } = thumbnailQueue.shift();
       activeThumbnailCount++;
-      
+
       processVideoThumbnailInternal(element, videoID, brandingData)
         .then((result) => {
           resolve(result);
@@ -925,7 +926,7 @@
 
   const processVideoThumbnailInternal = async (element, videoID, brandingData) => {
     try {
-      if (DEARROW_CONFIG.thumbnailFallback === 'original' && 
+      if (DEARROW_CONFIG.thumbnailFallback === 'original' &&
           (!brandingData?.thumbnails?.[0] || brandingData.thumbnails[0].votes < 0)) {
         return null;
       }
@@ -941,7 +942,7 @@
       const originalSrc = thumbnailImg.src;
       thumbnailImg.dataset.dearrowOriginalSrc = originalSrc;
 
-      const shouldHideWhileFetching = DEARROW_CONFIG.hideWhileFetching && 
+      const shouldHideWhileFetching = DEARROW_CONFIG.hideWhileFetching &&
         (brandingData?.thumbnails?.[0] || brandingData?.randomTime !== null);
 
       if (!shouldHideWhileFetching) {
@@ -961,7 +962,7 @@
         if (!duration) {
           duration = await getVideoDuration(element, videoID, brandingData);
         }
-        
+
         if (duration) {
           let randomTime = brandingData.randomTime;
           if (randomTime > 0.9) {
@@ -979,7 +980,7 @@
         if (!duration) {
           duration = await getVideoDuration(element, videoID, brandingData);
         }
-        
+
         if (duration) {
           const rng = alea(videoID);
           let randomFraction = rng();
@@ -1006,7 +1007,7 @@
       const cachedThumbnailUrl = getThumbnailUrl(videoID, thumbnailTime, false, isOfficialTime);
       const generateUrl = getThumbnailUrl(videoID, thumbnailTime, true, isOfficialTime);
       const preloadImage = new Image();
-      
+
       try {
         await new Promise((resolve, reject) => {
           preloadImage.onload = resolve;
@@ -1025,7 +1026,7 @@
 
         thumbnailImg.src = preloadImage.src === cachedThumbnailUrl ? cachedThumbnailUrl : generateUrl;
         thumbnailImg.srcset = '';
-        
+
         await new Promise((resolve) => {
           if (thumbnailImg.complete) {
             resolve();
@@ -1066,7 +1067,7 @@
   const DEBOUNCE_DELAY = 50;
   let lastGarbageCollection = 0;
   const GARBAGE_COLLECTION_INTERVAL = 5000;
-  
+
   const runGarbageCollection = () => {
     const now = performance.now();
     if (now - lastGarbageCollection < GARBAGE_COLLECTION_INTERVAL) return;
@@ -1081,7 +1082,7 @@
 
     const processBatch = () => {
       if (batchedElements.length === 0) return;
-      
+
       const promises = batchedElements.map(({ element, context }) => {
         return processVideoTitle(element, context).catch((error) => {
           if (DEARROW_CONFIG.debugMode) {
@@ -1165,7 +1166,7 @@
         }
         return;
       }
-      
+
       lastThumbnailCheck = now;
       processWatchPageImmediate();
     };
@@ -1175,10 +1176,10 @@
         lastProcessedWatchUrl = null;
         return;
       }
-      
+
       const currentUrl = window.location.href;
       if (currentUrl === lastProcessedWatchUrl) return;
-      
+
       const watchContainer = document.querySelector(TITLE_CONTEXTS.watch.container);
       if (watchContainer) {
         lastProcessedWatchUrl = currentUrl;
@@ -1315,8 +1316,12 @@
       .dearrow-icon-container button:hover .dearrow-icon-circle {
         stroke: var(--system-theme-grey2, #aaa);
       }
+
+      .yt-lockup-metadata-view-model__text-container {
+        width: 100%;
+      }
     `;
-    
+
     style.textContent = cssContent;
     document.head.appendChild(style);
   };
