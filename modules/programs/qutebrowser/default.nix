@@ -228,16 +228,22 @@
               import threading
               import time
 
+
               def prefetch_with_timeout():
                   try:
-                      session_file = os.path.join(os.getenv("XDG_RUNTIME_DIR", "/tmp"), "bw_session_key")
+                      session_file = os.path.join(
+                          os.getenv("XDG_RUNTIME_DIR", "/tmp"), "bw_session_key"
+                      )
                       if os.path.exists(session_file):
                           # Run prefetch with a reasonable timeout
-                          result = subprocess.run(["${bitwarden-prefetch}/bin/bitwarden-prefetch"], 
-                                                timeout=10,  # 10 second timeout
-                                                capture_output=True)
+                          result = subprocess.run(
+                              ["${bitwarden-prefetch}/bin/bitwarden-prefetch"],
+                              timeout=10,  # 10 second timeout
+                              capture_output=True,
+                          )
                   except:
                       pass  # silently ignore errors including timeouts
+
 
               # Run prefetch in background thread to avoid blocking qutebrowser startup
               # but with a timeout to ensure it completes reasonably quickly
