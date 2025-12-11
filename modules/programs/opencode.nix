@@ -3,12 +3,13 @@
   pkgs,
   lib,
   ...
-}:
-{
+}: {
   options = {
-    nx.programs.opencode.enable = lib.mkEnableOption "enables opencode" // {
-      default = true;
-    };
+    nx.programs.opencode.enable =
+      lib.mkEnableOption "enables opencode"
+      // {
+        default = true;
+      };
   };
   config = lib.mkIf config.nx.programs.opencode.enable {
     home-manager.users.ben = {
@@ -23,24 +24,32 @@
             edit = "allow";
             webfetch = "allow";
             bash = {
-              "git *" = "allow";
-              "git diff *" = "allow";
-              "git commit *" = "allow";
-              "git push" = "ask";
-              "git push *" = "ask";
-              "grep *" = "allow";
-              "rg *" = "allow";
+              "*" = "ask";
               "find *" = "allow";
-              "tree *" = "allow";
-              "sed *" = "allow";
+              "gh issue view *" = "allow";
+              "gh pr view *" = "allow";
+              "git *" = "allow";
+              "git commit *" = "allow";
+              "git diff *" = "allow";
+              "git push *" = "ask";
+              "git push" = "ask";
+              "grep *" = "allow";
+              "helm dependency update" = "allow";
+              "helm template *" = "allow";
               "ls *" = "allow";
               "mkdir *" = "allow";
-              "npm *" = "allow";
-              "rm *" = "allow";
-              "nixfmt *" = "allow";
+              "nh os build" = "allow";
+              "nh os switch" = "ask";
               "nix build *" = "allow";
               "nix flake check *" = "allow";
-              "*" = "ask";
+              "nixfmt *" = "allow";
+              "npm *" = "allow";
+              "rg *" = "allow";
+              "rm *" = "allow";
+              "sed *" = "allow";
+              "tree *" = "allow";
+              "wc *" = "allow";
+              "yq eval *" = "allow";
             };
           };
           agent = {
