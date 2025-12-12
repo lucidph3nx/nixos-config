@@ -11,16 +11,38 @@
         default = true;
       };
   };
-  config = lib.mkIf config.nx.programs.opencode.enable {
-    home-manager.users.ben = {
-      home.packages = with pkgs; [
-        nodejs_24
-      ];
-      programs.zsh.shellAliases = {
-        # set KUBECONFIG to agents config for opencode
-        opencode = "KUBECONFIG=$HOME/.config/kube/agents-config opencode";
+  config = lib.mkIf config.nx.programs.opencode.enable (
+    let
+      # Define opencode environment variables in one place
+      opencodeEnvVars = {
+        KUBECONFIG = "$HOME/.config/kube/agents-config";
       };
-      programs.opencode = {
+      # Build shell command prefix from env vars
+      envPrefix = lib.concatStringsSep " " (
+        lib.mapAttrsToList (name: value: "${name}=${value}") opencodeEnvVars
+      );
+    in
+      {
+        home-manager.users.ben = {
+          home.packages = with pkgs; [
+            nodejs_24
+          ];
+          programs.zsh.shellAliases = {
+            # set environment variables for opencode
+            opencode = "${envPrefix} opencode";
+          };
+          programs.neovim.extraLuaConfig = lib.mkAfter
+            # lua
+            ''
+              -- open current project in new kitty window with opencode
+              vim.keymap.set(
+                "n",
+                "<leader>oa",
+                ":!kitty -d $(pwd) env ${envPrefix} opencode . &<CR><CR>",
+                { silent = true, desc = "[O]pen project with [A]I agent" }
+              )
+            '';
+          programs.opencode = {
         enable = true;
         settings = {
           theme = config.theme.opencodename;
@@ -28,8 +50,23 @@
             edit = "allow";
             webfetch = "allow";
             bash = {
+              # default for any command not listed is ask
               "*" = "ask";
+              # we have made sure above that opencode runs with a readonly kubeconfig
+              "flux *" = "allow";
+              "helm *" = "allow";
+              "kubectl *" = "allow";
+              # basic file ops
               "find *" = "allow";
+              "grep *" = "allow";
+              "ls *" = "allow";
+              "mkdir *" = "allow";
+              "rg *" = "allow";
+              "rm *" = "allow";
+              "sed *" = "allow";
+              "tree *" = "allow";
+              "wc *" = "allow";
+              # git and gh commands
               "gh issue view *" = "allow";
               "gh pr view *" = "allow";
               "git *" = "allow";
@@ -37,22 +74,14 @@
               "git diff *" = "allow";
               "git push *" = "ask";
               "git push" = "ask";
-              "grep *" = "allow";
-              "helm dependency update" = "allow";
-              "helm template *" = "allow";
-              "ls *" = "allow";
-              "mkdir *" = "allow";
+              # nix commands
               "nh os build" = "allow";
               "nh os switch" = "ask";
               "nix build *" = "allow";
               "nix flake check *" = "allow";
               "nixfmt *" = "allow";
+              # other
               "npm *" = "allow";
-              "rg *" = "allow";
-              "rm *" = "allow";
-              "sed *" = "allow";
-              "tree *" = "allow";
-              "wc *" = "allow";
               "yq eval *" = "allow";
             };
           };
@@ -74,5 +103,6 @@
         ];
       };
     };
-  };
+      }
+  );
 }
