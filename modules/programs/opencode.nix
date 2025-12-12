@@ -109,6 +109,7 @@
               # file operations that modify
               "mkdir *" = "allow";
               "rm *" = "allow";
+              "mv *" = "allow";
               # nix commands
               "nh os build" = "allow";
               "nh os switch" = "ask";
