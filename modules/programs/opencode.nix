@@ -16,6 +16,10 @@
       home.packages = with pkgs; [
         nodejs_24
       ];
+      programs.zsh.shellAliases = {
+        # set KUBECONFIG to agents config for opencode
+        opencode = "KUBECONFIG=$HOME/.config/kube/agents-config opencode";
+      };
       programs.opencode = {
         enable = true;
         settings = {
