@@ -26,10 +26,18 @@ in
         KUBECONFIG = "${kubeDir}/config";
       };
     };
+    # admin kubeconfig
     sops.secrets.kubeconfig = {
       owner = "ben";
       mode = "0600";
       path = "${kubeDir}/config";
+      sopsFile = ./secrets/kubeconfig.sops.yaml;
+    };
+    # agents readonly kubeconfig
+    sops.secrets.agents-kubeconfig = {
+      owner = "ben";
+      mode = "0600";
+      path = "${kubeDir}/agents-config";
       sopsFile = ./secrets/kubeconfig.sops.yaml;
     };
     system.activationScripts.kubeConfigFolderPermissions = ''
