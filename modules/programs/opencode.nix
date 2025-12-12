@@ -56,16 +56,48 @@
               "flux *" = "allow";
               "helm *" = "allow";
               "kubectl *" = "allow";
-              # basic file ops
+              # file reading/viewing
+              "cat *" = "allow";
+              "head *" = "allow";
+              "less *" = "allow";
+              "more *" = "allow";
+              "tail *" = "allow";
+              # file/directory listing
+              "file *" = "allow";
               "find *" = "allow";
-              "grep *" = "allow";
               "ls *" = "allow";
-              "mkdir *" = "allow";
-              "rg *" = "allow";
-              "rm *" = "allow";
-              "sed *" = "allow";
               "tree *" = "allow";
+              # text processing/searching
+              "awk *" = "allow";
+              "comm *" = "allow";
+              "cut *" = "allow";
+              "diff *" = "allow";
+              "grep *" = "allow";
+              "rg *" = "allow";
+              "sed *" = "allow";
+              "sort *" = "allow";
+              "uniq *" = "allow";
               "wc *" = "allow";
+              # system information (read-only)
+              "date *" = "allow";
+              "env *" = "allow";
+              "hostname *" = "allow";
+              "id *" = "allow";
+              "printenv *" = "allow";
+              "pwd *" = "allow";
+              "uname *" = "allow";
+              "whoami *" = "allow";
+              # json/yaml processing
+              "jq *" = "allow";
+              "yq *" = "allow";
+              # utilities
+              "basename *" = "allow";
+              "command *" = "allow";
+              "dirname *" = "allow";
+              "echo *" = "allow";
+              "printf *" = "allow";
+              "type *" = "allow";
+              "which *" = "allow";
               # git and gh commands
               "gh issue view *" = "allow";
               "gh pr view *" = "allow";
@@ -74,15 +106,17 @@
               "git diff *" = "allow";
               "git push *" = "ask";
               "git push" = "ask";
+              # file operations that modify
+              "mkdir *" = "allow";
+              "rm *" = "allow";
               # nix commands
               "nh os build" = "allow";
               "nh os switch" = "ask";
               "nix build *" = "allow";
               "nix flake check *" = "allow";
               "nixfmt *" = "allow";
-              # other
+              # other dev tools
               "npm *" = "allow";
-              "yq eval *" = "allow";
             };
           };
           agent = {
