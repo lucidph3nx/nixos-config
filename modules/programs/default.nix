@@ -15,6 +15,7 @@
     ./dragon-drop.nix
     ./fastfetch.nix
     ./firefox
+    ./gcalcli.nix
     ./gimp.nix
     ./git.nix
     ./home-automation.nix

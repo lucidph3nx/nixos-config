@@ -32,6 +32,7 @@
       calibre.enable = true;
       darktable.enable = true;
       firefox.hideUrlbar = true;
+      gcalcli.enable = true;
       homeAutomation.enable = true;
       libreoffice.enable = true;
       obsidian.enable = true;
@@ -71,11 +72,11 @@
 
   # Fix suspend/resume issues
   boot.kernelParams = [
-    "mem_sleep_default=s2idle"  # Use s2idle instead of deep sleep
+    "mem_sleep_default=s2idle" # Use s2idle instead of deep sleep
     "nvme.noacpi=1"
     "acpi_osi=Linux"
-    "i915.enable_psr=0"         # Disable panel self refresh for Intel graphics
-    "i915.enable_fbc=0"         # Disable framebuffer compression
+    "i915.enable_psr=0" # Disable panel self refresh for Intel graphics
+    "i915.enable_fbc=0" # Disable framebuffer compression
   ];
 
   # Additional power management
