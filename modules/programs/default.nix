@@ -122,6 +122,7 @@
           sqlite
           unrar
           unzip
+          wget
           xdg-utils
           yq-go
           yt-dlp
