@@ -105,6 +105,7 @@
           dust
           eza
           fdupes
+          file
           fzf
           fzy
           google-cloud-sdk
