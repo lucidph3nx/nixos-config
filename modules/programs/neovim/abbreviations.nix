@@ -55,10 +55,22 @@
         ab mi mì
         ab cafe café
         ab kowhai kōwhai
-        ab maori māori
+        ab Kowhai Kōwhai
+        ab enso ensō
+        ab xeo xèo
+        ab saute sauté
+        ab poneke Pōneke
+        ab maori Māori
         ab tuatara tuatārā
         ab tui tūī
         ab pohutukawa pōhutukawa
+        ab belen Belén
+        ab taupo Taupō
+        ab otari Ōtari
+        ab aioli aïoli
+        ab puree purée
+        ab creme crème
+        ab fraiche fraîche
       '';
   };
 }
