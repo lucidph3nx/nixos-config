@@ -132,7 +132,15 @@ in
               "col.active_border" =
                 let
                   # rainbow border colors in order
-                  colors = with theme; [ red orange yellow green aqua blue purple ];
+                  colors = with theme; [
+                    red
+                    orange
+                    yellow
+                    green
+                    aqua
+                    blue
+                    purple
+                  ];
                   # convert hex colors to rgba format (remove # and add ff for alpha)
                   toRgba = color: "rgba(${builtins.substring 1 6 color}ff)";
                   rgbaColors = map toRgba colors;
@@ -198,11 +206,8 @@ in
                 sensitivity = 0.5;
               }
             ];
-            windowrulev2 = [
-              # sometimes chromium thinks its fine to open in a tiny window
-              "tile, class:(Chromium-browser)"
-              "tile, class:^(Minecraft.*)$"
-            ];
+            # where possible, window rules should live with the app config
+            windowrulev2 = [ ];
             monitor = [
               ",preferred,auto,auto"
             ];

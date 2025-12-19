@@ -20,6 +20,14 @@
           ];
         })
       ];
+      wayland.windowManager.hyprland.settings =
+        lib.mkIf (config.home-manager.users.ben.wayland.windowManager.hyprland.enable)
+          {
+            windowrulev2 = [
+              # sometimes chromium thinks its fine to open in a tiny window
+              "tile, class:(Chromium-browser)"
+            ];
+          };
     };
   };
 }

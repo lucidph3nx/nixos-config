@@ -29,6 +29,13 @@
               ".local/share/PrismLauncher"
             ];
           };
+          wayland.windowManager.hyprland.settings =
+            lib.mkIf (config.home-manager.users.ben.wayland.windowManager.hyprland.enable)
+              {
+                windowrulev2 = [
+                  "tile, class:^(Minecraft.*)$"
+                ];
+              };
         };
       };
 }
