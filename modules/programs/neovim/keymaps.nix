@@ -43,12 +43,6 @@
         	{ silent = true, desc = "switch to a new session in tmux" }
         )
 
-        -- keeping these but I don't like how they work, commented out for now
-        -- start a replace with current word
-        -- map("n", "<leader>fr", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], make_opts('[F]ind and [R]eplace', opts))
-        -- same but with current visual selection
-        -- map("v", "<leader>fr", [[y<Esc>:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], make_opts('[F]ind and [R]eplace', opts))
-        --
         -- Clear search with <esc>
         map({ "i", "n" }, "<esc>", "<cmd>noh<cr><esc>", { desc = "Escape and clear hlsearch" })
 
