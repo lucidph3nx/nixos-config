@@ -51,6 +51,14 @@
         " words with accents
         ab jalapeno jalapeño
         ab jalapenos jalapeños
+        ab banh bánh
+        ab mi mì
+        ab cafe café
+        ab kowhai kōwhai
+        ab maori māori
+        ab tuatara tuatārā
+        ab tui tūī
+        ab pohutukawa pōhutukawa
       '';
   };
 }
