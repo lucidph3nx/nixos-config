@@ -45,7 +45,7 @@
             add_lsp('lua_ls')
             add_lsp('nil_ls', {
             	settings = { ["nil"] = {
-            		formatting = { command = { "alejandra" } },
+            		formatting = { command = { "nixfmt" } },
             	} },
             })
             add_lsp('pylsp')
