@@ -21,6 +21,7 @@ GM_addStyle(`
   .side .spacer { background-color: var(--system-theme-bg0); }
   .thing .title a.title { color: var(--system-theme-primary) !important; font-size: 1.125rem !important; font-weight: 600 !important; }
   .thing .title a.title:visited { color: var(--system-theme-grey0) !important; }
+  .thing { background-color: var(--system-theme-bg0) !important; border-color: var(--system-theme-bg2) !important; border-width: 1px; border-style: solid; border-radius: 5px; margin-bottom: 10px !important; }
   .link .expand { background-color: var(--system-theme-bg2) !important; border: none !important; }
   .commentarea { background-color: var(--system-theme-bg0) !important; }
   .comment { border-color: var(--system-theme-bg2) !important; }
