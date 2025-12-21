@@ -128,6 +128,7 @@
     parted
     protontricks
     protonup-ng
+    scanmem
     shotcut
     solvespace
     usbutils
