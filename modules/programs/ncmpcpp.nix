@@ -22,7 +22,7 @@
           programs.ncmpcpp = {
             enable = true;
             package = pkgs.ncmpcpp.override { visualizerSupport = true; };
-            mpdMusicDir = config.services.mpd.musicDirectory;
+            mpdMusicDir = config.home-manager.users.ben.services.mpd.musicDirectory;
             settings = {
               display_bitrate = "yes";
               user_interface = "alternative";
