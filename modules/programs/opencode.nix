@@ -23,9 +23,6 @@
     in
     {
       home-manager.users.ben = {
-        home.packages = with pkgs; [
-          nodejs_24
-        ];
         programs.zsh.shellAliases = {
           # set environment variables for opencode
           opencode = "${envPrefix} opencode";
@@ -120,12 +117,6 @@
                 "nixfmt *" = "allow";
                 # other dev tools
                 "npm *" = "allow";
-              };
-            };
-            agent = {
-              creative = {
-                enabled = true;
-                temperature = 0.8;
               };
             };
           };

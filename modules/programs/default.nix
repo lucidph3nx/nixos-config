@@ -10,6 +10,7 @@
     ./bitwarden.nix
     ./calibre.nix
     ./chromium.nix
+    ./claude-code.nix
     ./cura-appimage.nix
     ./darktable.nix
     ./dragon-drop.nix
