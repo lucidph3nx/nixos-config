@@ -23,6 +23,10 @@
     in
     {
       home-manager.users.ben = {
+        home.packages = with pkgs; [
+          # need npx on path for memory mcp
+          nodejs_24
+        ];
         programs.zsh.shellAliases = {
           # set environment variables for opencode
           opencode = "${envPrefix} opencode";
