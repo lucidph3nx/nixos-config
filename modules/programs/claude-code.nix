@@ -50,7 +50,7 @@
                 "Bash(helm:*)"
                 "Bash(kubectl:*)"
                 # nix commands
-                "Bash(nix build *)"
+                "Bash(nix build:*)"
                 "Bash(nixfmt:*)"
               ];
             };
