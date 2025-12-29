@@ -143,7 +143,7 @@
           	daily_notes = {
               folder = "dailies",
               date_format = "%Y-%m-%d",
-              template = "daily_note.md"
+              template = "daily_note.md",
               default_tags = { "daily-note" },
               workdays_only = false,
             },
