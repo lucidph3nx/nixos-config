@@ -66,6 +66,7 @@ in
           musicplayer = "${terminal} ncmpcpp";
           obsidian = "${terminal} ${scriptsDir}/cli.tmux.projectSessioniser ${homeDir}/documents/obsidian";
           nixosconfig = "${terminal} ${scriptsDir}/cli.tmux.projectSessioniser ${homeDir}/code/nixos-config";
+          addtodailytodo = "${scriptsDir}/obsidian.dailyTodo.addItem";
           addtoshoppinglist = "${scriptsDir}/home.shoppinglist.addItem";
           openshoppinglist = "${newwindow} https://www.notion.so/ph3nx/Shopping-List-92d98ac3dc86460285a399c0b1176fc5";
           # configuration
@@ -285,6 +286,7 @@ in
               "ALT, c, exec, ${calendar}"
               "ALT, f, exec, ${filemanager}"
               "ALT, m, exec, ${musicplayer}"
+              "ALT, t, exec, ${addtodailytodo}"
               "ALT, l, exec, ${addtoshoppinglist}"
               "ALT SHIFT, l, exec, ${openshoppinglist}"
               "ALT, o, exec, ${obsidian}"

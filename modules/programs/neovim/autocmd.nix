@@ -43,6 +43,24 @@
         		vim.lsp.buf.format()
         	end,
         })
+
+        -- auto reload buffer when file changes externally
+        vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
+        	group = augroup("auto_reload"),
+        	callback = function()
+        		if vim.fn.mode() ~= "c" then
+        			vim.cmd("checktime")
+        		end
+        	end,
+        })
+
+        -- notify when file changes externally
+        vim.api.nvim_create_autocmd("FileChangedShellPost", {
+        	group = augroup("file_changed_notify"),
+        	callback = function()
+        		vim.notify("File changed on disk. Buffer reloaded.", vim.log.levels.WARN)
+        	end,
+        })
       '';
   };
 }

@@ -33,6 +33,8 @@
         set.undofile = true
         -- no swap file
         set.swapfile = false
+        -- automatically reload files changed outside of vim
+        set.autoread = true
         -- case insensitive search
         set.ignorecase = true
         -- unless a capital letter is used

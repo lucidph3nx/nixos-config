@@ -8,6 +8,7 @@ with config.theme;
 {
   imports = [
     # rofi launcher scripts
+    ./add-to-daily-todo.nix
     ./add-to-shopping-list.nix
     ./application-launcher.nix
     ./emoji-picker.nix
