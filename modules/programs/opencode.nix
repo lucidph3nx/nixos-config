@@ -47,6 +47,18 @@
           enable = true;
           settings = {
             theme = config.theme.opencodename;
+            mcp = {
+              playwright = {
+                type = "local";
+                command = [
+                  "${pkgs.playwright-mcp}/bin/mcp-server-playwright"
+                  "--executable-path"
+                  "${pkgs.chromium}/bin/chromium"
+                  "--headless"
+                ];
+                enabled = true;
+              };
+            };
             permission = {
               edit = "allow";
               webfetch = "allow";
@@ -127,6 +139,27 @@
         };
         xdg.configFile."opencode/opencode.json".source =
           config.home-manager.users.ben.xdg.configFile."opencode/config.json".source;
+        xdg.configFile."opencode/AGENTS.md".text = /* markdown */ ''
+          # Global Agent Instructions
+
+          ## Web Fetching
+
+          When the `webfetch` tool fails with a 403 Forbidden error or similar access restrictions, use the Playwright MCP server as an alternative to fetch web content with a real browser.
+
+          ### Usage
+
+          If webfetch returns a 403 error:
+          ```
+          Error: HTTP 403 Forbidden
+          ```
+
+          Try using the Playwright MCP server instead:
+          ```
+          Use the playwright_navigate tool to load the page with a real browser, then use playwright_screenshot or playwright_evaluate to extract the content.
+          ```
+
+          Playwright can bypass many simple bot detection mechanisms that block basic HTTP requests.
+        '';
         home.persistence."/persist/home/ben" = {
           directories = [
             ".config/opencode"
