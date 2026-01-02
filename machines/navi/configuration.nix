@@ -42,6 +42,7 @@
       picard.enable = true;
       plexamp.enable = true;
       rclone.enable = true;
+      voiceToText.enable = true;
       waydroid.enable = false;
       wgnord.enable = true;
     };
