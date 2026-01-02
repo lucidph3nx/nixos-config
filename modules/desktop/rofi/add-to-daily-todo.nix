@@ -17,7 +17,7 @@ with config.theme;
             import subprocess
             from datetime import datetime
 
-            ROFI_STYLE = 'listview { enabled: false;} inputbar { children: [entry]; border-color: ${purple};} entry { placeholder: "Add To-do Item"; }'
+            ROFI_STYLE = 'listview { enabled: false;} inputbar { children: [entry]; border-color: ${orange};} entry { placeholder: "Add To-do Item"; }'
             OBSIDIAN_DAILIES_DIR = os.path.expanduser("~/documents/obsidian/dailies")
             TODO_MARKER = "## To-do List"
 
