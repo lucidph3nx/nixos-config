@@ -312,14 +312,16 @@
         wayland.windowManager.hyprland.settings =
           lib.mkIf (config.home-manager.users.ben.wayland.windowManager.hyprland.enable)
             {
-              windowrulev2 = [
+              windowrule = [
                 # floating filepickers and editors
-                "class:(qute-filepicker),float"
-                "class:(qute-filepicker),size 800 480"
-                "class:(qute-editor),float"
-                "class:(qute-editor),size 800 480"
+                "float on, match:class qute-filepicker"
+                "size 800 480, match:class qute-filepicker"
+                "stay_focused on, match:class qute-filepicker"
+                "float on, match:class qute-editor"
+                "size 800 480, match:class qute-editor"
+                "stay_focused on, match:class qute-editor"
                 # fake fullscreen, good for youtube etc
-                "class:(org.qutebrowser.qutebrowser),syncfullscreen 0"
+                "sync_fullscreen 0, match:class org.qutebrowser.qutebrowser"
               ];
             };
       };

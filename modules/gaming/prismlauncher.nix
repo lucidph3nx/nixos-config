@@ -32,8 +32,8 @@
           wayland.windowManager.hyprland.settings =
             lib.mkIf (config.home-manager.users.ben.wayland.windowManager.hyprland.enable)
               {
-                windowrulev2 = [
-                  "class:^(Minecraft.*)$,tile"
+                windowrule = [
+                  "tile on, match:class PrismLauncher"
                 ];
               };
         };

@@ -29,9 +29,9 @@
       wayland.windowManager.hyprland.settings =
         lib.mkIf (config.home-manager.users.ben.wayland.windowManager.hyprland.enable)
           {
-            windowrulev2 = [
+            windowrule = [
               # prevent libreoffice-writer from fullscreening
-              "class:(libreoffice-writer),syncfullscreen 0"
+              "sync_fullscreen 0, match:class libreoffice-writer"
             ];
           };
     };

@@ -25,7 +25,7 @@
           {
             windowrulev2 = [
               # sometimes chromium thinks its fine to open in a tiny window
-              "class:(Chromium-browser),tile"
+              "tile on, match:class Chromium-browser"
             ];
           };
     };

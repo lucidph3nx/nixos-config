@@ -23,9 +23,9 @@
       wayland.windowManager.hyprland.settings =
         lib.mkIf (config.home-manager.users.ben.wayland.windowManager.hyprland.enable)
           {
-            windowrulev2 = [
+            windowrule = [
               # silently open on workspace 2
-              "class:(discord),workspace 2 silent"
+              "workspace 2 silent, match:class discord"
             ];
           };
     };

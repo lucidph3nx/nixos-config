@@ -23,11 +23,11 @@
       wayland.windowManager.hyprland.settings =
         lib.mkIf (config.home-manager.users.ben.wayland.windowManager.hyprland.enable)
           {
-            windowrulev2 = [
+            windowrule = [
               # darktable splash screen
-              "title:darktable starting,float"
+              "float on, match:title darktable starting"
               # prevent darktable from maximising on start
-              "class:(darktable),suppressevent maximize"
+              "supress_event fullscreen, match:class darktable"
             ];
           };
     };

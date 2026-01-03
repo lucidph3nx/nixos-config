@@ -210,7 +210,7 @@ in
               }
             ];
             # where possible, window rules should live with the app config
-            windowrulev2 = [ ];
+            windowrule = [ ];
             monitor = [
               ",preferred,auto,auto"
             ];
