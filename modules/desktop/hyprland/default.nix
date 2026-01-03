@@ -101,6 +101,8 @@ in
             ecosystem = {
               # don't show update notifications each boot
               no_update_news = true;
+              # suppress start-hyprland warning when using systemd integration
+              no_watchdog_warning = true;
             };
             exec = [
               # restart waybar, if for some reason it died
