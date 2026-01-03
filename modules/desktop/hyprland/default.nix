@@ -101,8 +101,6 @@ in
             ecosystem = {
               # don't show update notifications each boot
               no_update_news = true;
-              # suppress start-hyprland warning when using systemd integration
-              no_watchdog_warning = true;
             };
             exec = [
               # restart waybar, if for some reason it died
@@ -201,6 +199,8 @@ in
               enable_swallow = false;
               swallow_regex = "^(kitty|lf)$";
               swallow_exception_regex = "^(wev)$";
+              # suppress start-hyprland warning when not using the watchdog wrapper
+              disable_watchdog_warning = true;
             };
             device = [
               {
