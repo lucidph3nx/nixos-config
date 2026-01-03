@@ -25,7 +25,7 @@
           {
             windowrulev2 = [
               # silently open on workspace 2
-              "workspace 2 silent,class:(discord)"
+              "class:(discord),workspace 2 silent"
             ];
           };
     };

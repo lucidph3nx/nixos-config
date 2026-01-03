@@ -33,7 +33,7 @@
             lib.mkIf (config.home-manager.users.ben.wayland.windowManager.hyprland.enable)
               {
                 windowrulev2 = [
-                  "tile, class:^(Minecraft.*)$"
+                  "class:^(Minecraft.*)$,tile"
                 ];
               };
         };

@@ -25,9 +25,9 @@
           {
             windowrulev2 = [
               # darktable splash screen
-              "float, title:darktable starting"
+              "title:darktable starting,float"
               # prevent darktable from maximising on start
-              "suppressevent maximize, class:(darktable)"
+              "class:(darktable),suppressevent maximize"
             ];
           };
     };

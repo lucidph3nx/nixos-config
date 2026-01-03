@@ -314,12 +314,12 @@
             {
               windowrulev2 = [
                 # floating filepickers and editors
-                "float, class:(qute-filepicker)"
-                "size 800 480, class:(qute-filepicker)"
-                "float, class:(qute-editor)"
-                "size 800 480, class:(qute-editor)"
+                "class:(qute-filepicker),float"
+                "class:(qute-filepicker),size 800 480"
+                "class:(qute-editor),float"
+                "class:(qute-editor),size 800 480"
                 # fake fullscreen, good for youtube etc
-                "syncfullscreen 0, class:(org.qutebrowser.qutebrowser)"
+                "class:(org.qutebrowser.qutebrowser),syncfullscreen 0"
               ];
             };
       };

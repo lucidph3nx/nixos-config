@@ -53,7 +53,7 @@
               {
                 windowrulev2 = [
                   # fake fullscreen, good store videos
-                  "syncfullscreen 0, class:(steam)"
+                  "class:(steam),syncfullscreen 0"
                 ];
               };
         };

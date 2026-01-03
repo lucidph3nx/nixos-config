@@ -31,7 +31,7 @@
           {
             windowrulev2 = [
               # prevent libreoffice-writer from fullscreening
-              "syncfullscreen 0, class:(libreoffice-writer)"
+              "class:(libreoffice-writer),syncfullscreen 0"
             ];
           };
     };
