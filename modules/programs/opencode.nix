@@ -142,6 +142,10 @@
         xdg.configFile."opencode/AGENTS.md".text = /* markdown */ ''
           # Global Agent Instructions
 
+          ## Skills
+          When working in environments with domain-specific skills available (via the `skill` tool), err on the side of loading them. If a conversation touches a domain that has a skill, load it – even if you think you know the conventions from other context sources.
+          Skills exist to prevent context drift and ensure consistency, not just for when you're uncertain. Loading a skill is cheap; missing domain-specific conventions or creating inconsistency is expensive.
+
           ## Web Fetching
 
           When the `webfetch` tool fails with a 403 Forbidden error or similar access restrictions, use the Playwright MCP server as an alternative to fetch web content with a real browser.
