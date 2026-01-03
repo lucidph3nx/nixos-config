@@ -27,7 +27,7 @@
               # darktable splash screen
               "float on, match:title darktable starting"
               # prevent darktable from maximising on start
-              "supress_event fullscreen, match:class darktable"
+              "suppress_event fullscreen, match:class darktable"
             ];
           };
     };
