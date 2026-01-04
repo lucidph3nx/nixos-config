@@ -18,7 +18,6 @@
           jq
           json
           json5
-          jsonc
           latex
           lua
           markdown
