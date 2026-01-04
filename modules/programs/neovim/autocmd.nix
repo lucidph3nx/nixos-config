@@ -48,7 +48,7 @@
         vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
         	group = augroup("auto_reload"),
         	callback = function()
-        		if vim.fn.mode() ~= "c" then
+        		if vim.fn.mode() ~= "c" and vim.fn.getcmdwintype() == "" then
         			vim.cmd("checktime")
         		end
         	end,
