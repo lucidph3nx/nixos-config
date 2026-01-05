@@ -29,37 +29,10 @@ rec {
       # use master for claude-code, need the bleeding edge
       claude-code = masterPkgs.claude-code;
 
-      # This version DOESN'T WORK!
-      # vimPlugins = prev.vimPlugins // {
-      #   obsidian-nvim = prev.vimUtils.buildVimPlugin {
-      #     pname = "obsidian-nvim";
-      #     version = "3.14.8";
-      #     checkInputs = with prev.vimPlugins; [
-      #       fzf-lua
-      #       mini-nvim
-      #       snacks-nvim
-      #       telescope-nvim
-      #     ];
-      #     dependencies = with prev.vimPlugins; [
-      #       plenary-nvim
-      #     ];
-      #     nvimSkipModules = [
-      #       "minimal"
-      #     ];
-      #     src = prev.fetchFromGitHub {
-      #       owner = "obsidian-nvim";
-      #       repo = "obsidian.nvim";
-      #       rev = "de60246baec087aaf5bbf95e3f976e0897548d89";
-      #       hash = "sha256-jq/0GKn086/SDp3zw/yFBRuX8YpcYprUJLW98SNE63Y=";
-      #     };
-      #   };
-      # };
-
-      # There seems to be a bug in 3.14.8, cmp for References is not working.
       vimPlugins = prev.vimPlugins // {
         obsidian-nvim = prev.vimUtils.buildVimPlugin {
           pname = "obsidian-nvim";
-          version = "3.14.7";
+          version = "3.15.3";
           checkInputs = with prev.vimPlugins; [
             fzf-lua
             mini-nvim
@@ -75,8 +48,8 @@ rec {
           src = prev.fetchFromGitHub {
             owner = "obsidian-nvim";
             repo = "obsidian.nvim";
-            rev = "6939efc2c7145cf83644192c588eccd935b57826";
-            hash = "sha256-Gz5/DHNDVFy4tqWMyrmc3Rg7r1tGOx5330/B7r3OqiE=";
+            rev = "cc9f7b2588577a1961c563b8baa90f636e2d61b7";
+            hash = "sha256-tGS1QLNcArFGGj2g2cmguHwzlEQBSRiCzj0FLxbm1FQ=";
           };
         };
       };
