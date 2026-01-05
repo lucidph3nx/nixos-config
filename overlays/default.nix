@@ -18,10 +18,14 @@ rec {
         system = final.stdenv.hostPlatform.system;
         config.allowUnfree = true;
       };
+      stablePkgs = import inputs.nixpkgs-stable {
+        system = final.stdenv.hostPlatform.system;
+        config.allowUnfree = true;
+      };
     in
     {
       # use stable for firefox, unstable is currently failing to build
-      firefox = inputs.nixpkgs-stable.legacyPackages.${final.stdenv.hostPlatform.system}.firefox;
+      firefox = stablePkgs.firefox;
 
       # use master for opencode, need the bleeding edge
       opencode = masterPkgs.opencode;
