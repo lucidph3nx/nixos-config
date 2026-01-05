@@ -92,12 +92,23 @@
                         # only one file here, open it
                         selected_file=$(find "$selected" -maxdepth 1 -type f)
                     else
-                      # if many files, but one of them is a README.md, open that
-                      readme_file="$(find "$selected" -maxdepth 1 -type f -name "README.md")"
-                      if [[ -n "$readme_file" ]]; then
-                        selected_file="$readme_file"
+                      # if many files, check for landing page
+                      # For Obsidian vault, look for notes/landingpage.md first
+                      if [[ "$selected" == *"obsidian"* ]]; then
+                        landing_page="$(find "$selected/notes" -maxdepth 1 -type f -name "landingpage.md" 2>/dev/null)"
+                        if [[ -n "$landing_page" ]]; then
+                          selected_file="$landing_page"
+                        else
+                          selected_file=""
+                        fi
                       else
-                        selected_file=""
+                        # For other directories, look for README.md
+                        readme_file="$(find "$selected" -maxdepth 1 -type f -name "README.md")"
+                        if [[ -n "$readme_file" ]]; then
+                          selected_file="$readme_file"
+                        else
+                          selected_file=""
+                        fi
                       fi
                     fi
                 fi
