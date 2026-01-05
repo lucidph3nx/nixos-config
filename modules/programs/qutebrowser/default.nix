@@ -270,6 +270,7 @@
             "gm" = "https://www.google.com/maps/search/{}";
             "gh" = "https://github.com/search?q={}";
             "ghnx" = "https://github.com/search?q={}+language%3ANix&type=code&l=Nix";
+            "goodreads" = "https://www.goodreads.com/search?q={}";
             "hm" = "https://home-manager-options.extranix.com/?query={}";
             "nixopt" =
               "https://search.nixos.org/options?channel=unstable&from=0&size=50&sort=relevance&type=packages&query={}";
