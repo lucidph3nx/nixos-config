@@ -165,7 +165,7 @@
           		order = { " ", "x", ">", "~" },
           	},
           	attachments = {
-          		img_folder = "assets",
+              folder = "assets",
           		img_name_func = imgNameFunction,
           		confirm_img_paste = true,
           	},
@@ -243,21 +243,21 @@
           -- Custom command to open a random note from the notes folder
           vim.api.nvim_create_user_command("ObsidianRandomNote", function(_)
           	local notes_dir = vim.fn.expand("~/documents/obsidian/notes")
-          	
+
           	-- Get all markdown files in the notes directory (non-recursive)
           	local notes = vim.fn.glob(notes_dir .. "/*.md", false, true)
-          	
+
           	if #notes == 0 then
           		vim.notify("No notes found in " .. notes_dir, vim.log.levels.WARN)
           		return
           	end
-          	
+
           	-- Seed random number generator with current time for better randomness
           	math.randomseed(os.time())
-          	
+
           	-- Pick a random note
           	local random_note = notes[math.random(#notes)]
-          	
+
           	-- Open the note
           	vim.cmd("edit " .. vim.fn.fnameescape(random_note))
           end, {
