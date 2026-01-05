@@ -161,6 +161,13 @@
           		-- don't use obsidian.nvim colours
           		hl_groups = {},
           	},
+            footer = {
+              -- https://github.com/obsidian-nvim/obsidian.nvim/issues/566
+              enabled = false,
+            },
+            statusline = {
+              enabled = false, -- Disable statusline to prevent it hammering ripgrep every second
+            },
           	checkbox = {
           		order = { " ", "x", ">", "~" },
           	},
