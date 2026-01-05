@@ -13,7 +13,6 @@ rec {
   modifications =
     final: prev:
     let
-      # Import nixpkgs-master with unfree packages allowed
       masterPkgs = import inputs.nixpkgs-master {
         system = final.stdenv.hostPlatform.system;
         config.allowUnfree = true;
