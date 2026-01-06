@@ -40,12 +40,19 @@
           	-- Check if filename matches YYYY-MM-DD format
           	local is_daily_note = filename:match("^%d%d%d%d%-%d%d%-%d%d$") ~= nil
 
-          	-- Ensure title is an alias if not already present
-          	if note.title and not vim.tbl_contains(note.aliases, note.title) then
-          		note:add_alias(note.title)
-          	elseif is_daily_note and not vim.tbl_contains(note.aliases, filename) then
-          		-- If it's a daily note and has no title, use filename as alias
-          		note:add_alias(filename)
+          	-- Look for the first H1 heading in the note content and add it as an alias
+          	-- This restores the pre-v3.15.0 behavior where the title was automatically added
+          	if note.contents then
+          		for _, line in ipairs(note.contents) do
+          			local h1_match = line:match("^#%s+(.+)$")
+          			if h1_match then
+          				local title = vim.trim(h1_match)
+          				if title and not vim.tbl_contains(note.aliases, title) then
+          					note:add_alias(title)
+          				end
+          				break -- Only use the first H1 heading
+          			end
+          		end
           	end
 
           	-- Get current date and time
