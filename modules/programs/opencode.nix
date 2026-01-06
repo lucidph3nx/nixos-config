@@ -148,7 +148,7 @@
 
           ## Web Fetching
 
-          When the `webfetch` tool fails with a 403 Forbidden error or similar access restrictions, use the Playwright MCP server as an alternative to fetch web content with a real browser.
+          When the `webfetch` tool fails with a 403 Forbidden error or similar access restrictions, use a subagent with Playwright to fetch the content with a real browser instead.
 
           ### Usage
 
@@ -157,12 +157,15 @@
           Error: HTTP 403 Forbidden
           ```
 
-          Try using the Playwright MCP server instead:
+          Do NOT use the playwright_* tools directly in the main conversation, as they generate very large outputs that quickly fill the context window.
+
+          Instead, use the Task tool to launch a subagent that will use Playwright to extract the content and return only the relevant information:
           ```
-          Use the playwright_navigate tool to load the page with a real browser, then use playwright_screenshot or playwright_evaluate to extract the content.
+          Launch a general subagent with a prompt like:
+          "Use the Playwright MCP server to navigate to [URL], extract [specific content needed], and return only the extracted information as markdown. Do not include full page snapshots or accessibility trees in your response to me."
           ```
 
-          Playwright can bypass many simple bot detection mechanisms that block basic HTTP requests.
+          The subagent will handle all the verbose Playwright interactions in its own context, and only return the clean, extracted content back to you.
         '';
         home.persistence."/persist/home/ben" = {
           directories = [
