@@ -48,12 +48,6 @@
           	s("h4", { t("#### "), i(0) }),
           	s("h5", { t("##### "), i(0) }),
           	s("h6", { t("###### "), i(0) }),
-          	-- link snippets
-          	s({ trig = "l", name = "link" }, { t("["), i(1, "text"), t("]("), i(2, "url"), t(") "), i(0) }),
-          	s({ trig = "link", name = "link" }, { t("["), i(1, "text"), t("]("), i(2, "url"), t(") "), i(0) }),
-          	-- url snippets
-          	s({ trig = "u", name = "url" }, { t("<"), i(1), t("> "), i(0) }),
-          	s({ trig = "url", name = "url" }, { t("<"), i(1), t("> "), i(0) }),
           	-- image snippet
           	s("img", { t("!["), i(1, "alt text"), t("]("), i(2, "path"), t(") "), i(0) }),
           	-- formatting snippets
@@ -64,8 +58,6 @@
           	s({ trig = "italic", name = "italic" }, { t("*"), i(1), t("* "), i(0) }),
           	s({ trig = "bi", name = "bold and italic" }, { t("***"), i(1), t("*** "), i(0) }),
           	s({ trig = "bold and italic", name = "bold and italic" }, { t("***"), i(1), t("*** "), i(0) }),
-          	-- quote snippet
-          	s("quote", { t("> "), i(1) }),
           	-- code snippets
           	s("code", { t("`"), i(1), t("` "), i(0) }),
           	s("codeblock", { t("```"), i(1, "language"), t({ "", "" }), i(0), t({ "", "```" }) }),
