@@ -135,6 +135,10 @@
                 "npm *" = "allow";
               };
             };
+            plugin = [
+              # a plugin to use Gemini auth for LLM access
+              "opencode-gemini-auth@latest"
+            ];
           };
         };
         xdg.configFile."opencode/opencode.json".source =
