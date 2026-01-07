@@ -10,6 +10,8 @@
       config =
         # lua
         ''
+          local square_borders = { "─", "│", "─", "│", "┌", "┐", "┘", "└" }
+
           require("telescope").setup({
           	defaults = {
           		mappings = {
@@ -19,10 +21,10 @@
           			},
           		},
           		borderchars = {
-          			{ "─", "│", "─", "│", "┌", "┐", "┘", "└" },
-          			prompt = { "─", "│", "─", "│", "┌", "┐", "┘", "└" },
-          			results = { "─", "│", "─", "│", "┌", "┐", "┘", "└" },
-          			preview = { "─", "│", "─", "│", "┌", "┐", "┘", "└" },
+          			square_borders,
+          			prompt = square_borders,
+          			results = square_borders,
+          			preview = square_borders,
           		},
           	},
           	pickers = {
