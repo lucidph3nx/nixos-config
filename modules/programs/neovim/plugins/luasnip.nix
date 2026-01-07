@@ -1,8 +1,6 @@
 { pkgs, ... }:
 {
   home-manager.users.ben.programs.neovim.plugins = [
-    pkgs.vimPlugins.nvim-snippets
-    pkgs.vimPlugins.friendly-snippets
     {
       plugin = pkgs.vimPlugins.cmp_luasnip;
       type = "lua";
@@ -23,10 +21,16 @@
           local s = ls.snippet
           local sn = ls.snippet_node
           local t = ls.text_node
+          local i = ls.insert_node
           local d = ls.dynamic_node
+
+          -- Note: I used to load in a plugin called friendly-snippets for more snippets
+          -- but now I prefer to just define a subset of those myself
+          -- you can find ideas here: https://github.com/rafamadriz/friendly-snippets/tree/main
 
           -- my snippets
           ls.add_snippets("markdown", {
+          	-- wikidate snippet
           	s(
           		"wikidate",
           		d(1, function(args, parent)
@@ -37,6 +41,34 @@
           			)
           		end, {})
           	),
+          	-- header snippets
+          	s("h1", { t("# "), i(0) }),
+          	s("h2", { t("## "), i(0) }),
+          	s("h3", { t("### "), i(0) }),
+          	s("h4", { t("#### "), i(0) }),
+          	s("h5", { t("##### "), i(0) }),
+          	s("h6", { t("###### "), i(0) }),
+          	-- link snippets
+          	s({ trig = "l", name = "link" }, { t("["), i(1, "text"), t("]("), i(2, "url"), t(") "), i(0) }),
+          	s({ trig = "link", name = "link" }, { t("["), i(1, "text"), t("]("), i(2, "url"), t(") "), i(0) }),
+          	-- url snippets
+          	s({ trig = "u", name = "url" }, { t("<"), i(1), t("> "), i(0) }),
+          	s({ trig = "url", name = "url" }, { t("<"), i(1), t("> "), i(0) }),
+          	-- image snippet
+          	s("img", { t("!["), i(1, "alt text"), t("]("), i(2, "path"), t(") "), i(0) }),
+          	-- formatting snippets
+          	s("strikethrough", { t("~~"), i(1), t("~~ "), i(0) }),
+          	s({ trig = "bold", name = "bold" }, { t("**"), i(1), t("** "), i(0) }),
+          	s({ trig = "b", name = "bold" }, { t("**"), i(1), t("** "), i(0) }),
+          	s({ trig = "i", name = "italic" }, { t("*"), i(1), t("* "), i(0) }),
+          	s({ trig = "italic", name = "italic" }, { t("*"), i(1), t("* "), i(0) }),
+          	s({ trig = "bi", name = "bold and italic" }, { t("***"), i(1), t("*** "), i(0) }),
+          	s({ trig = "bold and italic", name = "bold and italic" }, { t("***"), i(1), t("*** "), i(0) }),
+          	-- quote snippet
+          	s("quote", { t("> "), i(1) }),
+          	-- code snippets
+          	s("code", { t("`"), i(1), t("` "), i(0) }),
+          	s("codeblock", { t("```"), i(1, "language"), t({ "", "" }), i(0), t({ "", "```" }) }),
           })
         '';
     }
