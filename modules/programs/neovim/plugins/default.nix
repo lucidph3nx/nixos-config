@@ -23,7 +23,6 @@
     ./theme-gruvbox.nix
     ./theme-nightcity-kabuki.nix
     ./theme-onedark.nix
-    ./toggleterm.nix
     ./treesitter.nix
     ./undotree.nix
     ./vim-fugitive.nix
