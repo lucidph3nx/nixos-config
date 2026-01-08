@@ -183,7 +183,7 @@
 
           The subagent will handle all the verbose Playwright interactions in its own context, and only return the clean, extracted content back to you.
         '';
-        home.persistence."/persist/home/ben" = {
+        home.persistence."/persist" = {
           directories = [
             ".config/opencode"
             ".local/share/opencode"

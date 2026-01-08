@@ -297,7 +297,7 @@
         xdg.dataFile."qutebrowser/userscripts/ytm-download" = {
           source = ./userscripts/ytm-download;
         };
-        home.persistence."/persist/home/ben" = {
+        home.persistence."/persist" = {
           directories = [
             ".local/share/qutebrowser"
           ];

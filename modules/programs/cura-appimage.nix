@@ -37,7 +37,7 @@ in
       home.packages = [
         cura-appimage
       ];
-      home.persistence."/persist/home/ben" = {
+      home.persistence."/persist" = {
         directories = [
           ".config/cura"
           ".local/share/cura"

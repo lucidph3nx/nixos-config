@@ -15,7 +15,7 @@
       home.packages = with pkgs; [
         signal-desktop
       ];
-      home.persistence."/persist/home/ben" = {
+      home.persistence."/persist" = {
         directories = [
           ".config/Signal"
         ];

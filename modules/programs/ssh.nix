@@ -48,8 +48,7 @@ in
           };
         };
       };
-      home.persistence."/persist/home/ben" = {
-        allowOther = true;
+      home.persistence."/persist" = {
         directories = [
           ".ssh"
         ];

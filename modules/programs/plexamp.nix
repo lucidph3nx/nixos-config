@@ -15,7 +15,7 @@
       home.packages = with pkgs; [
         plexamp
       ];
-      home.persistence."/persist/home/ben" = {
+      home.persistence."/persist" = {
         directories = [
           ".config/Plexamp"
         ];

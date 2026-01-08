@@ -120,7 +120,7 @@ in
           in
           lib.mkMerge [ initExtra ];
       };
-      home.persistence."/persist/home/ben" = {
+      home.persistence."/persist" = {
         directories = [
           ".local/share/zsh"
           ".local/state/zsh"

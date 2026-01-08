@@ -22,7 +22,7 @@
         enable = true;
         defaultEditor = true;
       };
-      home.persistence."/persist/home/ben" = {
+      home.persistence."/persist" = {
         directories = [
           ".config/nvim/spell"
           ".local/share/nvim"

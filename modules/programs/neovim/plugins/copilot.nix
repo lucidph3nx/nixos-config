@@ -39,7 +39,7 @@
           '';
       }
     ];
-    home.persistence."/persist/home/ben" = {
+    home.persistence."/persist" = {
       directories = [
         ".config/github-copilot"
       ];

@@ -494,7 +494,7 @@ in
     ];
 
     # Persist configuration and cache
-    home-manager.users.ben.home.persistence."/persist/home/ben" = {
+    home-manager.users.ben.home.persistence."/persist" = {
       directories = [
         ".config/voice-to-text"
         ".cache/voice-to-text"

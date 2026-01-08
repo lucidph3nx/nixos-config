@@ -16,7 +16,7 @@
         packages = with pkgs; [
           obsidian
         ];
-        persistence."/persist/home/ben" = {
+        persistence."/persist" = {
           directories = [
             ".config/obsidian"
           ];

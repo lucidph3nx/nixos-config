@@ -22,7 +22,7 @@
           home.packages = with pkgs; [
             lutris-unwrapped
           ];
-          home.persistence."/persist/home/ben" = {
+          home.persistence."/persist" = {
             directories = [
               ".local/share/lutris"
             ];

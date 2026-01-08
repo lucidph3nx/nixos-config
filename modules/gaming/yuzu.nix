@@ -33,7 +33,7 @@ in
       home.packages = [
         yuzu-appimage
       ];
-      home.persistence."/persist/home/ben" = {
+      home.persistence."/persist" = {
         directories = [
           ".local/share/yuzu"
           ".config/yuzu"

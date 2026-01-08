@@ -21,7 +21,7 @@
       xdg.mimeApps.defaultApplications = {
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document" = [ "writer.desktop" ];
       };
-      home.persistence."/persist/home/ben" = {
+      home.persistence."/persist" = {
         directories = [
           ".config/libreoffice"
         ];

@@ -24,7 +24,7 @@
     };
     programs.gamemode.enable = true;
     home-manager.users.ben = {
-      home.persistence."/persist/home/ben" = {
+      home.persistence."/persist" = {
         directories = [
           ".local/share/vulkan"
         ];

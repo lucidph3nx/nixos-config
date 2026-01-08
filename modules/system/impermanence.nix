@@ -77,11 +77,8 @@
       mkdir -p /home/ben/downloads
       chown -R ben:users /home/ben/downloads
     '';
-    # needed for impermanance in home-manager
-    programs.fuse.userAllowOther = true;
     # home-manager things to persist
-    home-manager.users.ben.home.persistence."/persist/home/ben" = {
-      allowOther = true;
+    home-manager.users.ben.home.persistence."/persist" = {
       directories = [
         ".local/share/nix"
         ".local/state/nix"

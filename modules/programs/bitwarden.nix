@@ -16,7 +16,7 @@
         bitwarden-desktop
         bitwarden-cli
       ];
-      home.persistence."/persist/home/ben" = {
+      home.persistence."/persist" = {
         directories = [
           ".config/Bitwarden"
           ".config/Bitwarden CLI"

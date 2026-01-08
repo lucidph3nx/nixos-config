@@ -45,7 +45,7 @@
         enable = true;
         mpd.host = "0.0.0.0";
       };
-      home.persistence."/persist/home/ben" = {
+      home.persistence."/persist" = {
         directories = [
           ".local/share/mpd"
         ];

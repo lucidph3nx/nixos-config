@@ -38,12 +38,9 @@
           STEAM_EXTRA_COMPAT_TOOLS_PATHS = "/home/ben/.steam/root/compatibilitytools.d";
         };
         home-manager.users.ben = {
-          home.persistence."/persist/home/ben" = {
+          home.persistence."/persist" = {
             directories = [
-              (lib.mkIf config.nx.gaming.steam.persist {
-                directory = ".local/share/Steam";
-                method = "symlink";
-              })
+              (lib.mkIf config.nx.gaming.steam.persist ".local/share/Steam")
               ".local/share/applications" # where steam puts its .desktop files for games
               ".local/share/icons/hicolor" # where steam puts its icons
             ];

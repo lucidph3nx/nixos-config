@@ -15,7 +15,7 @@
       home.packages = [
         pkgs.calibre
       ];
-      home.persistence."/persist/home/ben" = {
+      home.persistence."/persist" = {
         directories = [
           ".config/calibre"
         ];

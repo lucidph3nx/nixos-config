@@ -15,7 +15,7 @@
       home.packages = with pkgs; [
         picard
       ];
-      home.persistence."/persist/home/ben" = {
+      home.persistence."/persist" = {
         directories = [
           ".config/MusicBrainz"
         ];

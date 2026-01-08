@@ -93,9 +93,6 @@
       inherit inputs;
     };
     users = {
-      ben.imports = [
-        inputs.impermanence.nixosModules.home-manager.impermanence
-      ];
       ben.home = {
         username = "ben";
         homeDirectory = "/home/ben";

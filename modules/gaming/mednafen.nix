@@ -25,7 +25,7 @@
           home.sessionVariables = {
             MEDNAFEN_HOME = "${config.xdg.configHome}/mednafen";
           };
-          home.persistence."/persist/home/ben" = {
+          home.persistence."/persist" = {
             directories = [
               ".config/mednafen"
             ];
