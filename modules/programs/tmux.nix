@@ -4,6 +4,9 @@
   ...
 }:
 with config.theme;
+let
+  background = if type == "dark" then bg0 else bg_dim;
+in
 {
   options = {
     nx.programs.tmux.enable = lib.mkEnableOption "enables tmux" // {
@@ -43,10 +46,10 @@ with config.theme;
             bind -r ^k resize-pane -U 5
             bind -r ^l resize-pane -R 5
             # new window
-            bind -r n new-window
+            bind -r c new-window
             # window switching
-            bind -r [ previous-window
-            bind -r ] next-window
+            bind -r p previous-window
+            bind -r n next-window
             # window splitting
             bind -r v split-window -v
             bind -r b split-window -h
@@ -58,10 +61,22 @@ with config.theme;
             unbind C-Space
             # easy config reload
             bind-key r source-file ~/.config/tmux/tmux.conf \; display-message "tmux.conf reloaded"
+            # floating popup terminal (similar to toggleterm)
+            bind -n C-Space if-shell -F '#{m:popup-*,#{session_name}}' {
+              detach-client
+            } {
+              run-shell 'POPUP_SESSION="popup-$(tmux display-message -p \"#S\")" && tmux display-popup -E -w 80% -h 80% -b single -S "fg=${primary},bg=${background}" "tmux new-session -A -s \"$POPUP_SESSION\" \\; set status off"'
+            }
             # vim style copy
-            unbind p
-            bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "xsel -i -p && xsel -o -p | xsel -i -b"
-            bind-key p run "xsel -o | tmux load-buffer - ; tmux paste-buffer"
+            set -g mode-keys vi
+            bind-key -T copy-mode-vi 'v' send -X begin-selection
+            bind-key -T copy-mode-vi 'V' send -X select-line
+            bind-key -T copy-mode-vi 'y' send -X copy-selection-and-cancel
+            bind-key -T copy-mode-vi 'q' send -X cancel
+            bind-key -T copy-mode-vi Escape send -X cancel
+            # unbind p
+            # bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "xsel -i -p && xsel -o -p | xsel -i -b"
+            # bind-key p run "xsel -o | tmux load-buffer - ; tmux paste-buffer"
           '';
       };
     };
