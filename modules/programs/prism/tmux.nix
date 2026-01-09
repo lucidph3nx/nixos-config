@@ -79,6 +79,10 @@ in
             # bind-key p run "xsel -o | tmux load-buffer - ; tmux paste-buffer"
             # context switcher - open in popup with Ctrl-f
             bind -n C-f display-popup -E -w 80% -h 80% -S "fg=${primary}" "cli.tmux.contextSwitcher"
+            # toggle a split pane with edit and agent
+            bind-key Space if-shell "[ $(tmux display-message -t 'edit' -p '#{window_panes}') -gt 1 ]" \
+                "break-pane -s 'edit.1' -n 'agent'" \
+                "join-pane -h -s 'agent.0' -t 'edit'"
           '';
       };
     };
