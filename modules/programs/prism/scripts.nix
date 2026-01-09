@@ -135,6 +135,44 @@
           '';
       };
 
+      home.file.".local/scripts/cli.prism.launch" = {
+        executable = true;
+        text =
+          let
+            tmux = "${pkgs.tmux}/bin/tmux";
+            kitty = "${pkgs.kitty}/bin/kitty";
+          in
+          # bash
+          ''
+            #!/usr/bin/env bash
+            # Launch Prism with scratchpad and context switcher
+
+            # Check if we're already in tmux
+            if [ -n "$TMUX" ]; then
+                # Inside tmux - check if scratchpad session exists
+                if ${tmux} has-session -t scratchpad 2>/dev/null; then
+                    # Switch to scratchpad session
+                    ${tmux} switch-client -t scratchpad
+                else
+                    # Create scratchpad session
+                    ${tmux} new-session -ds scratchpad -c "$HOME"
+                    ${tmux} rename-window -t scratchpad:0 term
+                    ${tmux} switch-client -t scratchpad
+                fi
+                
+                # Small delay to let terminal settle, then open context switcher
+                sleep 0.1
+                ${tmux} display-popup -w 80% -h 80% -E "cli.tmux.contextSwitcher"
+            else
+                # Outside tmux - launch in new kitty window with delay before popup
+                ${kitty} --title "Prism" ${tmux} new-session -As scratchpad -c "$HOME" \; \
+                    rename-window -t scratchpad:0 term \; \
+                    run-shell "sleep 0.2" \; \
+                    display-popup -w 80% -h 80% -E "cli.tmux.contextSwitcher" &
+            fi
+          '';
+      };
+
       programs.zsh.shellAliases = {
         gwc = "cli.git.worktreeClone";
       };

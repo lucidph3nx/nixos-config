@@ -57,6 +57,7 @@ in
           toggleMute = "${scriptsDir}/system.audio.toggleMute";
           brightnessUp = "${scriptsDir}/system.display.brightnessUp";
           brightnessDown = "${scriptsDir}/system.display.brightnessDown";
+          prismLauncher = "${scriptsDir}/cli.prism.launch";
           # applications
           terminal = "kitty";
           browser = config.nx.programs.defaultWebBrowserSettings.cmd;
@@ -293,6 +294,7 @@ in
               "ALT SHIFT, l, exec, ${openshoppinglist}"
               "ALT, o, exec, ${obsidian}"
               "ALT, n, exec, ${nixosconfig}"
+              "ALT, p, exec, ${prismLauncher}"
               # media controls
               ", XF86AudioMute, exec, ${toggleMute}"
               (lib.mkIf enableAudioControls ", XF86AudioRaiseVolume, exec, ${volumeUp}")
