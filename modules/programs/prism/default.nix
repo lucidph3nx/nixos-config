@@ -78,6 +78,8 @@
     ./opencode.nix
     ./tmux.nix
     ./sessioniser.nix
+    ./context-switcher.nix
+    ./scripts.nix
   ];
 
   config = lib.mkIf config.nx.programs.prism.enable {
@@ -86,6 +88,8 @@
     nx.programs.prism.opencode.enable = lib.mkDefault true;
     nx.programs.prism.tmux.enable = lib.mkDefault true;
     nx.programs.prism.sessioniser.enable = lib.mkDefault true;
+    nx.programs.prism.contextSwitcher.enable = lib.mkDefault true;
+    nx.programs.prism.scripts.enable = lib.mkDefault true;
 
     # Computed values that submodules can reference
     nx.programs.prism._internal = {

@@ -77,6 +77,8 @@ in
             # unbind p
             # bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "xsel -i -p && xsel -o -p | xsel -i -b"
             # bind-key p run "xsel -o | tmux load-buffer - ; tmux paste-buffer"
+            # context switcher - open in popup with Ctrl-f
+            bind -n C-f display-popup -E -w 80% -h 80% -S "fg=${primary}" "cli.tmux.contextSwitcher"
           '';
       };
     };
