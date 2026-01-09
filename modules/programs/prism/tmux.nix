@@ -9,11 +9,11 @@ let
 in
 {
   options = {
-    nx.programs.tmux.enable = lib.mkEnableOption "enables tmux" // {
+    nx.programs.prism.tmux.enable = lib.mkEnableOption "enables tmux" // {
       default = true;
     };
   };
-  config = lib.mkIf config.nx.programs.tmux.enable {
+  config = lib.mkIf config.nx.programs.prism.tmux.enable {
     home-manager.users.ben = {
       programs.tmux = {
         enable = true;
@@ -61,12 +61,12 @@ in
             unbind C-Space
             # easy config reload
             bind-key r source-file ~/.config/tmux/tmux.conf \; display-message "tmux.conf reloaded"
-            # floating popup terminal (similar to toggleterm)
-            bind -n C-Space if-shell -F '#{m:popup-*,#{session_name}}' {
-              detach-client
-            } {
-              run-shell 'POPUP_SESSION="popup-$(tmux display-message -p \"#S\")" && tmux display-popup -E -w 80% -h 80% -b single -S "fg=${primary},bg=${background}" "tmux new-session -A -s \"$POPUP_SESSION\" \\; set status off"'
-            }
+            # toggle terminal - jump to term window, remembering where you came from
+            # If in term window, jump back to previous window
+            # If in any other window, jump to term (creating it if needed)
+            bind -n C-Space if-shell '[ "$(tmux display-message -p "#{window_name}")" = "term" ]' \
+              'last-window' \
+              'run-shell "tmux select-window -t :term 2>/dev/null || (tmux new-window -d -t :2 -n term && tmux select-window -t :term)"'
             # vim style copy
             set -g mode-keys vi
             bind-key -T copy-mode-vi 'v' send -X begin-selection

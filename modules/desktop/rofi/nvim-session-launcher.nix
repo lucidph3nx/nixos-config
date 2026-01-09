@@ -8,7 +8,7 @@ with config.theme;
 {
   config = lib.mkIf config.nx.desktop.rofi.enable {
     home-manager.users.ben.home.file.".local/scripts/application.nvim.sessionLauncher" =
-      lib.mkIf config.nx.programs.tmuxSessioniser.enable
+      lib.mkIf config.nx.programs.prism.sessioniser.enable
         {
           executable = true;
           text =

@@ -6,20 +6,14 @@
 }:
 {
   options = {
-    nx.programs.opencode.enable = lib.mkEnableOption "enables opencode" // {
+    nx.programs.prism.opencode.enable = lib.mkEnableOption "enables opencode" // {
       default = true;
     };
   };
-  config = lib.mkIf config.nx.programs.opencode.enable (
+  config = lib.mkIf config.nx.programs.prism.opencode.enable (
     let
-      # Define opencode environment variables in one place
-      opencodeEnvVars = {
-        KUBECONFIG = "$HOME/.config/kube/agents-config";
-      };
-      # Build shell command prefix from env vars
-      envPrefix = lib.concatStringsSep " " (
-        lib.mapAttrsToList (name: value: "${name}=${value}") opencodeEnvVars
-      );
+      # Use shared environment variables from prism config
+      envPrefix = config.nx.programs.prism._internal.agentEnvPrefix;
     in
     {
       home-manager.users.ben = {

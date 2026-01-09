@@ -5,7 +5,7 @@
 }:
 {
   options = {
-    nx.programs.neovim.enable = lib.mkEnableOption "Set up Neovim" // {
+    nx.programs.prism.neovim.enable = lib.mkEnableOption "Set up Neovim" // {
       default = true;
     };
   };
@@ -16,7 +16,7 @@
     ./options.nix
     ./plugins
   ];
-  config = lib.mkIf config.nx.programs.neovim.enable {
+  config = lib.mkIf config.nx.programs.prism.neovim.enable {
     home-manager.users.ben = {
       programs.neovim = {
         enable = true;

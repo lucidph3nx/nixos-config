@@ -7,16 +7,16 @@
 }:
 {
   options = {
-    nx.programs.tmuxSessioniser.enable = lib.mkEnableOption "enables tmuxSessioniser" // {
+    nx.programs.prism.sessioniser.enable = lib.mkEnableOption "enables tmux sessioniser" // {
       default = true;
     };
   };
   config =
     lib.mkIf
       (
-        config.nx.programs.tmuxSessioniser.enable
+        config.nx.programs.prism.sessioniser.enable
         # no point in installing if tmux is not
-        && config.nx.programs.tmux.enable
+        && config.nx.programs.prism.tmux.enable
       )
       {
         home-manager.users.ben = {
@@ -53,12 +53,13 @@
           # This script opens a tmux session for a project directory
           # it can take an argument to open a specific directory
           # otherwise it uses the projectGetter script above
-          # Note: it opens the target in neovim
+          # Note: Creates 3 windows: edit (nvim), agent (opencode), term (shell)
           home.file.".local/scripts/cli.tmux.projectSessioniser" = {
             executable = true;
             text =
               let
                 tmux = "${pkgs.tmux}/bin/tmux";
+                agentEnvPrefix = config.nx.programs.prism._internal.agentEnvPrefix;
               in
               # bash
               ''
@@ -116,11 +117,16 @@
                 # new session if not in tmux and tmux is not running
                 if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
                     ${tmux} new-session -s $selected_name -c $selected -d
+                    ${tmux} rename-window -t $selected_name:0 "edit"
                     if [[ -n $selected_file ]]; then
-                        ${tmux} send-keys -t $selected_name "nvim '$selected_file'" C-m
+                        ${tmux} send-keys -t $selected_name:0 "nvim '$selected_file'" C-m
                     else
-                        ${tmux} send-keys -t $selected_name "nvim" C-m
+                        ${tmux} send-keys -t $selected_name:0 "nvim" C-m
                     fi
+                    ${tmux} new-window -t $selected_name:1 -n "agent" -c $selected
+                    ${tmux} send-keys -t $selected_name:1 "${agentEnvPrefix} opencode" C-m
+                    ${tmux} new-window -t $selected_name:2 -n "term" -c $selected
+                    ${tmux} select-window -t $selected_name:0
                     # Check if we have a proper terminal before attempting to attach
                     if [[ -t 0 ]] && [[ -t 1 ]] && [[ -t 2 ]]; then
                         ${tmux} attach-session -t $selected_name
@@ -133,11 +139,16 @@
                 # new session if not in tmux and tmux is running
                 if ! ${tmux} has-session -t=$selected_name 2> /dev/null; then
                     ${tmux} new-session -ds $selected_name -c $selected
+                    ${tmux} rename-window -t $selected_name:0 "edit"
                     if [[ -n $selected_file ]]; then
-                        ${tmux} send-keys -t $selected_name "nvim '$selected_file'" C-m
+                        ${tmux} send-keys -t $selected_name:0 "nvim '$selected_file'" C-m
                     else
-                        ${tmux} send-keys -t $selected_name "nvim" C-m
+                        ${tmux} send-keys -t $selected_name:0 "nvim" C-m
                     fi
+                    ${tmux} new-window -t $selected_name:1 -n "agent" -c $selected
+                    ${tmux} send-keys -t $selected_name:1 "${agentEnvPrefix} opencode" C-m
+                    ${tmux} new-window -t $selected_name:2 -n "term" -c $selected
+                    ${tmux} select-window -t $selected_name:0
                 fi
 
                 # attach to session if in tmux

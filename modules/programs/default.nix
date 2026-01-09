@@ -27,21 +27,18 @@
     ./libreoffice.nix
     ./mpv.nix
     ./ncmpcpp.nix
-    ./neovim
     ./nh.nix
     ./obsidian.nix
-    ./opencode.nix
     ./picard.nix
     ./plexamp.nix
     ./podman.nix
+    ./prism
     ./python.nix
     ./qutebrowser
     ./rclone.nix
     ./rmpc.nix
     ./signal.nix
     ./ssh.nix
-    ./tmux-sessioniser.nix
-    ./tmux.nix
     ./vimiv.nix
     ./virt-manager.nix
     ./voice-to-text-daemon.nix
