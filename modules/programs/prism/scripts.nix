@@ -94,6 +94,24 @@
                     if result.returncode != 0:
                         raise Exception(f"Git clone failed: {result.stderr}")
                     
+                    # Configure fetch refspec for remote tracking
+                    result = subprocess.run(
+                        ['git', '--git-dir', bare_dir, 'config', 'remote.origin.fetch', '+refs/heads/*:refs/remotes/origin/*'],
+                        capture_output=True,
+                        text=True
+                    )
+                    if result.returncode != 0:
+                        raise Exception(f"Failed to configure fetch refspec: {result.stderr}")
+                    
+                    # Fetch to populate remote-tracking branches
+                    result = subprocess.run(
+                        ['git', '--git-dir', bare_dir, 'fetch', 'origin'],
+                        capture_output=True,
+                        text=True
+                    )
+                    if result.returncode != 0:
+                        raise Exception(f"Failed to fetch from origin: {result.stderr}")
+                    
                     # Create .git file pointing to .bare
                     with open(git_file, 'w') as f:
                         f.write('gitdir: ./.bare\n')
@@ -108,6 +126,16 @@
                         raise Exception(f"Unexpected HEAD format: {head_content}")
                     
                     default_branch = head_content.replace("ref: refs/heads/", "")
+                    
+                    # Set up tracking for the default branch
+                    print(f"Setting up tracking for branch '{default_branch}'...")
+                    result = subprocess.run(
+                        ['git', '--git-dir', bare_dir, 'branch', '--set-upstream-to', f'origin/{default_branch}', default_branch],
+                        capture_output=True,
+                        text=True
+                    )
+                    if result.returncode != 0:
+                        raise Exception(f"Failed to set up tracking: {result.stderr}")
                     
                     # Create worktree for default branch
                     print(f"Creating worktree for branch '{default_branch}'...")
