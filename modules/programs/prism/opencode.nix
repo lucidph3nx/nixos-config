@@ -110,18 +110,18 @@
                 "jq *" = "allow";
                 "yq *" = "allow";
                 # utilities
-                "basename *" = "allow";
-                "command *" = "allow";
-                "dirname *" = "allow";
-                "echo *" = "allow";
-                "printf *" = "allow";
-                "sleep *" = "allow";
-                "type *" = "allow";
-                "which *" = "allow";
+                "basename*" = "allow";
+                "command*" = "allow";
+                "dirname*" = "allow";
+                "echo*" = "allow";
+                "printf*" = "allow";
+                "sleep*" = "allow";
+                "type*" = "allow";
+                "which*" = "allow";
                 # git and gh commands
-                "gh issue view *" = "allow";
-                "gh pr view *" = "allow";
-                "gh pr list *" = "allow";
+                "gh issue view*" = "allow";
+                "gh pr view*" = "allow";
+                "gh pr list*" = "allow";
                 "git *" = "allow";
                 "git commit *" = "allow";
                 "git diff *" = "allow";
