@@ -12,14 +12,32 @@
   };
   config = lib.mkIf config.nx.programs.chromium.enable {
     home-manager.users.ben = {
-      home.packages = with pkgs; [
-        (chromium.override {
-          commandLineArgs = [
-            "--enable-features=UseOzonePlatform"
-            "--ozone-platform=wayland"
-          ];
-        })
-      ];
+      programs.chromium = {
+        enable = true;
+        package = pkgs.chromium;
+        commandLineArgs = [
+          "--enable-features=UseOzonePlatform"
+          "--ozone-platform=wayland"
+        ];
+      };
+      xdg.desktopEntries.chromium-browser = {
+        name = "Chromium";
+        genericName = "Web Browser";
+        exec = "chromium-browser %U";
+        icon = "chromium";
+        type = "Application";
+        categories = [
+          "Network"
+          "WebBrowser"
+        ];
+        mimeType = [
+          "text/html"
+          "text/xml"
+          "application/xhtml+xml"
+          "x-scheme-handler/http"
+          "x-scheme-handler/https"
+        ];
+      };
       wayland.windowManager.hyprland.settings =
         lib.mkIf (config.home-manager.users.ben.wayland.windowManager.hyprland.enable)
           {

@@ -29,6 +29,7 @@
       offline-focus-mode.enable = true;
     };
     programs = {
+      chromium.enable = true;
       calibre.enable = true;
       cura.enable = true;
       darktable.enable = true;
