@@ -147,8 +147,6 @@
             ];
           };
         };
-        xdg.configFile."opencode/opencode.json".source =
-          config.home-manager.users.ben.xdg.configFile."opencode/config.json".source;
         xdg.configFile."opencode/AGENTS.md".text = /* markdown */ ''
           # Global Agent Instructions
 
