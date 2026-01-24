@@ -282,22 +282,14 @@
           })
 
           vim.opt.conceallevel = 2
-          -- remove default smart action keybind
-          vim.api.nvim_create_autocmd("FileType", {
-             pattern = "markdown",
-             callback = function(ev)
-                -- Use vim.defer_fn to ensure the keymap exists before trying to delete it
-                vim.defer_fn(function()
-                   -- Check if the keymap exists before trying to delete it
-                   local keymaps = vim.api.nvim_buf_get_keymap(ev.buf, "n")
-                   for _, keymap in ipairs(keymaps) do
-                      if keymap.lhs == "<CR>" then
-                         pcall(vim.keymap.del, "n", "<CR>", { buffer = ev.buf })
-                         break
-                      end
-                   end
-                end, 100)
-             end,
+          -- remove default obsidian.nvim keybinds
+          vim.api.nvim_create_autocmd("User", {
+            pattern = "ObsidianNoteEnter",
+            callback = function(ev)
+              vim.keymap.del("n", "<CR>", { buffer = true })
+              vim.keymap.del("n", "]o", { buffer = true })
+              vim.keymap.del("n", "[o", { buffer = true })
+            end,
           })
 
           vim.keymap.set("n", "<leader>od", "<cmd>Obsidian today<cr>", { desc = "[O]bsidian [D]aily note for Today" })
