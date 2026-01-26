@@ -14,6 +14,7 @@
     home-manager.users.ben = {
       home.packages = with pkgs; [
         (python3.withPackages (python313Packages: [
+          python313Packages.beautifulsoup4
           python313Packages.requests
           (python313Packages.buildPythonPackage rec {
             pname = "specify-cli";
