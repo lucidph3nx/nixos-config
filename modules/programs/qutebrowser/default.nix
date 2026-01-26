@@ -266,6 +266,7 @@
           };
           searchEngines = {
             "DEFAULT" = "https://search.tinfoilforest.nz/search?q={}";
+            "ax" = "https://www.aliexpress.com/wholesale?SearchText={}";
             "gg" = "https://google.com/search?hl=en&q={}";
             "gm" = "https://www.google.com/maps/search/{}";
             "gh" = "https://github.com/search?q={}";
