@@ -81,6 +81,7 @@
     enable = true;
     efiSupport = true;
     efiInstallAsRemovable = true;
+    configurationLimit = 20; # Keep only 20 most recent generations in /boot
   };
 
   networking.hostName = "navi";
