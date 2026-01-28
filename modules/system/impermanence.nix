@@ -41,6 +41,7 @@
 
     # system things to persist
     fileSystems."/persist".neededForBoot = true;
+    fileSystems."/nix".neededForBoot = true;
     environment.persistence."/persist/system" = {
       hideMounts = true;
       directories = [
