@@ -12,9 +12,10 @@
   };
   config = lib.mkIf config.nx.programs.discord.enable {
     home-manager.users.ben = {
-      home.packages = with pkgs; [
-        discord
-      ];
+      programs.discord = {
+        enable = true;
+        package = pkgs.discord;
+      };
       home.persistence."/persist" = {
         directories = [
           ".config/discord"

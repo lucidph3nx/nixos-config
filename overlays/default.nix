@@ -32,6 +32,9 @@ rec {
       # use master for claude-code, need the bleeding edge
       claude-code = masterPkgs.claude-code;
 
+      # use master for discord, they block older versions
+      discord = masterPkgs.discord;
+
       vimPlugins = prev.vimPlugins // {
         obsidian-nvim = prev.vimUtils.buildVimPlugin {
           pname = "obsidian-nvim";
