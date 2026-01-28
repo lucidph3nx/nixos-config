@@ -41,7 +41,7 @@
       wayland.windowManager.hyprland.settings =
         lib.mkIf (config.home-manager.users.ben.wayland.windowManager.hyprland.enable)
           {
-            windowrulev2 = [
+            windowrule = [
               # sometimes chromium thinks its fine to open in a tiny window
               "tile on, match:class Chromium-browser"
             ];
