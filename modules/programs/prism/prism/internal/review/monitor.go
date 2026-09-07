@@ -106,10 +106,12 @@ const (
 	// with agents/review-goal.md, which says it "counts as PASS for
 	// review-cycle termination" (#2862 / #2867). That is a pre-existing
 	// question about AssessPassed and the round classification, not about this
-	// counter, and it is not settled here.
+	// counter, and it is not settled here. It is tracked as #2970, whose
+	// recorded direction is to fix the pipeline rather than the agent file.
 	// TestAgentVerdictEventType_PassWithDisagreementRecordsError pins the
-	// current behaviour, so a change to the pipeline surfaces here loudly
-	// rather than silently moving a metric.
+	// current behaviour, so that change surfaces here loudly rather than
+	// silently moving a metric — update this comment and the metric HELP text
+	// alongside it.
 	EventReviewAgentVerdictError = "review.agent_verdict_error"
 )
 

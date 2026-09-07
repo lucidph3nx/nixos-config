@@ -378,9 +378,14 @@ func TestAgentVerdictEventID_DerivedFromGroupAndRole(t *testing.T) {
 // produced no parseable verdict (classifyMember, roundstatus.go). The
 // per-agent counter follows that classification so the two counters cannot
 // disagree about the same round. Whether the pipeline SHOULD treat the marker
-// that way is a separate question about AssessPassed (#2862 / #2867) and is
-// not settled here — but a change to it must land deliberately, and this test
-// is what makes that change visible instead of silently moving a metric.
+// that way is a separate question about AssessPassed (#2862 / #2867), tracked
+// as #2970 — the direction recorded there is to fix the pipeline, not to
+// correct agents/review-goal.md.
+//
+// When #2970 lands, UPDATE this test to expect the new mapping. Do not delete
+// it: #2970 says so explicitly, and the pin is what stops the pipeline change
+// moving this metric silently. Change the metric HELP text and the
+// review.EventReviewAgentVerdictError comment in the same commit.
 func TestAgentVerdictEventType_PassWithDisagreementRecordsError(t *testing.T) {
 	d := openTestDB(t)
 	worker := "prism-test@agent-verdict-disagreement"
