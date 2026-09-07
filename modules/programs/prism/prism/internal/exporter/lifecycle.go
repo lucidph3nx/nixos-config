@@ -175,15 +175,13 @@ func newLifecycleCounters(reg *metrics.Registry) *lifecycleCounters {
 // name is a no-op, which covers the vast majority of rows (msg_assistant,
 // tool_call, and so on) that carry none of the seven counters.
 //
-// The five repo-labelled counters (spawnsTotal, sessionsEndedTotal,
-// escalationsTotal, doomLoopsTotal, permissionDeniedTotal) fold empty or
-// whitespace-only ev.Repo to the unknownRepoLabel placeholder via repoLabel(),
-// to prevent unbounded label cardinality and blank template-variable entries
-// to prevent unbounded label cardinality and blank template-variable
-// entries. Counters are tail-cursor accumulated and persisted across
-// restarts, so a label-value correction ends the old series and starts a new
-// one at zero: corrected values start a new series going forward;
-// pre-correction rows keep their original label value (no backfill).
+// EVERY counter here carries a repo label, and every one of the seven folds
+// empty or whitespace-only ev.Repo to the unknownRepoLabel placeholder via
+// repoLabel(), to prevent unbounded label cardinality and blank
+// template-variable entries. Counters are tail-cursor accumulated and
+// persisted across restarts, so a label-value correction ends the old series
+// and starts a new one at zero: corrected values start a new series going
+// forward; pre-correction rows keep their original label value (no backfill).
 func (lc *lifecycleCounters) apply(ev lifecycleEvent) error {
 	switch ev.Type {
 	case session.EventSpawnIntent:

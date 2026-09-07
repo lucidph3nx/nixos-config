@@ -164,7 +164,7 @@ func counterValue(t *testing.T, h *harness, metric string, labels map[string]str
 	return v
 }
 
-// ── AC: all six counters appear in /metrics and increase on their event ───
+// ── AC: all seven counters appear in /metrics and increase on their event ──
 
 func TestExporter_SpawnsTotalIncrementsOnSpawnIntent(t *testing.T) {
 	h := newHarness(t)
