@@ -114,7 +114,7 @@ func runReset(cmd *cobra.Command, _ []string) error {
 	// Also snapshots the pi resume pointers (worktree + harness_session_id)
 	// before clearing them, so step 4b can scope its transcript removal.
 	fmt.Println("Marking all sessions as ended in DB...")
-	resumePointers, err := resetMarkDBEnded()
+	resumePointers, instanceIDs, err := resetMarkDBEnded()
 	if err != nil {
 		proglog.Warnf("[prism reset] DB cleanup: %v (continuing)\n", err)
 	}
@@ -133,6 +133,17 @@ func runReset(cmd *cobra.Command, _ []string) error {
 	fmt.Println("Removing pi-agent transcript JSONLs...")
 	if err := resetClearPiTranscripts(resumePointers); err != nil {
 		proglog.Warnf("[prism reset] transcript cleanup: %v (continuing)\n", err)
+	}
+
+	// ── Step 4c: Remove per-session instance directories ─────────────────────
+	// The work dir and podman-proxy audit dir are keyed by instance ID, not by
+	// session name, and no other reset step touches them. Every session
+	// snapshotted above (regardless of pi resume linkage) gets both trees
+	// removed here, closing the gap where `prism reset` left them behind for
+	// every session (issue #2960). Both removals are non-fatal and idempotent.
+	fmt.Println("Removing per-session instance directories...")
+	for _, instanceID := range instanceIDs {
+		removeSessionInstanceDirs(instanceID)
 	}
 
 	fmt.Println("Reset complete.")
@@ -216,22 +227,31 @@ type piResumePointer struct {
 // The returned slice is valid even when err is non-nil, so the caller can
 // still hand whatever was captured to resetClearPiTranscripts — each reset
 // step is best-effort and attempted independently.
-func resetMarkDBEnded() ([]piResumePointer, error) {
+func resetMarkDBEnded() ([]piResumePointer, []string, error) {
 	d, err := openDB()
 	if err != nil {
-		return nil, fmt.Errorf("open DB: %w", err)
+		return nil, nil, fmt.Errorf("open DB: %w", err)
 	}
 	defer d.Close()
 
 	// Snapshot resume pointers BEFORE ClearAllResumePointers nulls the
 	// column. AllStatusesWithPrefix("") returns every agent_status row,
 	// active and ended.
+	//
+	// instanceIDs is snapshotted from the same rows, independent of the
+	// resume-pointer filter below: a session's instance-ID-keyed directory
+	// trees (work dir, podman-proxy audit dir) exist regardless of whether
+	// the row carries a pi resume pointer.
 	var pointers []piResumePointer
+	var instanceIDs []string
 	statuses, err := d.AllStatusesWithPrefix("")
 	if err != nil {
 		proglog.Warnf("[prism reset] snapshot resume pointers: %v (transcript removal will be skipped)\n", err)
 	}
 	for _, s := range statuses {
+		if s.InstanceID != nil && *s.InstanceID != "" {
+			instanceIDs = append(instanceIDs, *s.InstanceID)
+		}
 		if s.HarnessSessionID == nil || *s.HarnessSessionID == "" || s.Worktree == "" {
 			continue
 		}
@@ -244,7 +264,7 @@ func resetMarkDBEnded() ([]piResumePointer, error) {
 
 	n, err := d.MarkAllEnded()
 	if err != nil {
-		return pointers, err
+		return pointers, instanceIDs, err
 	}
 	if n == 0 {
 		fmt.Println("  no active sessions in DB.")
@@ -257,12 +277,12 @@ func resetMarkDBEnded() ([]piResumePointer, error) {
 	// resetClearPiTranscripts.
 	cleared, err := d.ClearAllResumePointers()
 	if err != nil {
-		return pointers, err
+		return pointers, instanceIDs, err
 	}
 	if cleared > 0 {
 		fmt.Printf("  cleared pi resume pointer on %d row(s).\n", cleared)
 	}
-	return pointers, nil
+	return pointers, instanceIDs, nil
 }
 
 // resetKillSidecars scans ~/.local/state/prism/run/ for *-sidecar.pid files,

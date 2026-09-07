@@ -42,7 +42,7 @@ func TestResetMarkDBEnded_MarksAllNonEndedRows(t *testing.T) {
 	t.Cleanup(func() { SetTestDBPath("") })
 
 	// Run the DB cleanup step.
-	if _, err := resetMarkDBEnded(); err != nil {
+	if _, _, err := resetMarkDBEnded(); err != nil {
 		t.Fatalf("resetMarkDBEnded returned error: %v", err)
 	}
 
@@ -99,7 +99,7 @@ func TestResetMarkDBEnded_NoActiveRows(t *testing.T) {
 	t.Cleanup(func() { SetTestDBPath("") })
 
 	// Should succeed even with nothing to update.
-	if _, err := resetMarkDBEnded(); err != nil {
+	if _, _, err := resetMarkDBEnded(); err != nil {
 		t.Fatalf("resetMarkDBEnded returned error on empty active set: %v", err)
 	}
 }
@@ -117,7 +117,7 @@ func TestResetMarkDBEnded_EmptyDB(t *testing.T) {
 	SetTestDBPath(dbFile)
 	t.Cleanup(func() { SetTestDBPath("") })
 
-	if _, err := resetMarkDBEnded(); err != nil {
+	if _, _, err := resetMarkDBEnded(); err != nil {
 		t.Fatalf("resetMarkDBEnded returned error on empty DB: %v", err)
 	}
 }
@@ -155,7 +155,7 @@ func TestResetMarkDBEnded_AlreadyEndedRowsUntouched(t *testing.T) {
 	SetTestDBPath(dbFile)
 	t.Cleanup(func() { SetTestDBPath("") })
 
-	if _, err := resetMarkDBEnded(); err != nil {
+	if _, _, err := resetMarkDBEnded(); err != nil {
 		t.Fatalf("resetMarkDBEnded: %v", err)
 	}
 
@@ -222,7 +222,7 @@ func TestResetMarkDBEnded_SnapshotsResumePointersBeforeClear(t *testing.T) {
 	SetTestDBPath(dbFile)
 	t.Cleanup(func() { SetTestDBPath("") })
 
-	pointers, err := resetMarkDBEnded()
+	pointers, _, err := resetMarkDBEnded()
 	if err != nil {
 		t.Fatalf("resetMarkDBEnded: %v", err)
 	}
