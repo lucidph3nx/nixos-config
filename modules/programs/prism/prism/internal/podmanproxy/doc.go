@@ -80,13 +80,17 @@
 //     <prefix><8 hex chars> into a create request that names no
 //     resource, and reject a create request that names one outside the
 //     prefix. The owner uses the prefix to find and remove the
-//     session's resources at teardown. VolumeNamePrefix covers four
-//     surfaces: volumes/create, and the three channels a containers/
+//     session's resources at teardown. VolumeNamePrefix covers five
+//     surfaces: volumes/create, and the four channels a containers/
 //     create body attaches a named volume through (HostConfig.Binds,
-//     a HostConfig.Mounts entry of Type=volume, and the top-level
-//     libpod volumes array — a key that means a named-volume list on
-//     a libpod body and an anonymous-volume placeholder map on a
-//     docker-compat one). The three container-create channels REFUSE
+//     a HostConfig.Mounts entry of Type=volume, and BOTH shapes of the
+//     top-level volumes key — a libpod array of NamedVolume, and a
+//     docker-compat map whose key podman appends to its -v list
+//     verbatim, which makes a colon-bearing key a mount spec rather
+//     than the container path docker documents). That last shape also
+//     reaches the bind-source allowlist, so it is checked against
+//     AllowedBindSources when its source is a host path.
+//     The four container-create channels REFUSE
 //     an out-of-prefix name rather than injecting one, because on two
 //     of them the name is embedded in a colon-delimited string that
 //     also carries the mount target, and because an injected name

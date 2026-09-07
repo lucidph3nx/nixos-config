@@ -1,6 +1,7 @@
 # Podman proxy — security spec
 
 <!-- doclint-ignore: CgroupBudget, MaxContainers, resource_limits, SpecGenerator.Volumes -->
+<!-- doclint-ignore: pkg/api/handlers/compat/containers_create.go, specgen.GenVolumeMounts -->
 <!-- doclint-ignore: networkmode_host, networkmode_colon, networkmode_slash, networkmode_whitespace -->
 <!-- doclint-ignore: pidmode_host, ipcmode_host, utsmode_host, usernsmode_host, cgroupnsmode_host -->
 <!-- doclint-ignore: AGENTS.md -->
@@ -23,6 +24,14 @@
     `NanoCpus` cap. It is deliberately absent from this source tree —
     the libpod body shape is not admitted, which is the residual that
     entry records.
+
+  - `pkg/api/handlers/compat/containers_create.go` and
+    `specgen.GenVolumeMounts` are an upstream podman source path and an
+    upstream podman function. §8.3 cites both to show what podman does
+    with a docker-compat `volumes` map key, which is the behaviour that
+    makes the key a mount spec. The citation has to be exact, because
+    the claim is about code this repo cannot compile against. Neither
+    resolves here for the same reason `resource_limits` does not.
 
   - `SpecGenerator.Volumes` is an upstream libpod type and field, cited
     by §8.3 for the same reason as `resource_limits`. Its shape is what
@@ -84,7 +93,7 @@ the rationale.
 
 | # | Threat | Mitigation | Canonical reference |
 |---|---|---|---|
-| T1 | Agent reads any host file via `-v /host/path:/x` | `HostConfig.Binds` policy rejects sources outside the per-session allowlist (worktree + bare repo + scratch dir). Symlinks resolved via `filepath.EvalSymlinks` before the prefix check. | `policy.go::checkHostConfig` (Binds branch), `isAllowedBindSource`, `canonicalisePath` |
+| T1 | Agent reads any host file via `-v /host/path:/x` | `HostConfig.Binds` policy rejects sources outside the per-session allowlist (worktree + bare repo + scratch dir). Symlinks resolved via `filepath.EvalSymlinks` before the prefix check. The SAME allowlist covers the second path to a `-v` spec: podman appends every top-level `Volumes` map key verbatim to its `-v` list, so a key that carries a colon is a mount spec, and a host-path source in one is checked by `checkDockerCompatVolumeKey`. That path does not reach `checkHostConfig` at all. | `policy.go::checkHostConfig` (Binds branch), `checkDockerCompatVolumeKey`, `isAllowedBindSource`, `canonicalisePath` |
 | T2 | Same exfil via `HostConfig.Mounts` with `Type=bind` | Same allowlist check applied to every `Mounts[]` entry with `Type=bind`. `Type` is itself value-allowlisted to `{bind, volume, tmpfs}` via an inline `switch` in `checkHostConfig` (no named variable — the `case` branches in `policy.go` are the spec). Anything outside the allowlist (including the podman-specific `glob`) hits the `default:` branch and denies. | `policy.go::hostConfigMount`, `policy.go::checkHostConfig` (Mounts branch / `switch m.Type`) |
 | T3 | Same exfil via `Mounts` with `Type=volume` and `VolumeOptions.DriverConfig.Name="local"` (a "named-volume" that is functionally a bind to a host path via `device=…`) | `Mounts[].VolumeOptions.DriverConfig` is DENIED when present. Same shape closed at the volumes/create endpoint: `Driver=local` with non-empty `DriverOpts` rejected. | `policy.go::hostConfigVolumeOptions`, `inspectVolumeCreate` |
 | T4 | Exfil via `POST /containers/{id}/archive` (`podman cp` write) | Archive endpoint's `path` query parameter is checked against the same bind-source allowlist with the same symlink-canonicalisation. | `endpoints.go::endpointPolicyArchive`, `policy.go::inspectArchive` |
@@ -107,8 +116,8 @@ the rationale.
 | T21 | Build context smuggle via `POST /build` of arbitrary-content tar | No new escape: `build` is bounded by what the sandbox already exposes. Build endpoint is `endpointAllow` (query-only and opaque body). No size cap in v1. Revisit if abuse appears. | `endpoints.go` (build endpoint) |
 | T22 | Schema drift: a new docker-/podman-API field upstream introduces a new escape vector without anyone in this repo noticing | `json.Decoder.DisallowUnknownFields()` runs on every parsed body. A new unknown field rejects with 403 and audit reason `unknown_field:<json error>` until it is admitted via the field-admission process (§4). | `policy.go::decodeStrict`, plus every typed struct |
 | T23 | Proxy itself has a parsing bug | Default-deny — every unknown endpoint, unknown field, unknown enumerable value, malformed JSON, missing required value rejects before forwarding. Test suite exercises every documented escape and asserts it is blocked, plus a negative-control meta-test that verifies the positive tests are not no-ops. | `proxy_security_test.go::TestSecurity_NegativeControl_RootAllowlistPasses` |
-| T24 | Storage exhaustion after the session ends: a volume or an image the agent created outlives the session on the shared host | PARTIAL. A NAMED volume gets the per-session name prefix (`Config.VolumeNamePrefix`) on all four surfaces that can create one — `POST /volumes/create`, `HostConfig.Binds`, a `HostConfig.Mounts` entry of `Type=volume`, and the top-level libpod `volumes` array — and `prism cleanup` removes every volume with that prefix. Images are NOT swept, and an ANONYMOUS volume still escapes the prefix. See §8.3 for both. | `policy.go::applyVolumeNamePolicy`, `policy.go::checkMountedVolumeNames`, `policy.go::checkCreateVolumeNames`, `cmd/cleanup_sweep.go::sweepVolumesWithRunner` |
-| T25 | Cross-session data access: the agent attaches a volume that belongs to ANOTHER live session by naming it in a container-create mount | PARTIAL, on the three named channels of a create body. A named volume in `HostConfig.Binds`, in a `Type=volume` `HostConfig.Mounts` entry, or in the top-level libpod `volumes` array must start with this session's `VolumeNamePrefix`, or the create request returns 403. This row named two open gaps. Issue #2958 closed the first: the libpod `volumes` array no longer forwards a foreign name. ONE gap stays OPEN, and this row does not close it. A NESTED sibling prefix is admitted: session `foo` can name `prism-foo-bar-data`, which belongs to live session `foo-bar`. No separator rule tells the two cases apart, because the ambiguity is in the name space itself — it needs instance-ID identity, tracked on #2951. Do not read this row as an isolation guarantee between sessions. | `policy.go::checkMountedVolumeNames`, `policy.go::checkCreateVolumeNames` |
+| T24 | Storage exhaustion after the session ends: a volume or an image the agent created outlives the session on the shared host | PARTIAL. A NAMED volume gets the per-session name prefix (`Config.VolumeNamePrefix`) on all five surfaces that can create one — `POST /volumes/create`, `HostConfig.Binds`, a `HostConfig.Mounts` entry of `Type=volume`, an entry of the top-level libpod `volumes` array, and a colon-bearing key of the top-level docker-compat `volumes` map — and `prism cleanup` removes every volume with that prefix. Images are NOT swept, and an ANONYMOUS volume still escapes the prefix. See §8.3 for both. | `policy.go::applyVolumeNamePolicy`, `policy.go::checkMountedVolumeNames`, `policy.go::checkCreateVolumeNames`, `cmd/cleanup_sweep.go::sweepVolumesWithRunner` |
+| T25 | Cross-session data access: the agent attaches a volume that belongs to ANOTHER live session by naming it in a container-create mount | PARTIAL, on the four named channels of a create body. A named volume in `HostConfig.Binds`, in a `Type=volume` `HostConfig.Mounts` entry, in the top-level libpod `volumes` array, or in a colon-bearing key of the top-level docker-compat `volumes` map must start with this session's `VolumeNamePrefix`, or the create request returns 403. This row named two open gaps. Issue #2958 closed the first: the libpod `volumes` array no longer forwards a foreign name. ONE gap stays OPEN, and this row does not close it. A NESTED sibling prefix is admitted: session `foo` can name `prism-foo-bar-data`, which belongs to live session `foo-bar`. No separator rule tells the two cases apart, because the ambiguity is in the name space itself — it needs instance-ID identity, tracked on #2951. Do not read this row as an isolation guarantee between sessions. | `policy.go::checkMountedVolumeNames`, `policy.go::checkCreateVolumeNames` |
 
 **Network egress** is not restricted: containers get whatever network the
 host podman gives them (default: full internet). This is strictly broader
@@ -133,7 +142,7 @@ covers a class of escape that the other layers do not.
 
 ### Per-session naming
 
-Two config fields carry a per-session name policy, across five
+Two config fields carry a per-session name policy, across six
 channels. They all exist so `prism cleanup` can find what the session
 created:
 
@@ -144,6 +153,7 @@ created:
 | `POST /containers/create` `HostConfig.Binds` named volume | `VolumeNamePrefix` | `checkMountedVolumeNames` | `bind_volume_name_prefix_mismatch` | forwarded |
 | `POST /containers/create` `HostConfig.Mounts` `Type=volume` `Source` | `VolumeNamePrefix` | `checkMountedVolumeNames` | `mount_volume_name_prefix_mismatch` | forwarded |
 | `POST /containers/create` top-level libpod `volumes` array `Name` | `VolumeNamePrefix` | `checkCreateVolumeNames` | `create_volumes_name_prefix_mismatch` | forwarded |
+| `POST /containers/create` top-level docker-compat `volumes` map key, source half | `VolumeNamePrefix` | `checkDockerCompatVolumeKey` | `create_volumes_name_prefix_mismatch` | forwarded |
 
 The sidecar sets both fields to `prism-<sessionName>-`. A request with
 a name outside the prefix returns 403 on every channel.
@@ -165,12 +175,18 @@ prefix instead, and the caller retries with a correct name.
 An absent name on these three channels is an anonymous volume. The
 runtime names that volume itself. §8.3 records the residual.
 
-The last row is the one channel that only a libpod body reaches.
+The last two rows are the two meanings of one key. On the podman side
+the docker-compat map key is a `-v` spec. So its source half is a
+volume name here, and a host path in T1. `checkDockerCompatVolumeKey`
+routes it to whichever rule fits. §8.3 gives the upstream behaviour
+that makes the key a mount spec at all.
+
+The libpod array row is the one channel that only a libpod body
+reaches.
 `normalisePath` strips the `libpod/` prefix. Go also matches a JSON
 field name case-insensitively. So libpod's `volumes` array of
 `NamedVolume{Name, Dest, Options}` decodes into the same top-level key
-as docker's placeholder map. The two meanings of that key are in §8.3,
-with the reason that only one of them names a volume.
+as docker's map.
 
 ## 4. Field-admission process
 
@@ -399,7 +415,8 @@ verify the format from the source.
 | **docker-API client** asks for more memory or more CPU than the cap allows | `memory_over_cap` / `nano_cpus_over_cap` (`checkOneResourceCap`) | Expected. Lower the request. If the workload genuinely needs more, that is a `Config.MaxMemoryBytes` / `Config.MaxNanoCpus` discussion — file an issue. |
 | **docker-API client** sets `Memory` or `NanoCpus` to `0` | `memory_nonpositive` / `nano_cpus_nonpositive` (`checkOneResourceCap`) | Expected. `0` means "unbounded" in docker semantics, which bypasses the cap. Pass a positive value. |
 | **docker-API client** posts `POST /volumes/create` with a name outside the session prefix | `volume_name_prefix_mismatch` (`policy.go::applyVolumeNamePolicy`) | Expected. Omit the name to receive an auto-prefixed one, or start the name with `prism-<session>-`. |
-| Client posts `POST /containers/create` whose top-level libpod `volumes` array names a volume outside the session prefix | `create_volumes_name_prefix_mismatch` (`policy.go::checkLibpodVolumesArray`) | Expected. T25. This channel refuses rather than injecting, so rename the volume to start with `prism-<session>-`. |
+| Client posts `POST /containers/create` whose top-level `volumes` key names a volume outside the session prefix, in the libpod array or in a colon-bearing docker-compat map key | `create_volumes_name_prefix_mismatch` (`policy.go::checkLibpodVolumesArray`, `checkDockerCompatVolumeKey`) | Expected. T25. This channel refuses rather than injecting, so rename the volume to start with `prism-<session>-`. |
+| Client posts `POST /containers/create` with a docker-compat `volumes` map key whose source is a host path outside the allowlist, for example `{"Volumes":{"/etc:/x":{}}}` | `create_volumes_host_bind:<path>` (`policy.go::checkDockerCompatVolumeKey`) | Expected. T1. podman appends the key to its `-v` list verbatim, so a key with a colon is a mount spec. Use an allowlisted source, or drop the source and let the key be a bare destination. |
 | Client posts a `volumes` value that matches neither documented shape of the key, or a named-volume entry carrying a field this repo has not audited | `create_volumes_shape_not_allowed` / `create_volumes_entry_shape_not_allowed` / `create_volumes_map_value_not_empty` / `create_volumes:unknown_field:<json error>` (`policy.go::checkVolumesField` and the two shape helpers) | The key means a placeholder map on the docker-compat shape and an array of named volumes on the libpod shape. Anything else denies. Field-admission process (§4). |
 | Worker runs `podman pull <image>` and gets 403 | `endpoint_not_allowed:POST images/pull` (`handler.go` default branch) | Pre-existing. The podman CLI pulls through the libpod endpoint `POST /images/pull`, which the endpoint allowlist does not admit. A docker-API client that pulls through `POST /images/create` works. See §8.3. |
 
@@ -622,9 +639,9 @@ carries the field-admission audit for the change.
 
 An ANONYMOUS volume still escapes the prefix. Three shapes reach it.
 One is a `Mounts` entry of `Type=volume` with an empty `Source`. One
-is an entry of the docker-compat placeholder map
-(`{"/data": {}}`). One is a libpod `volumes` entry with an empty
-`Name`. The runtime picks the name in every case, so the
+is a docker-compat `volumes` map key that carries no colon, so it is a
+bare destination (`{"/data": {}}`). One is a libpod `volumes` entry
+with an empty `Name`. The runtime picks the name in every case, so the
 policy has no name to refuse. A blanket refusal removes a legitimate
 docker workflow, so the proxy admits all three shapes. `podman rm`
 deletes an anonymous volume only with `-v`, and the container sweep
@@ -634,12 +651,31 @@ Two directions close it. The first is `-v` on the container sweep,
 which is safe because an anonymous volume has no other referent. The
 second is a sweep by label (see #2951). This change does neither.
 
-**The libpod `volumes` array is a fourth named-volume channel —
-CLOSED.** The key carries two unrelated meanings, one for each body
-shape. docker's field is a `map[container-path]{}` placeholder set,
-and it names no volume. libpod's `SpecGenerator.Volumes` is an array
-of `NamedVolume{Name, Dest, Options}`. Every `Name` in that array is a
+**The top-level `volumes` key reaches a mount on BOTH body shapes —
+CLOSED.** The key carries two unrelated meanings, one for each shape.
+libpod's `SpecGenerator.Volumes` is an array of
+`NamedVolume{Name, Dest, Options}`. Every `Name` in that array is a
 volume the container ATTACHES.
+
+docker's field is a `map[container-path]{}` placeholder set. Read
+docker's own documentation and the map names nothing. podman does not
+read it that way. Its compat handler appends every KEY verbatim to the
+`-v` list, under the comment "Still use the format of `-v` so we can
+just append them in there" (v5.8.6,
+`pkg/api/handlers/compat/containers_create.go`). `specgen.GenVolumeMounts`
+then splits each entry on `:`, and a source with a leading `/` or `.`
+becomes a BIND MOUNT.
+
+So a map key that carries a colon is a full `-v` spec, and the map is
+two more channels rather than none. `{"/:/host":{}}` binds host root,
+and it never reaches `checkHostConfig`, so the `Binds` allowlist never
+sees it (threat T1). `{"prism-<other-session>-<hex>:/data":{}}`
+attaches another session's volume (threat T25).
+
+Both are now checked. The key runs through `isAllowedBindSource` when
+its source is a host path. It runs through the prefix rule when the
+source is a volume name. A key with NO colon is a bare destination,
+names nothing, and stays admitted.
 
 `normalisePath` strips the `libpod/` prefix, and Go matches a JSON
 field name case-insensitively. So the libpod array decoded into the

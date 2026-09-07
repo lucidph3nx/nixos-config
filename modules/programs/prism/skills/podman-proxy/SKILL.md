@@ -141,14 +141,15 @@ request gets 403 (`name_prefix_mismatch_body` for a container,
 `volume_name_prefix_mismatch` for a volume).
 
 **A volume you name in a container mount obeys the same rule.** A
-`containers/create` body reaches a named volume through three
-channels: the source half of a `HostConfig.Binds` entry
-(`myvol:/data`), the `Source` of a `HostConfig.Mounts` entry of
-`Type=volume`, and an entry of the top-level libpod `volumes` array
-(`{"Name":"myvol","Dest":"/data"}`). All three must start with
-`prism-<session>-`, or the request gets 403
+`containers/create` body reaches a named volume through four channels:
+the source half of a `HostConfig.Binds` entry (`myvol:/data`), the
+`Source` of a `HostConfig.Mounts` entry of `Type=volume`, an entry of
+the top-level libpod `volumes` array
+(`{"Name":"myvol","Dest":"/data"}`), and a colon-bearing key of the
+top-level docker-compat `volumes` map (`{"myvol:/data":{}}`). All four
+must start with `prism-<session>-`, or the request gets 403
 (`bind_volume_name_prefix_mismatch`, `mount_volume_name_prefix_mismatch`,
-`create_volumes_name_prefix_mismatch`). These three channels REFUSE
+`create_volumes_name_prefix_mismatch`). These four channels REFUSE
 only — they never inject — so name the volume correctly in the
 request:
 
@@ -161,10 +162,19 @@ docker run --rm --memory 512m --cpus 1 \
 docker run --rm --memory 512m --cpus 1 -v pgdata:/data postgres:16
 ```
 
-The rule also blocks a cross-session attach on all three channels:
+**The docker-compat `volumes` map key is a mount spec, not a container
+path.** podman appends every key of that map to its `-v` list
+verbatim, so `{"Volumes":{"/etc:/x":{}}}` is a host bind and
+`{"Volumes":{"myvol:/data":{}}}` names a volume. A key with a host-path
+source is checked against the bind allowlist
+(`create_volumes_host_bind:<path>`), the same allowlist `HostConfig.Binds`
+uses. A key with NO colon is a bare destination, names nothing, and
+stays admitted — that is docker's own `{"/data":{}}` shape.
+
+The rule also blocks a cross-session attach on all four channels:
 `prism-<other-session>-<hex>` in a `Binds` entry, in a `Type=volume`
-mount, or in the libpod `volumes` array is refused. It is not a
-general isolation guarantee. A nested sibling prefix is still admitted
+mount, in the libpod `volumes` array, or in a docker-compat `volumes`
+map key is refused. It is not a general isolation guarantee. A nested sibling prefix is still admitted
 on every channel. Session `foo` matches the prefix of
 `prism-foo-bar-data`, which belongs to live session `foo-bar`. That
 gap needs instance-ID identity, and issue #2951 tracks it.
@@ -192,7 +202,7 @@ carries the detail and the conditions to close each one.
 
 - **An ANONYMOUS volume is not swept.** A docker-API
   `run -v /data ...`, a `Type=volume` mount with an empty `Source`, a
-  docker-compat `Volumes` placeholder entry, or a libpod `volumes`
+  docker-compat `Volumes` map key with no colon, or a libpod `volumes`
   entry with an empty `Name` makes the runtime create a
   volume and name it itself. The proxy has no name to police, so the
   volume carries no prefix and the sweep never finds it. Name the volume

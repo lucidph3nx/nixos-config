@@ -42,6 +42,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -356,6 +357,232 @@ func TestLibpodVolumes_AbsentOrEmpty_Admitted(t *testing.T) {
 			if got := fu.captured(); got != 1 {
 				t.Errorf("upstream request count: got %d, want 1", got)
 			}
+		})
+	}
+}
+
+// ── the docker-compat map KEY is a `-v` spec ────────────────────────────
+//
+// podman's compat handler appends every key of this map verbatim to its
+// `-v` list (v5.8.6, pkg/api/handlers/compat/containers_create.go:536),
+// and specgen.GenVolumeMounts then splits each entry on ":" and treats a
+// source with a leading "/" or "." as a host bind. So the key is a mount
+// spec, not the plain container path docker documents, and this map is a
+// host-bind channel and a named-volume channel as well as a placeholder
+// set. The tests below pin both halves.
+
+// startProxyWithVolumeKeyConfig is the harness for the two negative
+// controls: it takes the bind allowlist AND the volume prefix, so a test
+// can neutralise one control at a time and prove which one produced a
+// 403.
+func startProxyWithVolumeKeyConfig(t *testing.T, fu *fakeUpstream, prefix string, bindSources []string) *proxyHarness {
+	t.Helper()
+	dir := shortSocketDir(t)
+	listenPath := filepath.Join(dir, "proxy.sock")
+	auditBuf := &bytes.Buffer{}
+	cfg := Config{
+		ListenerPath:       listenPath,
+		UpstreamPath:       fu.sockPath,
+		AllowedBindSources: bindSources,
+		VolumeNamePrefix:   prefix,
+		AuditWriter:        auditBuf,
+	}
+	startProxyWithConfig(t, cfg, auditBuf, listenPath)
+	return &proxyHarness{sock: listenPath, audit: auditBuf}
+}
+
+// TestDockerCompatVolumes_HostBindKey_Denied is the security AC for the
+// worse of the two meanings the key carries. A key whose source is a
+// host path outside the bind allowlist is refused, and it is audited as
+// a host bind rather than as a volume name.
+//
+// This path never reaches checkHostConfig, so the Binds allowlist does
+// not see it. Without the key check, `{"Volumes":{"/:/host":{}}}`
+// bind-mounts host root into the container (threat T1).
+func TestDockerCompatVolumes_HostBindKey_Denied(t *testing.T) {
+	for _, key := range []string{
+		"/:/host",
+		"/etc:/host-etc",
+		"/etc:/host-etc:ro",
+		"/etc/shadow:/x",
+		// A relative source lands in podman's host-path branch too, and
+		// the allowlist is absolute, so it denies on both sides.
+		"./rel:/data",
+		"../etc:/data",
+	} {
+		t.Run(key, func(t *testing.T) {
+			fu := newFakeUpstream(t)
+			h := startProxyWithMountVolumePrefix(t, fu, lvSessionPrefix)
+
+			resp := postCreateJSON(t, h.sock, lvDockerPath,
+				lvBody("Volumes", `{"`+key+`":{}}`))
+			if resp.StatusCode != http.StatusForbidden {
+				got, _ := io.ReadAll(resp.Body)
+				t.Fatalf("SECURITY: host bind through the Volumes map key was admitted; status %d (body=%q)",
+					resp.StatusCode, got)
+			}
+			assertNoForward(t, fu)
+			log := h.audit.String()
+			if !strings.Contains(log, "create_volumes_host_bind:") {
+				t.Errorf("audit log does not carry reason create_volumes_host_bind; log=%s", log)
+			}
+			if strings.Contains(log, "create_volumes_name_prefix_mismatch") {
+				t.Errorf("a host path must not be audited as a volume name; log=%s", log)
+			}
+		})
+	}
+}
+
+// TestDockerCompatVolumes_ForeignVolumeKey_Denied is the security AC for
+// the other meaning: a key whose source is a volume name outside the
+// session prefix is a cross-session attach (threat T25) through the map.
+func TestDockerCompatVolumes_ForeignVolumeKey_Denied(t *testing.T) {
+	for _, key := range []string{
+		lvForeignVolume + ":/data",
+		lvForeignVolume + ":/data:ro",
+		"notours:/data",
+		"user-" + lvSessionPrefix + "data:/data",
+	} {
+		t.Run(key, func(t *testing.T) {
+			fu := newFakeUpstream(t)
+			h := startProxyWithMountVolumePrefix(t, fu, lvSessionPrefix)
+
+			resp := postCreateJSON(t, h.sock, lvDockerPath,
+				lvBody("Volumes", `{"`+key+`":{}}`))
+			if resp.StatusCode != http.StatusForbidden {
+				got, _ := io.ReadAll(resp.Body)
+				t.Fatalf("SECURITY: cross-session volume attach through the Volumes map key was admitted; status %d (body=%q)",
+					resp.StatusCode, got)
+			}
+			assertNoForward(t, fu)
+			if !strings.Contains(h.audit.String(), "create_volumes_name_prefix_mismatch") {
+				t.Errorf("audit log does not carry reason create_volumes_name_prefix_mismatch; log=%s", h.audit.String())
+			}
+			env := readEnvelope(t, resp)
+			if !strings.Contains(env.Message, lvSessionPrefix) {
+				t.Errorf("deny message does not name the required prefix; message=%q", env.Message)
+			}
+		})
+	}
+}
+
+// TestDockerCompatVolumes_AdmittedKeys_ForwardedUnchanged is the
+// functional AC for the key check. Every key shape that is legitimate
+// stays admitted, and the body forwards byte-identical.
+func TestDockerCompatVolumes_AdmittedKeys_ForwardedUnchanged(t *testing.T) {
+	fu := newFakeUpstream(t)
+	h := startProxyWithMountVolumePrefix(t, fu, lvSessionPrefix)
+
+	cases := map[string]string{
+		// Bare destinations — docker's documented meaning. No source, so
+		// an anonymous volume the runtime names itself.
+		"bare_absolute_destination": `{"/data":{}}`,
+		"bare_plain_destination":    `{"data":{}}`,
+		// An in-prefix named volume through the key.
+		"in_prefix_volume_name": `{"` + lvSessionPrefix + `pgdata:/data":{}}`,
+		// Empty source: podman reports its own error, so the proxy does
+		// not fabricate a policy decision.
+		"empty_source": `{":/data":{}}`,
+	}
+	for name, value := range cases {
+		t.Run(name, func(t *testing.T) {
+			body := lvBody("Volumes", value)
+			resp := postCreateJSON(t, h.sock, lvDockerPath, body)
+			if resp.StatusCode != http.StatusOK {
+				got, _ := io.ReadAll(resp.Body)
+				t.Fatalf("status: got %d, want 200 (body=%q)", resp.StatusCode, got)
+			}
+			got, _ := fu.lastBody.Load().([]byte)
+			if !bytes.Equal(got, []byte(body)) {
+				t.Errorf("upstream body was modified\n got: %s\nwant: %s", got, body)
+			}
+		})
+	}
+
+	// An allowlisted host bind through the key is admitted, the same way
+	// an allowlisted HostConfig.Binds source is. Separate subtest
+	// because the allowed directory is only known at run time.
+	t.Run("allowlisted_host_bind", func(t *testing.T) {
+		fu := newFakeUpstream(t)
+		h := startProxyWithMountVolumePrefix(t, fu, lvSessionPrefix)
+
+		body := lvBody("Volumes", `{"`+h.allowedDir+`:/work":{}}`)
+		resp := postCreateJSON(t, h.sock, lvDockerPath, body)
+		if resp.StatusCode != http.StatusOK {
+			got, _ := io.ReadAll(resp.Body)
+			t.Fatalf("status: got %d, want 200 (an allowlisted bind source must stay admitted; body=%q)",
+				resp.StatusCode, got)
+		}
+		if got := fu.captured(); got != 1 {
+			t.Errorf("upstream request count: got %d, want 1", got)
+		}
+	})
+}
+
+// TestDockerCompatVolumes_NegativeControl_EmptyPrefix is the
+// revert-and-watch-fail partner for the NAME half of the key check. The
+// same cross-session attach with VolumeNamePrefix unset reaches the
+// upstream, so the 403 above comes from the prefix rule and not from
+// some unrelated policy path.
+func TestDockerCompatVolumes_NegativeControl_EmptyPrefix(t *testing.T) {
+	fu := newFakeUpstream(t)
+	h := startProxyWithMountVolumePrefix(t, fu, "")
+
+	resp := postCreateJSON(t, h.sock, lvDockerPath,
+		lvBody("Volumes", `{"`+lvForeignVolume+`:/data":{}}`))
+	if resp.StatusCode != http.StatusOK {
+		got, _ := io.ReadAll(resp.Body)
+		t.Fatalf("status: got %d, want 200 (with no prefix configured the name policy is a no-op; body=%q)",
+			resp.StatusCode, got)
+	}
+	if got := fu.captured(); got != 1 {
+		t.Errorf("upstream request count: got %d, want 1", got)
+	}
+}
+
+// TestDockerCompatVolumes_NegativeControl_RootBindAllowlist is the
+// revert-and-watch-fail partner for the HOST-BIND half. It mirrors
+// TestSecurity_NegativeControl_RootAllowlistPasses: with
+// AllowedBindSources set to ["/"], the same /etc bind key that returns
+// 403 above now reaches the upstream.
+//
+// The host-bind half cannot be neutralised with the prefix knob, because
+// it is deliberately not gated on it. This control is what proves the
+// 403 comes from isAllowedBindSource.
+func TestDockerCompatVolumes_NegativeControl_RootBindAllowlist(t *testing.T) {
+	fu := newFakeUpstream(t)
+	h := startProxyWithVolumeKeyConfig(t, fu, lvSessionPrefix, []string{"/"})
+
+	resp := postCreateJSON(t, h.sock, lvDockerPath,
+		lvBody("Volumes", `{"/etc:/host-etc":{}}`))
+	if resp.StatusCode != http.StatusOK {
+		got, _ := io.ReadAll(resp.Body)
+		t.Fatalf("status: got %d, want 200 (with / allowlisted the bind-source check admits every absolute path; body=%q)",
+			resp.StatusCode, got)
+	}
+	if got := fu.captured(); got != 1 {
+		t.Errorf("upstream request count: got %d, want 1", got)
+	}
+}
+
+// TestDockerCompatVolumes_KeyPolicedOnBothEndpoints pins that the key
+// check does not depend on which create endpoint the body arrives at.
+// normalisePath strips the `libpod/` prefix, so both paths share one
+// classifier and one policy.
+func TestDockerCompatVolumes_KeyPolicedOnBothEndpoints(t *testing.T) {
+	for _, apiPath := range []string{lvDockerPath, lvLibpodPath} {
+		t.Run(apiPath, func(t *testing.T) {
+			fu := newFakeUpstream(t)
+			h := startProxyWithMountVolumePrefix(t, fu, lvSessionPrefix)
+
+			resp := postCreateJSON(t, h.sock, apiPath,
+				lvBody("Volumes", `{"/:/host":{}}`))
+			if resp.StatusCode != http.StatusForbidden {
+				got, _ := io.ReadAll(resp.Body)
+				t.Fatalf("SECURITY: host bind admitted on %s; status %d (body=%q)",
+					apiPath, resp.StatusCode, got)
+			}
+			assertNoForward(t, fu)
 		})
 	}
 }

@@ -245,15 +245,18 @@ type containerCreateBody struct {
 	// INSPECTED.
 	HostConfig *json.RawMessage `json:"HostConfig"` // parsed strictly in a second pass
 
-	// INSPECTED — per-session volume-name prefix, by
-	// checkCreateVolumeNames (issue #2958). This key carries two
-	// unrelated meanings, and the second one is a named-volume attach
-	// channel:
+	// INSPECTED — per-session volume-name prefix AND bind-source
+	// allowlist, by checkCreateVolumeNames (issue #2958). This key
+	// carries two unrelated meanings, and BOTH of them reach a mount:
 	//
-	//   - docker-compat: map[container-path]struct{} — the
-	//     anonymous-volume placeholder set (`{"/data":{}}`). It carries
-	//     no volume NAME, so there is nothing for the prefix rule to
-	//     refuse. Admitted.
+	//   - docker-compat: map[container-path]struct{}, docker's
+	//     anonymous-volume placeholder set (`{"/data":{}}`). podman does
+	//     not read it as docker documents it: its compat handler appends
+	//     each KEY verbatim to the `-v` list, so a key that carries a
+	//     colon is a full mount spec. `{"/:/host":{}}` is a host bind
+	//     and `{"<foreign-vol>:/data":{}}` is a named-volume attach.
+	//     Both are checked. A key with no colon is a bare destination,
+	//     names nothing, and stays admitted.
 	//   - libpod: SpecGenerator.Volumes, an array of
 	//     NamedVolume{Name, Dest, Options}. Every Name is a named
 	//     volume this container ATTACHES, so an out-of-prefix name is
@@ -1139,7 +1142,7 @@ func (p *Proxy) checkVolumesField(key string, raw json.RawMessage) policyDecisio
 	}
 	switch trimmed[0] {
 	case '{':
-		return checkDockerCompatVolumesMap(key, trimmed)
+		return p.checkDockerCompatVolumesMap(key, trimmed)
 	case '[':
 		return p.checkLibpodVolumesArray(key, trimmed)
 	default:
@@ -1151,19 +1154,55 @@ func (p *Proxy) checkVolumesField(key string, raw json.RawMessage) policyDecisio
 }
 
 // checkDockerCompatVolumesMap inspects the docker-compat shape,
-// map[container-path]struct{} — for example `{"/data":{}}`. The keys
-// are in-container paths and the values are placeholders, so the map
-// names no volume and there is nothing for the prefix rule to refuse.
-// Every entry declares an ANONYMOUS volume, which the runtime names
-// itself; docs/podman-proxy.md §8.3 records that residual and it is
-// unchanged by this function.
+// map[container-path]struct{} — for example `{"/data":{}}`.
 //
-// The VALUE is required to be an empty object or null. docker's field
-// is map[string]struct{} and podman's compat handler discards the
-// value, so every real client sends `{}` — but "the upstream ignores
-// it" is exactly the assumption that made this key a forwarding hole,
-// and a non-empty value is an unaudited shape. It denies.
-func checkDockerCompatVolumesMap(key string, raw []byte) policyDecision {
+// # The KEY is not just a container path
+//
+// docker's own semantic for this field is a set of in-container paths,
+// each declaring an ANONYMOUS volume. podman does NOT read it that way.
+// Its compat handler appends every key VERBATIM to the `-v` list:
+//
+//	// Anonymous volumes are added differently from other volumes, in
+//	// their own special field, for reasons known only to Docker. Still
+//	// use the format of `-v` so we can just append them in there.
+//	for vol := range cc.Volumes {
+//	    ...
+//	    cliOpts.Volume = append(cliOpts.Volume, vol)
+//	}
+//
+// (podman v5.8.6, pkg/api/handlers/compat/containers_create.go.) The
+// list then goes through specgen.GenVolumeMounts, which splits each
+// entry on ":" and branches on the source: a source with a leading "/"
+// or "." becomes a BIND MOUNT of that host path, and anything else
+// becomes a NamedVolume.
+//
+// So a key that carries a colon is a full `-v` spec, and this map is
+// two more channels rather than none:
+//
+//   - {"/:/host":{}} is a host bind of / — and it never reaches
+//     checkHostConfig, so the Binds allowlist never sees it.
+//   - {"prism-<other-session>-<hex>:/data":{}} is a cross-session
+//     named-volume attach (threat T25).
+//
+// The key therefore runs through the SAME two rules its two meanings
+// deserve: isAllowedBindSource for a host path, and the per-session
+// prefix for a volume name. Both already exist, and the grammar is the
+// one splitBindSpec already parses for HostConfig.Binds.
+//
+// A key with NO colon is a bare destination. podman reads it as an
+// anonymous volume and names the volume itself, so there is no name to
+// refuse. That is the `{"/data":{}}` case docker clients send, it stays
+// admitted, and docs/podman-proxy.md §8.3 records the anonymous-volume
+// residual it leaves.
+//
+// # The VALUE
+//
+// The value must be an empty object or null. docker's field is
+// map[string]struct{} and podman's compat handler discards the value,
+// so every real client sends `{}` — but "the upstream ignores it" is
+// exactly the assumption that made this key a forwarding hole in the
+// first place, and a non-empty value is an unaudited shape. It denies.
+func (p *Proxy) checkDockerCompatVolumesMap(key string, raw []byte) policyDecision {
 	var m map[string]json.RawMessage
 	if err := json.Unmarshal(raw, &m); err != nil {
 		return denyDecision(http.StatusBadRequest,
@@ -1176,6 +1215,11 @@ func checkDockerCompatVolumesMap(key string, raw []byte) policyDecision {
 	}
 	sort.Strings(paths)
 	for _, path := range paths {
+		// The key first: a host bind is the worse violation of the two
+		// a malformed entry can carry, and it must win the audit reason.
+		if dec := p.checkDockerCompatVolumeKey(key, path); !dec.allow {
+			return dec
+		}
 		var placeholder map[string]json.RawMessage
 		if err := json.Unmarshal(m[path], &placeholder); err == nil && len(placeholder) == 0 {
 			// `{}` or null — the placeholder shape.
@@ -1183,10 +1227,60 @@ func checkDockerCompatVolumesMap(key string, raw []byte) policyDecision {
 		}
 		return denyDecision(http.StatusForbidden,
 			"create_volumes_map_value_not_empty",
-			fmt.Sprintf("containers/create %s[%q] must be an empty object (the docker-compat shape is a set of container paths, so the value carries no configuration); to attach a NAMED volume use the libpod array shape of this key, a HostConfig.Binds entry, or a HostConfig.Mounts entry of Type=volume",
+			fmt.Sprintf("containers/create %s[%q] must be an empty object (the docker-compat shape carries its whole mount spec in the key, so the value holds no configuration)",
 				key, truncateForReason(path)))
 	}
 	return allowDecision("policy:create_volumes:docker_compat_ok")
+}
+
+// checkDockerCompatVolumeKey applies the two rules a docker-compat
+// `Volumes` key can need. See checkDockerCompatVolumesMap for why a key
+// of this map is a `-v` spec rather than a plain container path.
+//
+// The branch matches podman's own: GenVolumeMounts treats a source with
+// a leading "/" or "." as a host path and everything else as a volume
+// name. A relative source lands in the host-path branch on both sides,
+// where isAllowedBindSource denies it — the allowlist is absolute, and
+// podman resolves "./x" against a working directory this proxy cannot
+// see.
+//
+// The host-bind half is NOT gated on VolumeNamePrefix. It is the same
+// unconditional control checkHostConfig applies to HostConfig.Binds,
+// and gating a host-path allowlist on a name policy would be a
+// different rule with the same name.
+func (p *Proxy) checkDockerCompatVolumeKey(key, spec string) policyDecision {
+	src, ok := splitBindSpec(spec)
+	if !ok {
+		// No colon: a bare destination, so an anonymous volume. The
+		// runtime names it. Nothing to check.
+		return allowDecision("policy:create_volumes:anonymous")
+	}
+	if src == "" {
+		// ":/data" — podman rejects this itself ("host directory cannot
+		// be empty"). Keep the pre-change behaviour rather than
+		// fabricating a policy decision for a request podman refuses,
+		// matching bindVolumeName's treatment of the same input.
+		return allowDecision("policy:create_volumes:empty_source")
+	}
+
+	if strings.HasPrefix(src, "/") || strings.HasPrefix(src, ".") {
+		if !p.isAllowedBindSource(src) {
+			return denyDecision(http.StatusForbidden,
+				"create_volumes_host_bind:"+truncateForReason(src),
+				fmt.Sprintf("containers/create %s key %q binds host path %q, which is not in the allowlist (podman appends this key to its `-v` list verbatim, so a key with a colon is a mount spec, not a container path)",
+					key, truncateForReason(spec), truncateForReason(src)))
+		}
+		return allowDecision("policy:create_volumes:host_bind_ok")
+	}
+
+	prefix := p.cfg.VolumeNamePrefix
+	if prefix == "" || strings.HasPrefix(src, prefix) {
+		return allowDecision("policy:create_volumes:volume_name_ok")
+	}
+	return denyDecision(http.StatusForbidden,
+		"create_volumes_name_prefix_mismatch",
+		fmt.Sprintf("containers/create %s key %q attaches named volume %q, which does not start with the required prefix %q (the proxy is session-scoped: a volume outside the prefix belongs to another session or outlives this one, because `prism cleanup` sweeps on the prefix; rename the volume so it begins with the required prefix)",
+			key, truncateForReason(spec), truncateForReason(src), prefix))
 }
 
 // checkLibpodVolumesArray inspects the libpod shape,
