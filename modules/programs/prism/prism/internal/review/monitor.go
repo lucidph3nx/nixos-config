@@ -33,8 +33,8 @@ import (
 // Event types written by persistReviewOutcome. Each round that
 // reaches a real pass/fail verdict writes exactly one of these as a durable
 // agent_events row, so the exporter's tail cursor can count
-// prism_review_verdicts_total{verdict} without ever reading the free-form
-// review report text. The verdict lives in the TYPE, not the payload — the
+// prism_review_verdicts_total{verdict,repo,agent_role,profile} without ever
+// reading the free-form review report text. The verdict lives in the TYPE, not the payload — the
 // exporter must never read agent_events.payload — and folding the verdict
 // into the type is the same trick eventtypes.go already uses for the closed
 // label set.

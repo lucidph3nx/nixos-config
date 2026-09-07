@@ -94,6 +94,32 @@ func (h *harness) writeEventWithRepo(eventType, repo string, age time.Duration) 
 	}
 }
 
+// writeReviewVerdictEvent writes a review verdict event referencing
+// instanceID, matching the shape persistReviewOutcome writes
+// (internal/review/monitor.go): the SessionName/Repo/Worktree on the event
+// are the review-monitor's own values, but InstanceID is always the
+// REVIEWED WORKER's — the join in LifecycleEventsTailSQL resolves repo,
+// agent_role, and profile from that instance_id, not from the event's own
+// Repo column. repo is passed separately here only to mirror what
+// persistReviewOutcome writes onto the event row itself (sess.Repo); the
+// asserted label value always comes from the fixture's instance_id join.
+func (h *harness) writeReviewVerdictEvent(eventType, repo, instanceID string) {
+	h.t.Helper()
+	iid := instanceID
+	if err := h.writeDB.WriteEvent(db.Event{
+		ID:          uuid.New().String(),
+		SessionName: "prism-test@exporter",
+		Repo:        repo,
+		Worktree:    "/tmp/prism-test",
+		InstanceID:  &iid,
+		Type:        eventType,
+		Payload:     "{}",
+		CreatedAt:   time.Now(),
+	}); err != nil {
+		h.t.Fatalf("WriteEvent(%s): %v", eventType, err)
+	}
+}
+
 // endFixture ends the session created by spawnFixture with endState, and
 // writes the session_reaped event RecordSessionReap would write.
 func (h *harness) endFixture(instanceID, sessionName, endState string) {
@@ -168,15 +194,54 @@ func TestExporter_ReviewVerdictsTotalIncrementsOnVerdictEvents(t *testing.T) {
 	h := newHarness(t)
 	h.start(h.exp)
 
-	h.writeEvent(review.EventReviewVerdictPass, 0)
-	h.writeEvent(review.EventReviewVerdictPass, 0)
-	h.writeEvent(review.EventReviewVerdictFail, 0)
+	instanceID, _ := h.spawnFixture("nixos-config", "worker", "bwrap", "max")
+	h.writeReviewVerdictEvent(review.EventReviewVerdictPass, "nixos-config", instanceID)
+	h.writeReviewVerdictEvent(review.EventReviewVerdictPass, "nixos-config", instanceID)
+	h.writeReviewVerdictEvent(review.EventReviewVerdictFail, "nixos-config", instanceID)
 
-	if got := counterValue(t, h, exporter.MetricReviewVerdictsTotal, map[string]string{"verdict": "pass"}); got != 2 {
-		t.Errorf("verdict=pass = %v, want 2", got)
+	passLabels := map[string]string{"verdict": "pass", "repo": "nixos-config", "agent_role": "worker", "profile": "max"}
+	if got := counterValue(t, h, exporter.MetricReviewVerdictsTotal, passLabels); got != 2 {
+		t.Errorf("%s%v = %v, want 2", exporter.MetricReviewVerdictsTotal, passLabels, got)
 	}
-	if got := counterValue(t, h, exporter.MetricReviewVerdictsTotal, map[string]string{"verdict": "fail"}); got != 1 {
-		t.Errorf("verdict=fail = %v, want 1", got)
+	failLabels := map[string]string{"verdict": "fail", "repo": "nixos-config", "agent_role": "worker", "profile": "max"}
+	if got := counterValue(t, h, exporter.MetricReviewVerdictsTotal, failLabels); got != 1 {
+		t.Errorf("%s%v = %v, want 1", exporter.MetricReviewVerdictsTotal, failLabels, got)
+	}
+}
+
+// ── AC (edge-case): a NULL profile_name on the reviewed worker is labelled
+// "default", not "" ─────────────────────────────────────────────────────
+
+func TestExporter_ReviewVerdictsTotalLabelsNullProfileAsDefault(t *testing.T) {
+	h := newHarness(t)
+	h.start(h.exp)
+
+	instanceID, _ := h.spawnFixture("nixos-config", "worker", "bwrap", "")
+	h.writeReviewVerdictEvent(review.EventReviewVerdictPass, "nixos-config", instanceID)
+
+	labels := map[string]string{"verdict": "pass", "repo": "nixos-config", "agent_role": "worker", "profile": "default"}
+	if got := counterValue(t, h, exporter.MetricReviewVerdictsTotal, labels); got != 1 {
+		t.Errorf("%s%v = %v, want 1", exporter.MetricReviewVerdictsTotal, labels, got)
+	}
+	emptyLabels := map[string]string{"verdict": "pass", "repo": "nixos-config", "agent_role": "worker", "profile": ""}
+	if got := counterValue(t, h, exporter.MetricReviewVerdictsTotal, emptyLabels); got != 0 {
+		t.Errorf("%s%v = %v, want 0 (NULL profile_name must fold to \"default\", not empty string)", exporter.MetricReviewVerdictsTotal, emptyLabels, got)
+	}
+}
+
+// ── AC (edge-case): an empty or whitespace-only repo on the reviewed worker
+// is folded to the unknown-repo placeholder, never the empty string ──────
+
+func TestExporter_ReviewVerdictsTotalFoldsEmptyRepoToUnknown(t *testing.T) {
+	h := newHarness(t)
+	h.start(h.exp)
+
+	instanceID, _ := h.spawnFixture("", "worker", "bwrap", "max")
+	h.writeReviewVerdictEvent(review.EventReviewVerdictPass, "", instanceID)
+
+	labels := map[string]string{"verdict": "pass", "repo": "unknown", "agent_role": "worker", "profile": "max"}
+	if got := counterValue(t, h, exporter.MetricReviewVerdictsTotal, labels); got != 1 {
+		t.Errorf("%s%v = %v, want 1 (empty repo should fold to 'unknown')", exporter.MetricReviewVerdictsTotal, labels, got)
 	}
 }
 
@@ -335,12 +400,12 @@ func TestExporter_LifecycleCountersSurviveRestart(t *testing.T) {
 	h.writeEvent("doom_loop_detected", 0)
 	h.writeEvent("permission_denied", 0)
 	h.writeEvent("session.escalated", 0)
-	h.writeEvent(review.EventReviewVerdictPass, 0)
-	h.spawnFixture("nixos-config", "worker", "bwrap", "max")
+	instanceID, _ := h.spawnFixture("nixos-config", "worker", "bwrap", "max")
+	h.writeReviewVerdictEvent(review.EventReviewVerdictPass, "nixos-config", instanceID)
 
 	labels := map[string]string{"repo": "nixos-config"}
 	spawnLabels := map[string]string{"repo": "nixos-config", "agent_role": "worker", "isolation_mode": "bwrap", "profile": "max"}
-	verdictLabels := map[string]string{"verdict": "pass"}
+	verdictLabels := map[string]string{"verdict": "pass", "repo": "nixos-config", "agent_role": "worker", "profile": "max"}
 
 	before := struct {
 		doomLoops, permissionDenied, escalations, verdicts, spawns float64

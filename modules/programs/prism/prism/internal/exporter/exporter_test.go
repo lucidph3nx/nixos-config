@@ -551,7 +551,7 @@ func TestExporter_ExposesNoUnboundedLabel(t *testing.T) {
 		// catches an accidental unbounded label creeping in later.
 		exporter.MetricSpawnsTotal:           1000,
 		exporter.MetricSessionsEndedTotal:    1000,
-		exporter.MetricReviewVerdictsTotal:   2,
+		exporter.MetricReviewVerdictsTotal:   1000,
 		exporter.MetricEscalationsTotal:      1000,
 		exporter.MetricDoomLoopsTotal:        1000,
 		exporter.MetricPermissionDeniedTotal: 1000,
