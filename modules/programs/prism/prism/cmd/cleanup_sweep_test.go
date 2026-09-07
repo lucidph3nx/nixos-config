@@ -122,16 +122,20 @@ func installFakeRunner(t *testing.T) *fakePodmanRunner {
 
 // TestSweep_FilterUsesAnchoredRegex verifies that the podman ps
 // invocation passes an anchored regex through --filter name=<regex>,
-// not a plain substring. This is the security requirement's first line of
-// defence: podman libpod's filter is regex-matched, so anchoring on
-// the podman side already excludes most non-matching containers
-// before the Go-side re-filter sees them.
+// not a plain substring.
+//
+// The anchor is `^prism-`, not the per-session prefix. The filter
+// narrows the listing and decides nothing: ownership is decided in Go by
+// resourceOwner, whose parse is exact and total, and one listing has to
+// serve both the identity half and the legacy half of that decision.
+// TestSweep_ForeignInstanceContainerNotSwept is what pins the security
+// property the old per-session filter used to share responsibility for.
 func TestSweep_FilterUsesAnchoredRegex(t *testing.T) {
 	r := installFakeRunner(t)
 	r.script(scriptedResponse{stdout: []byte("")}) // ps returns nothing
 
 	session := "prism-test@filter-shape"
-	_ = sweepWithRunner(r, session)
+	_ = sweepWithRunner(r, newResourceOwner(session, nil, nil))
 
 	calls := r.calls()
 	if len(calls) != 1 {
@@ -141,9 +145,9 @@ func TestSweep_FilterUsesAnchoredRegex(t *testing.T) {
 	if len(args) < 1 || args[0] != "ps" {
 		t.Fatalf("first arg should be \"ps\"; got %v", args)
 	}
-	wantFilter := "name=^" + regexp.QuoteMeta(container.ResourceNamePrefixForSession(session)) + "[a-f0-9]{8}$"
+	wantFilter := "name=^" + regexp.QuoteMeta(container.ResourceNamePrefixRoot)
 	if !containsArgValue(args, "--filter", wantFilter) {
-		t.Errorf("--filter not anchored to the strict per-session shape; args=%v", args)
+		t.Errorf("--filter not anchored at the prism resource-name root; args=%v", args)
 	}
 	if !containsArg(args, "--format") {
 		t.Errorf("--format flag missing; args=%v", args)
@@ -159,7 +163,7 @@ func TestSweep_ZeroMatches_NoRmInvocation(t *testing.T) {
 	r := installFakeRunner(t)
 	r.script(scriptedResponse{stdout: []byte("\n")}) // ps returns just newlines
 
-	got := sweepWithRunner(r, "prism-test@empty")
+	got := sweepWithRunner(r, newResourceOwner("prism-test@empty", nil, nil))
 
 	if got != 0 {
 		t.Errorf("count: got %d, want 0", got)
@@ -194,7 +198,7 @@ func TestSweep_MatchedContainersRemoved(t *testing.T) {
 		scriptedResponse{stdout: []byte("")}, // rm returns empty
 	)
 
-	got := sweepWithRunner(r, session)
+	got := sweepWithRunner(r, newResourceOwner(session, nil, nil))
 	if got != 3 {
 		t.Errorf("count: got %d, want 3", got)
 	}
@@ -252,7 +256,7 @@ func TestSweep_SiblingPrefixSessionNotSwept(t *testing.T) {
 		scriptedResponse{stdout: []byte("")},
 	)
 
-	got := sweepWithRunner(r, "foo")
+	got := sweepWithRunner(r, newResourceOwner("foo", nil, nil))
 	if got != 1 {
 		t.Errorf("count: got %d, want 1 (only foo's container should be swept)", got)
 	}
@@ -286,7 +290,7 @@ func TestSweep_SubstringTrapNotSwept(t *testing.T) {
 		scriptedResponse{stdout: []byte("")},
 	)
 
-	got := sweepWithRunner(r, "foo")
+	got := sweepWithRunner(r, newResourceOwner("foo", nil, nil))
 	if got != 1 {
 		t.Errorf("count: got %d, want 1", got)
 	}
@@ -310,7 +314,7 @@ func TestSweep_PsFailureIsNonFatal(t *testing.T) {
 		err:    errors.New("exit status 125"),
 	})
 
-	got := sweepWithRunner(r, "prism-test@ps-fails")
+	got := sweepWithRunner(r, newResourceOwner("prism-test@ps-fails", nil, nil))
 	if got != 0 {
 		t.Errorf("count on ps failure: got %d, want 0", got)
 	}
@@ -330,7 +334,7 @@ func TestSweep_RmFailureIsNonFatal(t *testing.T) {
 		scriptedResponse{stdout: []byte(""), err: errors.New("exit status 1")},
 	)
 
-	got := sweepWithRunner(r, "foo")
+	got := sweepWithRunner(r, newResourceOwner("foo", nil, nil))
 	if got != 0 {
 		t.Errorf("count on rm failure: got %d, want 0 (we don't know how many were removed)", got)
 	}
@@ -520,12 +524,15 @@ func containsArg(args []string, want string) bool {
 // shape. The volume filter is anchored at the START of the name but not
 // at the end, because the volume policy admits user-chosen suffixes as
 // well as the 8-hex auto-name.
+//
+// As with the container filter, the anchor is the `prism-` root rather
+// than the per-session prefix. See TestSweep_FilterUsesAnchoredRegex.
 func TestVolumeSweep_FilterAnchoredAtPrefix(t *testing.T) {
 	r := installFakeRunner(t)
 	r.script(scriptedResponse{stdout: []byte("")})
 
 	session := "prism-test@vol-filter"
-	_ = sweepVolumesWithRunner(r, session, nil)
+	_ = sweepVolumesWithRunner(r, newResourceOwner(session, nil, nil))
 
 	calls := r.calls()
 	if len(calls) != 1 {
@@ -535,9 +542,9 @@ func TestVolumeSweep_FilterAnchoredAtPrefix(t *testing.T) {
 	if len(args) < 2 || args[0] != "volume" || args[1] != "ls" {
 		t.Fatalf("first invocation must be \"volume ls\"; got %v", args)
 	}
-	wantFilter := "name=^" + regexp.QuoteMeta(container.ResourceNamePrefixForSession(session))
+	wantFilter := "name=^" + regexp.QuoteMeta(container.ResourceNamePrefixRoot)
 	if !containsArgValue(args, "--filter", wantFilter) {
-		t.Errorf("--filter not anchored to the per-session prefix; args=%v", args)
+		t.Errorf("--filter not anchored at the prism resource-name root; args=%v", args)
 	}
 	if !containsArgValue(args, "--format", "{{.Name}}") {
 		t.Errorf("--format missing or wrong; args=%v", args)
@@ -560,7 +567,7 @@ func TestVolumeSweep_PrefixedVolumesRemoved(t *testing.T) {
 		scriptedResponse{stdout: []byte("")},
 	)
 
-	got := sweepVolumesWithRunner(r, "foo", nil)
+	got := sweepVolumesWithRunner(r, newResourceOwner("foo", nil, nil))
 	if got != 3 {
 		t.Errorf("count: got %d, want 3", got)
 	}
@@ -600,7 +607,7 @@ func TestVolumeSweep_SubstringTrapNotSwept(t *testing.T) {
 		scriptedResponse{stdout: []byte("")},
 	)
 
-	got := sweepVolumesWithRunner(r, "foo", nil)
+	got := sweepVolumesWithRunner(r, newResourceOwner("foo", nil, nil))
 	if got != 1 {
 		t.Errorf("count: got %d, want 1", got)
 	}
@@ -635,7 +642,7 @@ func TestVolumeSweep_BarePrefixNameIsSwept(t *testing.T) {
 		scriptedResponse{stdout: []byte("")},
 	)
 
-	got := sweepVolumesWithRunner(r, "foo", nil)
+	got := sweepVolumesWithRunner(r, newResourceOwner("foo", nil, nil))
 	if got != 2 {
 		t.Fatalf("count: got %d, want 2 (the bare-prefix volume must be swept, not leaked)", got)
 	}
@@ -677,7 +684,7 @@ func TestVolumeSweep_ImplicitMountVolumeIsSwept(t *testing.T) {
 		scriptedResponse{stdout: []byte("")},
 	)
 
-	got := sweepVolumesWithRunner(r, "foo", nil)
+	got := sweepVolumesWithRunner(r, newResourceOwner("foo", nil, nil))
 	if got != 2 {
 		t.Fatalf("count: got %d, want 2 (an implicitly-created volume must not outlive the session)", got)
 	}
@@ -717,7 +724,7 @@ func TestVolumeSweep_SiblingSessionVolumeNotSwept(t *testing.T) {
 	)
 
 	siblings := []string{"prism-foo-bar-"}
-	got := sweepVolumesWithRunner(r, "foo", siblings)
+	got := sweepVolumesWithRunner(r, newResourceOwner("foo", nil, siblings))
 	if got != 1 {
 		t.Fatalf("count: got %d, want 1 (only foo's own volume should be swept)", got)
 	}
@@ -739,7 +746,7 @@ func TestVolumeSweep_LsFailureIsNonFatal(t *testing.T) {
 	r := installFakeRunner(t)
 	r.script(scriptedResponse{stdout: []byte(""), err: errors.New("exit status 125")})
 
-	if got := sweepVolumesWithRunner(r, "foo", nil); got != 0 {
+	if got := sweepVolumesWithRunner(r, newResourceOwner("foo", nil, nil)); got != 0 {
 		t.Errorf("count on ls failure: got %d, want 0", got)
 	}
 	if len(r.calls()) != 1 {
@@ -753,7 +760,7 @@ func TestVolumeSweep_ZeroMatchesIssuesNoRemoval(t *testing.T) {
 	r := installFakeRunner(t)
 	r.script(scriptedResponse{stdout: []byte("\n\n")})
 
-	if got := sweepVolumesWithRunner(r, "foo", nil); got != 0 {
+	if got := sweepVolumesWithRunner(r, newResourceOwner("foo", nil, nil)); got != 0 {
 		t.Errorf("count: got %d, want 0", got)
 	}
 	if len(r.calls()) != 1 {
@@ -761,7 +768,7 @@ func TestVolumeSweep_ZeroMatchesIssuesNoRemoval(t *testing.T) {
 	}
 }
 
-// TestSiblingVolumePrefixes_SelectsOnlyNestedLiveSessions covers the
+// TestLegacySiblingPrefixes_SelectsOnlyNestedLiveSessions covers the
 // guard's CALL SITE, which the sweepVolumesWithRunner tests do not
 // reach: they pass the sibling list in directly, so nothing pins how
 // that list is actually derived from the database.
@@ -769,7 +776,12 @@ func TestVolumeSweep_ZeroMatchesIssuesNoRemoval(t *testing.T) {
 // The comparison must run in SANITISED space. Sanitisation folds `@`,
 // `/`, `.`, and `~` all to `-`, so a raw-session-name comparison finds
 // different neighbours than the volume names actually carry.
-func TestSiblingVolumePrefixes_SelectsOnlyNestedLiveSessions(t *testing.T) {
+//
+// The guard applies to PRE-IDENTITY names only. Every session seeded
+// here folds to a distinct prefix, so no folding collision is in play —
+// TestLegacySiblingPrefixes_FoldingCollisionSuppressesLegacySweep covers
+// that shape.
+func TestLegacySiblingPrefixes_SelectsOnlyNestedLiveSessions(t *testing.T) {
 	dbFile := filepath.Join(t.TempDir(), "prism.db")
 	for _, s := range []string{
 		"repo@foo",         // the session being cleaned
@@ -787,7 +799,7 @@ func TestSiblingVolumePrefixes_SelectsOnlyNestedLiveSessions(t *testing.T) {
 	}
 	defer d.Close()
 
-	got := siblingVolumePrefixes(d, "repo@foo")
+	got := legacySiblingPrefixes(d, "repo@foo")
 	want := map[string]bool{
 		"prism-repo-foo-bar-":     true,
 		"prism-repo-foo-bar-baz-": true,
@@ -807,11 +819,11 @@ func TestSiblingVolumePrefixes_SelectsOnlyNestedLiveSessions(t *testing.T) {
 	}
 }
 
-// TestSiblingVolumePrefixes_NilDBIsSafe pins the documented
+// TestLegacySiblingPrefixes_NilDBIsSafe pins the documented
 // degradation: without a database the guard contributes nothing and the
 // sweep falls back to the plain prefix match.
-func TestSiblingVolumePrefixes_NilDBIsSafe(t *testing.T) {
-	if got := siblingVolumePrefixes(nil, "repo@foo"); got != nil {
+func TestLegacySiblingPrefixes_NilDBIsSafe(t *testing.T) {
+	if got := legacySiblingPrefixes(nil, "repo@foo"); got != nil {
 		t.Errorf("got %v, want nil", got)
 	}
 }

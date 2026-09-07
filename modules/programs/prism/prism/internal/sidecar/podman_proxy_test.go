@@ -46,7 +46,19 @@ import (
 //
 // Returns the constructed Sidecar plus the resolved proxy listener path so
 // tests can probe / assert on the listener directly.
+// The instance ID it sets is deliberately NOT a canonical UUID, so
+// container.ResourceNamePrefixForOwner takes its documented fallback and
+// the proxy is wired with the LEGACY prefix. Use
+// newPodmanProxyTestSidecarWithInstanceID for the identity-bearing path.
 func newPodmanProxyTestSidecar(t *testing.T, bus *sidecartest.Bus, session, upstream string) (*Sidecar, string) {
+	return newPodmanProxyTestSidecarWithInstanceID(t, bus, session, upstream, "test-instance-"+t.Name())
+}
+
+// newPodmanProxyTestSidecarWithInstanceID is newPodmanProxyTestSidecar
+// with the session incarnation's instance ID under the caller's control.
+// The instance ID decides the resource-name prefix the proxy enforces
+// (issue #2951), so a test about that prefix has to set it.
+func newPodmanProxyTestSidecarWithInstanceID(t *testing.T, bus *sidecartest.Bus, session, upstream, instanceID string) (*Sidecar, string) {
 	t.Helper()
 	listenerPath, err := prismsession.SidecarPodmanProxyPath(session)
 	if err != nil {
@@ -76,7 +88,7 @@ func newPodmanProxyTestSidecar(t *testing.T, bus *sidecartest.Bus, session, upst
 		DB:                      bus.DB,
 		Clock:                   newTestClock(),
 		AgentRole:               "worker",
-		InstanceID:              "test-instance-" + t.Name(),
+		InstanceID:              instanceID,
 		HarnessURL:              "http://127.0.0.1:1", // unreachable; not used with overridden SubscribeFn
 		Harness:                 h,
 		PodmanProxyListenerPath: listenerPath,
@@ -487,12 +499,15 @@ func TestPodmanProxy_UpstreamDiscovery_Darwin_MissingPodmanReturnsPlaceholder(t 
 
 // TestPodmanProxy_ContainerNamePrefix_WiredFromSession verifies the
 // container-name-prefix wiring: when the sidecar starts the proxy, the
-// proxy's Config.ContainerNamePrefix is set to
-// "prism-<sessionName>-" so the cleanup sweep can locate every
-// container belonging to this session. We probe the live behaviour
-// by POSTing a containers/create request with an explicit Name that
-// does NOT start with the session prefix — the proxy must reject
-// with 403 and audit reason name_prefix_mismatch.
+// proxy's Config.ContainerNamePrefix is set so the cleanup sweep can
+// locate every container belonging to this session. We probe the live
+// behaviour by POSTing a containers/create request with an explicit
+// Name that does NOT start with the session prefix — the proxy must
+// reject with 403 and audit reason name_prefix_mismatch.
+//
+// This test covers the FALLBACK prefix, because the helper's instance ID
+// is not a canonical UUID. TestPodmanProxy_NamePrefix_CarriesInstanceID
+// covers the identity-bearing prefix a real session gets.
 //
 // The test uses a real (test) upstream socket so the proxy's policy
 // path runs end-to-end rather than short-circuiting on dial failure.

@@ -86,13 +86,31 @@ type Config struct {
 	//     and audit reason "name_prefix_mismatch".
 	//
 	// Production wires this from the sidecar to
-	// container.ResourceNamePrefixForSession(sessionName) so the cleanup
-	// sweep can locate every container belonging to the session. That is
-	// NOT a plain "prism-" + sessionName + "-" concatenation: it folds
-	// "@", "/", ".", and "~" to "-", because podman validates a resource
-	// name against ^[a-zA-Z0-9][a-zA-Z0-9_.-]*$ and a session name is
-	// <repo>@<branch>. An out-of-tree caller that builds the prefix from
-	// a raw session name produces names podman refuses to create.
+	// container.ResourceNamePrefixForOwner(instanceID, sessionName),
+	// which is `prism-<instance token>-<sanitised session name>-`, so the
+	// cleanup sweep can locate every container belonging to the session.
+	//
+	// The prefix CARRIES AN IDENTITY, and that is load-bearing. This
+	// package tests a name against the prefix with one HasPrefix call,
+	// which by itself is prefix equality — the heuristic issue #2951
+	// records as unsound, because two distinct live sessions collide
+	// under it. What makes the comparison sound is the containment
+	// invariant the prefix shape provides: every name that starts with
+	// `prism-<token>-...` parses back to that one token, so
+	//
+	//	admitted ⊆ owned
+	//
+	// and the sweep decides `owned` with an exact segment parse rather
+	// than a prefix test. internal/container/resource_identity.go holds
+	// the parse, the rationale, and the test that pins the invariant.
+	// Do NOT "simplify" the production wiring back to a name-only prefix.
+	//
+	// The session-name half is folded: "@", "/", ".", and "~" all become
+	// "-", because podman validates a resource name against
+	// ^[a-zA-Z0-9][a-zA-Z0-9_.-]*$ and a session name is <repo>@<branch>.
+	// An out-of-tree caller that builds the prefix from a raw session
+	// name produces names podman refuses to create.
+	//
 	// Out-of-tree callers may leave it empty — the prefix logic
 	// is then a no-op, so a consumer that does not need session-scoped
 	// naming keeps the default behaviour.

@@ -971,13 +971,21 @@ func (p *Proxy) checkHostConfig(hc *hostConfig) policyDecision {
 // sends no POST /volumes/create, so applyVolumeNamePolicy never sees
 // it. Leaving the name uninspected cost two things:
 //
-//  1. Cleanup leak. sweepVolumesWithRunner matches on the
-//     prism-<session>- prefix, so an unprefixed volume outlived the
-//     session on the shared host.
+//  1. Cleanup leak. sweepVolumesWithRunner matches on the session's
+//     name prefix, so an unprefixed volume outlived the session on the
+//     shared host.
 //  2. Cross-session data access. A session could ATTACH another live
-//     session's volume by naming it — prism-<other-session>-<hex> in
-//     either channel was admitted. That is the more serious of the
-//     two, and it is why this check denies rather than warns.
+//     session's volume by naming it — another session's prefix plus a
+//     hex suffix in either channel was admitted. That is the more
+//     serious of the two, and it is why this check denies rather than
+//     warns.
+//
+// The prefix the check runs against carries the session incarnation's
+// INSTANCE ID (issue #2951). Before that, a nested sibling name slipped
+// through this very check: session `foo` was admitted to name
+// `prism-foo-bar-data`, which belongs to live session `foo-bar`. The
+// check itself did not change — the prefix it tests did. See
+// Config.ContainerNamePrefix for the containment invariant.
 //
 // # Refuse, do not inject
 //

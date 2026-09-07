@@ -134,11 +134,29 @@ a proxy with both caps set rejects every create request. See
 
 ## Per-session naming and cleanup
 
-Containers and volumes both carry the per-session prefix
-`prism-<session>-`. Omit the name and the proxy injects
-`prism-<session>-<8 hex chars>`. Supply a name outside the prefix and the
-request gets 403 (`name_prefix_mismatch_body` for a container,
-`volume_name_prefix_mismatch` for a volume).
+Containers and volumes both carry a per-session prefix. **You cannot
+work it out from your session name** — it carries your session
+incarnation's instance ID, which the sandbox does not expose. Omit the
+name and the proxy injects `<prefix><8 hex chars>` for you. Supply a name
+outside the prefix and the request gets 403
+(`name_prefix_mismatch_body` for a container,
+`volume_name_prefix_mismatch` for a volume) — and **the 403 message
+states the prefix verbatim**, so a rejected request is the fastest way to
+learn it.
+
+Two ways to get the prefix from inside the sandbox:
+
+```bash
+# 1. Let the proxy name a volume, then read the name back.
+curl -s --unix-socket "${DOCKER_HOST#unix://}" \
+  -X POST -H 'Content-Type: application/json' -d '{}' \
+  http://d/v1.41/volumes/create
+# -> {"Name":"prism-<32 hex>-<session>-1a2b3c4d", ...}
+
+# 2. Send a name you know is wrong and read the 403.
+docker volume create pgdata
+# -> ... does not start with the required prefix "prism-<32 hex>-<session>-"
+```
 
 **A volume you name in a container mount obeys the same rule.** A
 `containers/create` body reaches a named volume through four channels:
@@ -147,16 +165,17 @@ the source half of a `HostConfig.Binds` entry (`myvol:/data`), the
 the top-level libpod `volumes` array
 (`{"Name":"myvol","Dest":"/data"}`), and a colon-bearing key of the
 top-level docker-compat `volumes` map (`{"myvol:/data":{}}`). All four
-must start with `prism-<session>-`, or the request gets 403
+must start with the session prefix, or the request gets 403
 (`bind_volume_name_prefix_mismatch`, `mount_volume_name_prefix_mismatch`,
 `create_volumes_name_prefix_mismatch`). These four channels REFUSE
-only — they never inject — so name the volume correctly in the
-request:
+only — they never inject — so learn the prefix first (above) and name the
+volume correctly in the request:
 
 ```bash
 # Correct: the mount names an in-prefix volume, so the sweep finds it.
+PREFIX=prism-3f2a1b0c123456789abcdef012345678-nixos-config-main-
 docker run --rm --memory 512m --cpus 1 \
-  -v prism-nixos-config-main-pgdata:/var/lib/postgresql/data postgres:16
+  -v "${PREFIX}pgdata":/var/lib/postgresql/data postgres:16
 
 # Rejected: bind_volume_name_prefix_mismatch.
 docker run --rm --memory 512m --cpus 1 -v pgdata:/data postgres:16
@@ -171,34 +190,54 @@ source is checked against the bind allowlist
 uses. A key with NO colon is a bare destination, names nothing, and
 stays admitted — that is docker's own `{"/data":{}}` shape.
 
-The rule also blocks a cross-session attach on all four channels:
-`prism-<other-session>-<hex>` in a `Binds` entry, in a `Type=volume`
-mount, in the libpod `volumes` array, or in a docker-compat `volumes`
-map key is refused. It is not a general isolation guarantee. A nested sibling prefix is still admitted
-on every channel. Session `foo` matches the prefix of
-`prism-foo-bar-data`, which belongs to live session `foo-bar`. That
-gap needs instance-ID identity, and issue #2951 tracks it.
-`docs/podman-proxy.md` §8.3 carries the detail.
+The rule also blocks a cross-session attach on all four channels: another
+session's volume name in a `Binds` entry, in a `Type=volume` mount, in
+the libpod `volumes` array, or in a docker-compat `volumes` map key is
+refused. It is not a general isolation guarantee — `volumes/prune` and
+`DELETE /volumes/{name}` are plain allows, so an agent can still remove
+any volume on the host by name.
 
-`<session>` in that prefix is the FOLDED session name, not the raw one.
-The prefix comes from `container.ResourceNamePrefixForSession`, which
-folds `@`, `/`, `.`, and `~` to `-`, because podman validates a resource
-name against `^[a-zA-Z0-9][a-zA-Z0-9_.-]*$` and rejects the rest. So
-session `nixos-config@main` gets `prism-nixos-config-main-`. Use the
-folded form when you name a volume by hand.
+**The prefix is `prism-<instance token>-<folded session name>-`.** The
+token is this session incarnation's instance ID (a UUID) with its hyphens
+removed, 32 lowercase hex characters. The session-name half is FOLDED:
+`container.ResourceNamePrefixForOwner` maps `@`, `/`, `.`, and `~` to
+`-`, because podman validates a resource name against
+`^[a-zA-Z0-9][a-zA-Z0-9_.-]*$` and rejects the rest.
 
-`prism cleanup` then removes, for a session that enabled containers:
+The token is there because a name-only prefix cannot express identity.
+Two distinct live sessions collide under it by FOLDING (`repo@feat/x` and
+`repo@feat-x` fold to one prefix) and by NESTING (`foo` is a strict
+prefix of `foo-bar`, so `prism-foo-bar-data` starts with `prism-foo-`),
+so each could attach and sweep the other's volumes. Issue #2951 closed
+both. The session-name half is DECORATION now — it is there so an
+operator reading `podman ps` can tell which session a container came
+from, and nothing decides ownership from it. `docs/podman-proxy.md` §3
+carries the detail.
 
-- containers matching `prism-<session>-<8 hex chars>`,
-- volumes whose name starts with `prism-<session>-`.
+`prism cleanup` then removes, for a session that enabled containers,
+every container and volume whose name carries the instance token of ANY
+incarnation of that session — so a session that restarted does not leak
+the volumes it made before the restart. A resource created before
+instance-ID naming carries no token and is swept by the old rule instead
+(strict `prism-<session>-<8 hex chars>` for a container, plain
+`prism-<session>-` prefix for a volume).
 
 The two counts appear in the `prism cleanup --json` envelope as
 `containers_swept` and `volumes_swept`.
 
 ### Known gaps
 
-All three are accepted for this version. `docs/podman-proxy.md` §8.3
+All four are accepted for this version. `docs/podman-proxy.md` §8.3
 carries the detail and the conditions to close each one.
+
+- **A resource created BEFORE instance-ID naming cannot be attributed.**
+  Its name carries the legacy prefix and no token, so nothing recovers
+  which of two colliding sessions created it. Cleanup still sweeps such a
+  resource for its owning session in the ordinary case. When a LIVE
+  session's legacy prefix equals or extends this one's, it leaves the
+  name in place and warns rather than risking another session's data.
+  Remove it by hand once the colliding session has ended. The population
+  is bounded and does not grow.
 
 - **An ANONYMOUS volume is not swept.** A docker-API
   `run -v /data ...`, a `Type=volume` mount with an empty `Source`, a
