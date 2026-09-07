@@ -88,11 +88,19 @@ var knownEventTypes = map[string]struct{}{
 	"provider_error":     {},
 	"session.escalated":  {},
 	// review.verdict_pass / review.verdict_fail are written by
-	// internal/review/monitor.go persistReviewOutcome: one durable
+	// internal/review/monitor.go writeVerdictEvent: one durable
 	// event per verdict-producing review round, feeding
 	// prism_review_verdicts_total.
 	"review.verdict_pass": {},
 	"review.verdict_fail": {},
+	// The review.agent_verdict_* trio is written by the same helper, one
+	// event per review AGENT per round, feeding
+	// prism_review_agent_verdicts_total. "error" is a separate type from
+	// "fail" because an agent that produced no verdict is not a
+	// code-quality FAIL.
+	"review.agent_verdict_pass":  {},
+	"review.agent_verdict_fail":  {},
+	"review.agent_verdict_error": {},
 	// session.spawn_intent is written at the SpawnSession chokepoint, so it
 	// occurs on EVERY spawn through every front door. Leaving it out put the
 	// highest-frequency in-tree event type into the "other" bucket, which

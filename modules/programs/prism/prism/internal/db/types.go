@@ -165,8 +165,14 @@ type Session struct {
 // GroupMemberResult holds the terminal state and last assistant message for a
 // single member of a session group. Used by GroupResults to aggregate outcomes.
 type GroupMemberResult struct {
-	SessionName  string
-	RootAgent    string // from root_agent_name; empty when not set
+	SessionName string
+	RootAgent   string // from root_agent_name; empty when not set
+	// InstanceID is agent_status.instance_id for this member, or "" when the
+	// column is NULL (a row whose instance was never minted host-side). It is
+	// projected so a per-member telemetry write can attribute an event to the
+	// MEMBER's instance rather than the parent's — the exporter resolves
+	// sessions.agent_role through that instance_id (issue #2963).
+	InstanceID   string
 	State        string // terminal state: finished / interrupted / error / deleted
 	LastMessage  string // last assistant turn from agent_events; empty when none
 	StartupError string // reason from startup_error event; empty when not a no-start failure

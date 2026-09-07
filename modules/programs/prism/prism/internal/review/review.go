@@ -327,6 +327,20 @@ type AgentResult struct {
 	Passed  bool   // true = passed, false = failed / errored
 	Output  string // last assistant message text, or error description
 	IsError bool   // true = infrastructure/timeout failure
+	// SessionName is the review agent's own session name
+	// (<worker>~review-<N>-<agent>), and InstanceID its own
+	// sessions.instance_id. buildMonitorResults populates both from the
+	// group's agent_status rows; every other producer of an AgentResult
+	// leaves them empty.
+	//
+	// They exist for the per-agent verdict event (issue #2963): the exporter
+	// resolves the agent_role label by joining sessions on the event's
+	// instance_id, so an event that carried the WORKER's instance would label
+	// every review dimension with the worker's role. An empty InstanceID means
+	// the role is not resolvable, and the writer skips that agent rather than
+	// emitting an unlabelled verdict.
+	SessionName string
+	InstanceID  string
 }
 
 // AsyncResult is returned immediately by RunAsync. It contains the group_id

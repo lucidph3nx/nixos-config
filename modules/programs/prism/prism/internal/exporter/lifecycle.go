@@ -7,36 +7,38 @@ import (
 	"github.com/prismatic-koi/prism/internal/session"
 )
 
-// lifecycle.go — the six lifecycle and outcome counters.
+// lifecycle.go — the seven lifecycle and outcome counters.
 //
-// All six are produced by ONE tailer (TailerLifecycleEvents), running over
+// All seven are produced by ONE tailer (TailerLifecycleEvents), running over
 // the same agent_events table as the events tailer but keeping its own
 // cursor. Every counter comes from the tail cursor, never from an aggregate
 // over a pruned table — see LifecycleEventsTailSQL in sql.go for the query
 // and the prune-safety argument for its join.
 //
 // The dispatch below is closed-set by construction: (*lifecycleCounters).apply
-// only ever calls Inc on one of the six CounterVecs constructed in New, and
+// only ever calls Inc on one of the seven CounterVecs constructed in New, and
 // every label value handed to Inc is either a value already sanctioned as a
 // safe label (repo, agent_role, isolation_mode, end_state, profile) or a
-// value drawn from a two-element closed set (verdict). prism_spawns_total
+// value drawn from a small closed set (verdict: two values at the round
+// level, three at the per-agent level). prism_spawns_total
 // DOES carry a profile label — see the comment on LifecycleEventsTailSQL in
 // sql.go for the boundary-test narrowing that makes this safe.
 
-// Metric names for the six counters.
+// Metric names for the seven counters.
 const (
-	MetricSpawnsTotal           = "prism_spawns_total"
-	MetricSessionsEndedTotal    = "prism_sessions_ended_total"
-	MetricReviewVerdictsTotal   = "prism_review_verdicts_total"
-	MetricEscalationsTotal      = "prism_escalations_total"
-	MetricDoomLoopsTotal        = "prism_doom_loops_total"
-	MetricPermissionDeniedTotal = "prism_permission_denied_total"
+	MetricSpawnsTotal              = "prism_spawns_total"
+	MetricSessionsEndedTotal       = "prism_sessions_ended_total"
+	MetricReviewVerdictsTotal      = "prism_review_verdicts_total"
+	MetricReviewAgentVerdictsTotal = "prism_review_agent_verdicts_total"
+	MetricEscalationsTotal         = "prism_escalations_total"
+	MetricDoomLoopsTotal           = "prism_doom_loops_total"
+	MetricPermissionDeniedTotal    = "prism_permission_denied_total"
 )
 
 // TailerLifecycleEvents is the state-file key the lifecycle tailer's cursor
 // is stored under. It is independent of TailerAgentEvents even though
 // both tail the same table — changing this name makes a running daemon lose
-// its place on these six counters only.
+// its place on these seven counters only.
 const TailerLifecycleEvents = "agent_events_lifecycle"
 
 // eventTypeEscalated, eventTypeDoomLoop, and eventTypePermissionDenied name
@@ -64,18 +66,46 @@ func verdictLabel(eventType string) (verdict string, ok bool) {
 	}
 }
 
-// lifecycleCounters holds the six CounterVecs New registers, plus the
-// dispatch function the tailer applies to each record.
-type lifecycleCounters struct {
-	spawnsTotal           *metrics.CounterVec
-	sessionsEndedTotal    *metrics.CounterVec
-	reviewVerdictsTotal   *metrics.CounterVec
-	escalationsTotal      *metrics.CounterVec
-	doomLoopsTotal        *metrics.CounterVec
-	permissionDeniedTotal *metrics.CounterVec
+// agentVerdictLabel folds a review.EventReviewAgentVerdict* type into the
+// verdict label value of the per-agent counter. ok is false for any other
+// type.
+//
+// It has three values where verdictLabel has two: the per-agent event keeps a
+// parseable FAIL verdict ("fail") apart from a round that recorded no PASS and
+// no FAIL for the agent ("error"). The round-level pair cannot make that
+// distinction, because a round is a pass only when every agent passed.
+//
+// "error" is wider than "the agent produced nothing": it also holds an agent
+// that ran to completion and emitted a marker the review pipeline does not map
+// to pass or fail, PASS_WITH_DISAGREEMENT being the live example. The writer's
+// constant comment (review.EventReviewAgentVerdictError) carries the full
+// bucket definition and why it is drawn there.
+func agentVerdictLabel(eventType string) (verdict string, ok bool) {
+	switch eventType {
+	case review.EventReviewAgentVerdictPass:
+		return "pass", true
+	case review.EventReviewAgentVerdictFail:
+		return "fail", true
+	case review.EventReviewAgentVerdictError:
+		return "error", true
+	default:
+		return "", false
+	}
 }
 
-// newLifecycleCounters constructs and registers the six CounterVecs.
+// lifecycleCounters holds the seven CounterVecs New registers, plus the
+// dispatch function the tailer applies to each record.
+type lifecycleCounters struct {
+	spawnsTotal              *metrics.CounterVec
+	sessionsEndedTotal       *metrics.CounterVec
+	reviewVerdictsTotal      *metrics.CounterVec
+	reviewAgentVerdictsTotal *metrics.CounterVec
+	escalationsTotal         *metrics.CounterVec
+	doomLoopsTotal           *metrics.CounterVec
+	permissionDeniedTotal    *metrics.CounterVec
+}
+
+// newLifecycleCounters constructs and registers the seven CounterVecs.
 func newLifecycleCounters(reg *metrics.Registry) *lifecycleCounters {
 	lc := &lifecycleCounters{
 		// profile is sourced from spawn_inputs.profile_name via the
@@ -96,6 +126,24 @@ func newLifecycleCounters(reg *metrics.Registry) *lifecycleCounters {
 			"Total prism review rounds that reached a pass/fail verdict, by verdict, repo, agent role, and profile.",
 			[]string{"verdict", "repo", "agent_role", "profile"},
 		),
+		// One increment per review AGENT per round, beside the round-level
+		// counter above. agent_role is the review dimension
+		// (review-goal, review-code, review-security, review-qa,
+		// review-context), resolved from the event's instance_id through the
+		// same sessions join every other counter here uses. verdict takes
+		// three values: pass, fail, and error. The HELP text states what
+		// "error" covers, because an operator reading a rising error rate for
+		// one role must not read it as "that agent keeps crashing" when it can
+		// also mean "that agent keeps emitting a marker this pipeline does not
+		// map to pass or fail" — PASS_WITH_DISAGREEMENT, for review-goal.
+		reviewAgentVerdictsTotal: metrics.NewCounterVec(
+			MetricReviewAgentVerdictsTotal,
+			"Total prism review agent verdicts, by verdict, review agent role, and repo. One per agent per round. "+
+				"verdict=\"error\" means the round recorded neither a PASS nor a FAIL for that agent: it failed to start, "+
+				"stalled, exited uncleanly, produced no output, was absent from the round, or emitted a marker the review "+
+				"pipeline does not map to pass or fail (PASS_WITH_DISAGREEMENT).",
+			[]string{"verdict", "agent_role", "repo"},
+		),
 		escalationsTotal: metrics.NewCounterVec(
 			MetricEscalationsTotal,
 			"Total prism escalate invocations observed by the exporter, by repo.",
@@ -115,6 +163,7 @@ func newLifecycleCounters(reg *metrics.Registry) *lifecycleCounters {
 	reg.MustRegister(lc.spawnsTotal)
 	reg.MustRegister(lc.sessionsEndedTotal)
 	reg.MustRegister(lc.reviewVerdictsTotal)
+	reg.MustRegister(lc.reviewAgentVerdictsTotal)
 	reg.MustRegister(lc.escalationsTotal)
 	reg.MustRegister(lc.doomLoopsTotal)
 	reg.MustRegister(lc.permissionDeniedTotal)
@@ -124,17 +173,15 @@ func newLifecycleCounters(reg *metrics.Registry) *lifecycleCounters {
 // apply is the tailcursor apply function for the lifecycle tailer. It is a
 // closed dispatch over agent_events.type: every type this switch does not
 // name is a no-op, which covers the vast majority of rows (msg_assistant,
-// tool_call, and so on) that carry none of the six counters.
+// tool_call, and so on) that carry none of the seven counters.
 //
-// The five repo-labelled counters (spawnsTotal, sessionsEndedTotal,
-// escalationsTotal, doomLoopsTotal, permissionDeniedTotal) fold empty or
-// whitespace-only ev.Repo to the unknownRepoLabel placeholder via repoLabel(),
-// to prevent unbounded label cardinality and blank template-variable entries
-// to prevent unbounded label cardinality and blank template-variable
-// entries. Counters are tail-cursor accumulated and persisted across
-// restarts, so a label-value correction ends the old series and starts a new
-// one at zero: corrected values start a new series going forward;
-// pre-correction rows keep their original label value (no backfill).
+// EVERY counter here carries a repo label, and every one of the seven folds
+// empty or whitespace-only ev.Repo to the unknownRepoLabel placeholder via
+// repoLabel(), to prevent unbounded label cardinality and blank
+// template-variable entries. Counters are tail-cursor accumulated and
+// persisted across restarts, so a label-value correction ends the old series
+// and starts a new one at zero: corrected values start a new series going
+// forward; pre-correction rows keep their original label value (no backfill).
 func (lc *lifecycleCounters) apply(ev lifecycleEvent) error {
 	switch ev.Type {
 	case session.EventSpawnIntent:
@@ -150,6 +197,12 @@ func (lc *lifecycleCounters) apply(ev lifecycleEvent) error {
 	default:
 		if verdict, ok := verdictLabel(ev.Type); ok {
 			return lc.reviewVerdictsTotal.Inc(verdict, repoLabel(ev.Repo), ev.AgentRole, ev.ProfileName)
+		}
+		if verdict, ok := agentVerdictLabel(ev.Type); ok {
+			// ev.AgentRole is the REVIEW agent's role here, not the worker's:
+			// the per-agent event carries the review agent's instance_id, and
+			// the sessions join resolves the role from it.
+			return lc.reviewAgentVerdictsTotal.Inc(verdict, ev.AgentRole, repoLabel(ev.Repo))
 		}
 		return nil
 	}
