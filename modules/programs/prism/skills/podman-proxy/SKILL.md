@@ -51,8 +51,13 @@ the runtime gate on startup and conditionally:
   `<sessionDir>/container-scratch/` into the sandbox, RW, so the agent
   has a writable place to point bind mounts that does not need to live
   in the worktree, and
-- opens an audit-log file at `<sessionDir>/podman-proxy.log` (one JSON
-  line per request: timestamp, method, endpoint, decision, reason).
+- opens an audit-log file at
+  `<XDG_STATE_HOME>/prism/podman-audit/<instance_id>/podman-proxy.log`
+  (one JSON line per request: timestamp, method, endpoint, decision,
+  reason). The log sits outside the session work dir because the Darwin
+  sandbox grants the agent write access over that whole subpath, and the
+  agent is the subject of the record. `prism cleanup` removes the audit
+  directory for the session it cleans.
 
 The `--containers` flag is independent of `--isolation`. Combining
 `--containers --isolation host` produces a warning (host mode has direct
@@ -171,7 +176,7 @@ carries the detail and the conditions to close each one.
   tracks), and the record of what to remove needs a home the agent
   cannot write to. A file under the session work dir is not one, because
   the Darwin sandbox grants the agent write access over that whole
-  subpath.
+  subpath — the `podman-audit` root the audit log uses is such a home.
 - **No cap on the container count.** See the note above. The memory and
   CPU caps bound one container each, not the session's total.
 
@@ -280,8 +285,12 @@ intentionally NOT shipped in this train.
 
 ## Debugging rejections
 
+**Read the audit log from a host shell.** No sandboxed session has read
+access to the `podman-audit` root — that is the point of the location, and
+an in-sandbox read gets EPERM. A `host`-mode session reads it directly.
+
 Every request the proxy sees writes exactly one JSON line to
-`<XDG_STATE_HOME>/prism/sessions/<instance_id>/podman-proxy.log` —
+`<XDG_STATE_HOME>/prism/podman-audit/<instance_id>/podman-proxy.log` —
 resolve the `<instance_id>` for a session by reading the
 `agent_status.instance_id` column from `prism.db` (e.g. `sqlite3
 ~/.local/state/prism/prism.db "SELECT instance_id FROM agent_status

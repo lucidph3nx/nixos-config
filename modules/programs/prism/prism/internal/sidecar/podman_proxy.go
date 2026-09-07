@@ -90,8 +90,10 @@ const (
 //     upstream path, and the proxy package's friendly 503 envelope handles
 //     every request until the upstream becomes reachable.
 //   - The audit log is opened in append-only mode under
-//     <XDG_STATE_HOME>/prism/sessions/<instanceID>/podman-proxy.log so log
-//     entries survive sidecar restarts within a single session incarnation.
+//     <XDG_STATE_HOME>/prism/podman-audit/<instanceID>/podman-proxy.log so
+//     log entries survive sidecar restarts within a single session
+//     incarnation. That directory sits outside every sandbox grant — see
+//     internal/container/podman_proxy_audit.go.
 //   - The proxy's Serve goroutine is launched via goNotify so notifyWG tracks
 //     it; ctx cancellation -- triggered by Shutdown() -- drains the accept
 //     loop within the proxy's own shutdown budget.
@@ -130,11 +132,8 @@ func (s *Sidecar) runPodmanProxyIfEnabled(ctx context.Context) {
 	// At this point containers_enabled=1. Build the proxy config.
 	upstream := s.resolvePodmanUpstreamPath()
 
-	// Open the audit log. The directory is the per-session work dir, which
-	// production code prepares via PrepareSessionWorkDir. We create it here
-	// defensively so tests -- and the rare case where the proxy starts
-	// before agent-run has prepared the directory -- do not lose audit
-	// lines.
+	// Open the audit log. The sidecar creates the audit directory. No
+	// other code path prepares it.
 	auditFile, auditPath, auditErr := s.openPodmanProxyAuditFile()
 	if auditErr != nil {
 		// Audit-file open failure must not prevent the proxy from
@@ -351,24 +350,28 @@ func (s *Sidecar) allowedPodmanBindSources() []string {
 }
 
 // openPodmanProxyAuditFile opens the per-session audit log file in
-// append-only mode and returns the file handle plus the absolute path. The
-// audit log lives under the per-session work dir so RemoveSessionWorkDir
-// wipes it on cleanup, alongside the rest of the session's transient state.
+// append-only mode and returns the file handle plus the absolute path.
+//
+// The log lives OUTSIDE the per-session work dir, at
+// <XDG_STATE_HOME>/prism/podman-audit/<instanceID>/podman-proxy.log. The
+// Darwin sandbox profile grants the agent write access over the whole work
+// dir subpath, and the agent is the subject of this record.
+// internal/container/podman_proxy_audit.go holds the rationale, the path
+// helpers, and the matching cleanup call.
 //
 // The directory is created with 0o700 to match the rest of the per-session
-// state; the file is opened 0o600 so only the sidecar owner can read it.
+// state. The file is opened 0o600 so only the sidecar owner can read it.
 func (s *Sidecar) openPodmanProxyAuditFile() (*os.File, string, error) {
 	if s.cfg.InstanceID == "" {
 		return nil, "", fmt.Errorf("instance ID is empty")
 	}
-	sessionDir, err := container.SessionWorkDirPath(s.cfg.InstanceID)
+	auditPath, err := container.PodmanProxyAuditLogPath(s.cfg.InstanceID)
 	if err != nil {
-		return nil, "", fmt.Errorf("session work dir: %w", err)
+		return nil, "", fmt.Errorf("audit log path: %w", err)
 	}
-	if err := os.MkdirAll(sessionDir, 0o700); err != nil {
-		return nil, "", fmt.Errorf("mkdir session dir: %w", err)
+	if err := os.MkdirAll(filepath.Dir(auditPath), 0o700); err != nil {
+		return nil, "", fmt.Errorf("mkdir audit dir: %w", err)
 	}
-	auditPath := filepath.Join(sessionDir, "podman-proxy.log")
 	f, err := os.OpenFile(auditPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o600)
 	if err != nil {
 		return nil, "", fmt.Errorf("open audit log: %w", err)

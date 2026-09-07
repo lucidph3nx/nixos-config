@@ -269,7 +269,11 @@ Tests for sidecar wiring live at
 - `containers_enabled=0` sessions do NOT bind a `podman.sock` listener
   in the per-session run dir, and emit NO audit-log file.
 - `containers_enabled=1` sessions DO bind the listener and the audit
-  file appears at `<sessionDir>/podman-proxy.log`.
+  file appears at
+  `<XDG_STATE_HOME>/prism/podman-audit/<instanceID>/podman-proxy.log`.
+- An audit log that cannot be opened does not stop the proxy: the
+  listener still binds, requests still get answers, and the sidecar holds
+  no audit handle.
 - A request to the filtered socket reaches the (fake) upstream and the
   audit log records the call.
 
@@ -281,13 +285,46 @@ profile additions live at
 integration test under `internal/integration/` per the
 [sandbox-exec testing convention](sandbox-exec-testing.md).
 
+`internal/container/sandbox_exec_podman_audit_test.go` asserts the
+audit-log path lies outside every write-granted path of the profile. A
+paired control asserts the same check flags the work-dir location.
+`cmd/cleanup_podman_audit_test.go` asserts `prism cleanup` removes the
+audit directory of the session it cleans. It also asserts cleanup leaves
+another session's log alone.
+
 ## 7. Troubleshooting — reading the audit log
 
 Every request the proxy sees writes exactly one JSON line to:
 
 ```
-<XDG_STATE_HOME>/prism/sessions/<instanceID>/podman-proxy.log
+<XDG_STATE_HOME>/prism/podman-audit/<instanceID>/podman-proxy.log
 ```
+
+Resolve `<instanceID>` for a session name with:
+
+```bash
+sqlite3 ~/.local/state/prism/prism.db \
+  "SELECT instance_id FROM agent_status WHERE session_name = '<session>'"
+```
+
+That tree sits outside the per-session work dir on purpose. The
+sandbox-exec profile grants the agent `file-read* file-write*` over
+`(subpath <sessionDir>)`. The agent is the subject of this record, so a
+log inside that grant is a record its own subject can rewrite. No clause
+of the SBPL profile names the `podman-audit` root, and bwrap binds
+nothing under it. The agent therefore has no write path to the log on
+either platform. `internal/container/podman_proxy_audit.go` holds the
+path helpers and the rationale. The test
+`internal/container/sandbox_exec_podman_audit_test.go` fails if a
+write-granted subpath of the profile ever covers the path.
+
+Read the log from a host shell. No sandboxed session has read access to
+the `podman-audit` root, on either platform.
+
+The location costs an explicit cleanup step. `RemoveSessionWorkDir` does
+not reach the `podman-audit` root, so `prism cleanup` removes the
+session's audit directory itself. The removal is `removeSessionInstanceDirs` in
+`cmd/cleanup.go`.
 
 Each line has the shape:
 
@@ -377,7 +414,9 @@ sets:
 - `MaxMemoryBytes` — `4294967296` (4 GiB per container).
 - `MaxNanoCpus` — `2000000000` (2 CPUs per container).
 - `MaxCPUQuota` — left at `0`. Read §8.1 before you change this.
-- `AuditWriter` — the `os.File` for `<sessionDir>/podman-proxy.log`.
+- `AuditWriter` — the `os.File` for
+  `<XDG_STATE_HOME>/prism/podman-audit/<instanceID>/podman-proxy.log`.
+  See §7 for why the log lives outside the session work dir.
 
 Out-of-tree callers can construct the `Config` differently. The proxy
 package itself imposes no policy beyond what the `Config` declares.
@@ -571,8 +610,12 @@ sweeping returns:
    on both platforms.
 
 A database table satisfies condition 2 structurally, because the agent
-has no write path to the database. That is the expected shape when this
-returns.
+has no write path to the database. A file under
+`<XDG_STATE_HOME>/prism/podman-audit/<instanceID>/` satisfies it too:
+no sandbox grant reaches that root on either platform, which is why the
+audit log lives there (§7). A table costs a schema migration, so read
+[#2944](https://github.com/prismatic-koi/nixos-config/issues/2944)
+before you schedule one.
 
 **No bound on the NUMBER of containers.** `MaxMemoryBytes` and
 `MaxNanoCpus` are per container. Nothing limits how many containers one

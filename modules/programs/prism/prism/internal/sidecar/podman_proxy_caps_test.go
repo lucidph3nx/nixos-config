@@ -136,11 +136,10 @@ func TestPodmanProxy_ResourceCaps_WiredFromSidecar(t *testing.T) {
 		t.Fatalf("podman.sock listener did not appear at %s", listenerPath)
 	}
 
-	sessionDir, err := container.SessionWorkDirPath(sc.cfg.InstanceID)
+	auditPath, err := container.PodmanProxyAuditLogPath(sc.cfg.InstanceID)
 	if err != nil {
-		t.Fatalf("SessionWorkDirPath: %v", err)
+		t.Fatalf("PodmanProxyAuditLogPath: %v", err)
 	}
-	auditPath := filepath.Join(sessionDir, "podman-proxy.log")
 
 	// Values that sit inside both caps, used wherever a probe needs a
 	// field it is not testing.
