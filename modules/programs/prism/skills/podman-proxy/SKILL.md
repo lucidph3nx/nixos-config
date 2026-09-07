@@ -187,7 +187,8 @@ carries the detail and the conditions to close each one.
 
 - **An ANONYMOUS volume is not swept.** A docker-API
   `run -v /data ...`, a `Type=volume` mount with an empty `Source`, or a
-  `Config.Volumes` placeholder makes the runtime create a volume and name
+  `containerCreateBody.Volumes` placeholder makes the runtime create a
+  volume and name
   it itself. The proxy has no name to police, so the volume carries no
   prefix and the sweep never finds it. Name the volume instead — see the
   section above — and the sweep reaches it. A NAMED volume created

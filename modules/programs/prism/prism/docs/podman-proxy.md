@@ -607,7 +607,8 @@ carries the field-admission audit for the change.
 
 An ANONYMOUS volume still escapes the prefix. Two shapes reach it. One
 is a `Mounts` entry of `Type=volume` with an empty `Source`. The other
-is the top-level `Config.Volumes` placeholder map (`{"/data": {}}`),
+is the top-level `containerCreateBody.Volumes` placeholder map
+(`{"/data": {}}`),
 which is FORWARDED. The runtime picks the name in both cases, so the
 policy has no name to refuse. A blanket refusal removes a legitimate
 docker workflow, so the proxy admits both shapes. `podman rm` deletes
@@ -624,9 +625,9 @@ FORWARDED, with the rationale "anonymous-volume placeholders". That
 rationale describes the docker-compat field, which is a
 `map[container-path]{}` and carries no name. It does not describe
 libpod's field of the same name. libpod `SpecGenerator.Volumes` is an
-array of `NamedVolume{Name, Dest, Options}`, and Go matches a JSON
-field name case-insensitively, so the lowercase libpod `volumes` array
-lands in that same `json.RawMessage` and forwards as sent.
+array of `NamedVolume{Name, Dest, Options}`. Go matches a JSON field
+name case-insensitively, so the lowercase libpod `volumes` array lands
+in that same `json.RawMessage` and forwards as sent.
 
 The result is that `checkMountedVolumeNames` does not see it. A body
 of this shape returns 200 with audit reason
@@ -640,7 +641,7 @@ of this shape returns 200 with audit reason
 Three shapes reach it: the lowercase array of objects, the uppercase
 `Volumes` array of objects, and an array of strings
 (`["<foreign-vol>:/data"]`). The sibling libpod `mounts` array is
-refused at decode (`unknown_field`), which is what shows the boundary
+rejected at decode (`unknown_field`), which is what shows the boundary
 works and that `volumes` is the one that leaks.
 
 So the prefix rule in T25 covers two channels, not every channel, and

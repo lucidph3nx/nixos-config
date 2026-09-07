@@ -892,7 +892,8 @@ func (p *Proxy) checkHostConfig(hc *hostConfig) policyDecision {
 // # What is NOT policed here
 //
 // An ANONYMOUS volume — a Type=volume mount with an empty Source, or
-// the top-level Config.Volumes placeholder map — still forwards. The
+// the top-level containerCreateBody.Volumes placeholder map — still
+// forwards. The
 // runtime names it itself, so there is no name to refuse, and
 // refusing the request outright would break a legitimate docker
 // workflow that this change was not asked to remove. The resulting
