@@ -93,8 +93,8 @@ func newLifecycleCounters(reg *metrics.Registry) *lifecycleCounters {
 		),
 		reviewVerdictsTotal: metrics.NewCounterVec(
 			MetricReviewVerdictsTotal,
-			"Total prism review rounds that reached a pass/fail verdict, by verdict.",
-			[]string{"verdict"},
+			"Total prism review rounds that reached a pass/fail verdict, by verdict, repo, agent role, and profile.",
+			[]string{"verdict", "repo", "agent_role", "profile"},
 		),
 		escalationsTotal: metrics.NewCounterVec(
 			MetricEscalationsTotal,
@@ -149,7 +149,7 @@ func (lc *lifecycleCounters) apply(ev lifecycleEvent) error {
 		return lc.permissionDeniedTotal.Inc(repoLabel(ev.Repo))
 	default:
 		if verdict, ok := verdictLabel(ev.Type); ok {
-			return lc.reviewVerdictsTotal.Inc(verdict)
+			return lc.reviewVerdictsTotal.Inc(verdict, repoLabel(ev.Repo), ev.AgentRole, ev.ProfileName)
 		}
 		return nil
 	}
