@@ -22,6 +22,7 @@ import (
 	"database/sql"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -367,10 +368,122 @@ func TestAgentVerdictEventID_DerivedFromGroupAndRole(t *testing.T) {
 	}
 }
 
+// TestAgentVerdictEventType_PassWithDisagreementRecordsError pins the bucket
+// boundary review-context raised: a review-goal agent that ran to `finished`
+// and emitted <verdict>PASS_WITH_DISAGREEMENT</verdict> records
+// verdict="error", not "pass" and not "fail".
+//
+// This is a PIN, not an endorsement. AssessPassed maps the marker to
+// VerdictNone, so the ROUND pipeline already treats such a member as having
+// produced no parseable verdict (classifyMember, roundstatus.go). The
+// per-agent counter follows that classification so the two counters cannot
+// disagree about the same round. Whether the pipeline SHOULD treat the marker
+// that way is a separate question about AssessPassed (#2862 / #2867) and is
+// not settled here — but a change to it must land deliberately, and this test
+// is what makes that change visible instead of silently moving a metric.
+func TestAgentVerdictEventType_PassWithDisagreementRecordsError(t *testing.T) {
+	d := openTestDB(t)
+	worker := "prism-test@agent-verdict-disagreement"
+	seedWorkerSession(t, d, worker)
+
+	// Drive the real classification path rather than hand-building the
+	// AgentResult: the mapping under test starts at the assistant text.
+	sessionName, instanceID := seedReviewAgentSession(t, d, worker, "review-goal")
+	agents := []review.Agent{{Name: "review-goal"}}
+	agentSessions := []string{sessionName}
+	groupData := map[string]db.GroupMemberResult{
+		sessionName: {
+			SessionName: sessionName,
+			InstanceID:  instanceID,
+			State:       "finished",
+			LastMessage: "summary\n<verdict>PASS_WITH_DISAGREEMENT</verdict>",
+		},
+	}
+	results := review.BuildMonitorResultsForTest(agents, agentSessions, groupData)
+	if !results[0].IsError {
+		t.Fatalf("PASS_WITH_DISAGREEMENT produced IsError=false; the round pipeline changed — revisit the per-agent mapping and the EventReviewAgentVerdictError comment together")
+	}
+
+	review.WriteVerdictEventForTest(d, "grp-disagreement", worker, results, false)
+
+	got := agentVerdictRowFor(t, d, sessionName)
+	if got.Type != review.EventReviewAgentVerdictError {
+		t.Errorf("PASS_WITH_DISAGREEMENT recorded %q, want %q", got.Type, review.EventReviewAgentVerdictError)
+	}
+	if got.Type == review.EventReviewAgentVerdictFail {
+		t.Errorf("PASS_WITH_DISAGREEMENT must never record a FAIL verdict")
+	}
+}
+
+// TestBuildMonitorResults_ReapedMemberKeepsItsInstanceID covers the gap
+// review-context found: db.GroupResults drops every row whose ended_at is set,
+// so a member reaped mid-round is absent from groupData — and those members
+// are exactly the ones the "error" verdict exists to expose. The instance id
+// is still in hand, on the endedRows read the same call already takes, so the
+// agent must still record its verdict.
+func TestBuildMonitorResults_ReapedMemberKeepsItsInstanceID(t *testing.T) {
+	agents := []review.Agent{{Name: "review-goal"}, {Name: "review-code"}}
+	agentSessions := []string{"prism-test@w~review-1-review-goal", "prism-test@w~review-1-review-code"}
+	groupData := map[string]db.GroupMemberResult{
+		agentSessions[0]: {
+			SessionName: agentSessions[0],
+			InstanceID:  "iid-goal",
+			State:       "finished",
+			LastMessage: "<verdict>PASS</verdict>",
+		},
+		// review-code was reaped mid-round: GroupResults drops it.
+	}
+	reapedIID := "iid-code"
+	endedAt := time.Now()
+	endedRows := map[string]db.Status{
+		agentSessions[1]: {
+			SessionName: agentSessions[1],
+			State:       "error",
+			InstanceID:  &reapedIID,
+			EndedAt:     &endedAt,
+		},
+	}
+
+	results := review.BuildMonitorResultsWithEndedForTest(agents, agentSessions, groupData, endedRows)
+	if got := results[1].InstanceID; got != reapedIID {
+		t.Errorf("reaped member InstanceID = %q, want %q — a reaped agent must still record its error verdict", got, reapedIID)
+	}
+	if !results[1].IsError {
+		t.Errorf("reaped member IsError = false, want true")
+	}
+	if got := results[0].InstanceID; got != "iid-goal" {
+		t.Errorf("live member InstanceID = %q, want %q — groupData must still win", got, "iid-goal")
+	}
+}
+
+// TestBuildMonitorResults_ClearedInstanceIDStaysUnresolvable pins the half of
+// the gap the endedRows fallback does NOT close: the tmux session-closed hook
+// calls ClearInstanceID, which NULLs agent_status.instance_id. A member closed
+// that way has no resolvable id on either read, and the writer skips it — the
+// edge case the ACs sanction.
+func TestBuildMonitorResults_ClearedInstanceIDStaysUnresolvable(t *testing.T) {
+	agents := []review.Agent{{Name: "review-code"}}
+	agentSessions := []string{"prism-test@w~review-1-review-code"}
+	endedAt := time.Now()
+	endedRows := map[string]db.Status{
+		agentSessions[0]: {
+			SessionName: agentSessions[0],
+			State:       "error",
+			InstanceID:  nil, // ClearInstanceID has already run.
+			EndedAt:     &endedAt,
+		},
+	}
+
+	results := review.BuildMonitorResultsWithEndedForTest(agents, agentSessions, map[string]db.GroupMemberResult{}, endedRows)
+	if got := results[0].InstanceID; got != "" {
+		t.Errorf("InstanceID = %q, want \"\" when agent_status.instance_id is NULL", got)
+	}
+}
+
 // TestBuildMonitorResults_StampsAgentIdentity covers the plumbing the writer
 // depends on: buildMonitorResults carries each member's own session name and
 // instance id onto its AgentResult, and leaves the instance id empty for a
-// member missing from the group data (the skip case above).
+// member with no row on either read (the skip case above).
 func TestBuildMonitorResults_StampsAgentIdentity(t *testing.T) {
 	agents := []review.Agent{{Name: "review-goal"}, {Name: "review-code"}}
 	agentSessions := []string{"prism-test@w~review-1-review-goal", "prism-test@w~review-1-review-code"}
@@ -381,7 +494,7 @@ func TestBuildMonitorResults_StampsAgentIdentity(t *testing.T) {
 			State:       "finished",
 			LastMessage: "<verdict>PASS</verdict>",
 		},
-		// review-code is absent — reaped mid-review.
+		// review-code has no row on either read.
 	}
 
 	results := review.BuildMonitorResultsForTest(agents, agentSessions, groupData)

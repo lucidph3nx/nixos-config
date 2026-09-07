@@ -79,15 +79,37 @@ const (
 // together. AgentResult.IsError separates them.
 const (
 	// EventReviewAgentVerdictPass is written for a review agent whose output
-	// carried a parseable PASS verdict.
+	// carried a parseable PASS verdict — verdict.Pass, and only that.
 	EventReviewAgentVerdictPass = "review.agent_verdict_pass"
 	// EventReviewAgentVerdictFail is written for a review agent whose output
 	// carried a parseable FAIL verdict — a real code-quality verdict.
 	EventReviewAgentVerdictFail = "review.agent_verdict_fail"
-	// EventReviewAgentVerdictError is written for a review agent that produced
-	// no verdict: a no-start, a mid-run stall, an unclean exit, no output, a
-	// finish with no parseable verdict, or a session absent from the group.
-	// Never conflated with a FAIL.
+	// EventReviewAgentVerdictError is written for a review agent whose round
+	// recorded no PASS and no FAIL. It is NOT limited to an agent that
+	// produced no output. The bucket holds: a no-start, a mid-run stall, an
+	// unclean exit, no output, a session absent from the group — AND an agent
+	// that ran to `finished` and emitted a marker this pipeline does not map
+	// to pass or fail. Never conflated with a FAIL.
+	//
+	// PASS_WITH_DISAGREEMENT is in that last group, and review-goal is the one
+	// agent that emits it (agents/review-goal.md), so its "error" count
+	// carries those rounds. This is deliberate and it is NOT a judgement that
+	// the marker is an infrastructure failure: it is what keeps the per-agent
+	// counter reconcilable with the round counter. AssessPassed maps
+	// verdict.PassWithDisagreement to VerdictNone (results.go), so the ROUND
+	// pipeline already classifies such a member as NoVerdictUnparseable
+	// (classifyMember, roundstatus.go) and the round is reported as "ran but
+	// produced no parseable verdict". A per-agent mapping to "pass" would put
+	// the two counters in disagreement about the same round.
+	//
+	// That the round pipeline treats the marker this way at all sits at odds
+	// with agents/review-goal.md, which says it "counts as PASS for
+	// review-cycle termination" (#2862 / #2867). That is a pre-existing
+	// question about AssessPassed and the round classification, not about this
+	// counter, and it is not settled here.
+	// TestAgentVerdictEventType_PassWithDisagreementRecordsError pins the
+	// current behaviour, so a change to the pipeline surfaces here loudly
+	// rather than silently moving a metric.
 	EventReviewAgentVerdictError = "review.agent_verdict_error"
 )
 
@@ -783,17 +805,43 @@ func buildMonitorResults(agents []Agent, agentSessions []string, groupData map[s
 			agentSession = agentSessions[i]
 		}
 
-		mr := groupData[agentSession]
 		results[i] = monitorResultFor(ag, agentSession, groupData, endedRows, endedCauses)
 		// Stamp WHICH agent produced this result, on every branch above.
-		// InstanceID is the member's own instance and is "" for an absent
-		// member (the zero GroupMemberResult) — writeVerdictEvent treats that
-		// as "role not resolvable" and skips the per-agent verdict event for
-		// this agent alone (issue #2963).
+		// writeVerdictEvent needs the instance id to resolve the agent's role,
+		// and skips any agent it cannot resolve one for (issue #2963).
 		results[i].SessionName = agentSession
-		results[i].InstanceID = mr.InstanceID
+		results[i].InstanceID = memberInstanceID(agentSession, groupData, endedRows)
 	}
 	return results
+}
+
+// memberInstanceID resolves one group member's own instance id from the two
+// reads buildMonitorResults already has in hand.
+//
+// groupData (db.GroupResults) is the live read and drops every row whose
+// ended_at is set — by design, and the reason the cleanup escape hatch works.
+// A member reaped mid-round is therefore absent from it, and those members are
+// exactly the ones the per-agent counter's "error" value exists to expose:
+// monitor_timeout, spawn_failure, parent_cleanup, auto_release (#2613, #2649).
+// Reading the instance id from groupData alone would skip every one of them
+// and under-count "error".
+//
+// endedRows carries precisely the rows groupData drops, with the same
+// instance_id column on them, so it is the correct fallback and it costs no
+// extra read.
+//
+// It can still resolve to "": the tmux session-closed hook calls
+// ClearInstanceID, which NULLs agent_status.instance_id. When that has already
+// run, the id is genuinely unresolvable and the caller skips the agent — which
+// is the edge case the ACs sanction.
+func memberInstanceID(agentSession string, groupData map[string]db.GroupMemberResult, endedRows map[string]db.Status) string {
+	if mr, ok := groupData[agentSession]; ok && mr.InstanceID != "" {
+		return mr.InstanceID
+	}
+	if st, ok := endedRows[agentSession]; ok && st.InstanceID != nil {
+		return *st.InstanceID
+	}
+	return ""
 }
 
 // monitorResultFor classifies ONE group member into its AgentResult. It is the
