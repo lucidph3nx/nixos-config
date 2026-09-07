@@ -72,8 +72,8 @@ func denyDecision(status int, reason, message string) policyDecision {
 // admission.
 type hostConfig struct {
 	// INSPECTED — policy check in checkHostConfig.
-	Binds        []string          `json:"Binds"`        // bind allowlist + symlink resolution
-	Mounts       []hostConfigMount `json:"Mounts"`       // bind allowlist + volume-driver escape
+	Binds        []string          `json:"Binds"`        // bind allowlist + symlink resolution; named-volume prefix
+	Mounts       []hostConfigMount `json:"Mounts"`       // bind allowlist + volume-driver escape; named-volume prefix
 	Privileged   bool              `json:"Privileged"`   // deny when true
 	CapAdd       []string          `json:"CapAdd"`       // allowlist (AllowedCaps)
 	NetworkMode  string            `json:"NetworkMode"`  // deny "host"
@@ -159,9 +159,19 @@ type hostConfig struct {
 // VolumeOptions.DriverConfig.Name="local" plus
 // DriverConfig.Options.device=/host/path is functionally a bind mount
 // dressed up as a volume.
+//
+// Source carries two different things depending on Type, and both are
+// INSPECTED. For Type=bind it is a host path, checked against the
+// bind-source allowlist. For Type=volume it is a VOLUME NAME, checked
+// against the per-session volume-name prefix by
+// checkMountedVolumeNames. The name half was decoded but never
+// inspected until issue #2954: the runtime creates a named volume that
+// a container mounts and that does not yet exist, so an uninspected
+// name both escaped the cleanup sweep and let a session attach another
+// session's volume by naming it.
 type hostConfigMount struct {
 	Type          string                   `json:"Type"`          // INSPECTED (bind vs volume)
-	Source        string                   `json:"Source"`        // INSPECTED (host bind path)
+	Source        string                   `json:"Source"`        // INSPECTED (host bind path | volume name)
 	VolumeOptions *hostConfigVolumeOptions `json:"VolumeOptions"` // INSPECTED (deny .DriverConfig)
 
 	// FORWARDED — mount fields admitted as safe.
@@ -637,7 +647,10 @@ func (p *Proxy) checkHostConfig(hc *hostConfig) policyDecision {
 	for _, b := range hc.Binds {
 		src := bindSource(b)
 		if src == "" {
-			// A volume name (no leading '/') is not a host bind.
+			// A volume name (no leading '/') is not a host bind. The
+			// name is policed by checkMountedVolumeNames at the end of
+			// this function, not here — see the call site for why the
+			// name policy runs last.
 			continue
 		}
 		if !p.isAllowedBindSource(src) {
@@ -678,6 +691,8 @@ func (p *Proxy) checkHostConfig(hc *hostConfig) policyDecision {
 					"mount_volume_driver_config",
 					"Mounts entry of Type=volume with VolumeOptions.DriverConfig is not permitted (local-driver bind-volume escape; use a Type=bind Mount with an allowlisted Source instead)")
 			}
+			// The volume NAME in m.Source is policed by
+			// checkMountedVolumeNames at the end of this function.
 		case "tmpfs":
 			// In-memory, container-internal. No host-file access
 			// path. Safe; forward.
@@ -826,7 +841,113 @@ func (p *Proxy) checkHostConfig(hc *hostConfig) policyDecision {
 		return dec
 	}
 
+	// Per-session volume-name policy on every named volume a mount
+	// attaches. Runs LAST for the same reason applyContainerNamePolicy
+	// and inspectVolumeCreate's name check do: an escape-vector
+	// violation (host bind, privileged, glob mount type, local-driver
+	// volume) must be the reason the audit log records when a body
+	// carries both, because it is the worse violation.
+	if dec := p.checkMountedVolumeNames(hc); !dec.allow {
+		return dec
+	}
+
 	return allowDecision("policy:containers/create:ok")
+}
+
+// checkMountedVolumeNames applies the per-session volume-name policy
+// to every NAMED VOLUME a containers/create body attaches. It is the
+// container-create twin of applyVolumeNamePolicy, and closes the gap
+// issue #2954 recorded: both channels below decoded the volume name
+// and then ignored it.
+//
+// # Two channels, two consequences
+//
+// A named volume reaches a container through HostConfig.Binds
+// ("myvol:/data") and through a HostConfig.Mounts entry of
+// Type=volume (Source="myvol"). The runtime CREATES a named volume
+// that does not yet exist when a container mounts it, and that path
+// sends no POST /volumes/create, so applyVolumeNamePolicy never sees
+// it. Leaving the name uninspected cost two things:
+//
+//  1. Cleanup leak. sweepVolumesWithRunner matches on the
+//     prism-<session>- prefix, so an unprefixed volume outlived the
+//     session on the shared host.
+//  2. Cross-session data access. A session could ATTACH another live
+//     session's volume by naming it — prism-<other-session>-<hex> in
+//     either channel was admitted. That is the more serious of the
+//     two, and it is why this check denies rather than warns.
+//
+// # Refuse, do not inject
+//
+// applyVolumeNamePolicy injects a prefixed name when the name is
+// absent and refuses when it is present-but-wrong. This function only
+// refuses. Injection on this path would mean rewriting one field
+// inside a colon-delimited string that also carries the target and an
+// options list ("myvol:/data:ro"), for every entry of two differently
+// shaped channels. That is fragile string surgery on the security
+// boundary itself, and it silently redirects the caller's mount to a
+// volume it did not name. A 403 that names the required prefix is
+// unambiguous, and the caller retries with a correct name.
+//
+// # What is NOT policed here
+//
+// An ANONYMOUS volume — a Type=volume mount with an empty Source, or
+// the top-level containerCreateBody.Volumes placeholder map — still
+// forwards. The
+// runtime names it itself, so there is no name to refuse, and
+// refusing the request outright would break a legitimate docker
+// workflow that this change was not asked to remove. The resulting
+// volume carries no prefix and the sweep does not reach it;
+// docs/podman-proxy.md §8.3 records that narrower residual.
+func (p *Proxy) checkMountedVolumeNames(hc *hostConfig) policyDecision {
+	prefix := p.cfg.VolumeNamePrefix
+	if prefix == "" {
+		// Back-compat, matching every other name policy in this file:
+		// an out-of-tree caller that configures no prefix keeps the
+		// plain filtering behaviour.
+		return allowDecision("policy:volume_name_policy_disabled")
+	}
+
+	for _, b := range hc.Binds {
+		name := bindVolumeName(b)
+		if name == "" {
+			// Either a host path (already checked against the bind
+			// allowlist above) or an entry with no colon at all, which
+			// is invalid bind syntax. The malformed entry keeps its
+			// pre-change behaviour deliberately: it forwards, and the
+			// upstream returns its own malformed-bind error, rather
+			// than the proxy fabricating a policy decision for a
+			// request podman rejects anyway.
+			continue
+		}
+		if !strings.HasPrefix(name, prefix) {
+			return denyDecision(http.StatusForbidden,
+				"bind_volume_name_prefix_mismatch",
+				fmt.Sprintf("HostConfig.Binds entry %q mounts named volume %q, which does not start with the required prefix %q (the proxy is session-scoped: a volume outside the prefix belongs to another session or outlives this one, because `prism cleanup` sweeps on the prefix; rename the volume so it begins with the required prefix)",
+					truncateForReason(b), truncateForReason(name), prefix))
+		}
+	}
+
+	for _, m := range hc.Mounts {
+		if m.Type != "volume" {
+			// Type is already value-allowlisted above, so the only
+			// other entries here are bind (host path, already checked)
+			// and tmpfs (no name, no host reach).
+			continue
+		}
+		if m.Source == "" {
+			// Anonymous volume. See the doc comment.
+			continue
+		}
+		if !strings.HasPrefix(m.Source, prefix) {
+			return denyDecision(http.StatusForbidden,
+				"mount_volume_name_prefix_mismatch",
+				fmt.Sprintf("HostConfig.Mounts entry of Type=volume names Source=%q, which does not start with the required prefix %q (the proxy is session-scoped: a volume outside the prefix belongs to another session or outlives this one, because `prism cleanup` sweeps on the prefix; rename the volume so it begins with the required prefix)",
+					truncateForReason(m.Source), prefix))
+		}
+	}
+
+	return allowDecision("policy:volume_names:ok")
 }
 
 // capContext distinguishes the two body shapes that resource-cap
@@ -1150,10 +1271,26 @@ func (p *Proxy) inspectArchive(r *http.Request) policyDecision {
 	return allowDecision("policy:containers/archive:ok")
 }
 
+// splitBindSpec splits a HostConfig.Binds entry of the form
+// "src:dst[:options]" into its source field, and reports whether the
+// entry carried a colon at all.
+//
+// bindSource and bindVolumeName both build on this so the two cannot
+// disagree about where the source ends. They partition the same
+// string — host paths to one, volume names to the other — and a
+// divergence would leave a source that neither of them inspects.
+func splitBindSpec(bind string) (src string, ok bool) {
+	idx := strings.Index(bind, ":")
+	if idx < 0 {
+		return "", false
+	}
+	return bind[:idx], true
+}
+
 // bindSource extracts the host source from a HostConfig.Binds entry of
 // the form "src:dst[:options]". If the source has no leading '/' it is
-// treated as a named volume and bindSource returns "" so the caller
-// skips the host-path check.
+// treated as a named volume and bindSource returns "" — the name is
+// then bindVolumeName's business, not the host-path allowlist's.
 //
 // Edge cases:
 //   - "src::ro" (empty dst) — still extract src; the upstream will
@@ -1162,13 +1299,42 @@ func (p *Proxy) inspectArchive(r *http.Request) policyDecision {
 //     upstream returns its own malformed-bind error and we don't
 //     fabricate a security decision for something podman will reject.
 func bindSource(bind string) string {
-	idx := strings.Index(bind, ":")
-	if idx < 0 {
+	src, ok := splitBindSpec(bind)
+	if !ok {
 		return ""
 	}
-	src := bind[:idx]
 	if !strings.HasPrefix(src, "/") {
 		// Named volume, not a host path.
+		return ""
+	}
+	return src
+}
+
+// bindVolumeName extracts the NAMED VOLUME from a HostConfig.Binds
+// entry of the form "src:dst[:options]", or "" when the entry names no
+// volume. It is the exact complement of bindSource over entries that
+// carry a colon: a source with a leading '/' is a host path and goes
+// to bindSource, anything else is a volume name and comes back from
+// here.
+//
+// Edge cases:
+//   - "src" alone (no colon) — invalid bind syntax; return "" so the
+//     entry forwards and the upstream reports its own malformed-bind
+//     error, matching bindSource's treatment of the same input.
+//   - ":/data" (empty source) — return "" for the same reason. There
+//     is no name to check, and podman rejects the entry itself.
+//   - "./rel:/data", "../etc:/data" — a relative path has no leading
+//     '/', so docker's Binds grammar reads it as a volume name and so
+//     does this function. The name then fails the prefix check, which
+//     is the correct outcome either way: isAllowedBindSource rejects
+//     relative sources too.
+func bindVolumeName(bind string) string {
+	src, ok := splitBindSpec(bind)
+	if !ok {
+		return ""
+	}
+	if strings.HasPrefix(src, "/") {
+		// Host path, not a named volume.
 		return ""
 	}
 	return src
