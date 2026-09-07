@@ -1,6 +1,6 @@
 # Podman proxy — security spec
 
-<!-- doclint-ignore: CgroupBudget, MaxContainers, resource_limits -->
+<!-- doclint-ignore: CgroupBudget, MaxContainers, resource_limits, SpecGenerator.Volumes -->
 <!-- doclint-ignore: networkmode_host, networkmode_colon, networkmode_slash, networkmode_whitespace -->
 <!-- doclint-ignore: pidmode_host, ipcmode_host, utsmode_host, usernsmode_host, cgroupnsmode_host -->
 <!-- doclint-ignore: AGENTS.md -->
@@ -23,6 +23,13 @@
     `NanoCpus` cap. It is deliberately absent from this source tree —
     the libpod body shape is not admitted, which is the residual that
     entry records.
+
+  - `SpecGenerator.Volumes` is an upstream libpod type and field, cited
+    by §8.3 for the same reason as `resource_limits`. Its shape is what
+    makes the lowercase `volumes` array a named-volume channel, so the
+    entry has to name it. This repo declares no such type — that is the
+    residual, and issue #2958 tracks giving the field a typed struct
+    here.
 
   - `<field>_host` / `<field>_colon` / `<field>_slash` /
     `<field>_whitespace` are audit reason tokens constructed at runtime
@@ -98,8 +105,8 @@ the rationale.
 | T21 | Build context smuggle via `POST /build` of arbitrary-content tar | No new escape: `build` is bounded by what the sandbox already exposes. Build endpoint is `endpointAllow` (query-only and opaque body). No size cap in v1. Revisit if abuse appears. | `endpoints.go` (build endpoint) |
 | T22 | Schema drift: a new docker-/podman-API field upstream introduces a new escape vector without anyone in this repo noticing | `json.Decoder.DisallowUnknownFields()` runs on every parsed body. A new unknown field rejects with 403 and audit reason `unknown_field:<json error>` until it is admitted via the field-admission process (§4). | `policy.go::decodeStrict`, plus every typed struct |
 | T23 | Proxy itself has a parsing bug | Default-deny — every unknown endpoint, unknown field, unknown enumerable value, malformed JSON, missing required value rejects before forwarding. Test suite exercises every documented escape and asserts it is blocked, plus a negative-control meta-test that verifies the positive tests are not no-ops. | `proxy_security_test.go::TestSecurity_NegativeControl_RootAllowlistPasses` |
-| T24 | Storage exhaustion after the session ends: a volume or an image the agent created outlives the session on the shared host | PARTIAL. A NAMED volume gets the per-session name prefix (`Config.VolumeNamePrefix`) on all three surfaces that can create one — `POST /volumes/create`, `HostConfig.Binds`, and a `HostConfig.Mounts` entry of `Type=volume` — and `prism cleanup` removes every volume with that prefix. Images are NOT swept, and an ANONYMOUS volume still escapes the prefix — see §8.3. | `policy.go::applyVolumeNamePolicy`, `policy.go::checkMountedVolumeNames`, `cmd/cleanup_sweep.go::sweepVolumesWithRunner` |
-| T25 | Cross-session data access: the agent attaches a volume that belongs to ANOTHER live session by naming it in a container-create mount | PARTIAL. A named volume in `HostConfig.Binds` or in a `Type=volume` `HostConfig.Mounts` entry must start with this session's `VolumeNamePrefix`, or the create request returns 403. `prism-<other-session>-<hex>` is therefore refused. A NESTED sibling prefix is not covered: session `foo` can name `prism-foo-bar-data`, which belongs to live session `foo-bar`. That is the pre-existing collision class in §8.3, and the volume-delete endpoints in the last §8.3 entry are a wider hole of the same kind. | `policy.go::checkMountedVolumeNames` |
+| T24 | Storage exhaustion after the session ends: a volume or an image the agent created outlives the session on the shared host | PARTIAL. A NAMED volume gets the per-session name prefix (`Config.VolumeNamePrefix`) on three of the four surfaces that can create one — `POST /volumes/create`, `HostConfig.Binds`, and a `HostConfig.Mounts` entry of `Type=volume` — and `prism cleanup` removes every volume with that prefix. The fourth surface, the libpod `volumes` array, is UNINSPECTED. Images are NOT swept, and an ANONYMOUS volume still escapes the prefix. See §8.3 for all three. | `policy.go::applyVolumeNamePolicy`, `policy.go::checkMountedVolumeNames`, `cmd/cleanup_sweep.go::sweepVolumesWithRunner` |
+| T25 | Cross-session data access: the agent attaches a volume that belongs to ANOTHER live session by naming it in a container-create mount | PARTIAL, on two named channels only. A named volume in `HostConfig.Binds` or in a `Type=volume` `HostConfig.Mounts` entry must start with this session's `VolumeNamePrefix`, or the create request returns 403. Two gaps stay OPEN, and neither is closed by this row. The libpod `volumes` array forwards a foreign name uninspected — see §8.3, issue #2958. A NESTED sibling prefix is admitted: session `foo` can name `prism-foo-bar-data`, which belongs to live session `foo-bar`. Do not read this row as an isolation guarantee between sessions. | `policy.go::checkMountedVolumeNames` |
 
 **Network egress** is not restricted: containers get whatever network the
 host podman gives them (default: full internet). This is strictly broader
@@ -611,8 +618,43 @@ Two directions close it. The first is `-v` on the container sweep,
 which is safe because an anonymous volume has no other referent. The
 second is a sweep by label (see #2951). This change does neither.
 
-The podman CLI cannot reach any of this. Its create request is
-rejected earlier, per the first residual above.
+**The libpod `volumes` array is a fourth named-volume channel, and it
+is UNINSPECTED.** `containerCreateBody.Volumes` is classified
+FORWARDED, with the rationale "anonymous-volume placeholders". That
+rationale describes the docker-compat field, which is a
+`map[container-path]{}` and carries no name. It does not describe
+libpod's field of the same name. libpod `SpecGenerator.Volumes` is an
+array of `NamedVolume{Name, Dest, Options}`, and Go matches a JSON
+field name case-insensitively, so the lowercase libpod `volumes` array
+lands in that same `json.RawMessage` and forwards as sent.
+
+The result is that `checkMountedVolumeNames` does not see it. A body
+of this shape returns 200 with audit reason
+`policy:containers/create:ok`:
+
+```json
+{"image":"alpine",
+ "volumes":[{"Name":"prism-<other-session>-<hex>","Dest":"/data"}]}
+```
+
+Three shapes reach it: the lowercase array of objects, the uppercase
+`Volumes` array of objects, and an array of strings
+(`["<foreign-vol>:/data"]`). The sibling libpod `mounts` array is
+refused at decode (`unknown_field`), which is what shows the boundary
+works and that `volumes` is the one that leaks.
+
+So the prefix rule in T25 covers two channels, not every channel, and
+the cross-session attach stays reachable through this one. Closing it
+needs a typed libpod volume struct and the field-admission audit in
+§4, because it converts a FORWARDED field into an INSPECTED one. The
+issue is filed: [#2958](https://github.com/prismatic-koi/nixos-config/issues/2958).
+
+The full podman CLI cannot reach any of the four channels. Its create
+request carries `command` and `resource_limits`, so it is rejected at
+decode, per the first residual above. That is a statement about the
+CLI's body, not about the endpoint. A hand-written minimal libpod body
+reaches the `volumes` channel, and so does any docker-API client —
+which is the surface issue #2954 names as the reachable one.
 
 **Images are not swept at all. This work is deferred.** An image the
 agent pulls stays in the shared host image store after the session ends.

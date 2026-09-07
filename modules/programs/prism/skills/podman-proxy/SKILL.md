@@ -158,9 +158,12 @@ docker run --rm --memory 512m --cpus 1 \
 docker run --rm --memory 512m --cpus 1 -v pgdata:/data postgres:16
 ```
 
-The rule also blocks a cross-session attach: `prism-<other-session>-<hex>`
-in either channel is refused, so one session cannot reach another
-session's volume by naming it.
+The rule also blocks a cross-session attach on those two channels:
+`prism-<other-session>-<hex>` in a `Binds` entry or a `Type=volume`
+mount is refused. It is not a general isolation guarantee. The libpod
+`volumes` array is a third named-volume channel that forwards a
+foreign name uninspected (issue #2958), and a nested sibling prefix is
+admitted on every channel. `docs/podman-proxy.md` §8.3 carries both.
 
 `<session>` in that prefix is the FOLDED session name, not the raw one.
 The prefix comes from `container.ResourceNamePrefixForSession`, which
@@ -179,7 +182,7 @@ The two counts appear in the `prism cleanup --json` envelope as
 
 ### Known gaps
 
-All three are accepted for this version. `docs/podman-proxy.md` §8.3
+All four are accepted for this version. `docs/podman-proxy.md` §8.3
 carries the detail and the conditions to close each one.
 
 - **An ANONYMOUS volume is not swept.** A docker-API
@@ -188,8 +191,13 @@ carries the detail and the conditions to close each one.
   it itself. The proxy has no name to police, so the volume carries no
   prefix and the sweep never finds it. Name the volume instead — see the
   section above — and the sweep reaches it. A NAMED volume created
-  implicitly by a container mount is no longer a gap: issue #2954 closed
-  it by applying the prefix rule to both mount channels.
+  implicitly by a `Binds` entry or a `Type=volume` mount is no longer a
+  gap: issue #2954 closed those two channels.
+- **The libpod `volumes` array escapes the volume-name rule.** It is a
+  named-volume channel that the proxy forwards uninspected, so a volume
+  it names carries no prefix and the sweep never finds it. It also
+  admits a cross-session attach. Tracked in issue #2958. Use the
+  `Binds` or `Type=volume` mount channels, which are policed.
 - **Images are not swept.** An image you pull stays in the shared host
   image store after the session ends. Two things must land first: the
   libpod `POST /images/pull` endpoint needs admission (which is also why
