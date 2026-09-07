@@ -608,8 +608,8 @@ carries the field-admission audit for the change.
 An ANONYMOUS volume still escapes the prefix. Two shapes reach it. One
 is a `Mounts` entry of `Type=volume` with an empty `Source`. The other
 is the top-level `containerCreateBody.Volumes` placeholder map
-(`{"/data": {}}`),
-which is FORWARDED. The runtime picks the name in both cases, so the
+(`{"/data": {}}`), which is FORWARDED. The runtime picks the name in
+both cases, so the
 policy has no name to refuse. A blanket refusal removes a legitimate
 docker workflow, so the proxy admits both shapes. `podman rm` deletes
 an anonymous volume only with `-v`, and the container sweep runs a
