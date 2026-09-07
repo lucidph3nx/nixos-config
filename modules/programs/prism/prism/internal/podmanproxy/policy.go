@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 )
 
@@ -215,9 +216,56 @@ type hostConfigLogConfig struct {
 // HostConfig and NetworkingConfig are nested structures — only
 // HostConfig has a parser; NetworkingConfig is admitted as opaque
 // for now and revisited if it surfaces escapes.
+//
+// # This struct is reachable from TWO body shapes
+//
+// normalisePath strips the `libpod/` prefix, so a libpod
+// POST /libpod/containers/create routes to the same classifier — and
+// therefore the same struct — as its docker-compat twin, and Go
+// matches a JSON field name case-insensitively. A libpod
+// SpecGenerator key that case-matches a field name here decodes into
+// that field, with libpod's MEANING rather than docker's.
+//
+// Most of the libpod surface dies at DisallowUnknownFields, for two
+// structural reasons: libpod puts its security fields at SpecGenerator
+// TOP level where docker nests them inside HostConfig (so a libpod
+// body carries no HostConfig key and cannot reach the hostConfig
+// allowlist at all), and libpod spells most of the rest in snake_case
+// (`work_dir`, `stop_signal`, `cap_add`, `device_cgroup_rule`), which
+// case-matches nothing here. That protection is a load-bearing
+// ACCIDENT: one future podman field with a CamelCase tag, or one
+// future top-level docker field added here, opens the boundary
+// silently. podman is not a Go dependency of this repo — the proxy
+// speaks HTTP to a socket — so there is no struct to diff against and
+// the gap cannot be closed by reading source. It is pinned
+// BEHAVIOURALLY instead, by
+// proxy_libpod_volumes_test.go::TestLibpodBoundary_DangerousKeysRefusedAtDecode.
+// Keep that test in step with any field added to this struct.
 type containerCreateBody struct {
 	// INSPECTED.
 	HostConfig *json.RawMessage `json:"HostConfig"` // parsed strictly in a second pass
+
+	// INSPECTED — per-session volume-name prefix, by
+	// checkCreateVolumeNames (issue #2958). This key carries two
+	// unrelated meanings, and the second one is a named-volume attach
+	// channel:
+	//
+	//   - docker-compat: map[container-path]struct{} — the
+	//     anonymous-volume placeholder set (`{"/data":{}}`). It carries
+	//     no volume NAME, so there is nothing for the prefix rule to
+	//     refuse. Admitted.
+	//   - libpod: SpecGenerator.Volumes, an array of
+	//     NamedVolume{Name, Dest, Options}. Every Name is a named
+	//     volume this container ATTACHES, so an out-of-prefix name is
+	//     both a cross-session attach and a volume the cleanup sweep
+	//     cannot find. Refused.
+	//
+	// The field is declared here for the SCHEMA admission only — the
+	// policy does not read it. checkCreateVolumeNames parses the raw
+	// body instead, so that every case-variant of the key is
+	// inspected rather than only the one Go's last-wins decode keeps.
+	// See that function for why.
+	Volumes json.RawMessage `json:"Volumes"`
 
 	// FORWARDED — container-internal config; no host-impact.
 	Hostname         json.RawMessage `json:"Hostname"`
@@ -230,12 +278,11 @@ type containerCreateBody struct {
 	Tty              json.RawMessage `json:"Tty"`
 	OpenStdin        json.RawMessage `json:"OpenStdin"`
 	StdinOnce        json.RawMessage `json:"StdinOnce"`
-	Env              json.RawMessage `json:"Env"`
+	Env              json.RawMessage `json:"Env"` // docker []string of "K=V"; libpod map[string]string. Shape differs, meaning is identical — container env, no host reach — so both forward
 	Cmd              json.RawMessage `json:"Cmd"`
 	Healthcheck      json.RawMessage `json:"Healthcheck"`
 	ArgsEscaped      json.RawMessage `json:"ArgsEscaped"` // windows
 	Image            json.RawMessage `json:"Image"`
-	Volumes          json.RawMessage `json:"Volumes"` // anonymous-volume placeholders
 	WorkingDir       json.RawMessage `json:"WorkingDir"`
 	Entrypoint       json.RawMessage `json:"Entrypoint"`
 	NetworkDisabled  json.RawMessage `json:"NetworkDisabled"`
@@ -255,6 +302,43 @@ type containerCreateBody struct {
 	// empty" (*"") so the injection branch can fire on both without
 	// having to inspect the raw bytes a second time.
 	Name *string `json:"Name"` // libpod allows Name in body (in addition to ?name=)
+}
+
+// libpodNamedVolume is one entry of the libpod SpecGenerator.Volumes
+// array: a NAMED-VOLUME attach. It is not the docker-compat
+// anonymous-volume placeholder, which is a map and has no entry shape
+// at all — see containerCreateBody.Volumes for the two meanings of
+// the one key.
+//
+// Same allowlist discipline as every other struct in this file:
+// checkLibpodVolumesArray decodes an entry with decodeStrict, so a
+// NamedVolume field podman adds later (and any field this repo has
+// not audited) is refused as unknown-field until it goes through the
+// field-admission process in docs/podman-proxy.md §4. That is
+// deliberate: podman is not a Go dependency here, so an unaudited
+// field cannot be checked against a pinned upstream struct.
+type libpodNamedVolume struct {
+	// INSPECTED — per-session volume-name prefix. Empty means an
+	// anonymous volume: the runtime picks the name, so there is no
+	// name to refuse (docs/podman-proxy.md §8.3 carries that
+	// residual).
+	Name string `json:"Name"`
+
+	// FORWARDED.
+	//
+	// Dest is the in-container mount point. The mount SOURCE is the
+	// named volume, so Dest cannot name a host path the way a
+	// Type=bind Source can.
+	//
+	// Options is the mount-flag list (ro, rw, z, nocopy, …). It
+	// carries no host path: the local-driver `device=/host/path`
+	// escape lives on the volume DEFINITION, which inspectVolumeCreate
+	// and the Mounts[].VolumeOptions.DriverConfig denial already
+	// cover. This matches the existing posture on the sibling
+	// channels, where the `:ro` suffix of a Binds entry and
+	// hostConfigMount.BindOptions both forward.
+	Dest    json.RawMessage `json:"Dest"`
+	Options json.RawMessage `json:"Options"`
 }
 
 // containerExecBody is the explicit allowlist for POST
@@ -363,6 +447,18 @@ func (p *Proxy) inspectCreate(body []byte, query url.Values) createInspectionRes
 		}
 	}
 	if dec := p.checkHostConfig(&hc); !dec.allow {
+		return createInspectionResult{decision: dec}
+	}
+
+	// The top-level `volumes` key is a THIRD named-volume channel,
+	// reachable only from a libpod body. It runs after checkHostConfig
+	// so an escape vector in HostConfig (host bind, privileged, glob
+	// mount type, local-driver volume) still wins the audit reason on a
+	// body that carries both, and before applyContainerNamePolicy for
+	// the same reason checkMountedVolumeNames runs at the end of
+	// checkHostConfig: among name policies the ordering is arbitrary,
+	// and the volume ones are the security-relevant half.
+	if dec := p.checkCreateVolumeNames(body); !dec.allow {
 		return createInspectionResult{decision: dec}
 	}
 
@@ -892,13 +988,17 @@ func (p *Proxy) checkHostConfig(hc *hostConfig) policyDecision {
 // # What is NOT policed here
 //
 // An ANONYMOUS volume — a Type=volume mount with an empty Source, or
-// the top-level containerCreateBody.Volumes placeholder map — still
-// forwards. The
+// an entry of the top-level docker-compat Volumes placeholder map —
+// still forwards. The
 // runtime names it itself, so there is no name to refuse, and
 // refusing the request outright would break a legitimate docker
 // workflow that this change was not asked to remove. The resulting
 // volume carries no prefix and the sweep does not reach it;
 // docs/podman-proxy.md §8.3 records that narrower residual.
+//
+// The top-level `volumes` key is not this function's business either.
+// It is a THIRD named-volume channel, reachable only from a libpod
+// body, and checkCreateVolumeNames polices it (issue #2958).
 func (p *Proxy) checkMountedVolumeNames(hc *hostConfig) policyDecision {
 	prefix := p.cfg.VolumeNamePrefix
 	if prefix == "" {
@@ -948,6 +1048,243 @@ func (p *Proxy) checkMountedVolumeNames(hc *hostConfig) policyDecision {
 	}
 
 	return allowDecision("policy:volume_names:ok")
+}
+
+// volumesFieldKey is the top-level containers/create key that
+// checkCreateVolumeNames inspects, in its canonical docker-compat
+// spelling. Every case-variant of it is inspected — lowercase
+// `volumes` is the spelling a libpod client sends.
+const volumesFieldKey = "Volumes"
+
+// checkCreateVolumeNames applies the per-session volume-name policy to
+// the top-level `volumes` key of a containers/create body. It is the
+// third channel in the family checkMountedVolumeNames opened, and it
+// closes the gap issue #2958 recorded.
+//
+// # Why this key needs a policy at all
+//
+// The key means two different things on the two body shapes that
+// reach this endpoint (see containerCreateBody.Volumes). docker's
+// field is a placeholder MAP and carries no volume name. libpod's
+// field is an ARRAY of NamedVolume{Name, Dest, Options}, and every
+// Name is a named volume the container attaches. The key was
+// FORWARDED on the strength of the docker meaning alone, so the
+// libpod meaning forwarded with it: a body naming
+// prism-<other-session>-<hex> here was admitted, which is a
+// cross-session attach, and a name outside the prefix also escapes
+// the cleanup sweep, which matches on the prefix.
+//
+// # Why it reads the raw body
+//
+// Go's decoder resolves an exact key match and a case-folded key
+// match to the SAME struct field, in document order, so a body
+// carrying both `volumes` and `Volumes` leaves only the LAST one in
+// containerCreateBody.Volumes. Inspecting the struct field would
+// therefore inspect one of the two and forward both. The upstream
+// decodes with the same last-wins rule today, so the two agree — but
+// that agreement is an implementation detail of one JSON library, and
+// injectNameIntoBody already treats the same class of ambiguity as a
+// bypass to close rather than a coincidence to rely on. This function
+// reads the body and inspects EVERY case-variant of the key, in
+// sorted order so the audit reason is deterministic when more than
+// one is present.
+//
+// # What is gated on the prefix, and what is not
+//
+// The NAME check is gated on Config.VolumeNamePrefix, matching every
+// other name policy in this file: an out-of-tree caller that
+// configures no prefix keeps the plain filtering behaviour. The SHAPE
+// and unknown-field checks are NOT gated. They are the layer-2 /
+// layer-3 half of the policy (docs/podman-proxy.md §3), and those
+// layers are unconditional everywhere else in this package.
+func (p *Proxy) checkCreateVolumeNames(body []byte) policyDecision {
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(body, &obj); err != nil {
+		// Unreachable through inspectCreate, which decodes the same
+		// bytes strictly first. Deny rather than allow so reordering
+		// the two calls cannot turn a parse failure into a forward.
+		return denyDecision(http.StatusBadRequest,
+			"create_volumes:malformed_body:"+truncateForReason(err.Error()),
+			"containers/create body is not a JSON object")
+	}
+
+	keys := make([]string, 0, 1)
+	for k := range obj {
+		if strings.EqualFold(k, volumesFieldKey) {
+			keys = append(keys, k)
+		}
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		if dec := p.checkVolumesField(k, obj[k]); !dec.allow {
+			return dec
+		}
+	}
+	return allowDecision("policy:create_volumes:ok")
+}
+
+// checkVolumesField dispatches one `volumes` value on its JSON shape:
+// an object is the docker-compat placeholder map, an array is the
+// libpod named-volume list. Absent, null, and empty all admit, which
+// is the pre-change behaviour for a body that names no volume.
+//
+// A scalar (string, number, bool) matches NEITHER documented shape.
+// It denies: podman rejects it too, and admitting an undocumented
+// shape on this key is how the libpod meaning slipped through in the
+// first place.
+func (p *Proxy) checkVolumesField(key string, raw json.RawMessage) policyDecision {
+	trimmed := bytes.TrimSpace(raw)
+	if len(trimmed) == 0 || bytes.Equal(trimmed, []byte("null")) {
+		return allowDecision("policy:create_volumes:absent")
+	}
+	switch trimmed[0] {
+	case '{':
+		return checkDockerCompatVolumesMap(key, trimmed)
+	case '[':
+		return p.checkLibpodVolumesArray(key, trimmed)
+	default:
+		return denyDecision(http.StatusForbidden,
+			"create_volumes_shape_not_allowed",
+			fmt.Sprintf("containers/create %q must be either a docker-compat object mapping a container path to an empty object, or a libpod array of named volumes; got %s",
+				key, truncateForReason(string(trimmed))))
+	}
+}
+
+// checkDockerCompatVolumesMap inspects the docker-compat shape,
+// map[container-path]struct{} — for example `{"/data":{}}`. The keys
+// are in-container paths and the values are placeholders, so the map
+// names no volume and there is nothing for the prefix rule to refuse.
+// Every entry declares an ANONYMOUS volume, which the runtime names
+// itself; docs/podman-proxy.md §8.3 records that residual and it is
+// unchanged by this function.
+//
+// The VALUE is required to be an empty object or null. docker's field
+// is map[string]struct{} and podman's compat handler discards the
+// value, so every real client sends `{}` — but "the upstream ignores
+// it" is exactly the assumption that made this key a forwarding hole,
+// and a non-empty value is an unaudited shape. It denies.
+func checkDockerCompatVolumesMap(key string, raw []byte) policyDecision {
+	var m map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &m); err != nil {
+		return denyDecision(http.StatusBadRequest,
+			"create_volumes:malformed_body:"+truncateForReason(err.Error()),
+			fmt.Sprintf("containers/create %q is not a valid object", key))
+	}
+	paths := make([]string, 0, len(m))
+	for path := range m {
+		paths = append(paths, path)
+	}
+	sort.Strings(paths)
+	for _, path := range paths {
+		var placeholder map[string]json.RawMessage
+		if err := json.Unmarshal(m[path], &placeholder); err == nil && len(placeholder) == 0 {
+			// `{}` or null — the placeholder shape.
+			continue
+		}
+		return denyDecision(http.StatusForbidden,
+			"create_volumes_map_value_not_empty",
+			fmt.Sprintf("containers/create %s[%q] must be an empty object (the docker-compat shape is a set of container paths, so the value carries no configuration); to attach a NAMED volume use the libpod array shape of this key, a HostConfig.Binds entry, or a HostConfig.Mounts entry of Type=volume",
+				key, truncateForReason(path)))
+	}
+	return allowDecision("policy:create_volumes:docker_compat_ok")
+}
+
+// checkLibpodVolumesArray inspects the libpod shape,
+// []NamedVolume{Name, Dest, Options}. Two entry forms decode today:
+//
+//   - an OBJECT, which is libpod's own shape. Decoded strictly against
+//     libpodNamedVolume, so an unaudited entry field refuses.
+//   - a STRING in docker's -v grammar ("name:/dest[:options]"). This
+//     is not a shape podman accepts on this field — its decoder wants
+//     objects — but the proxy admitted it before this change, and it
+//     is the shape a hand-written body is most likely to carry, so it
+//     is policed rather than left to the upstream.
+//
+// The name check refuses; it never injects, for the reasons
+// checkMountedVolumeNames documents — rewriting a name inside a
+// colon-delimited entry is string surgery on the security boundary,
+// and an injected name silently redirects the caller's mount.
+func (p *Proxy) checkLibpodVolumesArray(key string, raw []byte) policyDecision {
+	var entries []json.RawMessage
+	if err := json.Unmarshal(raw, &entries); err != nil {
+		return denyDecision(http.StatusBadRequest,
+			"create_volumes:malformed_body:"+truncateForReason(err.Error()),
+			fmt.Sprintf("containers/create %q is not a valid array", key))
+	}
+
+	prefix := p.cfg.VolumeNamePrefix
+	for i, entry := range entries {
+		trimmed := bytes.TrimSpace(entry)
+		var name string
+		switch {
+		case len(trimmed) == 0 || bytes.Equal(trimmed, []byte("null")):
+			continue
+		case trimmed[0] == '"':
+			var spec string
+			if err := json.Unmarshal(trimmed, &spec); err != nil {
+				return denyDecision(http.StatusBadRequest,
+					"create_volumes:malformed_body:"+truncateForReason(err.Error()),
+					fmt.Sprintf("containers/create %s[%d] is not a valid string", key, i))
+			}
+			name = volumeSpecName(spec)
+		case trimmed[0] == '{':
+			var nv libpodNamedVolume
+			if dec := decodeStrict(trimmed, &nv); !dec.allow {
+				dec.reason = "create_volumes:" + dec.reason
+				dec.message = fmt.Sprintf("containers/create %s[%d]: %s", key, i, dec.message)
+				return dec
+			}
+			name = nv.Name
+		default:
+			return denyDecision(http.StatusForbidden,
+				"create_volumes_entry_shape_not_allowed",
+				fmt.Sprintf("containers/create %s[%d] must be a named-volume object or a \"name:/dest\" string; got %s",
+					key, i, truncateForReason(string(trimmed))))
+		}
+
+		if name == "" {
+			// Anonymous volume — no name to refuse. Same treatment as a
+			// Type=volume mount with an empty Source.
+			continue
+		}
+		if prefix == "" {
+			// Name policy disabled. The shape checks above still ran.
+			continue
+		}
+		if !strings.HasPrefix(name, prefix) {
+			return denyDecision(http.StatusForbidden,
+				"create_volumes_name_prefix_mismatch",
+				fmt.Sprintf("containers/create %s[%d] attaches named volume %q, which does not start with the required prefix %q (the proxy is session-scoped: a volume outside the prefix belongs to another session or outlives this one, because `prism cleanup` sweeps on the prefix; rename the volume so it begins with the required prefix)",
+					key, i, truncateForReason(name), prefix))
+		}
+	}
+	return allowDecision("policy:create_volumes:libpod_ok")
+}
+
+// volumeSpecName extracts the volume name from a STRING entry of the
+// `volumes` array. The entry follows docker's -v grammar,
+// "name:/dest[:options]", so the name is the text before the first
+// colon.
+//
+// It differs from bindVolumeName on two inputs, both deliberately:
+//
+//   - A source with a leading '/' comes back as a name here, where
+//     bindVolumeName returns "" and hands it to the host-bind
+//     allowlist. On THIS channel there is no host-bind branch to hand
+//     it to, and an entry of "/etc:/data" must not forward on the
+//     strength of nobody owning it. The prefix rule refuses it, which
+//     is also how a Type=volume Mounts entry with Source="/etc" is
+//     already treated.
+//   - An entry with NO colon comes back whole, where bindVolumeName
+//     returns "" and lets the upstream report malformed bind syntax.
+//     A colon-less entry carries no destination, so it is not a shape
+//     podman accepts on this field either way; reading it as a name
+//     keeps the prefix rule in front of it.
+func volumeSpecName(spec string) string {
+	if src, ok := splitBindSpec(spec); ok {
+		return src
+	}
+	return spec
 }
 
 // capContext distinguishes the two body shapes that resource-cap

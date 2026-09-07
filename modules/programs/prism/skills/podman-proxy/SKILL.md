@@ -141,13 +141,16 @@ request gets 403 (`name_prefix_mismatch_body` for a container,
 `volume_name_prefix_mismatch` for a volume).
 
 **A volume you name in a container mount obeys the same rule.** A
-`containers/create` body reaches a named volume through two channels:
-the source half of a `HostConfig.Binds` entry (`myvol:/data`) and the
-`Source` of a `HostConfig.Mounts` entry of `Type=volume`. Both must
-start with `prism-<session>-`, or the request gets 403
-(`bind_volume_name_prefix_mismatch`, `mount_volume_name_prefix_mismatch`).
-These two channels REFUSE only — they never inject — so name the volume
-correctly in the request:
+`containers/create` body reaches a named volume through three
+channels: the source half of a `HostConfig.Binds` entry
+(`myvol:/data`), the `Source` of a `HostConfig.Mounts` entry of
+`Type=volume`, and an entry of the top-level libpod `volumes` array
+(`{"Name":"myvol","Dest":"/data"}`). All three must start with
+`prism-<session>-`, or the request gets 403
+(`bind_volume_name_prefix_mismatch`, `mount_volume_name_prefix_mismatch`,
+`create_volumes_name_prefix_mismatch`). These three channels REFUSE
+only — they never inject — so name the volume correctly in the
+request:
 
 ```bash
 # Correct: the mount names an in-prefix volume, so the sweep finds it.
@@ -158,12 +161,14 @@ docker run --rm --memory 512m --cpus 1 \
 docker run --rm --memory 512m --cpus 1 -v pgdata:/data postgres:16
 ```
 
-The rule also blocks a cross-session attach on those two channels:
-`prism-<other-session>-<hex>` in a `Binds` entry or a `Type=volume`
-mount is refused. It is not a general isolation guarantee. The libpod
-`volumes` array is a third named-volume channel that forwards a
-foreign name uninspected (issue #2958), and a nested sibling prefix is
-admitted on every channel. `docs/podman-proxy.md` §8.3 carries both.
+The rule also blocks a cross-session attach on all three channels:
+`prism-<other-session>-<hex>` in a `Binds` entry, in a `Type=volume`
+mount, or in the libpod `volumes` array is refused. It is not a
+general isolation guarantee. A nested sibling prefix is still admitted
+on every channel. Session `foo` matches the prefix of
+`prism-foo-bar-data`, which belongs to live session `foo-bar`. That
+gap needs instance-ID identity, and issue #2951 tracks it.
+`docs/podman-proxy.md` §8.3 carries the detail.
 
 `<session>` in that prefix is the FOLDED session name, not the raw one.
 The prefix comes from `container.ResourceNamePrefixForSession`, which
@@ -182,23 +187,20 @@ The two counts appear in the `prism cleanup --json` envelope as
 
 ### Known gaps
 
-All four are accepted for this version. `docs/podman-proxy.md` §8.3
+All three are accepted for this version. `docs/podman-proxy.md` §8.3
 carries the detail and the conditions to close each one.
 
 - **An ANONYMOUS volume is not swept.** A docker-API
-  `run -v /data ...`, a `Type=volume` mount with an empty `Source`, or a
-  `containerCreateBody.Volumes` placeholder makes the runtime create a
+  `run -v /data ...`, a `Type=volume` mount with an empty `Source`, a
+  docker-compat `Volumes` placeholder entry, or a libpod `volumes`
+  entry with an empty `Name` makes the runtime create a
   volume and name it itself. The proxy has no name to police, so the
   volume carries no prefix and the sweep never finds it. Name the volume
   instead — see the section above — and the sweep reaches it. A NAMED
   volume created
-  implicitly by a `Binds` entry or a `Type=volume` mount is no longer a
-  gap: issue #2954 closed those two channels.
-- **The libpod `volumes` array escapes the volume-name rule.** It is a
-  named-volume channel that the proxy forwards uninspected, so a volume
-  it names carries no prefix and the sweep never finds it. It also
-  admits a cross-session attach. Tracked in issue #2958. Use the
-  `Binds` or `Type=volume` mount channels, which are policed.
+  implicitly by a mount is no longer a gap: issue #2954 closed the
+  `Binds` and `Type=volume` channels, and issue #2958 closed the
+  libpod `volumes` array.
 - **Images are not swept.** An image you pull stays in the shared host
   image store after the session ends. Two things must land first: the
   libpod `POST /images/pull` endpoint needs admission (which is also why

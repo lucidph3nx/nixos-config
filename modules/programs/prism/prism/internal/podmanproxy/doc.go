@@ -80,18 +80,23 @@
 //     <prefix><8 hex chars> into a create request that names no
 //     resource, and reject a create request that names one outside the
 //     prefix. The owner uses the prefix to find and remove the
-//     session's resources at teardown. VolumeNamePrefix covers three
-//     surfaces: volumes/create, and the two channels a containers/
-//     create body attaches a named volume through (HostConfig.Binds
-//     and a HostConfig.Mounts entry of Type=volume). The two mount
-//     channels REFUSE an out-of-prefix name rather than injecting one,
-//     because the name is embedded in a colon-delimited string that
-//     also carries the mount target. An ANONYMOUS volume still
-//     escapes the prefix, because the runtime names it and there is no
-//     name to police. docs/podman-proxy.md, section 8.3, records that
-//     residual among others. Read the section rather than this
-//     summary: several of the residuals it lists are safety-relevant,
-//     and a count here goes stale the next time one is added.
+//     session's resources at teardown. VolumeNamePrefix covers four
+//     surfaces: volumes/create, and the three channels a containers/
+//     create body attaches a named volume through (HostConfig.Binds,
+//     a HostConfig.Mounts entry of Type=volume, and the top-level
+//     libpod volumes array — a key that means a named-volume list on
+//     a libpod body and an anonymous-volume placeholder map on a
+//     docker-compat one). The three container-create channels REFUSE
+//     an out-of-prefix name rather than injecting one, because on two
+//     of them the name is embedded in a colon-delimited string that
+//     also carries the mount target, and because an injected name
+//     redirects a mount the caller did not ask for. An ANONYMOUS
+//     volume still escapes the prefix, because the runtime names it
+//     and there is no name to police. docs/podman-proxy.md, section
+//     8.3, records that residual among others. Read the section rather
+//     than this summary: several of the residuals it lists are
+//     safety-relevant, and a count here goes stale the next time one
+//     is added.
 //   - MaxMemoryBytes, MaxCPUQuota, and MaxNanoCpus cap the matching
 //     HostConfig fields. A configured cap is STRICT: the field becomes
 //     mandatory on create, because docker reads a zero value as
