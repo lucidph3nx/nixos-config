@@ -1,6 +1,6 @@
 package exporter_test
 
-// Tests for the six lifecycle and outcome counters. These reuse the
+// Tests for the seven lifecycle and outcome counters. These reuse the
 // harness from exporter_test.go and add a fixture helper that wires up the
 // sessions / agent_status rows the label-enrichment join in
 // LifecycleEventsTailSQL needs.
@@ -109,6 +109,31 @@ func (h *harness) writeReviewVerdictEvent(eventType, repo, instanceID string) {
 	if err := h.writeDB.WriteEvent(db.Event{
 		ID:          uuid.New().String(),
 		SessionName: "prism-test@exporter",
+		Repo:        repo,
+		Worktree:    "/tmp/prism-test",
+		InstanceID:  &iid,
+		Type:        eventType,
+		Payload:     "{}",
+		CreatedAt:   time.Now(),
+	}); err != nil {
+		h.t.Fatalf("WriteEvent(%s): %v", eventType, err)
+	}
+}
+
+// writeAgentVerdictEvent writes a PER-AGENT verdict event referencing
+// instanceID — the shape writeAgentVerdictEvents produces
+// (internal/review/monitor.go). The instance_id is the REVIEW AGENT's, not the
+// worker's: prism_review_agent_verdicts_total's agent_role label is resolved
+// from it through the sessions join in LifecycleEventsTailSQL, which is what
+// makes the label name the review dimension (review-security, …) rather than
+// the worker's role. repo mirrors what the writer puts on the event row; the
+// asserted label value always comes from that column via repoLabel.
+func (h *harness) writeAgentVerdictEvent(eventType, repo, instanceID string) {
+	h.t.Helper()
+	iid := instanceID
+	if err := h.writeDB.WriteEvent(db.Event{
+		ID:          uuid.New().String(),
+		SessionName: "prism-test@exporter~review-1-agent",
 		Repo:        repo,
 		Worktree:    "/tmp/prism-test",
 		InstanceID:  &iid,
@@ -242,6 +267,125 @@ func TestExporter_ReviewVerdictsTotalFoldsEmptyRepoToUnknown(t *testing.T) {
 	labels := map[string]string{"verdict": "pass", "repo": "unknown", "agent_role": "worker", "profile": "max"}
 	if got := counterValue(t, h, exporter.MetricReviewVerdictsTotal, labels); got != 1 {
 		t.Errorf("%s%v = %v, want 1 (empty repo should fold to 'unknown')", exporter.MetricReviewVerdictsTotal, labels, got)
+	}
+}
+
+// ── AC: the per-agent counter carries verdict, agent_role, and repo, and a
+// completed round of five agents produces five increments ──────────────────
+
+func TestExporter_ReviewAgentVerdictsTotalCountsEveryAgentOfARound(t *testing.T) {
+	h := newHarness(t)
+	h.start(h.exp)
+
+	// One round: five review agents, each its own session and instance.
+	roles := []string{"review-goal", "review-code", "review-security", "review-qa", "review-context"}
+	for _, role := range roles {
+		instanceID, _ := h.spawnFixture("nixos-config", role, "bwrap", "max")
+		h.writeAgentVerdictEvent(review.EventReviewAgentVerdictPass, "nixos-config", instanceID)
+	}
+
+	var total float64
+	for _, role := range roles {
+		labels := map[string]string{"verdict": "pass", "agent_role": role, "repo": "nixos-config"}
+		got := counterValue(t, h, exporter.MetricReviewAgentVerdictsTotal, labels)
+		if got != 1 {
+			t.Errorf("%s%v = %v, want 1", exporter.MetricReviewAgentVerdictsTotal, labels, got)
+		}
+		total += got
+	}
+	if total != 5 {
+		t.Errorf("sum over the round = %v, want 5 (one increment per review agent)", total)
+	}
+}
+
+// ── AC: a parseable FAIL records verdict="fail"; an IsError agent records
+// verdict="error" and never "fail" ─────────────────────────────────────────
+
+func TestExporter_ReviewAgentVerdictsTotalSeparatesFailFromError(t *testing.T) {
+	h := newHarness(t)
+	h.start(h.exp)
+
+	failIID, _ := h.spawnFixture("nixos-config", "review-code", "bwrap", "max")
+	h.writeAgentVerdictEvent(review.EventReviewAgentVerdictFail, "nixos-config", failIID)
+	errIID, _ := h.spawnFixture("nixos-config", "review-security", "bwrap", "max")
+	h.writeAgentVerdictEvent(review.EventReviewAgentVerdictError, "nixos-config", errIID)
+
+	failLabels := map[string]string{"verdict": "fail", "agent_role": "review-code", "repo": "nixos-config"}
+	if got := counterValue(t, h, exporter.MetricReviewAgentVerdictsTotal, failLabels); got != 1 {
+		t.Errorf("%s%v = %v, want 1", exporter.MetricReviewAgentVerdictsTotal, failLabels, got)
+	}
+	errLabels := map[string]string{"verdict": "error", "agent_role": "review-security", "repo": "nixos-config"}
+	if got := counterValue(t, h, exporter.MetricReviewAgentVerdictsTotal, errLabels); got != 1 {
+		t.Errorf("%s%v = %v, want 1", exporter.MetricReviewAgentVerdictsTotal, errLabels, got)
+	}
+	// The infrastructure failure must never land in the fail bucket.
+	errAsFail := map[string]string{"verdict": "fail", "agent_role": "review-security", "repo": "nixos-config"}
+	if got := counterValue(t, h, exporter.MetricReviewAgentVerdictsTotal, errAsFail); got != 0 {
+		t.Errorf("%s%v = %v, want 0 (an IsError agent must record verdict=\"error\", never \"fail\")", exporter.MetricReviewAgentVerdictsTotal, errAsFail, got)
+	}
+}
+
+// ── AC: the round counter keeps its round-level behaviour, and the per-agent
+// sum reconciles with it ───────────────────────────────────────────────────
+
+func TestExporter_ReviewAgentVerdictsReconcileWithTheRoundCounter(t *testing.T) {
+	h := newHarness(t)
+	h.start(h.exp)
+
+	// One round as both writers emit it: one round event on the worker's
+	// instance, five per-agent events on the agents' own instances.
+	workerIID, _ := h.spawnFixture("nixos-config", "worker", "bwrap", "max")
+	h.writeReviewVerdictEvent(review.EventReviewVerdictFail, "nixos-config", workerIID)
+	verdicts := map[string]string{
+		"review-goal":     review.EventReviewAgentVerdictPass,
+		"review-code":     review.EventReviewAgentVerdictFail,
+		"review-security": review.EventReviewAgentVerdictPass,
+		"review-qa":       review.EventReviewAgentVerdictPass,
+		"review-context":  review.EventReviewAgentVerdictError,
+	}
+	for role, eventType := range verdicts {
+		instanceID, _ := h.spawnFixture("nixos-config", role, "bwrap", "max")
+		h.writeAgentVerdictEvent(eventType, "nixos-config", instanceID)
+	}
+
+	roundLabels := map[string]string{"verdict": "fail", "repo": "nixos-config", "agent_role": "worker", "profile": "max"}
+	if got := counterValue(t, h, exporter.MetricReviewVerdictsTotal, roundLabels); got != 1 {
+		t.Errorf("%s%v = %v, want 1 (the round counter keeps counting rounds)", exporter.MetricReviewVerdictsTotal, roundLabels, got)
+	}
+
+	exp := h.scrape(h.exp)
+	var sum float64
+	if family, ok := exp.Families[exporter.MetricReviewAgentVerdictsTotal]; ok {
+		for _, s := range family.Samples {
+			sum += s.Value
+		}
+	}
+	if sum != 5 {
+		t.Errorf("sum(%s) = %v, want 5 for one round of five agents", exporter.MetricReviewAgentVerdictsTotal, sum)
+	}
+}
+
+// ── AC (edge-case): an empty or whitespace-only repo folds to the
+// unknown-repo placeholder, never the empty string ─────────────────────────
+
+func TestExporter_ReviewAgentVerdictsTotalFoldsBlankRepoToUnknown(t *testing.T) {
+	h := newHarness(t)
+	h.start(h.exp)
+
+	emptyIID, _ := h.spawnFixture("", "review-goal", "bwrap", "max")
+	h.writeAgentVerdictEvent(review.EventReviewAgentVerdictPass, "", emptyIID)
+	blankIID, _ := h.spawnFixture("   ", "review-code", "bwrap", "max")
+	h.writeAgentVerdictEvent(review.EventReviewAgentVerdictPass, "   ", blankIID)
+
+	for _, role := range []string{"review-goal", "review-code"} {
+		labels := map[string]string{"verdict": "pass", "agent_role": role, "repo": "unknown"}
+		if got := counterValue(t, h, exporter.MetricReviewAgentVerdictsTotal, labels); got != 1 {
+			t.Errorf("%s%v = %v, want 1 (a blank repo must fold to 'unknown')", exporter.MetricReviewAgentVerdictsTotal, labels, got)
+		}
+		emptyLabels := map[string]string{"verdict": "pass", "agent_role": role, "repo": ""}
+		if got := counterValue(t, h, exporter.MetricReviewAgentVerdictsTotal, emptyLabels); got != 0 {
+			t.Errorf("%s%v = %v, want 0 (never an empty repo label)", exporter.MetricReviewAgentVerdictsTotal, emptyLabels, got)
+		}
 	}
 }
 
@@ -402,21 +546,25 @@ func TestExporter_LifecycleCountersSurviveRestart(t *testing.T) {
 	h.writeEvent("session.escalated", 0)
 	instanceID, _ := h.spawnFixture("nixos-config", "worker", "bwrap", "max")
 	h.writeReviewVerdictEvent(review.EventReviewVerdictPass, "nixos-config", instanceID)
+	agentIID, _ := h.spawnFixture("nixos-config", "review-qa", "bwrap", "max")
+	h.writeAgentVerdictEvent(review.EventReviewAgentVerdictFail, "nixos-config", agentIID)
 
 	labels := map[string]string{"repo": "nixos-config"}
 	spawnLabels := map[string]string{"repo": "nixos-config", "agent_role": "worker", "isolation_mode": "bwrap", "profile": "max"}
 	verdictLabels := map[string]string{"verdict": "pass", "repo": "nixos-config", "agent_role": "worker", "profile": "max"}
+	agentVerdictLabels := map[string]string{"verdict": "fail", "agent_role": "review-qa", "repo": "nixos-config"}
 
 	before := struct {
-		doomLoops, permissionDenied, escalations, verdicts, spawns float64
+		doomLoops, permissionDenied, escalations, verdicts, agentVerdicts, spawns float64
 	}{
 		doomLoops:        counterValue(t, h, exporter.MetricDoomLoopsTotal, labels),
 		permissionDenied: counterValue(t, h, exporter.MetricPermissionDeniedTotal, labels),
 		escalations:      counterValue(t, h, exporter.MetricEscalationsTotal, labels),
 		verdicts:         counterValue(t, h, exporter.MetricReviewVerdictsTotal, verdictLabels),
+		agentVerdicts:    counterValue(t, h, exporter.MetricReviewAgentVerdictsTotal, agentVerdictLabels),
 		spawns:           counterValue(t, h, exporter.MetricSpawnsTotal, spawnLabels),
 	}
-	if before.doomLoops != 1 || before.permissionDenied != 1 || before.escalations != 1 || before.verdicts != 1 || before.spawns != 1 {
+	if before.doomLoops != 1 || before.permissionDenied != 1 || before.escalations != 1 || before.verdicts != 1 || before.agentVerdicts != 1 || before.spawns != 1 {
 		t.Fatalf("unexpected pre-restart values: %+v", before)
 	}
 
@@ -437,6 +585,9 @@ func TestExporter_LifecycleCountersSurviveRestart(t *testing.T) {
 	}
 	if got := restartedValue(t, restarted, exporter.MetricReviewVerdictsTotal, verdictLabels); got != before.verdicts {
 		t.Errorf("%s = %v after restart, want %v", exporter.MetricReviewVerdictsTotal, got, before.verdicts)
+	}
+	if got := restartedValue(t, restarted, exporter.MetricReviewAgentVerdictsTotal, agentVerdictLabels); got != before.agentVerdicts {
+		t.Errorf("%s = %v after restart, want %v", exporter.MetricReviewAgentVerdictsTotal, got, before.agentVerdicts)
 	}
 	if got := restartedValue(t, restarted, exporter.MetricSpawnsTotal, spawnLabels); got != before.spawns {
 		t.Errorf("%s = %v after restart, want %v", exporter.MetricSpawnsTotal, got, before.spawns)
@@ -462,11 +613,13 @@ func TestExporter_LifecycleCountersCarryNoUnboundedLabel(t *testing.T) {
 	h.writeEvent("doom_loop_detected", 0)
 	h.writeEvent("permission_denied", 0)
 	h.writeEvent(review.EventReviewVerdictPass, 0)
+	h.writeEvent(review.EventReviewAgentVerdictPass, 0)
 
 	banned := []string{"session_name", "instance_id", "issue_ref"}
 	exp := h.scrape(h.exp)
 	for _, name := range []string{
 		exporter.MetricSpawnsTotal, exporter.MetricSessionsEndedTotal, exporter.MetricReviewVerdictsTotal,
+		exporter.MetricReviewAgentVerdictsTotal,
 		exporter.MetricEscalationsTotal, exporter.MetricDoomLoopsTotal, exporter.MetricPermissionDeniedTotal,
 	} {
 		family, ok := exp.Families[name]

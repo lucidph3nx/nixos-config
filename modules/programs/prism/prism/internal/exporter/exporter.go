@@ -235,7 +235,7 @@ func New(cfg Config) (*Exporter, error) {
 		return nil, fmt.Errorf("exporter: build agent_events tailer: %w", err)
 	}
 
-	// The six lifecycle and outcome counters. A second, independent tailer
+	// The seven lifecycle and outcome counters. A second, independent tailer
 	// over the same agent_events table, with its own cursor — see
 	// lifecycle.go and LifecycleEventsTailSQL for why one more tailer is
 	// simpler and safer here than teaching the agent_events tailer a second

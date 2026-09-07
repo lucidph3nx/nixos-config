@@ -317,3 +317,11 @@ func WriteVerdictEventForTest(d *db.DB, groupID, workerSession string, results [
 func VerdictEventIDForTest(groupID string) string {
 	return verdictEventID(groupID)
 }
+
+// AgentVerdictEventIDForTest exposes the deterministic PER-AGENT verdict-event
+// id derivation, so a test can assert that the key is derived from the group
+// AND the role — the guard that stops a round's five agents collapsing into
+// one row under INSERT OR IGNORE.
+func AgentVerdictEventIDForTest(groupID, agentRole string) string {
+	return agentVerdictEventID(groupID, agentRole)
+}

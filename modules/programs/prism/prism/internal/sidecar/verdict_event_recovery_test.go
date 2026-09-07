@@ -16,6 +16,7 @@ package sidecar
 
 import (
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 
@@ -46,6 +47,60 @@ func seedWorkerSessionRow(t *testing.T, d *db.DB, workerSession, groupID string)
 		t.Fatalf("InsertSession(%s): %v", workerSession, err)
 	}
 	return iid
+}
+
+// seedReviewAgentRows gives each of the fixture's five review-agent members an
+// instance_id and a matching sessions row carrying its review role — the shape
+// session.SpawnSession produces in production. The per-agent verdict event
+// carries the MEMBER's instance id, and agent_events.instance_id is a foreign
+// key into sessions, so without these rows there is nothing for the writer to
+// attribute a per-agent verdict to. Returns the member session names.
+func seedReviewAgentRows(t *testing.T, d *db.DB, workerSession string) []string {
+	t.Helper()
+	roles := []string{"review-goal", "review-code", "review-security", "review-qa", "review-context"}
+	names := make([]string, 0, len(roles))
+	for _, role := range roles {
+		sessName := workerSession + "~review-1-" + role
+		iid := uuid.New().String()
+		r := role
+		if err := d.InsertSession(db.Session{
+			InstanceID:  iid,
+			SessionName: sessName,
+			Repo:        "prism-test",
+			Worktree:    "/tmp/worktree",
+			Harness:     "pi",
+			AgentRole:   &r,
+			StartedAt:   time.Now().Add(-1 * time.Minute),
+		}); err != nil {
+			t.Fatalf("InsertSession(%s): %v", sessName, err)
+		}
+		if err := d.SetInstanceID(sessName, iid); err != nil {
+			t.Fatalf("SetInstanceID(%s): %v", sessName, err)
+		}
+		names = append(names, sessName)
+	}
+	return names
+}
+
+// countAgentVerdictEvents returns the total number of per-agent verdict events
+// (any of the three verdicts) recorded for the given review-agent sessions.
+func countAgentVerdictEvents(t *testing.T, d *db.DB, agentSessions []string) int {
+	t.Helper()
+	total := 0
+	for _, name := range agentSessions {
+		var n int
+		if err := d.QueryRow(
+			`SELECT COUNT(*) FROM agent_events WHERE session_name = ? AND type IN (?, ?, ?)`,
+			name,
+			review.EventReviewAgentVerdictPass,
+			review.EventReviewAgentVerdictFail,
+			review.EventReviewAgentVerdictError,
+		).Scan(&n); err != nil {
+			t.Fatalf("count per-agent verdict events for %s: %v", name, err)
+		}
+		total += n
+	}
+	return total
 }
 
 // countWorkerVerdictEvents returns the pass/fail verdict-event counts for the
@@ -133,6 +188,79 @@ func TestDeliverGroupResults_TwiceNoDoubleCount(t *testing.T) {
 	}
 	if pass, fail := countWorkerVerdictEvents(t, d, workerSession); pass+fail != 1 {
 		t.Fatalf("after second delivery: got pass=%d fail=%d, want exactly one (no double count)", pass, fail)
+	}
+}
+
+// TestDeliverGroupResults_WritesAgentVerdictEvents is the recovery-path half
+// of the per-agent counter (issue #2963). A round the recovery watcher
+// delivers must increment the per-agent counter exactly as a round the monitor
+// delivers does — one event per review agent — and the per-agent sum must
+// reconcile with the round count on this path too.
+func TestDeliverGroupResults_WritesAgentVerdictEvents(t *testing.T) {
+	d, workerSession, groupID, sockPath := setupDeliveredAtFixture(t, "agent-verdict-recovery")
+	seedWorkerSessionRow(t, d, workerSession, groupID)
+	agentSessions := seedReviewAgentRows(t, d, workerSession)
+
+	srv, cleanup := startFakePromptServer(t, sockPath, http.StatusOK, `{"replayed":false}`)
+	defer cleanup()
+	_ = srv
+
+	if _, err := review.DeliverGroupResults(d, groupID, review.RecoveryDeliveryID(groupID)); err != nil {
+		t.Fatalf("DeliverGroupResults: %v", err)
+	}
+
+	if got := countAgentVerdictEvents(t, d, agentSessions); got != len(agentSessions) {
+		t.Fatalf("per-agent verdict events after a recovery delivery = %d, want %d (one per review agent)", got, len(agentSessions))
+	}
+	if pass, fail := countWorkerVerdictEvents(t, d, workerSession); pass+fail != 1 {
+		t.Errorf("round verdict events = %d, want exactly 1 — the per-agent sum must reconcile with the round count", pass+fail)
+	}
+
+	// Each event must carry its OWN agent's instance id, so the exporter's
+	// sessions join resolves agent_role to the review dimension rather than to
+	// the worker's role.
+	for _, name := range agentSessions {
+		var role string
+		if err := d.QueryRow(
+			`SELECT COALESCE(s.agent_role, '')
+			   FROM agent_events ae
+			   LEFT JOIN sessions s ON s.instance_id = ae.instance_id
+			  WHERE ae.session_name = ? AND ae.type IN (?, ?, ?)`,
+			name,
+			review.EventReviewAgentVerdictPass,
+			review.EventReviewAgentVerdictFail,
+			review.EventReviewAgentVerdictError,
+		).Scan(&role); err != nil {
+			t.Fatalf("resolve agent_role for %s: %v", name, err)
+		}
+		if want := strings.TrimPrefix(name, workerSession+"~review-1-"); role != want {
+			t.Errorf("agent_role resolved through the sessions join = %q, want %q", role, want)
+		}
+	}
+}
+
+// TestDeliverGroupResults_TwiceWritesFiveAgentEvents is the per-agent
+// double-count guard on the real recovery path. Two deliveries of the same
+// round must leave exactly five per-agent events: ten means no guard, one
+// means the round's group-only event id was reused for the per-agent rows.
+func TestDeliverGroupResults_TwiceWritesFiveAgentEvents(t *testing.T) {
+	d, workerSession, groupID, sockPath := setupDeliveredAtFixture(t, "agent-verdict-recovery-twice")
+	seedWorkerSessionRow(t, d, workerSession, groupID)
+	agentSessions := seedReviewAgentRows(t, d, workerSession)
+
+	srv, cleanup := startFakePromptServer(t, sockPath, http.StatusOK, `{"replayed":false}`)
+	defer cleanup()
+	_ = srv
+
+	deliveryID := review.RecoveryDeliveryID(groupID)
+	for i := 0; i < 2; i++ {
+		if _, err := review.DeliverGroupResults(d, groupID, deliveryID); err != nil {
+			t.Fatalf("DeliverGroupResults (delivery %d): %v", i+1, err)
+		}
+	}
+
+	if got := countAgentVerdictEvents(t, d, agentSessions); got != 5 {
+		t.Fatalf("per-agent verdict events after two deliveries = %d, want exactly 5", got)
 	}
 }
 
