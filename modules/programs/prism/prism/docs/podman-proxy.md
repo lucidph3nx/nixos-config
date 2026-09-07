@@ -693,7 +693,7 @@ allowlist is unreachable from it. Second, libpod spells most of the
 rest in snake_case, which case-matches nothing here. So a top-level
 `mounts`, `devices`, `device_cgroup_rule`, `privileged`, `cap_add`,
 `sysctl`, `annotations`, `env_host`, `httpproxy`, `command`, or
-`work_dir` is refused at decode.
+`work_dir` is rejected at decode.
 
 Nothing enforces that. One future podman field with a CamelCase tag
 opens the boundary, and so does one future top-level docker field
@@ -704,9 +704,9 @@ of this repo. So there is no upstream struct to diff against, in any
 pinned version.
 
 The boundary is pinned behaviourally instead, by
-`proxy_libpod_volumes_test.go::TestLibpodBoundary_DangerousKeysRefusedAtDecode`.
+`proxy_libpod_volumes_test.go::TestLibpodBoundary_DangerousKeysRejectedAtDecode`.
 That test sends each key above at the proxy and asserts an
-`unknown_field` refusal. It is the only mechanism that holds the
+`unknown_field` rejection. It is the only mechanism that holds the
 boundary. A change that admits one of those keys must be a deliberate
 field admission under §4, with the test updated in the same commit.
 
@@ -721,7 +721,7 @@ with a dangerous divergence.
 The libpod `POST /volumes/create` body is clear for the same reason.
 It uses `Options` and `Label` (singular). Neither name case-matches
 docker's `DriverOpts` or `Labels`, so the libpod local-driver
-bind-volume escape is refused at decode.
+bind-volume escape is rejected at decode.
 
 The full podman CLI cannot reach any of the four channels. Its create
 request carries `command` and `resource_limits`, so it is rejected at

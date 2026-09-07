@@ -239,7 +239,7 @@ type hostConfigLogConfig struct {
 // speaks HTTP to a socket — so there is no struct to diff against and
 // the gap cannot be closed by reading source. It is pinned
 // BEHAVIOURALLY instead, by
-// proxy_libpod_volumes_test.go::TestLibpodBoundary_DangerousKeysRefusedAtDecode.
+// proxy_libpod_volumes_test.go::TestLibpodBoundary_DangerousKeysRejectedAtDecode.
 // Keep that test in step with any field added to this struct.
 type containerCreateBody struct {
 	// INSPECTED.
@@ -313,7 +313,7 @@ type containerCreateBody struct {
 // Same allowlist discipline as every other struct in this file:
 // checkLibpodVolumesArray decodes an entry with decodeStrict, so a
 // NamedVolume field podman adds later (and any field this repo has
-// not audited) is refused as unknown-field until it goes through the
+// not audited) is rejected as unknown-field until it goes through the
 // field-admission process in docs/podman-proxy.md §4. That is
 // deliberate: podman is not a Go dependency here, so an unaudited
 // field cannot be checked against a pinned upstream struct.
@@ -1193,7 +1193,7 @@ func checkDockerCompatVolumesMap(key string, raw []byte) policyDecision {
 // []NamedVolume{Name, Dest, Options}. Two entry forms decode today:
 //
 //   - an OBJECT, which is libpod's own shape. Decoded strictly against
-//     libpodNamedVolume, so an unaudited entry field refuses.
+//     libpodNamedVolume, so an unaudited entry field is rejected.
 //   - a STRING in docker's -v grammar ("name:/dest[:options]"). This
 //     is not a shape podman accepts on this field — its decoder wants
 //     objects — but the proxy admitted it before this change, and it

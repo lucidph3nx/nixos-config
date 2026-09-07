@@ -29,9 +29,9 @@ package podmanproxy
 // not from an unrelated policy path, in the shape §6 of
 // docs/podman-proxy.md prescribes.
 //
-// TestLibpodBoundary_DangerousKeysRefusedAtDecode is the other half of
-// the file, and it is not coverage of this change — it PINS the decode
-// boundary that made `volumes` the only leaking key. podman is not a
+// TestLibpodBoundary_DangerousKeysRejectedAtDecode is the other half
+// of the file, and it is not coverage of this change — it PINS the
+// decode boundary that made `volumes` the only leaking key. podman is not a
 // Go dependency of this repo (the proxy speaks HTTP to a socket), so
 // there is no upstream struct to diff containerCreateBody against, and
 // the boundary cannot be verified by reading source. It can only be
@@ -364,10 +364,10 @@ func TestLibpodVolumes_AbsentOrEmpty_Admitted(t *testing.T) {
 
 // TestLibpodVolumes_UnauditedEntryField_Denied pins the field-name
 // layer on the new entry shape. libpodNamedVolume admits Name, Dest,
-// and Options. A NamedVolume field podman adds later — or any field
-// this repo has not audited — must refuse rather than forward, because
+// and Options. A NamedVolume field podman adds later — or any other
+// unaudited field — must be rejected rather than forwarded, because
 // there is no pinned upstream struct to check it against. The name in
-// each body is IN prefix, so the refusal can only come from the
+// each body is IN prefix, so the rejection can only come from the
 // unknown field.
 func TestLibpodVolumes_UnauditedEntryField_Denied(t *testing.T) {
 	cases := map[string]string{
@@ -504,7 +504,7 @@ func TestLibpodVolumes_WorseViolationWinsAuditReason(t *testing.T) {
 
 // ── the decode boundary between the two body shapes ─────────────────────
 
-// TestLibpodBoundary_DangerousKeysRefusedAtDecode pins the boundary
+// TestLibpodBoundary_DangerousKeysRejectedAtDecode pins the boundary
 // that made `volumes` the ONE leaking key, rather than the first of
 // many.
 //
@@ -535,7 +535,7 @@ func TestLibpodVolumes_WorseViolationWinsAuditReason(t *testing.T) {
 // deliberate field admission under docs/podman-proxy.md §4, with this
 // test updated in the same commit and the new field INSPECTED or
 // DENIED. Do not "fix" a failure here by deleting the row.
-func TestLibpodBoundary_DangerousKeysRefusedAtDecode(t *testing.T) {
+func TestLibpodBoundary_DangerousKeysRejectedAtDecode(t *testing.T) {
 	cases := []struct {
 		key   string
 		value string
@@ -566,7 +566,7 @@ func TestLibpodBoundary_DangerousKeysRefusedAtDecode(t *testing.T) {
 			assertNoForward(t, fu)
 			log := h.audit.String()
 			if !strings.Contains(log, "create_top:unknown_field") {
-				t.Errorf("libpod key %q must be refused at decode with an unknown_field reason; log=%s", tc.key, log)
+				t.Errorf("libpod key %q must be rejected at decode with an unknown_field reason; log=%s", tc.key, log)
 			}
 			if !strings.Contains(log, tc.key) {
 				t.Errorf("audit reason does not name the rejected key %q; log=%s", tc.key, log)
