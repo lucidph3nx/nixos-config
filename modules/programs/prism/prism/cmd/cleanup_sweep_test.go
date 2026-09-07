@@ -651,6 +651,50 @@ func TestVolumeSweep_BarePrefixNameIsSwept(t *testing.T) {
 	}
 }
 
+// TestVolumeSweep_ImplicitMountVolumeIsSwept closes the loop on issue
+// #2954. A container-create mount that names a volume which does not
+// yet exist makes the runtime create it implicitly, without ever
+// sending POST /volumes/create. The proxy now refuses such a mount
+// unless the name starts with `prism-<session>-`
+// (policy.go::checkMountedVolumeNames), so every volume an admitted
+// mount can create carries the prefix — and the sweep matches on that
+// prefix, so it reaches them.
+//
+// The names below are the two shapes an admitted mount produces: a
+// Binds entry ("prism-foo-data:/data") and a Type=volume Mounts entry
+// (Source="prism-foo-pgdata"). Neither is the `<prefix><8 hex>`
+// auto-name shape, because no injection happens on that path — which
+// is exactly why the volume rule is a prefix match and not the strict
+// shape the container rule uses.
+func TestVolumeSweep_ImplicitMountVolumeIsSwept(t *testing.T) {
+	r := installFakeRunner(t)
+	lsOut := strings.Join([]string{
+		"prism-foo-data",   // implicitly created by Binds "prism-foo-data:/data"
+		"prism-foo-pgdata", // implicitly created by a Type=volume Mounts entry
+	}, "\n") + "\n"
+	r.script(
+		scriptedResponse{stdout: []byte(lsOut)},
+		scriptedResponse{stdout: []byte("")},
+	)
+
+	got := sweepVolumesWithRunner(r, "foo", nil)
+	if got != 2 {
+		t.Fatalf("count: got %d, want 2 (an implicitly-created volume must not outlive the session)", got)
+	}
+	rmArgs := r.calls()[1][2:]
+	for _, want := range []string{"prism-foo-data", "prism-foo-pgdata"} {
+		var saw bool
+		for _, name := range rmArgs {
+			if name == want {
+				saw = true
+			}
+		}
+		if !saw {
+			t.Errorf("volume %q was not passed to podman volume rm; args=%v", want, rmArgs)
+		}
+	}
+}
+
 // TestVolumeSweep_SiblingSessionVolumeNotSwept is the load-bearing
 // sibling-prefix test. Session "foo" and session "foo-bar" have prefixes
 // where one contains the other, so a plain prefix match on "prism-foo-"

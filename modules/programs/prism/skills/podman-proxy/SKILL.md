@@ -140,6 +140,28 @@ Containers and volumes both carry the per-session prefix
 request gets 403 (`name_prefix_mismatch_body` for a container,
 `volume_name_prefix_mismatch` for a volume).
 
+**A volume you name in a container mount obeys the same rule.** A
+`containers/create` body reaches a named volume through two channels:
+the source half of a `HostConfig.Binds` entry (`myvol:/data`) and the
+`Source` of a `HostConfig.Mounts` entry of `Type=volume`. Both must
+start with `prism-<session>-`, or the request gets 403
+(`bind_volume_name_prefix_mismatch`, `mount_volume_name_prefix_mismatch`).
+These two channels REFUSE only — they never inject — so name the volume
+correctly in the request:
+
+```bash
+# Correct: the mount names an in-prefix volume, so the sweep finds it.
+docker run --rm --memory 512m --cpus 1 \
+  -v prism-nixos-config-main-pgdata:/var/lib/postgresql/data postgres:16
+
+# Rejected: bind_volume_name_prefix_mismatch.
+docker run --rm --memory 512m --cpus 1 -v pgdata:/data postgres:16
+```
+
+The rule also blocks a cross-session attach: `prism-<other-session>-<hex>`
+in either channel is refused, so one session cannot reach another
+session's volume by naming it.
+
 `<session>` in that prefix is the FOLDED session name, not the raw one.
 The prefix comes from `container.ResourceNamePrefixForSession`, which
 folds `@`, `/`, `.`, and `~` to `-`, because podman validates a resource
@@ -160,14 +182,14 @@ The two counts appear in the `prism cleanup --json` envelope as
 All three are accepted for this version. `docs/podman-proxy.md` §8.3
 carries the detail and the conditions to close each one.
 
-- **A volume created implicitly by a container mount.** A docker-API
-  `run -v myvol:/data ...` makes the runtime create `myvol` without ever
-  sending `POST /volumes/create`, so the volume gets no prefix and the
-  sweep never finds it. Give the volume a name that starts with
-  `prism-<session>-` instead. The runtime still creates it implicitly —
-  that does not change — but the sweep matches on the name prefix, so it
-  reaches the volume anyway. `podman volume create` is NOT a workaround:
-  it returns 403 on the libpod body, per the first section.
+- **An ANONYMOUS volume is not swept.** A docker-API
+  `run -v /data ...`, a `Type=volume` mount with an empty `Source`, or a
+  `Config.Volumes` placeholder makes the runtime create a volume and name
+  it itself. The proxy has no name to police, so the volume carries no
+  prefix and the sweep never finds it. Name the volume instead — see the
+  section above — and the sweep reaches it. A NAMED volume created
+  implicitly by a container mount is no longer a gap: issue #2954 closed
+  it by applying the prefix rule to both mount channels.
 - **Images are not swept.** An image you pull stays in the shared host
   image store after the session ends. Two things must land first: the
   libpod `POST /images/pull` endpoint needs admission (which is also why

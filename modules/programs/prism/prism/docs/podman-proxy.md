@@ -98,7 +98,8 @@ the rationale.
 | T21 | Build context smuggle via `POST /build` of arbitrary-content tar | No new escape: `build` is bounded by what the sandbox already exposes. Build endpoint is `endpointAllow` (query-only and opaque body). No size cap in v1. Revisit if abuse appears. | `endpoints.go` (build endpoint) |
 | T22 | Schema drift: a new docker-/podman-API field upstream introduces a new escape vector without anyone in this repo noticing | `json.Decoder.DisallowUnknownFields()` runs on every parsed body. A new unknown field rejects with 403 and audit reason `unknown_field:<json error>` until it is admitted via the field-admission process (§4). | `policy.go::decodeStrict`, plus every typed struct |
 | T23 | Proxy itself has a parsing bug | Default-deny — every unknown endpoint, unknown field, unknown enumerable value, malformed JSON, missing required value rejects before forwarding. Test suite exercises every documented escape and asserts it is blocked, plus a negative-control meta-test that verifies the positive tests are not no-ops. | `proxy_security_test.go::TestSecurity_NegativeControl_RootAllowlistPasses` |
-| T24 | Storage exhaustion after the session ends: a volume or an image the agent created outlives the session on the shared host | PARTIAL. A volume created through `POST /volumes/create` gets the per-session name prefix (`Config.VolumeNamePrefix`), and `prism cleanup` removes every volume with that prefix. Images are NOT swept, and two volume gaps stay open — see §8.3. | `policy.go::applyVolumeNamePolicy`, `cmd/cleanup_sweep.go::sweepVolumesWithRunner` |
+| T24 | Storage exhaustion after the session ends: a volume or an image the agent created outlives the session on the shared host | PARTIAL. A NAMED volume gets the per-session name prefix (`Config.VolumeNamePrefix`) on all three surfaces that can create one — `POST /volumes/create`, `HostConfig.Binds`, and a `HostConfig.Mounts` entry of `Type=volume` — and `prism cleanup` removes every volume with that prefix. Images are NOT swept, and an ANONYMOUS volume still escapes the prefix — see §8.3. | `policy.go::applyVolumeNamePolicy`, `policy.go::checkMountedVolumeNames`, `cmd/cleanup_sweep.go::sweepVolumesWithRunner` |
+| T25 | Cross-session data access: the agent attaches a volume that belongs to ANOTHER live session by naming it in a container-create mount | PARTIAL. A named volume in `HostConfig.Binds` or in a `Type=volume` `HostConfig.Mounts` entry must start with this session's `VolumeNamePrefix`, or the create request returns 403. `prism-<other-session>-<hex>` is therefore refused. A NESTED sibling prefix is not covered: session `foo` can name `prism-foo-bar-data`, which belongs to live session `foo-bar`. That is the pre-existing collision class in §8.3, and the volume-delete endpoints in the last §8.3 entry are a wider hole of the same kind. | `policy.go::checkMountedVolumeNames` |
 
 **Network egress** is not restricted: containers get whatever network the
 host podman gives them (default: full internet). This is strictly broader
@@ -123,21 +124,36 @@ covers a class of escape that the other layers do not.
 
 ### Per-session naming
 
-Two endpoints carry a per-session name policy. Both work the same way,
-and both exist so `prism cleanup` can find what the session created:
+Two config fields carry a per-session name policy, across four
+channels. They all exist so `prism cleanup` can find what the session
+created:
 
-| Endpoint | Config field | Policy function | Deny reason |
-|---|---|---|---|
-| `POST /containers/create` | `ContainerNamePrefix` | `applyContainerNamePolicy` | `name_prefix_mismatch_query`, `name_prefix_mismatch_body` |
-| `POST /volumes/create` | `VolumeNamePrefix` | `applyVolumeNamePolicy` | `volume_name_prefix_mismatch` |
+| Channel | Config field | Policy function | Deny reason | Absent name |
+|---|---|---|---|---|
+| `POST /containers/create` `?name=` and body `Name` | `ContainerNamePrefix` | `applyContainerNamePolicy` | `name_prefix_mismatch_query`, `name_prefix_mismatch_body` | injected |
+| `POST /volumes/create` body `Name` | `VolumeNamePrefix` | `applyVolumeNamePolicy` | `volume_name_prefix_mismatch` | injected |
+| `POST /containers/create` `HostConfig.Binds` named volume | `VolumeNamePrefix` | `checkMountedVolumeNames` | `bind_volume_name_prefix_mismatch` | forwarded |
+| `POST /containers/create` `HostConfig.Mounts` `Type=volume` `Source` | `VolumeNamePrefix` | `checkMountedVolumeNames` | `mount_volume_name_prefix_mismatch` | forwarded |
 
 The sidecar sets both fields to `prism-<sessionName>-`. A request with
-no name gets `prism-<sessionName>-<8 hex chars>`. A request with a name
-outside the prefix returns 403.
+a name outside the prefix returns 403 on every channel.
 
-The container endpoint takes its name from two channels (the `?name=`
-query and the body `Name`), so the policy checks and injects into both.
-The volume endpoint takes its name from the body alone.
+The two create endpoints INJECT `prism-<sessionName>-<8 hex chars>`
+when the name is absent. The container endpoint takes its name from
+two channels (the `?name=` query and the body `Name`), so the policy
+checks and injects into both. The volume endpoint takes its name from
+the body alone.
+
+The two mount channels REFUSE ONLY. They do not inject. There are two
+reasons. First, the name sits inside a colon-delimited string that
+also carries the mount target (`"myvol:/data:ro"`). Injection there is
+string surgery on the security boundary itself. Second, an injected
+name redirects the caller's mount to a volume it did not name. A 403
+states the required prefix instead, and the caller retries with a
+correct name.
+
+An absent name on these two channels is an anonymous volume. The
+runtime names that volume itself. §8.3 records the residual.
 
 ## 4. Field-admission process
 
@@ -561,22 +577,42 @@ mapping from `resource_limits` onto the cap checks. That is an admission
 of a new body shape, so it needs the field-admission audit in §4. The
 issue is filed: [#2946](https://github.com/prismatic-koi/nixos-config/issues/2946).
 
-**A volume created implicitly by a container mount.** `checkHostConfig`
-admits a named volume as the source of a bind (`Binds:
-["myvol:/data"]`) and as a `Mounts` entry of `Type=volume`. Podman
-creates a named volume that does not yet exist when a container mounts
-it. That path never sends `POST /volumes/create`, so
-`applyVolumeNamePolicy` never runs and the volume carries no
-`prism-<session>-` prefix. `sweepVolumesWithRunner` matches on the
-prefix, so it never removes the volume. A docker-API
-`run -v leak:/data alpine true` therefore leaves a volume behind.
+**A volume created implicitly by a container mount — CLOSED for a
+NAMED volume, open for an ANONYMOUS one.** Podman creates a named
+volume that does not yet exist when a container mounts it. That path
+never sends `POST /volumes/create`, so `applyVolumeNamePolicy` never
+runs on it.
 
-The podman CLI cannot reach this path at all. Its create request is
+`checkMountedVolumeNames` now applies the prefix rule to both channels
+that name a volume in a create body. The first is the source half of a
+`Binds` entry (`["myvol:/data"]`). The second is the `Source` of a
+`Mounts` entry of `Type=volume`. A name outside
+`Config.VolumeNamePrefix` returns 403. The reason is
+`bind_volume_name_prefix_mismatch` or
+`mount_volume_name_prefix_mismatch`. Every volume an admitted mount
+creates implicitly therefore carries the prefix, and
+`sweepVolumesWithRunner` reaches it.
+
+That also closed a second hole the leak hid. An out-of-prefix name was
+admitted, so one session had a path to another session's data: it
+named `prism-<other-session>-<hex>` in a mount. See T25. Issue #2954
+carries the field-admission audit for the change.
+
+An ANONYMOUS volume still escapes the prefix. Two shapes reach it. One
+is a `Mounts` entry of `Type=volume` with an empty `Source`. The other
+is the top-level `Config.Volumes` placeholder map (`{"/data": {}}`),
+which is FORWARDED. The runtime picks the name in both cases, so the
+policy has no name to refuse. A blanket refusal removes a legitimate
+docker workflow, so the proxy admits both shapes. `podman rm` deletes
+an anonymous volume only with `-v`, and the container sweep runs a
+plain `podman rm -f`. The volume survives.
+
+Two directions close it. The first is `-v` on the container sweep,
+which is safe because an anonymous volume has no other referent. The
+second is a sweep by label (see #2951). This change does neither.
+
+The podman CLI cannot reach any of this. Its create request is
 rejected earlier, per the first residual above.
-
-To close this, the policy must reject a named-volume mount whose name
-is outside the prefix. That is a new deny path on an admitted field, so
-it needs the field-admission audit in §4 and its own issue.
 
 **Images are not swept at all. This work is deferred.** An image the
 agent pulls stays in the shared host image store after the session ends.
