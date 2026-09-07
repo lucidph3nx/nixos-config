@@ -25,13 +25,13 @@ package cmd
 // a prefix (e.g. session "foo" vs session "foo-bar") cannot be
 // caught by accident.
 //
-// The sweep is best-effort: every podman invocation is bounded by a
-// shared 30-second context, and any failure (podman not on PATH,
-// machine off, socket missing, rm returns non-zero) is logged at
-// warning level and does NOT abort cleanup. The worktree and DB
-// teardown ALWAYS run regardless of sweep outcome — the
-// containers_swept count is just an observability field in the
-// `--json` envelope.
+// The sweep is best-effort: each resource class gets its own
+// 30-second context (60 seconds worst case across both classes),
+// and any failure (podman not on PATH, machine off, socket missing,
+// rm returns non-zero) is logged at warning level and does NOT abort
+// cleanup. The worktree and DB teardown ALWAYS run regardless of
+// sweep outcome — the containers_swept count is just an
+// observability field in the `--json` envelope.
 //
 // Test seam: the runner that shells out to `podman` is interface-
 // dispatched via `podmanRunnerForTest`, set by tests through
@@ -51,9 +51,12 @@ import (
 	"github.com/prismatic-koi/prism/internal/proglog"
 )
 
-// podmanSweepBudget is the upper bound on the total time the orphan
-// sweep may consume per session. The two podman invocations (ps + rm)
-// share this single context — there is no per-invocation budget.
+// podmanSweepBudget is the upper bound on the time a single resource
+// class's sweep may consume per session. Each class (containers,
+// volumes) builds its own context from this budget, so the podman
+// invocations within a class (ps + rm) share one context, but the
+// two classes do not share a context with each other — worst case
+// across both classes is 60 seconds.
 //
 // 30 seconds matches the per-mode container teardown in
 // `removeContainerIfExists` (35s for the isolator's stop+rm). The
@@ -411,7 +414,8 @@ func siblingVolumePrefixes(d *db.DB, sessionName string) []string {
 func sweepVolumesWithRunner(runner podmanRunner, sessionName string, siblingPrefixes []string) int {
 	// A budget of its own, not a share of the container sweep's: a
 	// container sweep that burned its full 30 s must not leave the
-	// volume sweep with no time to run.
+	// volume sweep with no time to run. This makes the worst-case
+	// total across both classes 60 s, not 30 s.
 	ctx, cancel := context.WithTimeout(context.Background(), podmanSweepBudget)
 	defer cancel()
 
