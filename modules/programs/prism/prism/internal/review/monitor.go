@@ -30,14 +30,23 @@ import (
 	"github.com/prismatic-koi/prism/internal/promptdelivery"
 )
 
-// Event types written by persistReviewOutcome. Each round that
-// reaches a real pass/fail verdict writes exactly one of these as a durable
-// agent_events row, so the exporter's tail cursor can count
+// Event types written by writeVerdictEvent, the single helper that emits a
+// round's verdict telemetry. Both delivery paths call it: the monitor path
+// (persistReviewOutcome, this file) and the recovery path
+// (DeliverGroupResults, recovery.go). Each completed round that reaches a real
+// pass/fail verdict writes exactly one of these as a durable agent_events row,
+// so the exporter's tail cursor can count
 // prism_review_verdicts_total{verdict,repo,agent_role,profile} without ever
 // reading the free-form review report text. The verdict lives in the TYPE, not the payload — the
 // exporter must never read agent_events.payload — and folding the verdict
 // into the type is the same trick eventtypes.go already uses for the closed
 // label set.
+//
+// Exactly-once across both paths: the event's primary-key id is derived
+// deterministically from the round's group_id (verdictEventID), and the write
+// is INSERT OR IGNORE (db.WriteEventIfAbsent). A round whose monitor wrote the
+// event and then died before delivery is re-delivered by the recovery watcher,
+// which computes the same id and writes nothing new — so the round counts once.
 const (
 	// EventReviewVerdictPass is written when every review agent in the round
 	// passed.
@@ -250,7 +259,7 @@ func MonitorFunc(opts MonitorOpts) error {
 	// delivery is the user-facing path; the column persistence is purely
 	// for `prism stats compare` reporting, and a missing column renders as
 	// the existing — placeholder.
-	persistReviewOutcome(d, opts.WorkerSession, results, allPassed)
+	persistReviewOutcome(d, opts.GroupID, opts.WorkerSession, results, allPassed)
 
 	// LOOP-LIMIT footer. Append the footer to the prompt body when
 	//   (a) the cycle has not converged (¬allPassed),
@@ -377,7 +386,7 @@ func MonitorFunc(opts MonitorOpts) error {
 // agent passed; "fail" when at least one did not. The lowercase casing
 // matches the existing ComputeSpawnOutcome convention so the renderer's
 // existing pass-through display does not need a casing-aware code path.
-func persistReviewOutcome(d *db.DB, workerSession string, results []AgentResult, allPassed bool) {
+func persistReviewOutcome(d *db.DB, groupID, workerSession string, results []AgentResult, allPassed bool) {
 	if d == nil || workerSession == "" {
 		return
 	}
@@ -408,15 +417,62 @@ func persistReviewOutcome(d *db.DB, workerSession string, results []AgentResult,
 	}
 	proglog.Infof("[prism monitor-review] persisted review verdict=%s pass=%d fail=%d on worker spawn_outcome (iid=%s)\n", verdict, passCount, failCount, sess.InstanceID)
 
-	// Durable event for the exporter's tail cursor. Best-effort:
-	// telemetry must never break the review-outcome path it rides alongside.
+	// Durable verdict event for the exporter, via the shared single-writer
+	// helper so the monitor and recovery paths stay in lockstep.
+	writeVerdictEvent(d, groupID, workerSession, results, allPassed)
+}
+
+// verdictEventNamespace is a fixed namespace UUID used to derive a round's
+// verdict-event id from its group_id. It never changes: both delivery paths
+// must compute the same id for the same round, so the second write is a no-op.
+var verdictEventNamespace = uuid.MustParse("a4f2c9d1-6b3e-4f7a-9c2d-1e5b8a0f3d6c")
+
+// verdictEventID returns the deterministic agent_events.id for the verdict
+// event of the round identified by groupID. Deriving the primary key from the
+// group is the double-count guard: the monitor path and the recovery path
+// compute the same id, so an INSERT OR IGNORE from the second caller inserts
+// nothing. It stays a valid UUID (UUIDv5) so the exporter's assumption that
+// agent_events.id is a TEXT uuid holds.
+func verdictEventID(groupID string) string {
+	return uuid.NewSHA1(verdictEventNamespace, []byte(groupID)).String()
+}
+
+// writeVerdictEvent writes the one durable verdict event for a completed review
+// round to agent_events. It is the SINGLE site that emits a round's verdict
+// telemetry: both persistReviewOutcome (monitor path) and DeliverGroupResults
+// (recovery path) call it, so prism_review_verdicts_total counts a round
+// exactly once no matter which path delivered it. #2963 adds its per-agent
+// counter here too.
+//
+// Double-count guard: the event id is verdictEventID(groupID) and the write is
+// db.WriteEventIfAbsent (INSERT OR IGNORE). When the monitor wrote the event
+// and then died before delivery, the recovery watcher re-delivers the same
+// round; this helper recomputes the same id and inserts nothing, so the round
+// is not counted a second time.
+//
+// Best-effort: telemetry must never break the review-outcome path it rides
+// alongside. A missing sessions row (worker reaped or never recorded) is not an
+// error — no event is written and the caller continues.
+func writeVerdictEvent(d *db.DB, groupID, workerSession string, results []AgentResult, allPassed bool) {
+	if d == nil || workerSession == "" || groupID == "" {
+		return
+	}
+	sess, err := d.MostRecentSessionForName(workerSession)
+	if err != nil {
+		proglog.Warnf("[prism review] warning: verdict event: lookup session %q: %v\n", workerSession, err)
+		return
+	}
+	if sess == nil || sess.InstanceID == "" {
+		proglog.Infof("[prism review] verdict event: no sessions row for %q — skipping\n", workerSession)
+		return
+	}
 	instanceID := sess.InstanceID
 	eventType := EventReviewVerdictFail
 	if allPassed {
 		eventType = EventReviewVerdictPass
 	}
-	if err := d.WriteEvent(db.Event{
-		ID:          uuid.New().String(),
+	inserted, err := d.WriteEventIfAbsent(db.Event{
+		ID:          verdictEventID(groupID),
 		SessionName: workerSession,
 		Repo:        sess.Repo,
 		Worktree:    sess.Worktree,
@@ -424,9 +480,16 @@ func persistReviewOutcome(d *db.DB, workerSession string, results []AgentResult,
 		Type:        eventType,
 		Payload:     "{}",
 		CreatedAt:   time.Now(),
-	}); err != nil {
-		proglog.Warnf("[prism monitor-review] warning: write %s event (iid=%s): %v\n", eventType, sess.InstanceID, err)
+	})
+	if err != nil {
+		proglog.Warnf("[prism review] warning: write %s event (group=%s iid=%s): %v\n", eventType, groupID, instanceID, err)
+		return
 	}
+	if !inserted {
+		proglog.Infof("[prism review] verdict event already present for group %s — skipping duplicate\n", groupID)
+		return
+	}
+	proglog.Infof("[prism review] wrote %s event for group %s (iid=%s)\n", eventType, groupID, instanceID)
 }
 
 // reviewAgentActivityWindow is how recently a review-agent member must have
