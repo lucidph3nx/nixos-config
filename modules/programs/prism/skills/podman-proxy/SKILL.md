@@ -226,10 +226,9 @@ instance-ID naming carries no token and is swept by the old rule instead
 earlier volumes unreachable by name.** The instance ID is per
 INCARNATION, not per session name. `prism restart` (and a `prism restore`
 after a reboot) mints a new one, so your prefix changes, and a mount that
-names a volume you created before the restart is refused with
-`bind_volume_name_prefix_mismatch` or one of its three siblings. The data
-is still on the host and cleanup still removes it. You cannot attach it
-again.
+names a volume you created before the restart is refused with one of the
+three mount-channel reasons above. The data is still on the host and
+cleanup still removes it. You cannot attach it again.
 
 So do not park state you need across a restart in a proxy-named volume.
 Re-create the volume under the new prefix and re-seed it, or hold the

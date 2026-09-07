@@ -629,8 +629,7 @@ deliberate. `prism restart` ends the tmux session, which clears
 `agent_status.instance_id` (`cmd/event.go`). The next sidecar start mints
 a fresh UUID. So the new incarnation enforces a NEW prefix, and a mount
 that names a volume the previous incarnation created is refused. The
-reason is `bind_volume_name_prefix_mismatch` or one of its three sibling
-reasons.
+reason is one of the three mount-channel reasons the §3 table lists.
 
 The volume itself is untouched. It stays on the host, and cleanup of the
 session still removes it, because the sweep holds every incarnation's
