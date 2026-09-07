@@ -222,6 +222,20 @@ instance-ID naming carries no token and is swept by the old rule instead
 (strict `prism-<session>-<8 hex chars>` for a container, plain
 `prism-<session>-` prefix for a volume).
 
+**Sweeping them is not the same as reaching them. A restart makes your
+earlier volumes unreachable by name.** The instance ID is per
+INCARNATION, not per session name. `prism restart` (and a `prism restore`
+after a reboot) mints a new one, so your prefix changes, and a mount that
+names a volume you created before the restart is refused with
+`bind_volume_name_prefix_mismatch` or one of its three siblings. The data
+is still on the host and cleanup still removes it. You cannot attach it
+again.
+
+So do not park state you need across a restart in a proxy-named volume.
+Re-create the volume under the new prefix and re-seed it, or hold the
+data in the session worktree or the container-scratch directory, which
+both survive a restart.
+
 The two counts appear in the `prism cleanup --json` envelope as
 `containers_swept` and `volumes_swept`.
 

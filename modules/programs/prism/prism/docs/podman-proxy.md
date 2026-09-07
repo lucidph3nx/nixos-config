@@ -623,6 +623,21 @@ each. A sweep keyed on the current incarnation alone leaves an earlier
 incarnation's volumes on the host forever. A failed read of that table
 degrades to the current incarnation plus the legacy rule, with a warning.
 
+**A restart makes the session's earlier volumes unreachable by name.**
+This is the cost of keying ownership on the incarnation, and it is
+deliberate. `prism restart` ends the tmux session, which clears
+`agent_status.instance_id` (`cmd/event.go`). The next sidecar start mints
+a fresh UUID. So the new incarnation enforces a NEW prefix, and a mount
+that names a volume the previous incarnation created is refused. The
+reason is `bind_volume_name_prefix_mismatch` or one of its three sibling
+reasons.
+
+The volume itself is untouched. It stays on the host, and cleanup of the
+session still removes it, because the sweep holds every incarnation's
+token. Only the attach is lost, and nothing recovers it. An agent that
+needs one dataset across a restart must not hold it in a proxy-named
+volume.
+
 **The volume sweep runs on the hard-cleanup paths only.** A soft close
 keeps the worktree, the branch, and the transcript, so the session can
 be reopened. It keeps the data volumes for the same reason. The soft
