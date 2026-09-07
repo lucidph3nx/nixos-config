@@ -1098,12 +1098,29 @@ const volumesFieldKey = "Volumes"
 //
 // # What is gated on the prefix, and what is not
 //
-// The NAME check is gated on Config.VolumeNamePrefix, matching every
-// other name policy in this file: an out-of-tree caller that
-// configures no prefix keeps the plain filtering behaviour. The SHAPE
-// and unknown-field checks are NOT gated. They are the layer-2 /
-// layer-3 half of the policy (docs/podman-proxy.md §3), and those
-// layers are unconditional everywhere else in this package.
+// One check of the four is gated. The NAME check is gated on
+// Config.VolumeNamePrefix, matching every other name policy in this
+// file: an out-of-tree caller that configures no prefix keeps the
+// plain filtering behaviour.
+//
+// The other three are NOT gated, and an empty prefix leaves all three
+// in force:
+//
+//   - the SHAPE check, which refuses a `volumes` value that is neither
+//     a placeholder map nor a named-volume array,
+//   - the unknown-field check on a libpod entry object, and
+//   - the HOST-BIND check on a docker-compat map key, which routes a
+//     `/`- or `.`-prefixed source to isAllowedBindSource.
+//
+// The first two are the layer-2 / layer-3 half of the policy
+// (docs/podman-proxy.md §3), and those layers are unconditional
+// everywhere else in this package. The third is the bind-source
+// allowlist, which is a different control with a different config
+// field. An empty VolumeNamePrefix must not return the host escape,
+// so that check carries no gate.
+// TestDockerCompatVolumes_NegativeControl_RootBindAllowlist is the
+// negative control for it, because the prefix knob cannot neutralise
+// it.
 func (p *Proxy) checkCreateVolumeNames(body []byte) policyDecision {
 	var obj map[string]json.RawMessage
 	if err := json.Unmarshal(body, &obj); err != nil {

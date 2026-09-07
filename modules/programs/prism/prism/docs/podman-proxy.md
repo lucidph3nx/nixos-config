@@ -711,12 +711,19 @@ carries the audit. Three notes on the shape of that policy:
   library, and `injectNameIntoBody` already treats this class of
   ambiguity as a bypass to close. Every case-variant of the key is
   inspected.
-- The NAME check is gated on `VolumeNamePrefix`, like every other name
-  policy here. The SHAPE and unknown-field checks are not. They are
-  the layer-2 and layer-3 half of the policy (§3), which is
-  unconditional everywhere else in the package. A `volumes` value that
-  is neither a placeholder map nor a named-volume array denies. So
-  does a named-volume entry that carries an unaudited field.
+- One check of the four is gated. The NAME check is gated on
+  `VolumeNamePrefix`, like every other name policy here. The other
+  three hold whatever the prefix is set to: the SHAPE check, which
+  denies a `volumes` value that is neither a placeholder map nor a
+  named-volume array. The unknown-field check, which denies a
+  named-volume entry that carries an unaudited field. The HOST-BIND
+  check on a docker-compat map key, which sends a `/`- or
+  `.`-prefixed source to the bind allowlist. The first two are the
+  layer-2 and layer-3 half of the policy (§3), which is unconditional
+  everywhere else in the package. The third is the bind-source
+  allowlist, a different control with its own config field. An empty
+  `VolumeNamePrefix` must not return the host escape, so that check
+  carries no gate.
 - It refuses. It never injects, for the reasons the mount channels
   give above.
 
