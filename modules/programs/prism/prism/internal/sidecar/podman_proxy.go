@@ -152,14 +152,21 @@ func (s *Sidecar) runPodmanProxyIfEnabled(ctx context.Context) {
 	// container and volume matching the same prefix at session
 	// teardown.
 	//
-	// The prefix comes from container.ResourceNamePrefixForSession, NOT
-	// from the raw session name. A session name carries `@` (and `~`
-	// for a review child), which podman rejects in a container or
-	// volume name — an unsanitised prefix makes every create the proxy
-	// touches fail upstream and makes the sweep filter match nothing.
-	// That one helper is also what keeps this side and the sweep side
-	// in agreement.
-	namePrefix := container.ResourceNamePrefixForSession(s.cfg.SessionName)
+	// The prefix carries this incarnation's INSTANCE ID, not just the
+	// session name: `prism-<instance token>-<sanitised session>-`. A
+	// name-only prefix cannot express identity, because two distinct
+	// live sessions collide under it by folding (`repo@feat/x` and
+	// `repo@feat-x` sanitise the same) and by nesting (`foo` is a strict
+	// prefix of `foo-bar`), so each could claim the other's containers
+	// and volumes — issue #2951. internal/container/resource_identity.go
+	// carries the full rationale and the containment invariant that
+	// makes the proxy's one prefix comparison sound.
+	//
+	// The session name is still folded into the prefix, because podman
+	// rejects `@` and `~` in a resource name, but it is DECORATION now:
+	// ownership is decided by the token, and cmd/cleanup_sweep.go parses
+	// that token back out exactly.
+	namePrefix := container.ResourceNamePrefixForOwner(s.cfg.InstanceID, s.cfg.SessionName)
 	cfg := podmanproxy.Config{
 		ListenerPath:        listenerPath,
 		UpstreamPath:        upstream,

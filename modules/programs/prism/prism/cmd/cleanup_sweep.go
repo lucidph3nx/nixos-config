@@ -4,26 +4,48 @@ package cmd
 //
 // Two resource classes are swept, in this order:
 //
-//  1. Containers matching the strict per-session auto-name shape.
-//  2. Volumes matching the per-session name prefix.
+//  1. Containers the session owns.
+//  2. Volumes the session owns.
 //
 // Both are gated on the SAME agent_status.containers_enabled read, so a
 // session that never enabled containers issues no podman command at
 // all.
+//
+// # Ownership is identity, not a shared prefix
+//
+// A resource created through the proxy carries the owning incarnation's
+// INSTANCE ID in its name, left-anchored:
+// `prism-<instance token>-<sanitised session>-<suffix>`.
+// `resourceOwner` decides what to remove by parsing that token back out
+// and comparing it, and never by testing one name prefix against
+// another. Prefix equality is a heuristic for identity and two distinct
+// live sessions collide under it — by folding and by nesting — so it
+// could destroy a live sibling's data volume. See
+// internal/container/resource_identity.go and issue #2951.
+//
+// A session that restarts gets a NEW instance ID, so the owner carries
+// the token of EVERY incarnation of the session name, read from the
+// `sessions` table. Cleaning a session therefore reaches the volumes its
+// earlier incarnations created, which a single-token sweep would leak.
+//
+// # The legacy half
+//
+// A resource created before the identity prefix landed carries no token.
+// It is still swept, by the pre-identity rule it was created under: the
+// strict `prism-<sanitised session>-<8 hex chars>` shape for a container,
+// the plain `prism-<sanitised session>-` prefix for a volume, and the
+// sibling guard over both. That rule is ambiguous — that is why it was
+// replaced — so the guard errs toward leaving a resource in place. See
+// `legacySiblingPrefixes`.
 //
 // Images the session pulled are NOT swept. See docs/podman-proxy.md
 // section 8.3 for the two conditions that work needs first.
 //
 // The container sweep complements the per-mode container teardown that
 // `removeContainerIfExists` already performs: that path removes the
-// SESSION'S OWN bwrap/podman/sandbox-exec container (the agent's
-// runtime), while this path sweeps any DERIVATIVE containers the
-// agent created via the proxy during the session. The naming
-// convention enforced by `internal/podmanproxy::applyContainerNamePolicy`
-// is `prism-<sessionName>-<8 hex chars>` — the sweep filter targets
-// exactly that strict shape so a sibling session whose name shares
-// a prefix (e.g. session "foo" vs session "foo-bar") cannot be
-// caught by accident.
+// SESSION'S OWN bwrap/sandbox-exec container (the agent's runtime),
+// while this path sweeps any DERIVATIVE containers the agent created
+// via the proxy during the session.
 //
 // The sweep is best-effort: each resource class gets its own
 // 30-second context (60 seconds worst case across both classes),
@@ -188,81 +210,300 @@ func sweepSessionResourcesForSession(sessionName string, scope sweepScope) (coun
 		return sweepCounts{}, false
 	}
 
+	owner := resourceOwnerForSession(d, sessionName, status)
 	runner := currentPodmanRunner()
-	counts.containers = sweepWithRunner(runner, sessionName)
+	counts.containers = sweepWithRunner(runner, owner)
 	if scope.sweepsVolumes() {
-		counts.volumes = sweepVolumesWithRunner(runner, sessionName, siblingVolumePrefixes(d, sessionName))
+		counts.volumes = sweepVolumesWithRunner(runner, owner)
 	}
 	return counts, true
 }
 
-// containerNamePattern returns the strict regex that matches the
-// auto-prefix container name shape the proxy produces:
-// `prism-<sessionName>-<8 lowercase hex chars>`.
+// podmanResourceNameFilter is the `--filter name=` value both sweeps
+// send to podman. It narrows the listing to names that could be prism
+// resources and nothing more.
 //
-// Strict-shape filtering (not just "starts with prefix") is a
-// security requirement: a sibling session "foo-bar" whose containers are
-// "prism-foo-bar-XXXXXXXX" must NOT be swept when cleaning session
-// "foo". Simple prefix matching cannot distinguish those two cases
-// because "prism-foo-bar-XXXXXXXX" starts with "prism-foo-". The
-// trailing `[a-f0-9]{8}$` anchor closes that gap by relying on the
-// random-suffix shape the proxy enforces.
+// It is an OPTIMISATION, not a control. The sweep used to anchor this
+// filter on the per-session prefix and treat that as its first line of
+// defence, because the Go-side check behind it was a prefix heuristic
+// too, and a podman version that read the filter as a substring match
+// could widen what that heuristic saw. The Go-side decision is now an
+// exact ownership parse (`resourceOwner`), which is total: it answers
+// for every name podman can return, including names of other sessions
+// and names that are not prism resources at all. So the filter's only
+// job is to keep the listing small.
 //
-// User-supplied Names that pass Half 1's prefix check but do not
-// match this strict shape (e.g. "prism-foo-myname") are NOT swept
-// — the user took ownership of the name and is responsible for
-// teardown. This is a documented limitation of the auto-sweep
-// design and is acceptable: the sweep is a safety net for orphan
-// auto-named containers, not a comprehensive teardown for all
-// possible naming patterns.
+// One listing per resource class also serves both halves of the
+// decision. The identity half and the legacy half need different names
+// out of the same population, and issuing two listings per class would
+// double the podman invocations on every teardown path.
+var podmanResourceNameFilter = "name=^" + regexp.QuoteMeta(container.ResourceNamePrefixRoot)
+
+// ownership is the sweep's verdict on one resource name.
+type ownership int
+
+const (
+	// ownershipMine — the name carries this session's identity, or it
+	// is a legacy name only this session can claim. Remove it.
+	ownershipMine ownership = iota
+
+	// ownershipOther — the name carries an instance token that is not
+	// this session's. It belongs to a different incarnation, which may
+	// be a live session. Leave it, silently: this is the common case on
+	// a host running several sessions, and warning per name would drown
+	// the teardown output.
+	ownershipOther
+
+	// ownershipUnclaimed — the name carries no identity and does not
+	// match this session's legacy rule. Leave it.
+	ownershipUnclaimed
+
+	// ownershipLegacySiblingClaim — the name carries no identity, it
+	// matches this session's legacy rule, and it matches a live
+	// sibling's legacy rule too. The name space cannot tell the two
+	// apart, so leave it and say so: the operator is the only one who
+	// can resolve it.
+	ownershipLegacySiblingClaim
+)
+
+// resourceOwner carries the identity a sweep decides ownership by, plus
+// the fallback rule for resources that carry no identity.
 //
-// The prefix comes from container.ResourceNamePrefixForSession, the
-// same helper the sidecar builds Config.ContainerNamePrefix from, so
-// the name the proxy injects and the name this sweep looks for cannot
-// drift.
-func containerNamePattern(sessionName string) *regexp.Regexp {
-	prefix := container.ResourceNamePrefixForSession(sessionName)
-	return regexp.MustCompile("^" + regexp.QuoteMeta(prefix) + "[a-f0-9]{8}$")
+// It is built once per cleanup and used for both resource classes, so
+// the container sweep and the volume sweep cannot disagree about who
+// owns what.
+type resourceOwner struct {
+	// sessionName is used in warning text only. It is never an input to
+	// an ownership decision on an identity-scoped name.
+	sessionName string
+
+	// instanceTokens holds the resource-name token of every incarnation
+	// of sessionName, most-recent-first. A session that restarted N
+	// times has N tokens and owns the resources of all of them.
+	instanceTokens []string
+
+	// legacyPrefix is the pre-identity name prefix,
+	// `prism-<sanitised session>-`. It applies ONLY to names that carry
+	// no instance token.
+	legacyPrefix string
+
+	// legacyContainerShape is the strict auto-name shape the proxy used
+	// to inject, `^<legacyPrefix>[a-f0-9]{8}$`. Compiled once here
+	// rather than per name.
+	legacyContainerShape *regexp.Regexp
+
+	// legacySiblingPrefixes are the legacy prefixes of OTHER live
+	// sessions that legacyPrefix cannot be told apart from. See
+	// legacySiblingPrefixes.
+	legacySiblingPrefixes []string
 }
 
-// sweepWithRunner is the inner sweep, called with an explicit runner
-// (production uses execPodmanRunner; tests inject a stub). Returns
-// the number of containers actually force-removed.
+// newResourceOwner builds a resourceOwner from a session name, the
+// instance IDs of its incarnations, and the legacy prefixes of the live
+// sessions its legacy prefix collides with.
+//
+// An instance ID that yields no token is dropped rather than rejected:
+// such a session's resources carry the legacy prefix, which the legacy
+// half of the decision already covers.
+func newResourceOwner(sessionName string, instanceIDs, legacySiblings []string) resourceOwner {
+	legacyPrefix := container.ResourceNamePrefixForSession(sessionName)
+	o := resourceOwner{
+		sessionName:  sessionName,
+		legacyPrefix: legacyPrefix,
+		// QuoteMeta because a future relaxation of the session-name
+		// character set must not become a regex injection. Today's set
+		// carries no metacharacter that survives sanitisation.
+		legacyContainerShape:  regexp.MustCompile("^" + regexp.QuoteMeta(legacyPrefix) + "[a-f0-9]{8}$"),
+		legacySiblingPrefixes: legacySiblings,
+	}
+	seen := make(map[string]bool, len(instanceIDs))
+	for _, id := range instanceIDs {
+		token := container.InstanceTokenForID(id)
+		if token == "" || seen[token] {
+			continue
+		}
+		seen[token] = true
+		o.instanceTokens = append(o.instanceTokens, token)
+	}
+	return o
+}
+
+// resourceOwnerForSession assembles the owner for the session being
+// cleaned.
+//
+// The token set is the union of two reads, because neither alone is
+// complete. `agent_status.instance_id` is the CURRENT incarnation and is
+// the one a live session is creating resources under right now. The
+// `sessions` rows are the incarnations of the session name that the
+// database STILL HOLDS, which is what reaches a volume an earlier
+// incarnation created before a restart minted a new instance ID.
+//
+// # The union is not every incarnation that ever existed
+//
+// `db.Prune` runs `DELETE FROM sessions WHERE ended_at IS NOT NULL AND
+// ended_at < ?` (internal/db/maintenance.go), and both callers pass a
+// ninety-day window (cmd/event.go, cmd/restore.go). `SetEnded` stamps
+// `sessions.ended_at` on every close AND every restart, so the row of an
+// incarnation that ended more than ninety days ago is gone.
+//
+// A resource created by a pruned incarnation therefore carries a token
+// this set does not hold. identityOwnership resolves it to
+// ownershipOther, and collectSweepable skips it. The legacy rule does
+// not catch it either, because identityOwnership already answered for
+// the name. The resource leaks, and the skip is silent.
+//
+// A long-lived session that restarts often and reaches hard cleanup
+// rarely is the reachable case. Do NOT close this by falling back to the
+// name when a token is unknown — that is the collision issue #2951
+// closed. Issue #2972 carries the follow-up: a diagnostic warning for
+// the silent skip, and the prune-versus-ownership retention question
+// underneath it. docs/podman-proxy.md §8.3 records the residual.
+//
+// A failed `sessions` read degrades to the current incarnation plus the
+// legacy rule, with a warning. That leaks an older incarnation's volumes
+// rather than risking another session's, which is the direction every
+// other degradation in this file takes.
+func resourceOwnerForSession(d *db.DB, sessionName string, status *db.Status) resourceOwner {
+	var instanceIDs []string
+	if status != nil && status.InstanceID != nil {
+		instanceIDs = append(instanceIDs, *status.InstanceID)
+	}
+	if d != nil {
+		sessions, err := d.SessionsByName(sessionName)
+		if err != nil {
+			proglog.Warnf("[prism] warning: cleanup: sweep: list incarnations of %q failed (%v) — sweeping the current incarnation only\n", sessionName, err)
+		} else {
+			for _, s := range sessions {
+				instanceIDs = append(instanceIDs, s.InstanceID)
+			}
+		}
+	}
+	return newResourceOwner(sessionName, instanceIDs, legacySiblingPrefixes(d, sessionName))
+}
+
+// ownsToken reports whether token belongs to one of this session's
+// incarnations.
+func (o resourceOwner) ownsToken(token string) bool {
+	for _, t := range o.instanceTokens {
+		if t == token {
+			return true
+		}
+	}
+	return false
+}
+
+// identityOwnership answers for a name that carries an instance token,
+// and reports ok=false for one that does not so the caller can apply its
+// class's legacy rule.
+//
+// This is the load-bearing check. It is an exact comparison of one
+// instance token against a set of instance tokens, so no name a session
+// can choose puts it on the wrong side: the token sits at a fixed
+// left-anchored position, it is 32 hex characters, and it carries no `-`
+// for the parse to stop at early.
+func (o resourceOwner) identityOwnership(name string) (ownership, bool) {
+	token, ok := container.ResourceOwnerToken(name)
+	if !ok {
+		return ownershipUnclaimed, false
+	}
+	if o.ownsToken(token) {
+		return ownershipMine, true
+	}
+	return ownershipOther, true
+}
+
+// legacyOwnership answers for a name that carries no instance token,
+// given whether the name matched the caller's class-specific legacy
+// rule.
+func (o resourceOwner) legacyOwnership(name string, matchesLegacyRule bool) ownership {
+	if !matchesLegacyRule {
+		return ownershipUnclaimed
+	}
+	if claimedBySibling(name, o.legacySiblingPrefixes) {
+		return ownershipLegacySiblingClaim
+	}
+	return ownershipMine
+}
+
+// containerOwnership decides whether the container called name is this
+// session's to remove.
+//
+// The legacy rule is the strict auto-name shape rather than the plain
+// prefix, unchanged from before identity existed. A user-supplied name
+// that passed the create-time prefix check but does not match the shape
+// is NOT swept on this path: the user took ownership of the name, and
+// there is no identity in it to prove otherwise.
+func (o resourceOwner) containerOwnership(name string) ownership {
+	if own, ok := o.identityOwnership(name); ok {
+		return own
+	}
+	return o.legacyOwnership(name, o.legacyContainerShape.MatchString(name))
+}
+
+// volumeOwnership decides whether the volume called name is this
+// session's to remove.
+//
+// The legacy rule is a plain prefix match with no further shape
+// condition, unchanged from before identity existed. The volume policy
+// admitted any user-chosen suffix inside the prefix, and a user-named
+// volume holds data, so every name that policy admitted must be
+// reachable here — including the name that is exactly the prefix.
+func (o resourceOwner) volumeOwnership(name string) ownership {
+	if own, ok := o.identityOwnership(name); ok {
+		return own
+	}
+	return o.legacyOwnership(name, strings.HasPrefix(name, o.legacyPrefix))
+}
+
+// collectSweepable partitions a podman listing into the names to remove,
+// applying decide to each. Names left behind for a live sibling's legacy
+// claim are warned about individually, because that outcome is a leak
+// the operator may need to resolve by hand. The warning names the
+// session doing the cleanup, so the operator can tell which of two
+// colliding sessions produced it.
+func collectSweepable(out []byte, class, sessionName string, decide func(string) ownership) []string {
+	var names []string
+	for _, line := range bytes.Split(out, []byte{'\n'}) {
+		name := strings.TrimSpace(string(line))
+		if name == "" {
+			continue
+		}
+		switch decide(name) {
+		case ownershipMine:
+			names = append(names, name)
+		case ownershipLegacySiblingClaim:
+			proglog.Warnf("[prism] warning: cleanup: %s sweep for %q: leaving %q — it predates instance-ID naming and a live sibling session claims the same name prefix\n", class, sessionName, name)
+		case ownershipOther, ownershipUnclaimed:
+			// Not ours. Nothing to say.
+		}
+	}
+	return names
+}
+
+// sweepWithRunner is the inner container sweep, called with an explicit
+// runner (production uses execPodmanRunner; tests inject a stub).
+// Returns the number of containers actually force-removed.
 //
 // Flow:
-//  1. Build the strict regex pattern for this session.
-//  2. Call `podman ps -a --filter name=<anchored-regex> --format {{.Names}}`.
-//     The anchored regex is the FIRST line of defence: podman libpod's
-//     filter is regex-matched, so an anchored regex on the podman
-//     side already excludes most non-matching containers.
-//  3. Re-filter the result in Go with the same regex. This is
-//     defence-in-depth against any podman version that interprets
-//     the filter as a substring match, which the docker compat
-//     surface can do. Without this Go-side re-check, a substring
-//     match on the podman side could leak a sibling session's
-//     containers into the rm batch.
-//  4. If any names survive both filters, invoke `podman rm -f` on
-//     them in a single batch. Empty list short-circuits — no rm
-//     invocation, count returned as 0.
+//  1. Call `podman ps -a --filter name=^prism- --format {{.Names}}`.
+//     The filter narrows the listing; it does not decide anything.
+//  2. Decide ownership of each returned name in Go, with
+//     resourceOwner.containerOwnership. This is the load-bearing step,
+//     and it is total — it answers for every name podman can return,
+//     including a substring trap like "user-prism-foo-aaaaaaaa" and a
+//     name belonging to another live session.
+//  3. If any names are ours, invoke `podman rm -f` on them in a single
+//     batch. Empty list short-circuits — no rm invocation, count
+//     returned as 0.
 //
 // Failures at any step log a warning and return what we have so
 // far. The cleanup flow continues regardless.
-func sweepWithRunner(runner podmanRunner, sessionName string) int {
+func sweepWithRunner(runner podmanRunner, owner resourceOwner) int {
 	ctx, cancel := context.WithTimeout(context.Background(), podmanSweepBudget)
 	defer cancel()
 
-	pattern := containerNamePattern(sessionName)
-	// The libpod `name` filter is a regex on the container name.
-	// We anchor at the start AND at the end (via the regex) so the
-	// suffix shape excludes sibling-prefix matches. QuoteMeta is
-	// belt-and-braces — session names use only `@`, alphanumerics,
-	// hyphens, and dots, none of which are regex metacharacters in
-	// practice, but a future relaxation of the session-name
-	// character set should not silently turn into a regex injection.
-	podmanFilter := "name=" + pattern.String()
-
 	out, err := runner.Run(ctx, "ps", "-a",
-		"--filter", podmanFilter,
+		"--filter", podmanResourceNameFilter,
 		"--format", "{{.Names}}")
 	if err != nil {
 		// Common, non-fatal failure modes:
@@ -273,24 +514,11 @@ func sweepWithRunner(runner podmanRunner, sessionName string) int {
 		// running, so there is nothing to sweep. Log once and
 		// continue.
 		proglog.Warnf("[prism] warning: cleanup: orphan-container sweep: podman ps for %q failed (%v) — continuing cleanup\n",
-			sessionName, err)
+			owner.sessionName, err)
 		return 0
 	}
 
-	var names []string
-	for _, line := range bytes.Split(out, []byte{'\n'}) {
-		name := strings.TrimSpace(string(line))
-		if name == "" {
-			continue
-		}
-		// Defence-in-depth: enforce strict-shape match in Go even
-		// if podman returned extras. This is the load-bearing check
-		// for the strict-shape security requirement.
-		if !pattern.MatchString(name) {
-			continue
-		}
-		names = append(names, name)
-	}
+	names := collectSweepable(out, "orphan-container", owner.sessionName, owner.containerOwnership)
 	if len(names) == 0 {
 		return 0
 	}
@@ -306,7 +534,7 @@ func sweepWithRunner(runner podmanRunner, sessionName string) int {
 	args := append([]string{"rm", "-f"}, names...)
 	if _, err := runner.Run(ctx, args...); err != nil {
 		proglog.Warnf("[prism] warning: cleanup: orphan-container sweep: podman rm for %q failed (%v) — some containers may remain\n",
-			sessionName, err)
+			owner.sessionName, err)
 		// Return 0 because we don't know how many were actually
 		// removed. Reporting a guessed count would mislead the
 		// operator into thinking the sweep succeeded.
@@ -315,103 +543,88 @@ func sweepWithRunner(runner podmanRunner, sessionName string) int {
 	return len(names)
 }
 
-// volumeNamePrefix returns the per-session volume name prefix the
-// proxy enforces on POST /volumes/create:
-// `prism-<sessionName>-`.
+// legacySiblingPrefixes returns the LEGACY name prefixes of every OTHER
+// live session that this session's legacy prefix cannot be told apart
+// from. It guards resources created before instance-ID naming, and it
+// guards nothing else — an identity-scoped name never reaches it.
 //
-// Unlike containerNamePattern, the volume sweep matches on the PREFIX,
-// not on the strict `<prefix><8 hex>` auto-name shape. The two differ
-// because the volume policy admits a user-supplied Name as long as it
-// carries the prefix, and a user-named volume holds data that outlives
-// the session unless the sweep removes it. Prefix matching is what
-// makes "every volume this session could have created" reachable.
+// Two collision shapes put a prefix in this list, and both are decided
+// in SANITISED space, on the prefixes rather than on the raw session
+// names. Sanitisation folds `@`, `/`, `.`, and `~` all to `-`, and it is
+// the prefix, not the session name, that a resource name carries.
 //
-// The looser match brings back the sibling-prefix ambiguity that
-// containerNamePattern's `[a-f0-9]{8}` anchor closes: session "foo"
-// and session "foo-bar" produce prefixes where one is a prefix of the
-// other. siblingVolumePrefixes supplies the guard for that case.
+//  1. NESTING: the other session's prefix strictly EXTENDS this one's.
+//     Session "foo" has "prism-foo-" and session "foo-bar" has
+//     "prism-foo-bar-", so "prism-foo-bar-data" starts with both.
+//  2. FOLDING: the other session's prefix EQUALS this one's, reached
+//     from a different raw name — `repo@feat/x` and `repo@feat-x` both
+//     sanitise to "prism-repo-feat-x-". Every legacy name under the
+//     prefix is then ambiguous, so the returned list contains this
+//     session's own prefix and the legacy sweep removes nothing.
 //
-// Shares container.ResourceNamePrefixForSession with the sidecar for
-// the same reason containerNamePattern does: a volume name podman
-// accepts is a sanitised one, so a sweep filter built from the raw
-// session name matches nothing that can exist.
-func volumeNamePrefix(sessionName string) string {
-	return container.ResourceNamePrefixForSession(sessionName)
-}
-
-// siblingVolumePrefixes returns the volume-name prefixes of every OTHER
-// live session whose name extends sessionName — that is, every session
-// whose own prefix is a strict extension of this one's.
+// The name alone cannot resolve either shape: session "foo" is allowed
+// to create a volume explicitly named "prism-foo-bar-data" too. So the
+// guard errs toward NOT deleting. The cost is a leaked resource when the
+// name really did belong to this session; the benefit is that no cleanup
+// destroys another running session's data. Resources created under
+// instance-ID naming need no such trade, because their ownership is
+// exact.
 //
-// Why this is needed: session "foo" has prefix "prism-foo-" and
-// session "foo-bar" has prefix "prism-foo-bar-". A volume named
-// "prism-foo-bar-data" starts with BOTH. Cleaning up "foo" with a
-// plain prefix match would destroy a live sibling session's data
-// volume.
+// The session being cleaned is excluded by NAME, not by prefix
+// equality. Excluding by prefix would also drop a folding collision,
+// which is the second shape above.
 //
-// The name alone cannot resolve the ambiguity: session "foo" is
-// allowed to create a volume explicitly named "prism-foo-bar-data"
-// too. So the guard errs toward NOT deleting. A volume claimed by a
-// live sibling is left alone; the cost is a leaked volume when the
-// name really did belong to this session, and the benefit is that no
-// cleanup destroys another running session's data.
-//
-// A DB read failure returns nil, which degrades to the plain prefix
-// match. That is the documented sweep behaviour, not a silent
-// weakening: the guard is defence in depth over the prefix rule, not
-// the rule itself.
-// The comparison runs in SANITISED space, on the prefixes themselves
-// rather than on the raw session names. Sanitisation folds `@`, `/`,
-// `.`, and `~` all to `-`, so two raw names that look unrelated can
-// produce prefixes that nest — and it is the prefix, not the session
-// name, that a volume name actually carries.
-func siblingVolumePrefixes(d *db.DB, sessionName string) []string {
+// A DB read failure returns nil, which degrades to the plain legacy
+// rule. That is the documented sweep behaviour, not a silent weakening:
+// the guard is defence in depth over a rule that only applies to legacy
+// names.
+func legacySiblingPrefixes(d *db.DB, sessionName string) []string {
 	if d == nil {
 		return nil
 	}
 	statuses, err := d.AllActiveStatus()
 	if err != nil {
-		proglog.Warnf("[prism] warning: cleanup: volume sweep: list active sessions failed (%v) — sweeping on the name prefix alone\n", err)
+		proglog.Warnf("[prism] warning: cleanup: sweep: list active sessions failed (%v) — sweeping pre-identity names on the name prefix alone\n", err)
 		return nil
 	}
-	ownPrefix := volumeNamePrefix(sessionName)
+	ownPrefix := container.ResourceNamePrefixForSession(sessionName)
 	var prefixes []string
+	seen := make(map[string]bool, len(statuses))
 	for _, st := range statuses {
-		otherPrefix := volumeNamePrefix(st.SessionName)
-		if otherPrefix == ownPrefix {
+		if st.SessionName == sessionName {
 			continue
 		}
+		otherPrefix := container.ResourceNamePrefixForSession(st.SessionName)
 		if !strings.HasPrefix(otherPrefix, ownPrefix) {
 			continue
 		}
+		if seen[otherPrefix] {
+			continue
+		}
+		seen[otherPrefix] = true
 		prefixes = append(prefixes, otherPrefix)
 	}
 	return prefixes
 }
 
-// sweepVolumesWithRunner removes every volume whose name starts with
-// the session's `prism-<sessionName>-` prefix, minus any name claimed
-// by one of siblingPrefixes. Returns the number of volumes removed.
+// sweepVolumesWithRunner removes every volume the session owns. Returns
+// the number of volumes removed.
 //
 // Flow mirrors sweepWithRunner:
 //
-//  1. `podman volume ls --filter name=^prism-<session>- --format
-//     {{.Name}}`. The anchored regex is the first line of defence —
-//     podman's libpod volume filter is regex-matched.
-//  2. Re-check the prefix in Go. This is the load-bearing check:
-//     the docker-compat surface can treat the same filter as a
-//     substring match, which would leak names like
-//     "user-prism-foo-data" into the removal batch. The re-check is
-//     a pure prefix test, with no further shape condition — every
-//     name the volume policy admits must be reachable here, or the
-//     volume outlives the session.
-//  3. Drop any name claimed by a live sibling session.
-//  4. `podman volume rm` the survivors in one batch. An empty list
+//  1. `podman volume ls --filter name=^prism- --format {{.Name}}`. The
+//     filter narrows the listing; it does not decide anything.
+//  2. Decide ownership of each returned name in Go, with
+//     resourceOwner.volumeOwnership. This is the load-bearing step. It
+//     is total, so a substring trap like "user-prism-foo-data" and a
+//     live sibling's volume both fall out here rather than into the
+//     removal batch.
+//  3. `podman volume rm` the survivors in one batch. An empty list
 //     short-circuits with no rm invocation.
 //
 // Failures at any step log a warning and return what we have so far.
 // The cleanup flow continues regardless.
-func sweepVolumesWithRunner(runner podmanRunner, sessionName string, siblingPrefixes []string) int {
+func sweepVolumesWithRunner(runner podmanRunner, owner resourceOwner) int {
 	// A budget of its own, not a share of the container sweep's: a
 	// container sweep that burned its full 30 s must not leave the
 	// volume sweep with no time to run. This makes the worst-case
@@ -419,44 +632,16 @@ func sweepVolumesWithRunner(runner podmanRunner, sessionName string, siblingPref
 	ctx, cancel := context.WithTimeout(context.Background(), podmanSweepBudget)
 	defer cancel()
 
-	prefix := volumeNamePrefix(sessionName)
-	// QuoteMeta for the same reason as the container filter: session
-	// names use only `@`, alphanumerics, hyphens, and dots today, but a
-	// future relaxation of the character set must not become a regex
-	// injection into podman's filter.
-	podmanFilter := "name=^" + regexp.QuoteMeta(prefix)
-
 	out, err := runner.Run(ctx, "volume", "ls",
-		"--filter", podmanFilter,
+		"--filter", podmanResourceNameFilter,
 		"--format", "{{.Name}}")
 	if err != nil {
 		proglog.Warnf("[prism] warning: cleanup: volume sweep: podman volume ls for %q failed (%v) — continuing cleanup\n",
-			sessionName, err)
+			owner.sessionName, err)
 		return 0
 	}
 
-	var names []string
-	for _, line := range bytes.Split(out, []byte{'\n'}) {
-		name := strings.TrimSpace(string(line))
-		if name == "" {
-			continue
-		}
-		// Prefix match, and nothing more. The name that is EXACTLY
-		// the prefix is swept too: applyVolumeNamePolicy admits it
-		// (strings.HasPrefix(prefix, prefix) is true) and podman
-		// accepts a trailing dash, so an agent can create it. An
-		// earlier version of this guard excluded it on the premise
-		// that the policy could not produce it — that premise was
-		// false, and the exclusion leaked the volume permanently.
-		if !strings.HasPrefix(name, prefix) {
-			continue
-		}
-		if claimedBySibling(name, siblingPrefixes) {
-			proglog.Warnf("[prism] warning: cleanup: volume sweep: leaving %q — the name is also claimed by a live sibling session\n", name)
-			continue
-		}
-		names = append(names, name)
-	}
+	names := collectSweepable(out, "volume", owner.sessionName, owner.volumeOwnership)
 	if len(names) == 0 {
 		return 0
 	}
@@ -464,7 +649,7 @@ func sweepVolumesWithRunner(runner podmanRunner, sessionName string, siblingPref
 	args := append([]string{"volume", "rm"}, names...)
 	if _, err := runner.Run(ctx, args...); err != nil {
 		proglog.Warnf("[prism] warning: cleanup: volume sweep: podman volume rm for %q failed (%v) — some volumes may remain\n",
-			sessionName, err)
+			owner.sessionName, err)
 		// Same reasoning as the container sweep: we do not know how
 		// many of the batch were removed, so we report none rather
 		// than mislead the operator.
@@ -474,8 +659,8 @@ func sweepVolumesWithRunner(runner podmanRunner, sessionName string, siblingPref
 }
 
 // claimedBySibling reports whether name falls inside one of the
-// sibling-session prefixes. See siblingVolumePrefixes for why a match
-// means "leave it alone".
+// sibling-session legacy prefixes. See legacySiblingPrefixes for why a
+// match means "leave it alone".
 func claimedBySibling(name string, siblingPrefixes []string) bool {
 	for _, sp := range siblingPrefixes {
 		if strings.HasPrefix(name, sp) {

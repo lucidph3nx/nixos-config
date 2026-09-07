@@ -117,7 +117,7 @@ the rationale.
 | T22 | Schema drift: a new docker-/podman-API field upstream introduces a new escape vector without anyone in this repo noticing | `json.Decoder.DisallowUnknownFields()` runs on every parsed body. A new unknown field rejects with 403 and audit reason `unknown_field:<json error>` until it is admitted via the field-admission process (§4). | `policy.go::decodeStrict`, plus every typed struct |
 | T23 | Proxy itself has a parsing bug | Default-deny — every unknown endpoint, unknown field, unknown enumerable value, malformed JSON, missing required value rejects before forwarding. Test suite exercises every documented escape and asserts it is blocked, plus a negative-control meta-test that verifies the positive tests are not no-ops. | `proxy_security_test.go::TestSecurity_NegativeControl_RootAllowlistPasses` |
 | T24 | Storage exhaustion after the session ends: a volume or an image the agent created outlives the session on the shared host | PARTIAL. A NAMED volume gets the per-session name prefix (`Config.VolumeNamePrefix`) on all five surfaces that can create one — `POST /volumes/create`, `HostConfig.Binds`, a `HostConfig.Mounts` entry of `Type=volume`, an entry of the top-level libpod `volumes` array, and a colon-bearing key of the top-level docker-compat `volumes` map — and `prism cleanup` removes every volume with that prefix. Images are NOT swept, and an ANONYMOUS volume still escapes the prefix. See §8.3 for both. | `policy.go::applyVolumeNamePolicy`, `policy.go::checkMountedVolumeNames`, `policy.go::checkCreateVolumeNames`, `cmd/cleanup_sweep.go::sweepVolumesWithRunner` |
-| T25 | Cross-session data access: the agent attaches a volume that belongs to ANOTHER live session by naming it in a container-create mount | PARTIAL, on the four named channels of a create body. A named volume in `HostConfig.Binds`, in a `Type=volume` `HostConfig.Mounts` entry, in the top-level libpod `volumes` array, or in a colon-bearing key of the top-level docker-compat `volumes` map must start with this session's `VolumeNamePrefix`, or the create request returns 403. This row named two open gaps. Issue #2958 closed the first: the libpod `volumes` array no longer forwards a foreign name. ONE gap stays OPEN, and this row does not close it. A NESTED sibling prefix is admitted: session `foo` can name `prism-foo-bar-data`, which belongs to live session `foo-bar`. No separator rule tells the two cases apart, because the ambiguity is in the name space itself — it needs instance-ID identity, tracked on #2951. Do not read this row as an isolation guarantee between sessions. | `policy.go::checkMountedVolumeNames`, `policy.go::checkCreateVolumeNames` |
+| T25 | Cross-session data access: the agent attaches a volume that belongs to ANOTHER live session by naming it in a container-create mount | PARTIAL, on the four named channels of a create body. A named volume in `HostConfig.Binds`, in a `Type=volume` `HostConfig.Mounts` entry, in the top-level libpod `volumes` array, or in a colon-bearing key of the top-level docker-compat `volumes` map must start with this session's `VolumeNamePrefix`, or the create request returns 403. This row named three gaps over time, and all three are now closed. Issue #2958 closed the libpod `volumes` array, which forwarded a foreign name. Issue #2951 closed the other two, which were the same defect in two shapes. `VolumeNamePrefix` was built from the session NAME, so a NESTED sibling prefix was admitted: session `foo` was free to name `prism-foo-bar-data`, which belongs to live session `foo-bar`. A FOLDED prefix was admitted for the same reason, because `repo@feat/x` and `repo@feat-x` sanitise to one prefix. The prefix now carries the session incarnation's instance ID, so a name outside it is refused on all four channels, and the cleanup sweep decides ownership by parsing that ID back out. What stays OPEN is narrower and is about EXISTING resources, not about what this proxy admits: a volume created BEFORE instance-ID naming carries no identity, so cleanup falls back to the old name-prefix rule for it and cannot tell two folded sessions' pre-identity volumes apart. It leaves such a name in place rather than removing it. See §8.3. Do not read this row as a general isolation guarantee between sessions: `POST /volumes/prune` and `DELETE /volumes/{name}` are plain allows, so an agent can still remove any volume on the host by name. | `policy.go::checkMountedVolumeNames`, `policy.go::checkCreateVolumeNames`, `internal/container/resource_identity.go` |
 
 **Network egress** is not restricted: containers get whatever network the
 host podman gives them (default: full internet). This is strictly broader
@@ -155,14 +155,73 @@ created:
 | `POST /containers/create` top-level libpod `volumes` array `Name` | `VolumeNamePrefix` | `checkCreateVolumeNames` | `create_volumes_name_prefix_mismatch` | forwarded |
 | `POST /containers/create` top-level docker-compat `volumes` map key, source half | `VolumeNamePrefix` | `checkDockerCompatVolumeKey` | `create_volumes_name_prefix_mismatch` | forwarded |
 
-The sidecar sets both fields to `prism-<sessionName>-`. A request with
-a name outside the prefix returns 403 on every channel.
+The sidecar sets both fields to
+`prism-<instance token>-<sanitised session name>-`, from
+`container.ResourceNamePrefixForOwner`. A request with a name outside
+the prefix returns 403 on every channel.
 
-The two create endpoints INJECT `prism-<sessionName>-<8 hex chars>`
-when the name is absent. The container endpoint takes its name from
-two channels (the `?name=` query and the body `Name`), so the policy
-checks and injects into both. The volume endpoint takes its name from
-the body alone.
+The two create endpoints INJECT
+`prism-<instance token>-<sanitised session name>-<8 hex chars>` when the
+name is absent. The container endpoint takes its name from two channels
+(the `?name=` query and the body `Name`), so the policy checks and
+injects into both. The volume endpoint takes its name from the body
+alone.
+
+#### The prefix carries an identity, and that is load-bearing
+
+Each check above is one `strings.HasPrefix` call. On its own that is
+prefix equality. Prefix equality is a HEURISTIC for identity, not
+identity itself, and two distinct LIVE sessions collide under it in two
+ways (issue #2951):
+
+- **Folding.** The sanitiser maps `@`, `/`, `.`, and `~` all to `-`, so
+  `repo@feat/x` and `repo@feat-x` produce one prefix.
+- **Nesting.** One session name can be a strict prefix of another.
+  Session `foo` gets `prism-foo-`, live session `foo-bar` gets
+  `prism-foo-bar-`, and `prism-foo-bar-data` starts with both.
+
+No separator rule closes either one. `isAllowedBindSource` closes the
+substring trap for host PATHS by requiring an exact match or a match on
+the entry plus `/`. That technique does not transfer: `prism-foo-bar-`
+already carries the separator after `prism-foo-`, and it is a legitimate
+name for session `foo-bar`. The ambiguity is in the name space itself.
+
+The instance ID is the identity. It is a UUID, it is unique per session
+incarnation, and it now sits in the prefix at a fixed, left-anchored
+position. `container.ResourceOwnerToken` reads it back out with an EXACT
+segment parse — the text between `prism-` and the next `-` — never with a
+prefix test, and `cmd/cleanup_sweep.go` decides what to sweep with that
+parse alone.
+
+The two rules meet at one invariant:
+
+> **admitted ⊆ owned.** A name that starts with
+> `prism-<token>-<decor>-` necessarily has owner token `<token>`, because
+> the token is 32 hex characters and carries no `-` for the segment parse
+> to stop at early. So every name this proxy admits is owned by the
+> admitting session, and no name it admits can be attributed elsewhere.
+
+That invariant is why the policy functions here did not need to change.
+It is also why this package stays stdlib-only and takes the prefix as an
+opaque string. It is pinned by
+`internal/container/resource_identity_test.go::TestResourceIdentity_AdmittedNamesAreOwned`,
+and the wiring that supplies the identity-bearing prefix is pinned by
+`internal/sidecar/podman_proxy_identity_test.go::TestPodmanProxy_NamePrefix_CarriesInstanceID`.
+Do not replace the production prefix with a name-only one.
+
+The sanitised session name still appears. Podman rejects `@` and `~` in
+a resource name, and an operator who reads `podman ps` needs to know
+which session a container came from. The name is DECORATION: it carries
+no ownership meaning, and nothing decides anything from it.
+
+One consequence for a client. The prefix is no longer derivable from the
+session name, so an agent cannot compute it. Two ways to obtain it, both
+from inside the sandbox:
+
+- `POST /volumes/create` with no `Name`. The proxy injects one and the
+  response carries it, prefix included.
+- Send the name you want and read the 403. Every deny message on these
+  six channels states the required prefix verbatim.
 
 The four container-create channels REFUSE ONLY. They do not inject.
 There are two reasons. First, two of the four carry the name inside a
@@ -416,8 +475,8 @@ verify the format from the source.
 | **docker-API client** posts `POST /containers/create` with no `HostConfig.NanoCpus` | `nano_cpus_required` (`checkOneResourceCap`) | Expected. Set a CPU limit at or below 2 (`--cpus` on a docker-API client). See §8.1. |
 | **docker-API client** asks for more memory or more CPU than the cap allows | `memory_over_cap` / `nano_cpus_over_cap` (`checkOneResourceCap`) | Expected. Lower the request. If the workload genuinely needs more, that is a `Config.MaxMemoryBytes` / `Config.MaxNanoCpus` discussion — file an issue. |
 | **docker-API client** sets `Memory` or `NanoCpus` to `0` | `memory_nonpositive` / `nano_cpus_nonpositive` (`checkOneResourceCap`) | Expected. `0` means "unbounded" in docker semantics, which bypasses the cap. Pass a positive value. |
-| **docker-API client** posts `POST /volumes/create` with a name outside the session prefix | `volume_name_prefix_mismatch` (`policy.go::applyVolumeNamePolicy`) | Expected. Omit the name to receive an auto-prefixed one, or start the name with `prism-<session>-`. |
-| Client posts `POST /containers/create` whose top-level `volumes` key names a volume outside the session prefix, in the libpod array or in a colon-bearing docker-compat map key | `create_volumes_name_prefix_mismatch` (`policy.go::checkLibpodVolumesArray`, `checkDockerCompatVolumeKey`) | Expected. T25. This channel refuses rather than injecting, so rename the volume to start with `prism-<session>-`. |
+| **docker-API client** posts `POST /volumes/create` with a name outside the session prefix | `volume_name_prefix_mismatch` (`policy.go::applyVolumeNamePolicy`) | Expected. Omit the name to receive an auto-prefixed one, or start the name with the prefix the deny message states. The prefix carries an instance ID and is not derivable from the session name (§3). |
+| Client posts `POST /containers/create` whose top-level `volumes` key names a volume outside the session prefix, in the libpod array or in a colon-bearing docker-compat map key | `create_volumes_name_prefix_mismatch` (`policy.go::checkLibpodVolumesArray`, `checkDockerCompatVolumeKey`) | Expected. T25. This channel refuses rather than injecting, so rename the volume to start with the prefix the deny message states. |
 | Client posts `POST /containers/create` with a docker-compat `volumes` map key whose source is a host path outside the allowlist, for example `{"Volumes":{"/etc:/x":{}}}` | `create_volumes_host_bind:<path>` (`policy.go::checkDockerCompatVolumeKey`) | Expected. T1. podman appends the key to its `-v` list verbatim, so a key with a colon is a mount spec. Use an allowlisted source, or drop the source and let the key be a bare destination. |
 | Client posts a `volumes` value that matches neither documented shape of the key, or a named-volume entry carrying a field this repo has not audited | `create_volumes_shape_not_allowed` / `create_volumes_entry_shape_not_allowed` / `create_volumes_map_value_not_empty` / `create_volumes:unknown_field:<json error>` (`policy.go::checkVolumesField` and the two shape helpers) | The key means a placeholder map on the docker-compat shape and an array of named volumes on the libpod shape. Anything else denies. Field-admission process (§4). |
 | Worker runs `podman pull <image>` and gets 403 | `endpoint_not_allowed:POST images/pull` (`handler.go` default branch) | Pre-existing. The podman CLI pulls through the libpod endpoint `POST /images/pull`, which the endpoint allowlist does not admit. A docker-API client that pulls through `POST /images/create` works. See §8.3. |
@@ -449,20 +508,35 @@ sets:
 - `AllowedBindSources` — the per-session worktree path, the bare repo
   path, and the per-session scratch directory.
 - `ContainerNamePrefix` and `VolumeNamePrefix` — both
-  `container.ResourceNamePrefixForSession(sessionName)`, which
+  `container.ResourceNamePrefixForOwner(instanceID, sessionName)`, which
   activates the auto-prefix policy and lets the cleanup sweep
   (`cmd/cleanup_sweep.go::sweepSessionResourcesForSession`, called
   from `cmd/cleanup.go`) find every container and every volume that
   belongs to the session.
 
-  The helper is NOT a plain `"prism-" + sessionName + "-"`
-  concatenation. It builds on `container.NameForSession`, which folds
-  `@`, `/`, `.`, and `~` to `-`. Podman validates a container or volume
-  name against `^[a-zA-Z0-9][a-zA-Z0-9_.-]*$`, and a session name is
-  `<repo>@<branch>`, so an unsanitised prefix produces names podman
-  refuses to create. Session `nixos-config@main` therefore gets the
-  prefix `prism-nixos-config-main-`. Wherever this document writes
-  `prism-<session>-`, read `<session>` as the folded form.
+  The value is `prism-<instance token>-<sanitised session name>-`. The
+  token is the session incarnation's instance ID, a UUID, with its
+  hyphens removed — 32 lowercase hex characters. It is what makes
+  ownership decidable. §3 explains why a name-only prefix is not, and
+  what the sweep does with the token.
+
+  The session-name half is NOT a plain `sessionName`. It is folded:
+  `@`, `/`, `.`, and `~` all become `-`. Podman validates a container or
+  volume name against `^[a-zA-Z0-9][a-zA-Z0-9_.-]*$`, and a session name
+  is `<repo>@<branch>`, so an unsanitised name produces names podman
+  refuses to create. Session `nixos-config@main` with instance ID
+  `3f2a1b0c-1234-5678-9abc-def012345678` therefore gets the prefix
+  `prism-3f2a1b0c123456789abcdef012345678-nixos-config-main-`.
+
+  Wherever this document writes `prism-<session>-`, read `<session>` as
+  the folded form. Note also that the spelling now names the LEGACY
+  prefix. That prefix applies only to resources created before
+  instance-ID naming.
+
+  An instance ID that is not a canonical UUID yields no token, and the
+  helper falls back to `container.ResourceNamePrefixForSession`. Every
+  production instance ID is a canonical UUID. The fallback covers
+  out-of-tree callers and tests.
 - `AllowedCaps` — empty by default. Deny-all.
 - `AllowedSecurityOpts` — empty by default. Deny-all.
 - `MaxMemoryBytes` — `4294967296` (4 GiB per container).
@@ -531,8 +605,43 @@ containers issues no podman command at all.
 
 | Class | Match rule | podman command | Runs on |
 |---|---|---|---|
-| Containers | Strict shape `prism-<session>-<8 hex chars>` | `podman rm -f`, one batch | every teardown path |
-| Volumes | Name prefix `prism-<session>-` | `podman volume rm`, one batch | hard cleanup only |
+| Containers | Instance token of any incarnation of the session. For a name that carries no token, the legacy strict shape `prism-<session>-<8 hex chars>` | `podman rm -f`, one batch | every teardown path |
+| Volumes | Instance token of any incarnation of the session. For a name that carries no token, the legacy name prefix `prism-<session>-` | `podman volume rm`, one batch | hard cleanup only |
+
+**Ownership is decided by instance ID, not by a shared name prefix.**
+The sweep lists on `--filter name=^prism-` and then decides each name in
+Go with `container.ResourceOwnerToken`, an exact segment parse. The
+podman-side filter narrows the listing and decides nothing. One listing
+per class serves both halves of the decision. So the sweep issues the
+same number of podman invocations as before. §3 has the reasoning and the
+containment invariant.
+
+**A session that restarted owns the resources of every incarnation the
+database still holds.** `prism restore` mints a new instance ID for the
+same session name. So the sweep reads every `sessions` row for the name,
+and holds the token of each. A sweep keyed on the current incarnation
+alone leaves an earlier incarnation's volumes on the host forever. A
+failed read of that table degrades to the current incarnation plus the
+legacy rule, with a warning.
+
+That set is not every incarnation that ever existed. `db.Prune` deletes a
+`sessions` row ninety days after the incarnation ended, and the sweep
+then skips that incarnation's resources in silence. §8.3 records the
+residual. Do not read this paragraph as a complete sweep.
+
+**A restart makes the session's earlier volumes unreachable by name.**
+This is the cost of keying ownership on the incarnation, and it is
+deliberate. `prism restart` ends the tmux session, which clears
+`agent_status.instance_id` (`cmd/event.go`). The next sidecar start mints
+a fresh UUID. So the new incarnation enforces a NEW prefix, and a mount
+that names a volume the previous incarnation created is refused. The
+reason is one of the three mount-channel reasons the §3 table lists.
+
+The volume itself is untouched. It stays on the host, and cleanup of the
+session still removes it, because the sweep holds every incarnation's
+token. Only the attach is lost, and nothing recovers it. An agent that
+needs one dataset across a restart must not hold it in a proxy-named
+volume.
 
 **The volume sweep runs on the hard-cleanup paths only.** A soft close
 keeps the worktree, the branch, and the transcript, so the session can
@@ -557,21 +666,29 @@ session did not enable containers. `volumes_swept` is also absent on a
 soft close. That keeps "this path did not consider volumes"
 distinguishable from "this path found none".
 
-Two properties of the sweep:
+Three properties of the sweep:
 
-- **The volume rule is a prefix, the container rule is a strict shape.**
-  The volume policy admits a user-chosen name as long as it carries the
-  prefix, and such a volume holds data that must not outlive the
-  session. A prefix match reaches those names. The container sweep does
-  not need to, because a user-named container holds no data. The
-  invariant that follows: every name the volume policy admits must be
+- **The legacy volume rule is a prefix, the legacy container rule is a
+  strict shape.** The volume policy admits a user-chosen name as long as
+  it carries the prefix, and such a volume holds data that must not
+  outlive the session. A prefix match reaches those names. The container
+  sweep does not need to, because a user-named container holds no data.
+  The invariant that follows: every name the volume policy admits must be
   reachable by the sweep, including the name that is exactly the prefix.
-- **A live sibling session keeps its volumes.** Session `foo` and
-  session `foo-bar` produce prefixes where one contains the other, so a
-  volume named `prism-foo-bar-data` matches both. The sweep reads the
-  live sessions from the database and leaves any name a sibling also
-  claims. The cost is a leaked volume. The alternative is the loss of
-  another session's data.
+- **The sibling guard applies to pre-identity names only.** Session `foo`
+  and session `foo-bar` produce legacy prefixes where one contains the
+  other, so a volume named `prism-foo-bar-data` matches both, and
+  `repo@feat/x` and `repo@feat-x` produce one legacy prefix outright. For
+  a name that carries no instance token the sweep reads the live sessions
+  from the database and leaves any name a sibling also claims, warning
+  once per name. The cost is a leaked resource. The alternative is the
+  loss of another session's data. A name that DOES carry a token needs no
+  such trade, and gets none: it is attributed exactly, whether or not the
+  database read succeeded.
+- **The guard used to leak in the other direction too.** Session `foo` is
+  entitled to name a volume `prism-foo-bar-data`. The old guard read that
+  name as live session `foo-bar`'s, left the volume in place, and the
+  volume leaked. An identity-scoped name of the same shape is now swept.
 
 ### 8.3 Residuals
 
@@ -653,7 +770,10 @@ runs a plain `podman rm -f`. The volume survives.
 
 Two directions close it. The first is `-v` on the container sweep,
 which is safe because an anonymous volume has no other referent. The
-second is a sweep by label (see #2951). This change does neither.
+second is a sweep by label, which #2954 lists as its direction 3. Neither
+is implemented. Note that instance-ID naming (#2951) does NOT close this
+one: an anonymous volume carries no name the proxy chose, so it carries
+no identity either.
 
 **The top-level `volumes` key reaches a mount on BOTH body shapes —
 CLOSED.** The key carries two unrelated meanings, one for each shape.
@@ -848,20 +968,80 @@ of the two wins depends on podman's own CPU-limit precedence. That
 precedence is unverified. Confirm it before
 `--containers` becomes the default.
 
-**The sibling guard in §8.2 is cleanup correctness, not a defence.** It
-stops one session's cleanup from destroying a live sibling's volumes. It
-is not a control against a hostile agent. `POST /volumes/prune` and
-`DELETE /volumes/{name}` are plain allows in `endpoints.go`, so an agent
-can already remove any volume on the host by name. Do not read the guard
-as an isolation guarantee.
+**A resource whose owning incarnation row was pruned is skipped in
+silence, and it leaks.** This is the cost of keying ownership on a
+database row that has a retention window.
 
-**The name sanitiser can collide.** `NameForSession` folds `@`, `/`,
-`.`, and `~` all to `-`, so `repo@feat/x` and `repo@feat-x` produce the
-same prefix. `siblingVolumePrefixes` treats a prefix equal to its own as
-"this is me" and skips it, so a colliding live session's volumes are
-swept rather than spared. This is a pre-existing collision class — the
-sandbox container name already collides through the same helper — and it
-is not introduced here.
+`db.Prune` runs `DELETE FROM sessions WHERE ended_at IS NOT NULL AND
+ended_at < ?` (`internal/db/maintenance.go`). Both callers pass a
+ninety-day window (`cmd/event.go`, `cmd/restore.go`). `SetEnded` stamps
+`sessions.ended_at` on every close AND every restart. So the row of an
+incarnation that ended more than ninety days ago is gone.
+
+`resourceOwnerForSession` builds its token set from those rows. A volume
+named `prism-<pruned token>-<session>-pgdata` therefore carries a token
+the set does not hold. `identityOwnership` resolves it to
+`ownershipOther` and `collectSweepable` skips it. The legacy rule does
+not catch it either, because `identityOwnership` already answered for the
+name. Nothing is logged, so the operator sees a clean cleanup and a
+volume that stays.
+
+The reachable case is a long-lived session that restarts often and
+reaches hard cleanup rarely. A coordinator on `@main` across months of
+reboots is the clearest one. Before instance-ID naming the plain
+`prism-<session>-` rule swept such a volume whatever the database held,
+so this leak path is new.
+
+Do NOT close it by falling back to the name when a token is unknown. That
+is the collision this whole section replaced. Two directions are open,
+and [#2972](https://github.com/prismatic-koi/nixos-config/issues/2972)
+carries both: a warning on the silent skip, and the retention question
+underneath it. Until one lands, remove such a volume by hand with
+`podman volume rm`.
+
+**The sibling guard in §8.2 is cleanup correctness, not a defence.** It
+stops one session's cleanup from destroying a live sibling's PRE-IDENTITY
+volumes. It is not a control against a hostile agent. `POST
+/volumes/prune` and `DELETE /volumes/{name}` are plain allows in
+`endpoints.go`, so an agent can already remove any volume on the host by
+name. Do not read the guard as an isolation guarantee.
+
+**A resource created BEFORE instance-ID naming cannot be attributed —
+only guarded.** This is what remains of the name-sanitiser collision
+(#2951) after that issue closed.
+
+The sanitiser still folds `@`, `/`, `.`, and `~` all to `-`. So
+`repo@feat/x` and `repo@feat-x` still produce the same sanitised string,
+and `foo` is still a strict prefix of `foo-bar`. That no longer matters
+for a resource this proxy names. The prefix carries the session
+incarnation's instance ID, and the sweep parses it back out exactly (§3).
+
+It matters for a resource that already existed when the change landed.
+Its name carries the legacy prefix and no identity. Nothing recovers
+which of two colliding sessions created it.
+
+The sweep answers that with the guard rather than with a guess. For a
+name carrying no token it applies the pre-identity rule. It then leaves
+the name in place, with a warning naming the resource, whenever a live
+session's legacy prefix EQUALS or EXTENDS this session's. So:
+
+- A pre-identity resource with no live collision is still swept by its
+  owning session's cleanup, exactly as before. It is not orphaned.
+- A pre-identity resource under a contested prefix leaks instead of being
+  destroyed. The operator resolves it with `podman volume rm` /
+  `podman rm` by name once the colliding session has ended, or by
+  cleaning the colliding session, which sweeps the same names.
+
+The population is bounded and it does not grow. Every resource created
+from this version onward carries an identity. A transitional window
+exists on a host that was already running sessions when the change
+landed. A running sidecar keeps the binary it started with, so those
+sessions keep creating pre-identity names until they restart.
+
+The sandbox container name (`NameForSession`) collides through the same
+sanitiser and is NOT changed here. That name is a single per-session
+name rather than a prefix over a family of resources, and it is a
+pre-existing class.
 
 ## 9. Linger decision
 
