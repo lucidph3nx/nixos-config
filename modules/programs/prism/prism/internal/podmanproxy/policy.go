@@ -453,8 +453,11 @@ func (p *Proxy) inspectCreate(body []byte, query url.Values) createInspectionRes
 		return createInspectionResult{decision: dec}
 	}
 
-	// The top-level `volumes` key is a THIRD named-volume channel,
-	// reachable only from a libpod body. It runs after checkHostConfig
+	// The top-level `volumes` key carries the THIRD and FOURTH
+	// named-volume channels, one per body shape: an entry of the libpod
+	// array, and a colon-bearing key of the docker-compat map. It also
+	// carries a second path to a host bind, because podman reads that
+	// key as a `-v` spec. It runs after checkHostConfig
 	// so an escape vector in HostConfig (host bind, privileged, glob
 	// mount type, local-driver volume) still wins the audit reason on a
 	// body that carries both, and before applyContainerNamePolicy for
@@ -991,7 +994,7 @@ func (p *Proxy) checkHostConfig(hc *hostConfig) policyDecision {
 // # What is NOT policed here
 //
 // An ANONYMOUS volume — a Type=volume mount with an empty Source, or
-// an entry of the top-level docker-compat Volumes placeholder map —
+// a COLON-LESS key of the top-level docker-compat Volumes map —
 // still forwards. The
 // runtime names it itself, so there is no name to refuse, and
 // refusing the request outright would break a legitimate docker
@@ -1000,8 +1003,8 @@ func (p *Proxy) checkHostConfig(hc *hostConfig) policyDecision {
 // docs/podman-proxy.md §8.3 records that narrower residual.
 //
 // The top-level `volumes` key is not this function's business either.
-// It is a THIRD named-volume channel, reachable only from a libpod
-// body, and checkCreateVolumeNames polices it (issue #2958).
+// It carries the THIRD and FOURTH named-volume channels, one per body
+// shape, and checkCreateVolumeNames polices both (issue #2958).
 func (p *Proxy) checkMountedVolumeNames(hc *hostConfig) policyDecision {
 	prefix := p.cfg.VolumeNamePrefix
 	if prefix == "" {
@@ -1061,8 +1064,9 @@ const volumesFieldKey = "Volumes"
 
 // checkCreateVolumeNames applies the per-session volume-name policy to
 // the top-level `volumes` key of a containers/create body. It is the
-// third channel in the family checkMountedVolumeNames opened, and it
-// closes the gap issue #2958 recorded.
+// third AND fourth channel in the family checkMountedVolumeNames
+// opened — the key means a different thing on each body shape, and
+// both meanings reach a mount. It closes the gap issue #2958 recorded.
 //
 // # Why this key needs a policy at all
 //

@@ -164,15 +164,17 @@ two channels (the `?name=` query and the body `Name`), so the policy
 checks and injects into both. The volume endpoint takes its name from
 the body alone.
 
-The three container-create channels REFUSE ONLY. They do not inject.
-There are two reasons. First, on two of the three the name sits inside
-a colon-delimited string that also carries the mount target
-(`"myvol:/data:ro"`). Injection there is string surgery on the
-security boundary itself. Second, an injected name redirects the
-caller's mount to a volume it did not name. A 403 states the required
-prefix instead, and the caller retries with a correct name.
+The four container-create channels REFUSE ONLY. They do not inject.
+There are two reasons. First, two of the four carry the name inside a
+colon-delimited string that also holds the mount target
+(`"myvol:/data:ro"`). Those two are the `Binds` entry and the
+docker-compat map key. Injection there is string surgery on the
+security boundary itself.
+Second, an injected name redirects the caller's mount to a volume it
+did not name. A 403 states the required prefix instead, and the caller
+retries with a correct name.
 
-An absent name on these three channels is an anonymous volume. The
+An absent name on these four channels is an anonymous volume. The
 runtime names that volume itself. §8.3 records the residual.
 
 The last two rows are the two meanings of one key. On the podman side
@@ -619,12 +621,14 @@ volume that does not yet exist when a container mounts it. That path
 never sends `POST /volumes/create`, so `applyVolumeNamePolicy` never
 runs on it.
 
-The prefix rule now applies to all three channels that name a volume
-in a create body. The first is the source half of a `Binds` entry
+The prefix rule now applies to all four channels that name a volume in
+a create body. The first is the source half of a `Binds` entry
 (`["myvol:/data"]`). The second is the `Source` of a `Mounts` entry of
 `Type=volume`. `checkMountedVolumeNames` covers those two. The third
-is an entry of the top-level libpod `volumes` array, which
-`checkCreateVolumeNames` covers — see the entry below. A name outside
+is an entry of the top-level libpod `volumes` array. The fourth is a
+colon-bearing key of the top-level docker-compat `volumes` map, which
+podman reads as a `-v` spec. `checkCreateVolumeNames` covers those
+two — see the entry below. A name outside
 `Config.VolumeNamePrefix` returns 403. The reason is
 `bind_volume_name_prefix_mismatch`,
 `mount_volume_name_prefix_mismatch`, or
@@ -688,11 +692,12 @@ reason `policy:containers/create:ok`:
  "volumes":[{"Name":"prism-<other-session>-<hex>","Dest":"/data"}]}
 ```
 
-Three shapes reached it: the lowercase array of objects, the uppercase
-`Volumes` array of objects, and an array of strings
-(`["<foreign-vol>:/data"]`). All three now return 403 with reason
-`create_volumes_name_prefix_mismatch` when the name sits outside
-`Config.VolumeNamePrefix`. The field-admission audit (§4) reclassified
+Three shapes of the libpod array reached it: the lowercase array of
+objects, the uppercase `Volumes` array of objects, and an array of
+strings (`["<foreign-vol>:/data"]`). A colon-bearing docker-compat map
+key is the fourth way to the same attach. All four now return 403 with
+reason `create_volumes_name_prefix_mismatch` when the name sits
+outside `Config.VolumeNamePrefix`. The field-admission audit (§4) reclassified
 the key from FORWARDED to INSPECTED. `checkCreateVolumeNames` is the
 policy. Issue [#2958](https://github.com/prismatic-koi/nixos-config/issues/2958)
 carries the audit. Three notes on the shape of that policy:
@@ -759,9 +764,9 @@ It uses `Options` and `Label` (singular). Neither name case-matches
 docker's `DriverOpts` or `Labels`, so the libpod local-driver
 bind-volume escape is rejected at decode.
 
-The full podman CLI cannot reach any of the four channels. Its create
-request carries `command` and `resource_limits`, so it is rejected at
-decode, per the first residual above. That is a statement about the
+The full podman CLI cannot reach any of the four create-body channels.
+Its create request carries `command` and `resource_limits`, so it is
+rejected at decode, per the first residual above. That is a statement about the
 CLI's body, not about the endpoint. A hand-written minimal libpod body
 reaches the `volumes` channel, and so does any docker-API client —
 which is the surface issue #2954 names as the reachable one.

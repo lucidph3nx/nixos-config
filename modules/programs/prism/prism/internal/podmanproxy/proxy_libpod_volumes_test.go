@@ -6,21 +6,27 @@ package podmanproxy
 //
 // The policy lives in policy.go::checkCreateVolumeNames and is gated on
 // Config.VolumeNamePrefix, the same knob applyVolumeNamePolicy and
-// checkMountedVolumeNames use. It is the third named-volume channel of
-// a create body:
+// checkMountedVolumeNames use. It is the third AND fourth named-volume
+// channel of a create body:
 //
 //   - HostConfig.Binds            — "myvol:/data[:options]"   (#2954)
 //   - HostConfig.Mounts           — Type=volume, Source="myvol" (#2954)
 //   - top-level `volumes` array   — libpod NamedVolume{Name, …} (#2958)
+//   - top-level `volumes` map key — docker-compat "myvol:/data" (#2958)
 //
-// The key carries two unrelated meanings. docker's field is a
-// placeholder map of container paths and names no volume. libpod's
-// field of the same name is an array of NamedVolume, and every Name is
-// a volume the container ATTACHES. normalisePath strips the `libpod/`
+// The key carries two unrelated meanings, and BOTH reach a mount.
+// libpod's field is an array of NamedVolume, and every Name is a
+// volume the container ATTACHES. normalisePath strips the `libpod/`
 // prefix and Go matches a JSON field name case-insensitively, so the
 // libpod array decoded into the same json.RawMessage and forwarded
 // unchecked: a cross-session attach, plus a volume the cleanup sweep
 // cannot find.
+//
+// docker's field is a map that docker documents as a set of container
+// paths. podman does not read it that way: it appends each KEY to its
+// `-v` list verbatim, so a colon-bearing key is a full mount spec. It
+// names a volume, and with a `/` or `.` source it binds a host path.
+// The TestDockerCompatVolumes_* block below covers that half.
 //
 // The deny tests and TestLibpodVolumes_NegativeControl_EmptyPrefix are
 // a pair: the negative control runs the SAME cross-session attach on
@@ -302,10 +308,11 @@ func TestLibpodVolumes_PrefixedName_ForwardedUnchanged(t *testing.T) {
 }
 
 // TestLibpodVolumes_DockerCompatPlaceholder_Admitted is the functional
-// AC for the docker meaning of the key. The docker-compat shape is a
-// map of container path to an empty object. It names no volume, so the
+// AC for docker's documented meaning of the key: a map of container
+// path to an empty object. A key with NO COLON names no volume, so the
 // prefix rule has nothing to refuse and anonymous volumes keep
-// working.
+// working. A key WITH a colon is a mount spec and is policed — see
+// TestDockerCompatVolumes_HostBindKey_Denied and its siblings.
 func TestLibpodVolumes_DockerCompatPlaceholder_Admitted(t *testing.T) {
 	cases := map[string]string{
 		"single_path":     lvBody("Volumes", `{"/data":{}}`),
