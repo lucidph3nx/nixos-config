@@ -234,12 +234,12 @@ func TestPodmanProxy_ContainersEnabled_ProxyListensAndReturns503(t *testing.T) {
 		t.Fatalf("podman.sock listener did not appear at %s", listenerPath)
 	}
 
-	// The audit file path is deterministic: <sessionDir>/podman-proxy.log.
-	sessionDir, err := container.SessionWorkDirPath(sc.cfg.InstanceID)
+	// The audit file path is deterministic, and outside the session work
+	// dir so the agent cannot write it (internal/container/podman_proxy_audit.go).
+	auditPath, err := container.PodmanProxyAuditLogPath(sc.cfg.InstanceID)
 	if err != nil {
-		t.Fatalf("SessionWorkDirPath: %v", err)
+		t.Fatalf("PodmanProxyAuditLogPath: %v", err)
 	}
-	auditPath := filepath.Join(sessionDir, "podman-proxy.log")
 
 	// Fire a probe request at the proxy's ListenerPath. Expect 503 + the
 	// friendly envelope shape locked by the parent issue's AC.
@@ -267,6 +267,19 @@ func TestPodmanProxy_ContainersEnabled_ProxyListensAndReturns503(t *testing.T) {
 	if st.Size() == 0 {
 		t.Errorf("audit log %s is empty after probe; want at least one line", auditPath)
 	}
+	// The log holds the record of what the session asked the container
+	// runtime to do, so only the owner may read or write it.
+	if perm := st.Mode().Perm(); perm != 0o600 {
+		t.Errorf("audit log %s mode: got %04o, want 0600", auditPath, perm)
+	}
+	auditDir := filepath.Dir(auditPath)
+	dirSt, err := os.Stat(auditDir)
+	if err != nil {
+		t.Fatalf("stat audit dir %s: %v", auditDir, err)
+	}
+	if perm := dirSt.Mode().Perm(); perm != 0o700 {
+		t.Errorf("audit dir %s mode: got %04o, want 0700", auditDir, perm)
+	}
 	// Spot-check the audit line shape: it must parse as JSON with the
 	// expected fields. Use the first line only; trailing bytes (if any) may
 	// belong to an in-flight request.
@@ -283,6 +296,74 @@ func TestPodmanProxy_ContainersEnabled_ProxyListensAndReturns503(t *testing.T) {
 		if _, ok := rec[field]; !ok {
 			t.Errorf("audit line missing field %q: %v", field, rec)
 		}
+	}
+
+	cancel()
+	<-done
+}
+
+// ── "audit open failure does not stop the proxy" ──────────────────────
+
+// TestPodmanProxy_AuditOpenFailure_ProxyServesWithoutAudit pins the
+// audit-open failure path: the proxy still binds its listener and still
+// answers requests, with no audit file and no audit handle held on the
+// Sidecar. The agent's container access does not depend on the audit log,
+// so an unopenable log degrades audit only.
+//
+// The failure is forced by planting a regular file where the audit tree's
+// parent directory belongs, which makes MkdirAll fail with ENOTDIR.
+func TestPodmanProxy_AuditOpenFailure_ProxyServesWithoutAudit(t *testing.T) {
+	session := "prism-test@" + t.Name()
+	bus := sidecartest.NewIsolated(t, session)
+
+	upstream := filepath.Join(bus.XDGStateHome, "fake-podman.sock")
+	sc, listenerPath := newPodmanProxyTestSidecar(t, bus, session, upstream)
+	setContainersEnabled(t, bus, session, true)
+
+	auditPath, err := container.PodmanProxyAuditLogPath(sc.cfg.InstanceID)
+	if err != nil {
+		t.Fatalf("PodmanProxyAuditLogPath: %v", err)
+	}
+	auditRoot := filepath.Dir(filepath.Dir(auditPath))
+	if err := os.MkdirAll(filepath.Dir(auditRoot), 0o700); err != nil {
+		t.Fatalf("mkdir audit root parent: %v", err)
+	}
+	if err := os.WriteFile(auditRoot, []byte("not a directory\n"), 0o600); err != nil {
+		t.Fatalf("plant blocking file at %s: %v", auditRoot, err)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
+	done := runSidecarBackground(t, sc, ctx)
+
+	if !waitForPath(listenerPath, 3*time.Second) {
+		t.Fatalf("podman.sock listener did not appear at %s despite the audit log being unopenable", listenerPath)
+	}
+
+	client := proxyClientFor(listenerPath)
+	resp, err := client.Get("http://podman.sock/v1.41/_ping")
+	if err != nil {
+		t.Fatalf("GET /_ping via proxy: %v", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusServiceUnavailable {
+		t.Errorf("status: got %d, want %d", resp.StatusCode, http.StatusServiceUnavailable)
+	}
+
+	// Stat reports ENOTDIR rather than ENOENT here, because the planted
+	// file is an ancestor of the audit path. Either way no audit log exists.
+	if _, err := os.Stat(auditPath); err == nil {
+		t.Errorf("audit log exists at %s although the open failed", auditPath)
+	}
+
+	sc.mu.Lock()
+	gotFile, gotPath := sc.podmanProxyAuditFile, sc.podmanProxyAuditPath
+	sc.mu.Unlock()
+	if gotFile != nil {
+		t.Errorf("podmanProxyAuditFile: got %v, want nil", gotFile)
+	}
+	if gotPath != "" {
+		t.Errorf("podmanProxyAuditPath: got %q, want empty", gotPath)
 	}
 
 	cancel()

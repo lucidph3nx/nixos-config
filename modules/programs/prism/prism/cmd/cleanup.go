@@ -362,10 +362,7 @@ func (m cleanupModel) doCleanup() tea.Cmd {
 			}
 			// Other archive errors are non-fatal — cleanup continues.
 			if instanceIDForSessions != "" {
-				// Remove the per-session work dir for this session instance.
-				// Also covers staging-HOME remnants that legacy sessions left
-				// nested at <sessionDir>/home/.
-				container.RemoveSessionWorkDir(instanceIDForSessions)
+				removeSessionInstanceDirs(instanceIDForSessions)
 			}
 			_ = d.PurgeBusMessages(m.session)
 			d.Close()
@@ -938,11 +935,7 @@ func headlessCleanupWithJSONTo(session, worktreeName, worktreePath, bareRoot str
 		}
 		// Other archive errors are non-fatal — cleanup continues.
 		if instanceIDForSessions != "" {
-			// Remove the per-session work dir for this session instance.
-			// Also covers staging-HOME remnants that legacy sessions left.
-			// Non-fatal and idempotent — silently skips when the directory
-			// does not exist (e.g. non-sandbox-exec sessions).
-			container.RemoveSessionWorkDir(instanceIDForSessions)
+			removeSessionInstanceDirs(instanceIDForSessions)
 		}
 		_ = d.PurgeBusMessages(session)
 		d.Close()
@@ -1072,9 +1065,7 @@ func closeSession(session string) error {
 		}
 		// Other archive errors are non-fatal — cleanup continues.
 		if instanceIDForSessions != "" {
-			// Remove the per-session work dir for this session instance.
-			// Also covers staging-HOME remnants that legacy sessions left.
-			container.RemoveSessionWorkDir(instanceIDForSessions)
+			removeSessionInstanceDirs(instanceIDForSessions)
 		}
 		_ = d.PurgeBusMessages(session)
 		d.Close()
@@ -1201,9 +1192,7 @@ func headlessCloseSessionWithJSONTo(session string, jsonMode bool, stdout io.Wri
 		}
 		// Other archive errors are non-fatal — cleanup continues.
 		if instanceIDForSessions != "" {
-			// Remove the per-session work dir for this session instance.
-			// Also covers staging-HOME remnants that legacy sessions left.
-			container.RemoveSessionWorkDir(instanceIDForSessions)
+			removeSessionInstanceDirs(instanceIDForSessions)
 		}
 		_ = d.PurgeBusMessages(session)
 		d.Close()
@@ -1776,6 +1765,27 @@ func archiveThenSeverPiResume(d *db.DB, sessionName, instanceID, isolationMode s
 // call frames deep and is not reachable from tests without either a knob or
 // substantial refactoring.
 var severGateForceAlwaysSever bool
+
+// removeSessionInstanceDirs removes the two on-disk directory trees keyed
+// by a session's instance ID:
+//
+//   - the per-session work dir, which also covers staging-HOME remnants
+//     that legacy sessions left nested at <sessionDir>/home/, and
+//   - the per-session podman-proxy audit dir, which sits outside the work
+//     dir so the agent has no write path to its own audit trail (see
+//     internal/container/podman_proxy_audit.go) and therefore needs its
+//     own removal here.
+//
+// Both removals are non-fatal and idempotent. A directory that does not
+// exist is silently skipped: a bwrap or host session has no work dir, and
+// a session that never enabled containers has no audit dir.
+//
+// Every cleanup path that ends a session calls this. A new per-session
+// directory keyed by instance ID belongs here, not at the call sites.
+func removeSessionInstanceDirs(instanceID string) {
+	container.RemoveSessionWorkDir(instanceID)
+	container.RemovePodmanProxyAuditDir(instanceID)
+}
 
 // instanceIDFromStatus returns the instance_id from the agent_status row for
 // sessionName, or an empty string when the row is missing, instance_id is
