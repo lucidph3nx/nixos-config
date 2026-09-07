@@ -92,7 +92,7 @@ const (
 //   - The audit log is opened in append-only mode under
 //     <XDG_STATE_HOME>/prism/podman-audit/<instanceID>/podman-proxy.log so
 //     log entries survive sidecar restarts within a single session
-//     incarnation. That tree sits outside every sandbox grant — see
+//     incarnation. That directory sits outside every sandbox grant — see
 //     internal/container/podman_proxy_audit.go.
 //   - The proxy's Serve goroutine is launched via goNotify so notifyWG tracks
 //     it; ctx cancellation -- triggered by Shutdown() -- drains the accept

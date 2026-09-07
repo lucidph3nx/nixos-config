@@ -311,16 +311,19 @@ That tree sits outside the per-session work dir on purpose. The
 sandbox-exec profile grants the agent `file-read* file-write*` over
 `(subpath <sessionDir>)`. The agent is the subject of this record, so a
 log inside that grant is a record its own subject can rewrite. No clause
-of the SBPL profile names the `podman-audit` tree, and bwrap binds
+of the SBPL profile names the `podman-audit` root, and bwrap binds
 nothing under it. The agent therefore has no write path to the log on
 either platform. `internal/container/podman_proxy_audit.go` holds the
 path helpers and the rationale. The test
 `internal/container/sandbox_exec_podman_audit_test.go` fails if a
 write-granted subpath of the profile ever covers the path.
 
+Read the log from a host shell. No sandboxed session has read access to
+the `podman-audit` root, on either platform.
+
 The location costs an explicit cleanup step. `RemoveSessionWorkDir` does
-not reach the audit tree, so `prism cleanup` removes the session's audit
-directory itself. The removal is `removeSessionInstanceDirs` in
+not reach the `podman-audit` root, so `prism cleanup` removes the
+session's audit directory itself. The removal is `removeSessionInstanceDirs` in
 `cmd/cleanup.go`.
 
 Each line has the shape:
@@ -609,7 +612,7 @@ sweeping returns:
 A database table satisfies condition 2 structurally, because the agent
 has no write path to the database. A file under
 `<XDG_STATE_HOME>/prism/podman-audit/<instanceID>/` satisfies it too:
-no sandbox grant reaches that tree on either platform, which is why the
+no sandbox grant reaches that root on either platform, which is why the
 audit log lives there (§7). A table costs a schema migration, so read
 [#2944](https://github.com/prismatic-koi/nixos-config/issues/2944)
 before you schedule one.

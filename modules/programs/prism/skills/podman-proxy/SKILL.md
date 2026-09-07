@@ -176,7 +176,7 @@ carries the detail and the conditions to close each one.
   tracks), and the record of what to remove needs a home the agent
   cannot write to. A file under the session work dir is not one, because
   the Darwin sandbox grants the agent write access over that whole
-  subpath — the `podman-audit` tree the audit log uses is such a home.
+  subpath — the `podman-audit` root the audit log uses is such a home.
 - **No cap on the container count.** See the note above. The memory and
   CPU caps bound one container each, not the session's total.
 
@@ -284,6 +284,10 @@ at login is an obvious follow-up if friction warrants. It is
 intentionally NOT shipped in this train.
 
 ## Debugging rejections
+
+**Read the audit log from a host shell.** No sandboxed session has read
+access to the `podman-audit` root — that is the point of the location, and
+an in-sandbox read gets EPERM. A `host`-mode session reads it directly.
 
 Every request the proxy sees writes exactly one JSON line to
 `<XDG_STATE_HOME>/prism/podman-audit/<instance_id>/podman-proxy.log` —

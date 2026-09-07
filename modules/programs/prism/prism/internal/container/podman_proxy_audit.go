@@ -18,19 +18,19 @@ package container
 //     The same clause grants it read-write through HostAPISockPath's parent
 //     directory.
 //
-// The audit tree sits outside both:
+// The `podman-audit` root sits outside both:
 //
 //	<XDG_STATE_HOME>/prism/podman-audit/<instanceID>/podman-proxy.log
 //
-// No clause in the SBPL profile names that tree, and bwrap binds nothing
+// No clause in the SBPL profile names that root, and bwrap binds nothing
 // under it, so the agent cannot append to, rewrite, or truncate the log on
 // either platform. Keep it that way: a profile grant that reaches this
-// tree defeats the record.
+// root defeats the record.
 // TestGenerateProfile_PodmanProxyAuditLog_OutsideWriteGrantedSubpaths
 // fails if any write-granted subpath of the profile ever covers the path.
 //
 // Cleanup is not free at this location. RemoveSessionWorkDir removes the
-// work dir tree only, so the audit tree needs its own removal at session
+// work dir only, so the audit directory needs its own removal at session
 // teardown: RemovePodmanProxyAuditDir, called from cmd/cleanup.go beside
 // RemoveSessionWorkDir. Without that call, one audit log per
 // containers-enabled session accumulates on the host forever.
@@ -94,8 +94,8 @@ func PodmanProxyAuditLogPath(instanceID string) (string, error) {
 // no-op, so a session that never enabled containers is safe to pass.
 //
 // Every cleanup path that calls RemoveSessionWorkDir must call this too.
-// The audit tree lives outside the work dir on purpose, so the work-dir
-// wipe does not reach it.
+// The audit directory lives outside the work dir on purpose, so the
+// work-dir wipe does not reach it.
 func RemovePodmanProxyAuditDir(instanceID string) {
 	dir, err := PodmanProxyAuditDirPath(instanceID)
 	if err != nil {
