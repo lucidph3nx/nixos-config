@@ -300,6 +300,20 @@ func ReapClockForTest(sleep func(time.Duration), now func() time.Time) func() {
 // review-complete write trigger — verdict + pass/fail counts persisted on the
 // worker's spawn_outcome row — without standing up an entire MonitorFunc poll
 // loop.
-func PersistReviewOutcomeForTest(d *db.DB, workerSession string, results []AgentResult, allPassed bool) {
-	persistReviewOutcome(d, workerSession, results, allPassed)
+func PersistReviewOutcomeForTest(d *db.DB, groupID, workerSession string, results []AgentResult, allPassed bool) {
+	persistReviewOutcome(d, groupID, workerSession, results, allPassed)
+}
+
+// WriteVerdictEventForTest is an exported wrapper around writeVerdictEvent for
+// external test packages, so a test can drive the shared verdict-event writer
+// directly — including the write-then-recover ordering that the double-count
+// guard defends against.
+func WriteVerdictEventForTest(d *db.DB, groupID, workerSession string, results []AgentResult, allPassed bool) {
+	writeVerdictEvent(d, groupID, workerSession, results, allPassed)
+}
+
+// VerdictEventIDForTest exposes the deterministic verdict-event id derivation
+// so tests can assert the monitor and recovery paths agree on the id.
+func VerdictEventIDForTest(groupID string) string {
+	return verdictEventID(groupID)
 }

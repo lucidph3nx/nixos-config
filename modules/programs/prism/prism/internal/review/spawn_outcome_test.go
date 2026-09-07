@@ -90,7 +90,7 @@ func TestPersistReviewOutcome_AllPass_5PASS(t *testing.T) {
 		makePassResult("review-qa"),
 		makePassResult("review-context"),
 	}
-	review.PersistReviewOutcomeForTest(d, worker, results, true /*allPassed*/)
+	review.PersistReviewOutcomeForTest(d, "grp-all-pass", worker, results, true /*allPassed*/)
 
 	out, err := d.SpawnOutcomeByInstanceID(iid)
 	if err != nil || out == nil {
@@ -122,7 +122,7 @@ func TestPersistReviewOutcome_MixedFail_4PASS_1FAIL(t *testing.T) {
 		makePassResult("review-qa"),
 		makeFailResult("review-context"),
 	}
-	review.PersistReviewOutcomeForTest(d, worker, results, false /*allPassed*/)
+	review.PersistReviewOutcomeForTest(d, "grp-mixed-fail", worker, results, false /*allPassed*/)
 
 	out, err := d.SpawnOutcomeByInstanceID(iid)
 	if err != nil || out == nil {
@@ -161,7 +161,7 @@ func TestPersistReviewOutcome_LatestRoundWins(t *testing.T) {
 		makeFailResult("review-qa"),
 		makeFailResult("review-context"),
 	}
-	review.PersistReviewOutcomeForTest(d, worker, round1, false /*allPassed*/)
+	review.PersistReviewOutcomeForTest(d, "grp-latest-round-1", worker, round1, false /*allPassed*/)
 
 	// Sanity check intermediate state.
 	mid, err := d.SpawnOutcomeByInstanceID(iid)
@@ -180,7 +180,7 @@ func TestPersistReviewOutcome_LatestRoundWins(t *testing.T) {
 		makePassResult("review-qa"),
 		makePassResult("review-context"),
 	}
-	review.PersistReviewOutcomeForTest(d, worker, round2, true /*allPassed*/)
+	review.PersistReviewOutcomeForTest(d, "grp-latest-round-2", worker, round2, true /*allPassed*/)
 
 	final, err := d.SpawnOutcomeByInstanceID(iid)
 	if err != nil || final == nil {
@@ -224,7 +224,7 @@ func TestPersistReviewOutcome_NegativeMutation_PassedDrivesCounts(t *testing.T) 
 		makeFailResult("review-qa"),
 		makeFailResult("review-context"),
 	}
-	review.PersistReviewOutcomeForTest(d, worker, results, false /*allPassed*/)
+	review.PersistReviewOutcomeForTest(d, "grp-mutation-guard", worker, results, false /*allPassed*/)
 
 	out, err := d.SpawnOutcomeByInstanceID(iid)
 	if err != nil || out == nil {
@@ -252,7 +252,7 @@ func TestPersistReviewOutcome_NoSession_NoOp(t *testing.T) {
 		makePassResult("review-goal"),
 	}
 	// Must not panic, must not error.
-	review.PersistReviewOutcomeForTest(d, worker, results, true)
+	review.PersistReviewOutcomeForTest(d, "grp-no-session", worker, results, true)
 
 	// No sessions row exists, so no spawn_outcome row can exist either. We
 	// can't query by instance_id because we don't have one — verify via the
