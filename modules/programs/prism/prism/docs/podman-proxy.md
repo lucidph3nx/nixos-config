@@ -116,7 +116,7 @@ the rationale.
 | T21 | Build context smuggle via `POST /build` of arbitrary-content tar | No new escape: `build` is bounded by what the sandbox already exposes. Build endpoint is `endpointAllow` (query-only and opaque body). No size cap in v1. Revisit if abuse appears. | `endpoints.go` (build endpoint) |
 | T22 | Schema drift: a new docker-/podman-API field upstream introduces a new escape vector without anyone in this repo noticing | `json.Decoder.DisallowUnknownFields()` runs on every parsed body. A new unknown field rejects with 403 and audit reason `unknown_field:<json error>` until it is admitted via the field-admission process (§4). | `policy.go::decodeStrict`, plus every typed struct |
 | T23 | Proxy itself has a parsing bug | Default-deny — every unknown endpoint, unknown field, unknown enumerable value, malformed JSON, missing required value rejects before forwarding. Test suite exercises every documented escape and asserts it is blocked, plus a negative-control meta-test that verifies the positive tests are not no-ops. | `proxy_security_test.go::TestSecurity_NegativeControl_RootAllowlistPasses` |
-| T24 | Storage exhaustion after the session ends: a volume or an image the agent created outlives the session on the shared host | PARTIAL. A NAMED volume gets the per-session name prefix (`Config.VolumeNamePrefix`) on all five surfaces that can create one — `POST /volumes/create`, `HostConfig.Binds`, a `HostConfig.Mounts` entry of `Type=volume`, an entry of the top-level libpod `volumes` array, and a colon-bearing key of the top-level docker-compat `volumes` map — and `prism cleanup` removes every volume with that prefix. Images are NOT swept, and an ANONYMOUS volume still escapes the prefix. See §8.3 for both. | `policy.go::applyVolumeNamePolicy`, `policy.go::checkMountedVolumeNames`, `policy.go::checkCreateVolumeNames`, `cmd/cleanup_sweep.go::sweepVolumesWithRunner` |
+| T24 | Storage exhaustion after the session ends: a volume or an image the agent created outlives the session on the shared host | PARTIAL. A NAMED volume gets the per-session name prefix (`Config.VolumeNamePrefix`) on `POST /volumes/create` and on the four named-volume channels of a create body. The "Per-session naming" table in §3 is the canonical list of both. `prism cleanup` then removes every volume with that prefix. Images are NOT swept, and an ANONYMOUS volume still escapes the prefix. See §8.3 for both. | `policy.go::applyVolumeNamePolicy`, `policy.go::checkMountedVolumeNames`, `policy.go::checkCreateVolumeNames`, `cmd/cleanup_sweep.go::sweepVolumesWithRunner` |
 | T25 | Cross-session data access: the agent attaches a volume that belongs to ANOTHER live session by naming it in a container-create mount | PARTIAL, on the four named-volume channels a create body can carry (see the "Per-session naming" table in §3 for the canonical list of the four, and the config field, policy function, and deny reason for each). A name outside this session's `VolumeNamePrefix` on any of the four returns 403. This row named three gaps over time, and all three are now closed. Issue #2958 closed the libpod `volumes` array, which forwarded a foreign name. Issue #2951 closed the other two, which were the same defect in two shapes. `VolumeNamePrefix` was built from the session NAME, so a NESTED sibling prefix was admitted: session `foo` was free to name `prism-foo-bar-data`, which belongs to live session `foo-bar`. A FOLDED prefix was admitted for the same reason, because `repo@feat/x` and `repo@feat-x` sanitise to one prefix. The prefix now carries the session incarnation's instance ID, so a name outside it is refused on all four channels, and the cleanup sweep decides ownership by parsing that ID back out. What stays OPEN is narrower and is about EXISTING resources, not about what this proxy admits: a volume created BEFORE instance-ID naming carries no identity, so cleanup falls back to the old name-prefix rule for it and cannot tell two folded sessions' pre-identity volumes apart. It leaves such a name in place rather than removing it. See §8.3. Do not read this row as a general isolation guarantee between sessions: `POST /volumes/prune` and `DELETE /volumes/{name}` are plain allows, so an agent can still remove any volume on the host by name. | `policy.go::checkMountedVolumeNames`, `policy.go::checkCreateVolumeNames`, `internal/container/resource_identity.go` |
 
 **Network egress** is not restricted: containers get whatever network the
@@ -143,8 +143,10 @@ covers a class of escape that the other layers do not.
 ### Per-session naming
 
 Two config fields carry a per-session name policy, across six
-channels. They all exist so `prism cleanup` can find what the session
-created:
+name-policy channels. They all exist so `prism cleanup` can find what
+the session created:
+
+<!-- doclint-enumeration: name-policy-channels -->
 
 | Channel | Config field | Policy function | Deny reason | Absent name |
 |---|---|---|---|---|
@@ -152,8 +154,18 @@ created:
 | `POST /volumes/create` body `Name` | `VolumeNamePrefix` | `applyVolumeNamePolicy` | `volume_name_prefix_mismatch` | injected |
 | `POST /containers/create` `HostConfig.Binds` named volume | `VolumeNamePrefix` | `checkMountedVolumeNames` | `bind_volume_name_prefix_mismatch` | forwarded |
 | `POST /containers/create` `HostConfig.Mounts` `Type=volume` `Source` | `VolumeNamePrefix` | `checkMountedVolumeNames` | `mount_volume_name_prefix_mismatch` | forwarded |
-| `POST /containers/create` top-level libpod `volumes` array `Name` | `VolumeNamePrefix` | `checkCreateVolumeNames` | `create_volumes_name_prefix_mismatch` | forwarded |
+| `POST /containers/create` top-level libpod `volumes` array `Name` | `VolumeNamePrefix` | `checkLibpodVolumesArray` | `create_volumes_name_prefix_mismatch` | forwarded |
 | `POST /containers/create` top-level docker-compat `volumes` map key, source half | `VolumeNamePrefix` | `checkDockerCompatVolumeKey` | `create_volumes_name_prefix_mismatch` | forwarded |
+
+<!-- doclint-enumeration-end -->
+
+This table is the canonical enumeration of the channel set. The
+`namePolicyChannels` declaration in `internal/podmanproxy/policy.go` is
+the source it is checked against. The doclint rule
+`podman-channel-table` fails the build when a row and a declared
+channel disagree. The rule `podman-channel-count` fails it when a count
+in the prose around this table disagrees with the same declaration.
+`docs/doclint.md` records what the two rules cover.
 
 The sidecar sets both fields to
 `prism-<instance token>-<sanitised session name>-`, from
@@ -221,7 +233,7 @@ from inside the sandbox:
 - `POST /volumes/create` with no `Name`. The proxy injects one and the
   response carries it, prefix included.
 - Send the name you want and read the 403. Every deny message on these
-  six channels states the required prefix verbatim.
+  six name-policy channels states the required prefix verbatim.
 
 The four container-create channels REFUSE ONLY. They do not inject.
 There are two reasons. First, two of the four carry the name inside a
@@ -233,7 +245,8 @@ Second, an injected name redirects the caller's mount to a volume it
 did not name. A 403 states the required prefix instead, and the caller
 retries with a correct name.
 
-An absent name on these four channels is an anonymous volume. The
+An absent name on these four named-volume channels is an anonymous
+volume. The
 runtime names that volume itself. §8.3 records the residual.
 
 The last two rows are the two meanings of one key. On the podman side
@@ -314,6 +327,13 @@ this example) that takes an integer share-weight.
 
    Either pattern is acceptable. Pick whichever matches the shape of
    the policy decision the field needs.
+6. **Field that opens a new naming channel?** A field that carries a
+   container name or a volume name opens a new channel. Add a row to
+   `namePolicyChannels` in `policy.go`, take the audit reason from that
+   row, and add a row to the table in §3. The doclint rule
+   `podman-channel-table` fails the build until the two agree. The rule
+   `podman-channel-count` fails it while a count in the prose states the
+   old number. `docs/doclint.md` records the whole rule family.
 
 The single most important reviewer task on a change to `policy.go` is
 **to read the struct and confirm the rationale comments**. Do not guess
@@ -401,6 +421,11 @@ paired control asserts the same check flags the work-dir location.
 `cmd/cleanup_podman_audit_test.go` asserts `prism cleanup` removes the
 audit directory of the session it cleans. It also asserts cleanup leaves
 another session's log alone.
+
+The channel enumerations carry their own gate.
+`internal/doclint/podman_enumeration_test.go` mutates a copy of this doc
+and of `policy.go`, then asserts the lint reports each mutation. The
+unmutated tree reports nothing, which is the other half of the pair.
 
 ## 7. Troubleshooting — reading the audit log
 
@@ -901,7 +926,8 @@ It uses `Options` and `Label` (singular). Neither name case-matches
 docker's `DriverOpts` or `Labels`, so the libpod local-driver
 bind-volume escape is rejected at decode.
 
-The full podman CLI cannot reach any of the four create-body channels.
+The full podman CLI cannot reach any of the four create-body channels
+the table in §3 lists.
 Its create request carries `command` and `resource_limits`, so it is
 rejected at decode, per the first residual above. That is a statement about the
 CLI's body, not about the endpoint. A hand-written minimal libpod body

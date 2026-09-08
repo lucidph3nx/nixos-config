@@ -197,7 +197,7 @@ func TestResourceIdentity_MountChannels_ForeignNameDenied(t *testing.T) {
 }
 
 // TestResourceIdentity_MountChannels_OwnNameAdmitted is the positive
-// control for all four channels. It is what proves the 403s above come
+// control for all four named-volume channels. It is what proves the 403s above come
 // from the name policy and not from an unrelated denial path — the
 // bodies differ only in the volume name.
 func TestResourceIdentity_MountChannels_OwnNameAdmitted(t *testing.T) {

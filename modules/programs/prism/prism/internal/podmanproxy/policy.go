@@ -390,6 +390,199 @@ type createInspectionResult struct {
 	appliedToQuery bool   // true iff rewrittenQuery embeds an injected ?name=
 }
 
+// namePolicyChannel is one channel of the per-session name policy: one
+// place in one request where the caller names a resource this proxy
+// creates on the shared host.
+//
+// namePolicyChannels below is the single declaration of the set. Every
+// name check in this file takes its audit reason from a row of that
+// declaration instead of restating the set, and the doclint rule
+// holds the canonical prose enumeration — the "Per-session naming"
+// table in docs/podman-proxy.md, section 3 — to the same declaration.
+// Add a channel by adding a row. The lint then names the prose sites
+// that must change with it (issue #2974).
+type namePolicyChannel struct {
+	// id names the channel in a lint diagnostic. It is not part of any
+	// request, response, or audit record.
+	id string
+
+	// configField is the Config field that carries the required prefix
+	// for this channel.
+	configField string
+
+	// checkFunc is the function in this file that applies the policy to
+	// this channel. The lint requires that function to exist, and
+	// requires it to be the function that reads this row.
+	checkFunc string
+
+	// denyReason is the audit reason a name outside the prefix produces
+	// on this channel.
+	denyReason string
+
+	// altDenyReason is the second audit reason of the one channel that
+	// carries its name in two request locations — the containers/create
+	// `?name=` query and the body `Name`. It is empty on every other
+	// channel.
+	altDenyReason string
+
+	// namesVolume is true when the name this channel carries is a VOLUME
+	// name. The four named-volume channels of a containers/create body
+	// are the rows where namesVolume is true and injectsAbsentName is
+	// false.
+	namesVolume bool
+
+	// injectsAbsentName is true when the policy INJECTS a prefixed name
+	// into a request that carries none. It is false when an absent name
+	// forwards untouched.
+	injectsAbsentName bool
+}
+
+// Row indices of namePolicyChannels. A new channel takes a new constant
+// here and a new row below. The array is sized by numNamePolicyChannels,
+// so a constant with no row is a zero row, which the lint reports.
+const (
+	chContainerCreateName int = iota
+	chVolumeCreateName
+	chBindsVolume
+	chMountsVolume
+	chLibpodVolumesArray
+	chDockerCompatVolumesMap
+	numNamePolicyChannels
+)
+
+// namePolicyChannels declares the name-policy channel set, once.
+//
+// The last four rows are the named-volume channels a containers/create
+// body can carry. They REFUSE an out-of-prefix name. They never inject
+// one. checkMountedVolumeNames and checkCreateVolumeNames document why.
+var namePolicyChannels = [numNamePolicyChannels]namePolicyChannel{
+	chContainerCreateName: {
+		id:                "containers_create_name",
+		configField:       "ContainerNamePrefix",
+		checkFunc:         "applyContainerNamePolicy",
+		denyReason:        "name_prefix_mismatch_query",
+		altDenyReason:     "name_prefix_mismatch_body",
+		injectsAbsentName: true,
+	},
+	chVolumeCreateName: {
+		id:                "volumes_create_name",
+		configField:       "VolumeNamePrefix",
+		checkFunc:         "applyVolumeNamePolicy",
+		denyReason:        "volume_name_prefix_mismatch",
+		namesVolume:       true,
+		injectsAbsentName: true,
+	},
+	chBindsVolume: {
+		id:          "hostconfig_binds",
+		configField: "VolumeNamePrefix",
+		checkFunc:   "checkMountedVolumeNames",
+		denyReason:  "bind_volume_name_prefix_mismatch",
+		namesVolume: true,
+	},
+	chMountsVolume: {
+		id:          "hostconfig_mounts_volume",
+		configField: "VolumeNamePrefix",
+		checkFunc:   "checkMountedVolumeNames",
+		denyReason:  "mount_volume_name_prefix_mismatch",
+		namesVolume: true,
+	},
+	chLibpodVolumesArray: {
+		id:          "libpod_volumes_array",
+		configField: "VolumeNamePrefix",
+		checkFunc:   "checkLibpodVolumesArray",
+		denyReason:  "create_volumes_name_prefix_mismatch",
+		namesVolume: true,
+	},
+	chDockerCompatVolumesMap: {
+		id:          "docker_compat_volumes_map_key",
+		configField: "VolumeNamePrefix",
+		checkFunc:   "checkDockerCompatVolumeKey",
+		denyReason:  "create_volumes_name_prefix_mismatch",
+		namesVolume: true,
+	},
+}
+
+// createVolumeCheck is one of the checks the named-volume policy applies
+// to a containers/create body.
+//
+// createVolumeChecks below is the single declaration of that set, and of
+// which member of it is gated on Config.VolumeNamePrefix. The canonical
+// prose rendering is the "# What is gated on the prefix, and what is
+// not" section of the doc comment above checkCreateVolumeNames, and the
+// doclint rule holds the two to each other.
+type createVolumeCheck struct {
+	// proseName is the name the canonical section gives this check. The
+	// lint requires the section to name every check, on the side of the
+	// gate this row declares.
+	proseName string
+
+	// prefixGated is true when the check does not run against an empty
+	// Config.VolumeNamePrefix. volumeNamePrefixFor is the only reader of
+	// that config field in this package, so a change of gate has to
+	// change this column to take effect — and the lint then requires the
+	// canonical prose to change with it.
+	prefixGated bool
+
+	// denyReasons are the audit reason literals this check emits, in the
+	// form they appear in the source (a reason that carries a variable
+	// tail appears here as its literal prefix). Every containers/create
+	// `volumes` deny reason in this file must be claimed by exactly one
+	// row, which is what stops a new check from arriving unenumerated.
+	denyReasons []string
+}
+
+// Row indices of createVolumeChecks.
+const (
+	volumeCheckName int = iota
+	volumeCheckShape
+	volumeCheckUnknownField
+	volumeCheckHostBind
+	numCreateVolumeChecks
+)
+
+// createVolumeChecks declares the named-volume check set, once.
+var createVolumeChecks = [numCreateVolumeChecks]createVolumeCheck{
+	volumeCheckName: {
+		proseName:   "NAME check",
+		prefixGated: true,
+		denyReasons: []string{"create_volumes_name_prefix_mismatch"},
+	},
+	volumeCheckShape: {
+		proseName: "SHAPE check",
+		denyReasons: []string{
+			"create_volumes_shape_not_allowed",
+			"create_volumes_entry_shape_not_allowed",
+			"create_volumes_map_value_not_empty",
+			"create_volumes:malformed_body:",
+		},
+	},
+	volumeCheckUnknownField: {
+		proseName:   "unknown-field check",
+		denyReasons: []string{"create_volumes:"},
+	},
+	volumeCheckHostBind: {
+		proseName:   "HOST-BIND check",
+		denyReasons: []string{"create_volumes_host_bind:"},
+	},
+}
+
+// volumeNamePrefixFor returns the volume-name prefix check c compares
+// against, and reports whether c runs at all.
+//
+// It is the ONLY reader of Config.VolumeNamePrefix in this package, and
+// the lint keeps it that way. A gated check does not run against an
+// empty prefix: an out-of-tree caller that configures no prefix keeps
+// the plain filtering behaviour. An un-gated check always runs, so a
+// control that is not a name policy — the shape checks and the
+// bind-source allowlist — cannot be turned off by clearing the prefix.
+func (p *Proxy) volumeNamePrefixFor(c createVolumeCheck) (prefix string, run bool) {
+	prefix = p.cfg.VolumeNamePrefix
+	if c.prefixGated && prefix == "" {
+		return "", false
+	}
+	return prefix, true
+}
+
 // inspectCreate parses body as a containers/create request and
 // applies the HostConfig policy. Two-stage parse: first the
 // top-level body with DisallowUnknownFields (rejects unknown
@@ -536,12 +729,12 @@ func (p *Proxy) applyContainerNamePolicy(body []byte, req *containerCreateBody, 
 	// (the channel docker-CLI uses by default).
 	if queryName != "" && !strings.HasPrefix(queryName, prefix) {
 		return createInspectionResult{decision: denyDecision(http.StatusForbidden,
-			"name_prefix_mismatch_query",
+			namePolicyChannels[chContainerCreateName].denyReason,
 			fmt.Sprintf("containers/create ?name=%q does not start with the required prefix %q (the proxy is session-scoped; either omit ?name= and the body Name to receive an auto-prefixed one, or supply a name that begins with the required prefix)", queryName, prefix))}
 	}
 	if bodyHasName && !strings.HasPrefix(*req.Name, prefix) {
 		return createInspectionResult{decision: denyDecision(http.StatusForbidden,
-			"name_prefix_mismatch_body",
+			namePolicyChannels[chContainerCreateName].altDenyReason,
 			fmt.Sprintf("containers/create body Name=%q does not start with the required prefix %q (the proxy is session-scoped; either omit Name to receive an auto-prefixed one, or supply a Name that begins with the required prefix)", *req.Name, prefix))}
 	}
 
@@ -1014,8 +1207,8 @@ func (p *Proxy) checkHostConfig(hc *hostConfig) policyDecision {
 // It carries the THIRD and FOURTH named-volume channels, one per body
 // shape, and checkCreateVolumeNames polices both (issue #2958).
 func (p *Proxy) checkMountedVolumeNames(hc *hostConfig) policyDecision {
-	prefix := p.cfg.VolumeNamePrefix
-	if prefix == "" {
+	prefix, run := p.volumeNamePrefixFor(createVolumeChecks[volumeCheckName])
+	if !run {
 		// Back-compat, matching every other name policy in this file:
 		// an out-of-tree caller that configures no prefix keeps the
 		// plain filtering behaviour.
@@ -1036,7 +1229,7 @@ func (p *Proxy) checkMountedVolumeNames(hc *hostConfig) policyDecision {
 		}
 		if !strings.HasPrefix(name, prefix) {
 			return denyDecision(http.StatusForbidden,
-				"bind_volume_name_prefix_mismatch",
+				namePolicyChannels[chBindsVolume].denyReason,
 				fmt.Sprintf("HostConfig.Binds entry %q mounts named volume %q, which does not start with the required prefix %q (the proxy is session-scoped: a volume outside the prefix belongs to another session or outlives this one, because `prism cleanup` sweeps on the prefix; rename the volume so it begins with the required prefix)",
 					truncateForReason(b), truncateForReason(name), prefix))
 		}
@@ -1055,7 +1248,7 @@ func (p *Proxy) checkMountedVolumeNames(hc *hostConfig) policyDecision {
 		}
 		if !strings.HasPrefix(m.Source, prefix) {
 			return denyDecision(http.StatusForbidden,
-				"mount_volume_name_prefix_mismatch",
+				namePolicyChannels[chMountsVolume].denyReason,
 				fmt.Sprintf("HostConfig.Mounts entry of Type=volume names Source=%q, which does not start with the required prefix %q (the proxy is session-scoped: a volume outside the prefix belongs to another session or outlives this one, because `prism cleanup` sweeps on the prefix; rename the volume so it begins with the required prefix)",
 					truncateForReason(m.Source), prefix))
 		}
@@ -1129,6 +1322,11 @@ const volumesFieldKey = "Volumes"
 // TestDockerCompatVolumes_NegativeControl_RootBindAllowlist is the
 // negative control for it, because the prefix knob cannot neutralise
 // it.
+//
+// This section is the canonical enumeration of the four checks and of
+// the gate each one sits behind. createVolumeChecks declares the same
+// set in code, volumeNamePrefixFor is the only reader of the gate, and
+// a doclint rule fails the build when the two disagree (issue #2974).
 func (p *Proxy) checkCreateVolumeNames(body []byte) policyDecision {
 	var obj map[string]json.RawMessage
 	if err := json.Unmarshal(body, &obj); err != nil {
@@ -1302,12 +1500,12 @@ func (p *Proxy) checkDockerCompatVolumeKey(key, spec string) policyDecision {
 		return allowDecision("policy:create_volumes:host_bind_ok")
 	}
 
-	prefix := p.cfg.VolumeNamePrefix
-	if prefix == "" || strings.HasPrefix(src, prefix) {
+	prefix, run := p.volumeNamePrefixFor(createVolumeChecks[volumeCheckName])
+	if !run || strings.HasPrefix(src, prefix) {
 		return allowDecision("policy:create_volumes:volume_name_ok")
 	}
 	return denyDecision(http.StatusForbidden,
-		"create_volumes_name_prefix_mismatch",
+		namePolicyChannels[chDockerCompatVolumesMap].denyReason,
 		fmt.Sprintf("containers/create %s key %q attaches named volume %q, which does not start with the required prefix %q (the proxy is session-scoped: a volume outside the prefix belongs to another session or outlives this one, because `prism cleanup` sweeps on the prefix; rename the volume so it begins with the required prefix)",
 			key, truncateForReason(spec), truncateForReason(src), prefix))
 }
@@ -1335,7 +1533,7 @@ func (p *Proxy) checkLibpodVolumesArray(key string, raw []byte) policyDecision {
 			fmt.Sprintf("containers/create %q is not a valid array", key))
 	}
 
-	prefix := p.cfg.VolumeNamePrefix
+	prefix, runNameCheck := p.volumeNamePrefixFor(createVolumeChecks[volumeCheckName])
 	for i, entry := range entries {
 		trimmed := bytes.TrimSpace(entry)
 		var name string
@@ -1370,13 +1568,13 @@ func (p *Proxy) checkLibpodVolumesArray(key string, raw []byte) policyDecision {
 			// Type=volume mount with an empty Source.
 			continue
 		}
-		if prefix == "" {
+		if !runNameCheck {
 			// Name policy disabled. The shape checks above still ran.
 			continue
 		}
 		if !strings.HasPrefix(name, prefix) {
 			return denyDecision(http.StatusForbidden,
-				"create_volumes_name_prefix_mismatch",
+				namePolicyChannels[chLibpodVolumesArray].denyReason,
 				fmt.Sprintf("containers/create %s[%d] attaches named volume %q, which does not start with the required prefix %q (the proxy is session-scoped: a volume outside the prefix belongs to another session or outlives this one, because `prism cleanup` sweeps on the prefix; rename the volume so it begins with the required prefix)",
 					key, i, truncateForReason(name), prefix))
 		}
@@ -1595,7 +1793,7 @@ func (p *Proxy) inspectVolumeCreate(body []byte) createInspectionResult {
 		}
 	}
 
-	if p.cfg.VolumeNamePrefix == "" {
+	if _, run := p.volumeNamePrefixFor(createVolumeChecks[volumeCheckName]); !run {
 		if empty {
 			return createInspectionResult{decision: allowDecision("policy:volumes/create:empty")}
 		}
@@ -1631,12 +1829,15 @@ func (p *Proxy) inspectVolumeCreate(body []byte) createInspectionResult {
 //   - non-empty prefix, Name set with the prefix → allow; body
 //     forwards unchanged.
 func (p *Proxy) applyVolumeNamePolicy(body []byte, name string) createInspectionResult {
-	prefix := p.cfg.VolumeNamePrefix
+	// The caller reaches this function only with a non-empty prefix, so
+	// the gate already passed. Take the prefix from the same reader
+	// anyway, because it is the only reader in this package.
+	prefix, _ := p.volumeNamePrefixFor(createVolumeChecks[volumeCheckName])
 
 	if name != "" {
 		if !strings.HasPrefix(name, prefix) {
 			return createInspectionResult{decision: denyDecision(http.StatusForbidden,
-				"volume_name_prefix_mismatch",
+				namePolicyChannels[chVolumeCreateName].denyReason,
 				fmt.Sprintf("volumes/create body Name=%q does not start with the required prefix %q (the proxy is session-scoped; either omit Name to receive an auto-prefixed one, or supply a Name that begins with the required prefix)", name, prefix))}
 		}
 		return createInspectionResult{decision: allowDecision("policy:volumes/create:ok")}
