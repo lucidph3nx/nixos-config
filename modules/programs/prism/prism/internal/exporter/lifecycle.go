@@ -19,8 +19,8 @@ import (
 // only ever calls Inc on one of the seven CounterVecs constructed in New, and
 // every label value handed to Inc is either a value already sanctioned as a
 // safe label (repo, agent_role, isolation_mode, end_state, profile) or a
-// value drawn from a small closed set (verdict: two values at the round
-// level, three at the per-agent level). prism_spawns_total
+// value drawn from a small closed set (verdict: three values at the round
+// level, four at the per-agent level). prism_spawns_total
 // DOES carry a profile label — see the comment on LifecycleEventsTailSQL in
 // sql.go for the boundary-test narrowing that makes this safe.
 
@@ -61,6 +61,8 @@ func verdictLabel(eventType string) (verdict string, ok bool) {
 		return "pass", true
 	case review.EventReviewVerdictFail:
 		return "fail", true
+	case review.EventReviewVerdictPassWithDisagreement:
+		return "pass_with_disagreement", true
 	default:
 		return "", false
 	}
@@ -75,9 +77,11 @@ func verdictLabel(eventType string) (verdict string, ok bool) {
 // no FAIL for the agent ("error"). The round-level pair cannot make that
 // distinction, because a round is a pass only when every agent passed.
 //
-// "error" is wider than "the agent produced nothing": it also holds an agent
-// that ran to completion and emitted a marker the review pipeline does not map
-// to pass or fail, PASS_WITH_DISAGREEMENT being the live example. The writer's
+// "error" holds an agent that failed to start, stalled, exited uncleanly,
+// produced no output, or was absent from the round. It does NOT hold
+// PASS_WITH_DISAGREEMENT: since #2970 the marker is a terminating pass and
+// records its own "pass_with_disagreement" value, so the per-agent counter
+// agrees with the round counter about a round that carries it. The writer's
 // constant comment (review.EventReviewAgentVerdictError) carries the full
 // bucket definition and why it is drawn there.
 func agentVerdictLabel(eventType string) (verdict string, ok bool) {
@@ -88,6 +92,8 @@ func agentVerdictLabel(eventType string) (verdict string, ok bool) {
 		return "fail", true
 	case review.EventReviewAgentVerdictError:
 		return "error", true
+	case review.EventReviewAgentVerdictPassWithDisagreement:
+		return "pass_with_disagreement", true
 	default:
 		return "", false
 	}
@@ -123,7 +129,9 @@ func newLifecycleCounters(reg *metrics.Registry) *lifecycleCounters {
 		),
 		reviewVerdictsTotal: metrics.NewCounterVec(
 			MetricReviewVerdictsTotal,
-			"Total prism review rounds that reached a pass/fail verdict, by verdict, repo, agent role, and profile.",
+			"Total prism review rounds that reached a verdict, by verdict, repo, agent role, and profile. "+
+				"verdict is one of pass, fail, or pass_with_disagreement (a round that passed but carried review-goal's "+
+				"PASS_WITH_DISAGREEMENT marker, escalated to the coordinator).",
 			[]string{"verdict", "repo", "agent_role", "profile"},
 		),
 		// One increment per review AGENT per round, beside the round-level
@@ -131,17 +139,18 @@ func newLifecycleCounters(reg *metrics.Registry) *lifecycleCounters {
 		// (review-goal, review-code, review-security, review-qa,
 		// review-context), resolved from the event's instance_id through the
 		// same sessions join every other counter here uses. verdict takes
-		// three values: pass, fail, and error. The HELP text states what
-		// "error" covers, because an operator reading a rising error rate for
-		// one role must not read it as "that agent keeps crashing" when it can
-		// also mean "that agent keeps emitting a marker this pipeline does not
-		// map to pass or fail" — PASS_WITH_DISAGREEMENT, for review-goal.
+		// four values: pass, fail, error, and pass_with_disagreement. The HELP
+		// text states what "error" covers, because an operator reading a rising
+		// error rate for one role must not read it as "that agent keeps
+		// crashing" when it can mean the agent produced no verdict for a mix of
+		// reasons. review-goal's PASS_WITH_DISAGREEMENT is NOT in "error": since
+		// #2970 it is a terminating pass and records pass_with_disagreement.
 		reviewAgentVerdictsTotal: metrics.NewCounterVec(
 			MetricReviewAgentVerdictsTotal,
 			"Total prism review agent verdicts, by verdict, review agent role, and repo. One per agent per round. "+
 				"verdict=\"error\" means the round recorded neither a PASS nor a FAIL for that agent: it failed to start, "+
-				"stalled, exited uncleanly, produced no output, was absent from the round, or emitted a marker the review "+
-				"pipeline does not map to pass or fail (PASS_WITH_DISAGREEMENT).",
+				"stalled, exited uncleanly, produced no output, or was absent from the round. "+
+				"verdict=\"pass_with_disagreement\" is review-goal's terminating PASS_WITH_DISAGREEMENT marker, escalated to the coordinator.",
 			[]string{"verdict", "agent_role", "repo"},
 		),
 		escalationsTotal: metrics.NewCounterVec(

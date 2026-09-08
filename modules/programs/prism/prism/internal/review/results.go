@@ -118,6 +118,13 @@ const (
 	VerdictNone VerdictKind = iota // no recognised verdict marker
 	VerdictPass                    // explicit PASS marker
 	VerdictFail                    // explicit FAIL marker
+	// VerdictPassWithDisagreement is review-goal's PASS_WITH_DISAGREEMENT
+	// marker. It is a TERMINATING pass: the round ends as a pass, but the
+	// reviewer has recorded an unresolved scope concern for the coordinator
+	// to decide (agents/review-goal.md). It is never VerdictNone, so the
+	// round classifier does not read it as "ran but produced no parseable
+	// verdict" and the worker is not told to re-run (#2970).
+	VerdictPassWithDisagreement
 )
 
 // extractAssistantText parses the text field from a msg_assistant payload.
@@ -147,14 +154,19 @@ func ExtractAssistantText(payload string) string {
 // (false, VerdictNone) so the caller can surface it for human inspection.
 //
 // Recognised markers (case-insensitive):
-//   - <verdict>PASS</verdict>  → (true,  VerdictPass)
-//   - <verdict>FAIL</verdict>  → (false, VerdictFail)
-//   - anything else            → (false, VerdictNone)
+//   - <verdict>PASS</verdict>                   → (true,  VerdictPass)
+//   - <verdict>FAIL</verdict>                   → (false, VerdictFail)
+//   - <verdict>PASS_WITH_DISAGREEMENT</verdict> → (true,  VerdictPassWithDisagreement)
+//   - anything else                             → (false, VerdictNone)
 //
 // The marker rule itself lives in internal/verdict, the one place it is
-// defined. PASS_WITH_DISAGREEMENT maps to (false, VerdictNone) on this
-// pipeline path. The dashboard renders that verdict distinctly through its
-// own mapping of verdict.Kind.
+// defined. PASS_WITH_DISAGREEMENT is a TERMINATING pass — passed is true and
+// the kind is never VerdictNone — so the round classifier counts it as a
+// verdict rather than as "ran but produced no parseable verdict", and the
+// worker is not told to re-run (#2970). The disagreement is surfaced to the
+// coordinator separately (buildDeliveryMessage), which is where the decision
+// the marker defers belongs. The dashboard renders the verdict distinctly
+// through its own mapping of verdict.Kind.
 //
 // Exported so it can be tested directly without needing a live DB.
 func AssessPassed(text string) (bool, VerdictKind) {
@@ -163,6 +175,8 @@ func AssessPassed(text string) (bool, VerdictKind) {
 		return true, VerdictPass
 	case verdict.Fail:
 		return false, VerdictFail
+	case verdict.PassWithDisagreement:
+		return true, VerdictPassWithDisagreement
 	default:
 		return false, VerdictNone
 	}
@@ -269,7 +283,11 @@ func formatResults(results []AgentResult, prNumber string, round int, sizeBudget
 	for _, r := range results {
 		// ── Summary header line ──────────────────────────────────────────
 		if r.Passed {
-			header.WriteString(fmt.Sprintf("✓ %-20s passed\n", r.Agent.Name))
+			if r.Disagreement {
+				header.WriteString(fmt.Sprintf("✓ %-20s passed (disagreement)\n", r.Agent.Name))
+			} else {
+				header.WriteString(fmt.Sprintf("✓ %-20s passed\n", r.Agent.Name))
+			}
 		} else {
 			allPassed = false
 			failed = append(failed, r.Agent.Name)
@@ -285,7 +303,19 @@ func formatResults(results []AgentResult, prNumber string, round int, sizeBudget
 
 		// Verdict line.
 		if r.Passed {
-			findings.WriteString("**Verdict:** PASS\n\n")
+			if r.Disagreement {
+				findings.WriteString("**Verdict:** PASS_WITH_DISAGREEMENT\n\n")
+				if detail, ok := extractTag(r.Output, "disagreement"); ok {
+					findings.WriteString("**Disagreement:**\n")
+					findings.WriteString(detail)
+					if !strings.HasSuffix(detail, "\n") {
+						findings.WriteString("\n")
+					}
+					findings.WriteString("\n")
+				}
+			} else {
+				findings.WriteString("**Verdict:** PASS\n\n")
+			}
 		} else if r.IsError {
 			findings.WriteString("**Verdict:** ERROR\n\n")
 			// For error results surface the full output (it is already a

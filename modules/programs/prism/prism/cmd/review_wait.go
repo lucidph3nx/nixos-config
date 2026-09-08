@@ -140,6 +140,8 @@ func emitReviewWaitTerminalAgg(prNumber, groupID string, allMembers []db.Status,
 					text := review.ExtractAssistantText(mr.LastMessage)
 					passed, kind := review.AssessPassed(text)
 					switch {
+					case kind == review.VerdictPassWithDisagreement:
+						row.Verdict = "PASS_WITH_DISAGREEMENT"
 					case passed:
 						row.Verdict = "PASS"
 					case kind == review.VerdictFail:

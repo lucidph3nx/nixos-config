@@ -418,16 +418,20 @@ SELECT group_id FROM session_groups
 		// never fired.
 		members, revErr := d.GroupResultsAll(reviewGroupID)
 		if revErr == nil && len(members) > 0 {
-			var passCount, failCount, noneCount int
+			var passCount, failCount, noneCount, disagreementCount int
 			for _, m := range members {
 				// The verdict-marker rule lives in internal/verdict, the one
 				// stdlib-only leaf both this package and the dashboard share.
-				// PASS_WITH_DISAGREEMENT falls to noneCount.
+				// PASS_WITH_DISAGREEMENT is counted distinctly from a missing
+				// verdict (noneCount): it is a terminating pass, not an absent
+				// verdict (#2970).
 				switch verdict.Parse(m.LastMessage) {
 				case verdict.Pass:
 					passCount++
 				case verdict.Fail:
 					failCount++
+				case verdict.PassWithDisagreement:
+					disagreementCount++
 				default:
 					noneCount++
 				}
@@ -436,14 +440,17 @@ SELECT group_id FROM session_groups
 			out.ReviewFailCount = &failCount
 			out.ReviewNoneCount = &noneCount
 
+			// A round that terminates on the marker (every member passed, at
+			// least one with disagreement, none missing) rolls up to the
+			// distinct "pass_with_disagreement" verdict rather than "mixed".
 			var verdict string
 			switch {
+			case failCount == 0 && noneCount == 0 && disagreementCount > 0:
+				verdict = "pass_with_disagreement"
 			case failCount == 0 && noneCount == 0 && passCount > 0:
 				verdict = "pass"
-			case passCount == 0 && noneCount == 0 && failCount > 0:
+			case passCount == 0 && disagreementCount == 0 && noneCount == 0 && failCount > 0:
 				verdict = "fail"
-			case passCount > 0 && failCount > 0:
-				verdict = "mixed"
 			default:
 				verdict = "mixed"
 			}

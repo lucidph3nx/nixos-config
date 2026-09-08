@@ -121,11 +121,12 @@ func agentVerdictRowFor(t *testing.T, d *db.DB, sessionName string) agentVerdict
 		`SELECT COALESCE(s.agent_role, ''), ae.type, ae.id
 		   FROM agent_events ae
 		   LEFT JOIN sessions s ON s.instance_id = ae.instance_id
-		  WHERE ae.session_name = ? AND ae.type IN (?, ?, ?)`,
+		  WHERE ae.session_name = ? AND ae.type IN (?, ?, ?, ?)`,
 		sessionName,
 		review.EventReviewAgentVerdictPass,
 		review.EventReviewAgentVerdictFail,
 		review.EventReviewAgentVerdictError,
+		review.EventReviewAgentVerdictPassWithDisagreement,
 	).Scan(&r.Role, &r.Type, &r.ID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return agentVerdictRow{}
@@ -368,25 +369,21 @@ func TestAgentVerdictEventID_DerivedFromGroupAndRole(t *testing.T) {
 	}
 }
 
-// TestAgentVerdictEventType_PassWithDisagreementRecordsError pins the bucket
-// boundary review-context raised: a review-goal agent that ran to `finished`
-// and emitted <verdict>PASS_WITH_DISAGREEMENT</verdict> records
-// verdict="error", not "pass" and not "fail".
+// TestAgentVerdictEventType_PassWithDisagreementRecordsPassWithDisagreement
+// pins the mapping after #2970: a review-goal agent that ran to `finished` and
+// emitted <verdict>PASS_WITH_DISAGREEMENT</verdict> records
+// verdict="pass_with_disagreement" — not "error", not "pass", and never "fail".
 //
-// This is a PIN, not an endorsement. AssessPassed maps the marker to
-// VerdictNone, so the ROUND pipeline already treats such a member as having
-// produced no parseable verdict (classifyMember, roundstatus.go). The
-// per-agent counter follows that classification so the two counters cannot
-// disagree about the same round. Whether the pipeline SHOULD treat the marker
-// that way is a separate question about AssessPassed (#2862 / #2867), tracked
-// as #2970 — the direction recorded there is to fix the pipeline, not to
-// correct agents/review-goal.md.
-//
-// When #2970 lands, UPDATE this test to expect the new mapping. Do not delete
-// it: #2970 says so explicitly, and the pin is what stops the pipeline change
-// moving this metric silently. Change the metric HELP text and the
-// review.EventReviewAgentVerdictError comment in the same commit.
-func TestAgentVerdictEventType_PassWithDisagreementRecordsError(t *testing.T) {
+// This is the UPDATED form of the PR #2968 pin
+// (TestAgentVerdictEventType_PassWithDisagreementRecordsError), changed rather
+// than deleted per #2970 so the change of behaviour is explicit in the diff.
+// Before #2970 the marker mapped to VerdictNone and the per-agent counter
+// bucketed it under "error"; now AssessPassed maps it to a terminating
+// VerdictPassWithDisagreement, so the round pipeline treats the member as a
+// pass-with-disagreement rather than as "produced no parseable verdict", and
+// the per-agent counter records it distinctly. The round counter records the
+// same round under EventReviewVerdictPassWithDisagreement, so the two agree.
+func TestAgentVerdictEventType_PassWithDisagreementRecordsPassWithDisagreement(t *testing.T) {
 	d := openTestDB(t)
 	worker := "prism-test@agent-verdict-disagreement"
 	seedWorkerSession(t, d, worker)
@@ -405,18 +402,24 @@ func TestAgentVerdictEventType_PassWithDisagreementRecordsError(t *testing.T) {
 		},
 	}
 	results := review.BuildMonitorResultsForTest(agents, agentSessions, groupData)
-	if !results[0].IsError {
-		t.Fatalf("PASS_WITH_DISAGREEMENT produced IsError=false; the round pipeline changed — revisit the per-agent mapping and the EventReviewAgentVerdictError comment together")
+	if results[0].IsError {
+		t.Fatalf("PASS_WITH_DISAGREEMENT produced IsError=true; since #2970 the marker is a terminating pass, not an error")
+	}
+	if !results[0].Passed {
+		t.Fatalf("PASS_WITH_DISAGREEMENT produced Passed=false; since #2970 the marker terminates the round as a pass")
+	}
+	if !results[0].Disagreement {
+		t.Fatalf("PASS_WITH_DISAGREEMENT produced Disagreement=false; the marker must set the Disagreement flag")
 	}
 
-	review.WriteVerdictEventForTest(d, "grp-disagreement", worker, results, false)
+	review.WriteVerdictEventForTest(d, "grp-disagreement", worker, results, true)
 
 	got := agentVerdictRowFor(t, d, sessionName)
-	if got.Type != review.EventReviewAgentVerdictError {
-		t.Errorf("PASS_WITH_DISAGREEMENT recorded %q, want %q", got.Type, review.EventReviewAgentVerdictError)
+	if got.Type != review.EventReviewAgentVerdictPassWithDisagreement {
+		t.Errorf("PASS_WITH_DISAGREEMENT recorded %q, want %q", got.Type, review.EventReviewAgentVerdictPassWithDisagreement)
 	}
-	if got.Type == review.EventReviewAgentVerdictFail {
-		t.Errorf("PASS_WITH_DISAGREEMENT must never record a FAIL verdict")
+	if got.Type == review.EventReviewAgentVerdictError || got.Type == review.EventReviewAgentVerdictFail {
+		t.Errorf("PASS_WITH_DISAGREEMENT must never record an error or fail verdict; got %q", got.Type)
 	}
 }
 

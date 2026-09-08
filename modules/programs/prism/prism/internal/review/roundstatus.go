@@ -115,6 +115,20 @@ func (c NoVerdictClass) countLabel() string {
 	}
 }
 
+// Disagreement records one expected agent that emitted a terminating
+// PASS_WITH_DISAGREEMENT marker. review-goal is the only agent that emits it.
+type Disagreement struct {
+	// Agent is the role name, e.g. "review-goal".
+	Agent string
+	// Session is the agent's prism session name.
+	Session string
+	// Detail is the verbatim content of the agent's <disagreement> block:
+	// the between-cycles concern, the worker's position, the reviewer's
+	// position, and the suggested resolution. Empty when the agent emitted the
+	// marker with no <disagreement> block.
+	Detail string
+}
+
 // MissingVerdict records one expected agent that produced no verdict.
 type MissingVerdict struct {
 	// Agent is the role name, e.g. "review-qa".
@@ -142,6 +156,18 @@ type RoundStatus struct {
 	// Missing lists every expected agent that produced no verdict, in the
 	// order the agents were spawned.
 	Missing []MissingVerdict
+	// Disagreements lists every expected agent that returned a terminating
+	// PASS_WITH_DISAGREEMENT marker, in spawn order. Such an agent is counted
+	// in Verdicts (it produced a verdict) and never in Fails or Missing. The
+	// round still terminates as a pass; the delivery message surfaces the
+	// disagreement to the coordinator (#2970).
+	Disagreements []Disagreement
+}
+
+// HasDisagreement reports whether any agent returned a terminating
+// PASS_WITH_DISAGREEMENT marker.
+func (rs RoundStatus) HasDisagreement() bool {
+	return len(rs.Disagreements) > 0
 }
 
 // HasFailVerdict reports whether any agent that ran returned a FAIL verdict.
@@ -359,8 +385,16 @@ func ClassifyRoundWithCauses(
 		class, reason, kind := classifyMember(mr)
 		if kind != VerdictNone {
 			rs.Verdicts++
-			if kind == VerdictFail {
+			switch kind {
+			case VerdictFail:
 				rs.Fails++
+			case VerdictPassWithDisagreement:
+				detail, _ := extractTag(ExtractAssistantText(mr.LastMessage), "disagreement")
+				rs.Disagreements = append(rs.Disagreements, Disagreement{
+					Agent:   name,
+					Session: session,
+					Detail:  detail,
+				})
 			}
 			continue
 		}
