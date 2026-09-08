@@ -386,7 +386,7 @@ The policy functions take their audit reasons from those rows.
 `volumeNamePrefixFor` is the only reader of `Config.VolumeNamePrefix`
 in the package, so a change of gate passes through the declaration.
 
-### The four rules
+### The five rules
 
 | Rule tag | Detects |
 |---|---|
@@ -394,6 +394,7 @@ in the package, so a change of gate passes through the declaration.
 | `podman-channel-table` | The canonical table in `docs/podman-proxy.md` and the declaration disagree. A declared channel with no row, a row with no declared channel, or a wrong "Absent name" cell. |
 | `podman-gate-section` | The canonical gated section above `checkCreateVolumeNames` names a check on the wrong side of the gate, or the section anchor is gone. |
 | `podman-channel-count` | A prose count phrase states a number that the declaration contradicts. |
+| `podman-phrase-catalogue` | The count-phrase catalogue below and the pattern set disagree. A recognised phrase the catalogue omits, or an entry no pattern recognises. |
 
 ### The canonical prose sites
 
@@ -420,19 +421,29 @@ on its own side by `proseName`.
 ### Count phrases
 
 These phrases carry a number that the declaration also states. `N`
-stands for a count word (`one` to `twelve`) or a decimal number:
+stands for a count word (`one` to `twelve`) or a decimal number. Every
+phrase runs against every prose site in Scope below, the last two
+included: §8.3 of `docs/podman-proxy.md` restates the gating outside the
+canonical section.
+
+<!-- doclint-enumeration: count-phrases -->
 
 ```text
-N named-volume channels        -> the named-volume channel count
-N container-create channels    -> the named-volume channel count
-N name-policy channels         -> every declared channel
-N mount-channel reasons        -> distinct named-volume deny reasons
-VolumeNamePrefix covers N surfaces -> channels the volume prefix covers
-N check(s) of the N is gated   -> gated checks, and every check
-The other N are NOT gated      -> un-gated checks
+N named-volume channels             -> named-volume channels
+N container-create channels         -> named-volume channels
+N create-body channels              -> named-volume channels
+N name-policy channels              -> every declared channel
+N mount-channel reasons             -> distinct named-volume deny reasons
+VolumeNamePrefix covers N surfaces  -> channels the volume prefix covers
+N checks of the N are gated         -> gated checks, and every check
+The other N are NOT gated           -> un-gated checks
 ```
 
-The last two run against the canonical gated section alone. A capture
+<!-- doclint-enumeration-end -->
+
+The `podman-phrase-catalogue` rule holds this catalogue to
+`podmanCountPatterns` and `podmanGateCountPatterns`, in both directions.
+The list above is therefore the pattern set, not a copy of it. A capture
 that is not a number is not a count phrase, and produces no finding.
 
 A prose site that wants this enforcement writes one of these phrases.

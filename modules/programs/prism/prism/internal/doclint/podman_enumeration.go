@@ -22,6 +22,9 @@ package doclint
 //	podman-channel-count   a prose count phrase about the channel set
 //	                       ("the four named-volume channels") states the
 //	                       declared number.
+//	podman-phrase-catalogue
+//	                       the phrase list in docs/doclint.md names every
+//	                       count phrase the rules recognise, and no other.
 //
 // Precision over recall, as with every other rule in this package. A count
 // phrase that names a deliberate SUBSET ("two channels, two consequences"
@@ -45,10 +48,11 @@ const (
 	// categoryEnumeration tags every finding these rules produce.
 	categoryEnumeration = "enumeration"
 
-	ruleChannelDecl  = "podman-channel-decl"
-	ruleChannelTable = "podman-channel-table"
-	ruleGateSection  = "podman-gate-section"
-	ruleChannelCount = "podman-channel-count"
+	ruleChannelDecl     = "podman-channel-decl"
+	ruleChannelTable    = "podman-channel-table"
+	ruleGateSection     = "podman-gate-section"
+	ruleChannelCount    = "podman-channel-count"
+	rulePhraseCatalogue = "podman-phrase-catalogue"
 
 	// podmanPolicyRel is the file that holds both declarations.
 	podmanPolicyRel = "internal/podmanproxy/policy.go"
@@ -74,8 +78,14 @@ const (
 	gateHeading     = "# What is gated on the prefix, and what is not"
 	gateSeparator   = "NOT gated"
 
-	// The canonical table region markers in podmanDocRel.
-	tableMarkerName = "name-policy-channels"
+	// podmanDoclintDocRel carries the phrase catalogue: the list a prose
+	// site reads to learn which phrasing the count rule enforces.
+	podmanDoclintDocRel = "docs/doclint.md"
+
+	// The region markers. tableMarkerName sits in podmanDocRel and
+	// catalogueMarkerName in podmanDoclintDocRel.
+	tableMarkerName     = "name-policy-channels"
+	catalogueMarkerName = "count-phrases"
 )
 
 // podmanNonChannelPrefixMismatchReasons lists the audit reasons that carry
@@ -246,6 +256,7 @@ func scanPodmanEnumerations(prismRoot, repoRoot string) []Finding {
 	findings = append(findings, checkPodmanChannelTable(docPath, docContent, decls)...)
 	findings = append(findings, checkPodmanGateSection(decls)...)
 	findings = append(findings, checkPodmanCountPhrases(prismRoot, repoRoot, decls)...)
+	findings = append(findings, checkPodmanPhraseCatalogue(prismRoot)...)
 	return dedupeFindings(findings)
 }
 
@@ -695,10 +706,35 @@ func checkPodmanDeclConsistency(d *podmanDecls) []Finding {
 }
 
 var (
-	tableStartRe = regexp.MustCompile(`(?m)^[ \t]*<!--[ \t]*doclint-enumeration:[ \t]*` + tableMarkerName + `[ \t]*-->`)
-	tableEndRe   = regexp.MustCompile(`(?m)^[ \t]*<!--[ \t]*doclint-enumeration-end[ \t]*-->`)
-	tableRuleRe  = regexp.MustCompile(`^\|[\s\-:|]*\|$`)
+	regionEndRe = regexp.MustCompile(`(?m)^[ \t]*<!--[ \t]*doclint-enumeration-end[ \t]*-->`)
+	tableRuleRe = regexp.MustCompile(`^\|[\s\-:|]*\|$`)
 )
+
+// enumerationRegion returns the text between the named region markers and
+// the 1-based line the text starts on.
+func enumerationRegion(content []byte, name string) (region string, firstLine int, ok bool) {
+	startRe := regexp.MustCompile(`(?m)^[ \t]*<!--[ \t]*doclint-enumeration:[ \t]*` + regexp.QuoteMeta(name) + `[ \t]*-->`)
+	start := startRe.FindIndex(content)
+	if start == nil {
+		return "", 0, false
+	}
+	end := regionEndRe.FindIndex(content[start[1]:])
+	if end == nil {
+		return "", 0, false
+	}
+	firstLine = 1 + strings.Count(string(content[:start[1]]), "\n")
+	return string(content[start[1] : start[1]+end[0]]), firstLine, true
+}
+
+// missingRegionNote is the diagnostic for an absent or reversed marker
+// pair. The markers are what ties a prose list to the declaration it
+// renders, so their absence is a finding rather than a skip.
+func missingRegionNote(name, holds, declaration, declaredIn string) string {
+	return fmt.Sprintf(
+		"the %s must sit between `<!-- doclint-enumeration: %s -->` and `<!-- doclint-enumeration-end -->`. "+
+			"One marker is missing or the two are out of order, so nothing holds the list to %s in %s",
+		holds, name, declaration, declaredIn)
+}
 
 // checkPodmanChannelTable holds the canonical table to the declaration in
 // both directions: every declared channel has a row, and every row is a
@@ -721,19 +757,12 @@ func checkPodmanChannelTable(docPath string, content []byte, d *podmanDecls) []F
 		})
 	}
 
-	start := tableStartRe.FindIndex(content)
-	end := tableEndRe.FindIndex(content)
-	if start == nil || end == nil || end[0] < start[1] {
-		add(1, tableMarkerName, fmt.Sprintf(
-			"the canonical channel table must sit between `<!-- doclint-enumeration: %s -->` and "+
-				"`<!-- doclint-enumeration-end -->`; one marker is missing or they are out of order. "+
-				"The markers are what ties the table to %s in %s",
-			tableMarkerName, channelsVarName, podmanPolicyRel))
+	region, firstLine, ok := enumerationRegion(content, tableMarkerName)
+	if !ok {
+		add(1, tableMarkerName, missingRegionNote(tableMarkerName,
+			"canonical channel table", channelsVarName, podmanPolicyRel))
 		return out
 	}
-
-	firstLine := 1 + strings.Count(string(content[:start[1]]), "\n")
-	region := string(content[start[1]:end[0]])
 
 	type row struct {
 		line int
@@ -901,12 +930,27 @@ func wordToCount(w string) (int, bool) {
 }
 
 // countPattern is one prose shape that states a number the declaration
-// also states. Each capture group holds a count word; want returns the
+// also states. Each capture group holds a count word, and want returns the
 // declared value for each group, in the same order.
 type countPattern struct {
 	re   *regexp.Regexp
 	what []string
 	want func(d *podmanDecls) []int
+
+	// phrase renders the pattern for the catalogue in docs/doclint.md,
+	// with `N` in place of each count word. It is the phrasing a prose
+	// site writes to opt in, so the catalogue rule requires the doc to
+	// carry it, and TestPodmanCountPatterns_PhrasesMatchTheirRegex
+	// requires the pattern itself to match it.
+	phrase string
+}
+
+// podmanAllCountPatterns is every pattern the count rule runs, in the
+// order the catalogue lists them.
+func podmanAllCountPatterns() []countPattern {
+	out := make([]countPattern, 0, len(podmanCountPatterns)+len(podmanGateCountPatterns))
+	out = append(out, podmanCountPatterns...)
+	return append(out, podmanGateCountPatterns...)
 }
 
 // podmanCountPatterns are the phrases that carry a channel-set count. They
@@ -915,34 +959,40 @@ type countPattern struct {
 // covers only its own channels out of the rule.
 var podmanCountPatterns = []countPattern{
 	{
-		re:   regexp.MustCompile(`(?i)\b(\w+) named-volume channels?\b`),
-		what: []string{"named-volume channels"},
-		want: func(d *podmanDecls) []int { return []int{len(d.namedVolumeChannels())} },
+		re:     regexp.MustCompile(`(?i)\b(\w+) named-volume channels?\b`),
+		what:   []string{"named-volume channels"},
+		want:   func(d *podmanDecls) []int { return []int{len(d.namedVolumeChannels())} },
+		phrase: "N named-volume channels",
 	},
 	{
-		re:   regexp.MustCompile(`(?i)\b(\w+) container-create channels?\b`),
-		what: []string{"named-volume channels of a containers/create body"},
-		want: func(d *podmanDecls) []int { return []int{len(d.namedVolumeChannels())} },
+		re:     regexp.MustCompile(`(?i)\b(\w+) container-create channels?\b`),
+		what:   []string{"named-volume channels of a containers/create body"},
+		want:   func(d *podmanDecls) []int { return []int{len(d.namedVolumeChannels())} },
+		phrase: "N container-create channels",
 	},
 	{
-		re:   regexp.MustCompile(`(?i)\b(\w+) create-body channels?\b`),
-		what: []string{"named-volume channels of a containers/create body"},
-		want: func(d *podmanDecls) []int { return []int{len(d.namedVolumeChannels())} },
+		re:     regexp.MustCompile(`(?i)\b(\w+) create-body channels?\b`),
+		what:   []string{"named-volume channels of a containers/create body"},
+		want:   func(d *podmanDecls) []int { return []int{len(d.namedVolumeChannels())} },
+		phrase: "N create-body channels",
 	},
 	{
-		re:   regexp.MustCompile(`(?i)\b(\w+) name-policy channels?\b`),
-		what: []string{"name-policy channels"},
-		want: func(d *podmanDecls) []int { return []int{len(d.channels)} },
+		re:     regexp.MustCompile(`(?i)\b(\w+) name-policy channels?\b`),
+		what:   []string{"name-policy channels"},
+		want:   func(d *podmanDecls) []int { return []int{len(d.channels)} },
+		phrase: "N name-policy channels",
 	},
 	{
-		re:   regexp.MustCompile(`(?i)\b(\w+) mount-channel reasons?\b`),
-		what: []string{"distinct deny reasons across the named-volume channels"},
-		want: func(d *podmanDecls) []int { return []int{len(d.namedVolumeDenyReasons())} },
+		re:     regexp.MustCompile(`(?i)\b(\w+) mount-channel reasons?\b`),
+		what:   []string{"distinct deny reasons across the named-volume channels"},
+		want:   func(d *podmanDecls) []int { return []int{len(d.namedVolumeDenyReasons())} },
+		phrase: "N mount-channel reasons",
 	},
 	{
-		re:   regexp.MustCompile(`(?i)VolumeNamePrefix covers (\w+) surfaces\b`),
-		what: []string{"channels the volume-name prefix covers"},
-		want: func(d *podmanDecls) []int { return []int{d.volumePrefixChannels()} },
+		re:     regexp.MustCompile(`(?i)VolumeNamePrefix covers (\w+) surfaces\b`),
+		what:   []string{"channels the volume-name prefix covers"},
+		want:   func(d *podmanDecls) []int { return []int{d.volumePrefixChannels()} },
+		phrase: "VolumeNamePrefix covers N surfaces",
 	},
 }
 
@@ -957,6 +1007,7 @@ var podmanGateCountPatterns = []countPattern{
 			gated, _ := d.gatedChecks()
 			return []int{len(gated), len(d.checks)}
 		},
+		phrase: "N checks of the N are gated",
 	},
 	{
 		re:   regexp.MustCompile(`(?i)\bThe other (\w+) are NOT gated\b`),
@@ -965,6 +1016,7 @@ var podmanGateCountPatterns = []countPattern{
 			_, unGated := d.gatedChecks()
 			return []int{len(unGated)}
 		},
+		phrase: "The other N are NOT gated",
 	},
 }
 
@@ -1044,6 +1096,81 @@ func countFindings(path string, lines []proseLine, patterns []countPattern, d *p
 	return out
 }
 
+// checkPodmanPhraseCatalogue holds the phrase catalogue in docs/doclint.md
+// to the pattern set, in both directions.
+//
+// The catalogue is the opt-in contract: a prose site that wants its count
+// enforced writes one of the phrases, and any other phrasing is unenforced
+// prose. A catalogue that omits a pattern therefore tells an author their
+// phrasing is free when the rule governs it, and a catalogue that carries
+// a phrase the rules dropped tells them the opposite. Both are the drift
+// this family exists to close, one layer up.
+func checkPodmanPhraseCatalogue(prismRoot string) []Finding {
+	path := filepath.Join(prismRoot, podmanDoclintDocRel)
+	content, err := os.ReadFile(path)
+	if err != nil {
+		return nil
+	}
+	var out []Finding
+	add := func(line int, token, note string) {
+		out = append(out, Finding{
+			File:     path,
+			Line:     line,
+			Token:    token,
+			Rule:     rulePhraseCatalogue,
+			Note:     note,
+			Category: categoryEnumeration,
+		})
+	}
+
+	region, firstLine, ok := enumerationRegion(content, catalogueMarkerName)
+	if !ok {
+		add(1, catalogueMarkerName, missingRegionNote(catalogueMarkerName,
+			"count-phrase catalogue", "podmanCountPatterns", "internal/doclint/podman_enumeration.go"))
+		return out
+	}
+
+	type entry struct {
+		line int
+		text string
+	}
+	var entries []entry
+	for i, text := range strings.Split(region, "\n") {
+		trimmed := strings.TrimSpace(text)
+		if trimmed == "" || strings.HasPrefix(trimmed, "```") || strings.HasPrefix(trimmed, "~~~") {
+			continue
+		}
+		entries = append(entries, entry{line: firstLine + i, text: trimmed})
+	}
+
+	matched := make([]bool, len(entries))
+	for _, p := range podmanAllCountPatterns() {
+		hits := 0
+		for i, e := range entries {
+			if strings.Contains(e.text, p.phrase) {
+				matched[i] = true
+				hits++
+			}
+		}
+		switch {
+		case hits == 0:
+			add(firstLine, p.phrase,
+				"the count rule recognises this phrase, and the catalogue does not list it. "+
+					"A reader of the catalogue concludes the phrasing is unenforced prose. Add the entry")
+		case hits > 1:
+			add(firstLine, p.phrase, fmt.Sprintf("the catalogue lists this phrase %d times; one phrase is one entry", hits))
+		}
+	}
+	for i, e := range entries {
+		if matched[i] {
+			continue
+		}
+		add(e.line, e.text, "the catalogue carries an entry that no count pattern recognises. "+
+			"A prose site that copies it gets no enforcement at all")
+	}
+	return out
+}
+
 // checkPodmanCountPhrases runs the count patterns over every prose site the
 // rule governs: the prism docs, the comments of the podman-proxy package,
 // and — when the repo root is available — the prism agent and skill files.
@@ -1064,8 +1191,7 @@ func checkPodmanCountPhrases(prismRoot, repoRoot string, d *podmanDecls) []Findi
 				lines = append(lines, proseLine{line: i + 1, text: text})
 			}
 		}
-		out = append(out, countFindings(path, lines, podmanCountPatterns, d, ignore)...)
-		out = append(out, countFindings(path, lines, podmanGateCountPatterns, d, ignore)...)
+		out = append(out, countFindings(path, lines, podmanAllCountPatterns(), d, ignore)...)
 	}
 	return out
 }

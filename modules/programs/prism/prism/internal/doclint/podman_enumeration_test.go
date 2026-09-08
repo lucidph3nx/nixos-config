@@ -3,9 +3,14 @@ package doclint
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 )
+
+// cataloguePlaceholderRe matches the count placeholder of a catalogue
+// phrase.
+var cataloguePlaceholderRe = regexp.MustCompile(`\bN\b`)
 
 // fixtureEdit is one mutation applied to a copy of the real source. An
 // empty `old` appends `new` to the end of the file.
@@ -396,6 +401,70 @@ func TestPodmanEnumerations_SkillProseIsGoverned(t *testing.T) {
 	}
 	findings := enumerationFindings(root, repoRoot)
 	wantFinding(t, findings, ruleChannelCount, "SKILL.md", "three named-volume channels")
+}
+
+// TestPodmanCountPatterns_PhrasesMatchTheirRegex is the first link of the
+// catalogue chain: each pattern's phrase must be a phrase that pattern
+// actually matches. The catalogue rule then holds docs/doclint.md to the
+// phrases, so the doc cannot drift from the regexes through either link.
+func TestPodmanCountPatterns_PhrasesMatchTheirRegex(t *testing.T) {
+	for _, p := range podmanAllCountPatterns() {
+		if p.phrase == "" {
+			t.Errorf("pattern %s carries no catalogue phrase", p.re)
+			continue
+		}
+		// "four" stands in for the count word the prose carries. Only a
+		// standalone N is a placeholder: the N of `VolumeNamePrefix` and
+		// the N of `NOT` are letters of a real word.
+		sample := cataloguePlaceholderRe.ReplaceAllString(p.phrase, "four")
+		m := p.re.FindStringSubmatch(sample)
+		if m == nil {
+			t.Errorf("phrase %q does not match its own pattern %s", p.phrase, p.re)
+			continue
+		}
+		if got := len(m) - 1; got != len(p.want(&podmanDecls{})) {
+			t.Errorf("phrase %q yields %d capture(s), and the pattern declares %d expected count(s)",
+				p.phrase, got, len(p.want(&podmanDecls{})))
+		}
+	}
+}
+
+// TestPodmanEnumerations_CatalogueOmissionIsReported covers a recognised
+// phrase that the catalogue in docs/doclint.md does not list. An author
+// who reads the catalogue then believes that phrasing is unenforced.
+func TestPodmanEnumerations_CatalogueOmissionIsReported(t *testing.T) {
+	root := podmanFixture(t, fixtureEdit{
+		rel: podmanDoclintDocRel,
+		old: "N create-body channels              -> named-volume channels\n",
+		new: "",
+	})
+	wantFinding(t, enumerationFindings(root, ""), rulePhraseCatalogue,
+		"N create-body channels", "catalogue does not list it")
+}
+
+// TestPodmanEnumerations_CatalogueStrayEntryIsReported covers the other
+// direction: an entry no pattern recognises promises enforcement that a
+// prose site copying it never gets.
+func TestPodmanEnumerations_CatalogueStrayEntryIsReported(t *testing.T) {
+	root := podmanFixture(t, fixtureEdit{
+		rel: podmanDoclintDocRel,
+		old: "The other N are NOT gated           -> un-gated checks\n",
+		new: "The other N are NOT gated           -> un-gated checks\n" +
+			"N volume-name surfaces              -> a phrase no pattern reads\n",
+	})
+	wantFinding(t, enumerationFindings(root, ""), rulePhraseCatalogue,
+		"N volume-name surfaces", "no count pattern recognises")
+}
+
+// TestPodmanEnumerations_CatalogueMarkersAreRequired keeps the catalogue
+// rule from passing vacuously when the markers go missing.
+func TestPodmanEnumerations_CatalogueMarkersAreRequired(t *testing.T) {
+	root := podmanFixture(t, fixtureEdit{
+		rel: podmanDoclintDocRel,
+		old: "<!-- doclint-enumeration: count-phrases -->",
+		new: "",
+	})
+	wantFinding(t, enumerationFindings(root, ""), rulePhraseCatalogue, "count-phrase catalogue")
 }
 
 // TestPodmanEnumerations_SubsetProseDoesNotFail covers the edge case the
