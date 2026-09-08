@@ -31,7 +31,7 @@ const (
 	// It must be bumped whenever a new migrateVNtoVN+1 function is added.
 	// A meta-test in db_test.go asserts that this constant equals the count of
 	// migration functions, so forgetting to bump it will fail CI.
-	currentSchemaVersion = 44
+	currentSchemaVersion = 45
 )
 
 // DB wraps a SQLite connection.
@@ -196,7 +196,13 @@ CREATE TABLE IF NOT EXISTS agent_status (
   -- 0 = proxy not started (default); 1 = proxy is started and the agent
   -- CONTAINER_HOST / DOCKER_HOST env vars point at the filtered socket.
   -- Flipped by prism spawn --containers.
-  containers_enabled INTEGER NOT NULL DEFAULT 0
+  containers_enabled INTEGER NOT NULL DEFAULT 0,
+  -- pending_disagreement holds the verbatim rendered output of
+  -- review.buildDisagreementSection for a worker whose latest review round
+  -- terminated on the PASS_WITH_DISAGREEMENT marker (#2977). NULL means no
+  -- disagreement is pending -- either the round carried none, or it was
+  -- already consumed by a finish notification or cleared by prism escalate.
+  pending_disagreement TEXT
 );
 
 CREATE TABLE IF NOT EXISTS bus_messages (
@@ -1045,6 +1051,9 @@ func runMigrations(conn sqlExecutor) error {
 	if err := migrateV43ToV44(conn, &version); err != nil {
 		return err
 	}
+	if err := migrateV44ToV45(conn, &version); err != nil {
+		return err
+	}
 	if version > currentSchemaVersion {
 		return fmt.Errorf(
 			"db schema version %d is newer than this prism binary (max %d); "+
@@ -1700,6 +1709,39 @@ func migrateV34ToV35(conn sqlExecutor, version *int) error {
 		return fmt.Errorf("db: migration v34\u2192v35: %w", err)
 	}
 	*version = 35
+	return nil
+}
+
+// migrateV44ToV45 adds the `pending_disagreement` column to agent_status.
+// It holds the verbatim rendered output of review.buildDisagreementSection
+// for a worker whose latest review round terminated on the
+// PASS_WITH_DISAGREEMENT marker (#2977). NULL means no disagreement is
+// pending — either the round carried none, or it was already consumed by a
+// finish notification or cleared by `prism escalate`. The ALTER TABLE is
+// guarded by a pragma_table_info check so the migration is idempotent on
+// fresh databases where the declarative schema block above already includes
+// the column.
+func migrateV44ToV45(conn sqlExecutor, version *int) error {
+	if *version >= 45 {
+		return nil
+	}
+	var exists int
+	if err := conn.QueryRow(
+		`SELECT COUNT(*) FROM pragma_table_info('agent_status') WHERE name = 'pending_disagreement'`,
+	).Scan(&exists); err != nil {
+		return fmt.Errorf("db: migration v44\u2192v45: check pending_disagreement column: %w", err)
+	}
+	if exists == 0 {
+		if _, err := conn.Exec(
+			`ALTER TABLE agent_status ADD COLUMN pending_disagreement TEXT`,
+		); err != nil {
+			return fmt.Errorf("db: migration v44\u2192v45: add pending_disagreement: %w", err)
+		}
+	}
+	if _, err := conn.Exec(`UPDATE schema_version SET version = 45`); err != nil {
+		return fmt.Errorf("db: migration v44\u2192v45: %w", err)
+	}
+	*version = 45
 	return nil
 }
 
