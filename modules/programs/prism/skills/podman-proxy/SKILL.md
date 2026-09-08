@@ -213,9 +213,10 @@ every container and volume whose name carries the instance token of any
 incarnation of that session that the database still holds — so a session
 that restarted does not leak the volumes it made before the restart. An
 incarnation older than the ninety-day `sessions` retention window is the
-exception, and its resources are skipped in silence. See "Known gaps"
-below. A resource created before instance-ID naming carries no token and
-is swept by the old rule instead (strict `prism-<session>-<8 hex chars>`
+exception: its resources are skipped, with a warning naming the
+resource, but they still leak. See "Known gaps" below. A resource
+created before instance-ID naming carries no token and is swept by the
+old rule instead (strict `prism-<session>-<8 hex chars>`
 for a container, plain `prism-<session>-` prefix for a volume).
 
 **Sweeping them is not the same as reaching them. A restart makes your
@@ -240,14 +241,17 @@ All five are accepted for this version. `docs/podman-proxy.md` §8.3
 carries the detail and the conditions to close each one.
 
 - **A resource whose owning incarnation is older than ninety days is
-  skipped in silence.** The sweep reads its token set from the `sessions`
-  table, and `db.Prune` deletes a row ninety days after that incarnation
-  ended — which includes every restart, not just a close. The resource
-  then matches no token the sweep holds, so cleanup skips it and logs
-  nothing. A long-lived session that restarts often and is hard-cleaned
-  rarely is the case that reaches it. Remove such a volume by hand with
-  `podman volume rm`. Issue #2972 tracks the warning and the retention
-  question underneath it.
+  skipped, and still leaks.** The sweep reads its token set from the
+  `sessions` table, and `db.Prune` deletes a row ninety days after that
+  incarnation ended — which includes every restart, not just a close.
+  The resource then matches no token the sweep holds, so cleanup skips
+  it. `collectSweepable` warns when this happens — naming the resource
+  and stating that its owning incarnation is not in the database — but
+  the warning does not reach the resource; it still leaks. A
+  long-lived session that restarts often and is hard-cleaned rarely is
+  the case that reaches it. Remove such a volume by hand with `podman
+  volume rm`. Issue #2972 Part 1 shipped the warning; Part 2 tracks the
+  retention question that would let the resource be reached again.
 
 - **A resource created BEFORE instance-ID naming cannot be attributed.**
   Its name carries the legacy prefix and no token, so nothing recovers
