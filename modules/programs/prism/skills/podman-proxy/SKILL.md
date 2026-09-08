@@ -159,17 +159,12 @@ docker volume create pgdata
 ```
 
 **A volume you name in a container mount obeys the same rule.** A
-`containers/create` body reaches a named volume through four channels:
-the source half of a `HostConfig.Binds` entry (`myvol:/data`), the
-`Source` of a `HostConfig.Mounts` entry of `Type=volume`, an entry of
-the top-level libpod `volumes` array
-(`{"Name":"myvol","Dest":"/data"}`), and a colon-bearing key of the
-top-level docker-compat `volumes` map (`{"myvol:/data":{}}`). All four
-must start with the session prefix, or the request gets 403
-(`bind_volume_name_prefix_mismatch`, `mount_volume_name_prefix_mismatch`,
-`create_volumes_name_prefix_mismatch`). These four channels REFUSE
-only — they never inject — so learn the prefix first (above) and name the
-volume correctly in the request:
+`containers/create` body reaches a named volume through four channels
+(see the "Per-session naming" table in `docs/podman-proxy.md` §3 for
+the canonical list of the four, and the deny reason for each). All
+four must start with the session prefix, or the request gets 403.
+These four channels REFUSE only — they never inject — so learn the
+prefix first (above) and name the volume correctly in the request:
 
 ```bash
 # Correct: the mount names an in-prefix volume, so the sweep finds it.
@@ -190,12 +185,11 @@ source is checked against the bind allowlist
 uses. A key with NO colon is a bare destination, names nothing, and
 stays admitted — that is docker's own `{"/data":{}}` shape.
 
-The rule also blocks a cross-session attach on all four channels: another
-session's volume name in a `Binds` entry, in a `Type=volume` mount, in
-the libpod `volumes` array, or in a docker-compat `volumes` map key is
-refused. It is not a general isolation guarantee — `volumes/prune` and
-`DELETE /volumes/{name}` are plain allows, so an agent can still remove
-any volume on the host by name.
+The rule also blocks a cross-session attach on all four channels:
+another session's volume name on any of them is refused. It is not a
+general isolation guarantee — `volumes/prune` and `DELETE
+/volumes/{name}` are plain allows, so an agent can still remove any
+volume on the host by name.
 
 **The prefix is `prism-<instance token>-<folded session name>-`.** The
 token is this session incarnation's instance ID (a UUID) with its hyphens
