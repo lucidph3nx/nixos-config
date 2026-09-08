@@ -117,7 +117,7 @@ the rationale.
 | T22 | Schema drift: a new docker-/podman-API field upstream introduces a new escape vector without anyone in this repo noticing | `json.Decoder.DisallowUnknownFields()` runs on every parsed body. A new unknown field rejects with 403 and audit reason `unknown_field:<json error>` until it is admitted via the field-admission process (§4). | `policy.go::decodeStrict`, plus every typed struct |
 | T23 | Proxy itself has a parsing bug | Default-deny — every unknown endpoint, unknown field, unknown enumerable value, malformed JSON, missing required value rejects before forwarding. Test suite exercises every documented escape and asserts it is blocked, plus a negative-control meta-test that verifies the positive tests are not no-ops. | `proxy_security_test.go::TestSecurity_NegativeControl_RootAllowlistPasses` |
 | T24 | Storage exhaustion after the session ends: a volume or an image the agent created outlives the session on the shared host | PARTIAL. A NAMED volume gets the per-session name prefix (`Config.VolumeNamePrefix`) on all five surfaces that can create one — `POST /volumes/create`, `HostConfig.Binds`, a `HostConfig.Mounts` entry of `Type=volume`, an entry of the top-level libpod `volumes` array, and a colon-bearing key of the top-level docker-compat `volumes` map — and `prism cleanup` removes every volume with that prefix. Images are NOT swept, and an ANONYMOUS volume still escapes the prefix. See §8.3 for both. | `policy.go::applyVolumeNamePolicy`, `policy.go::checkMountedVolumeNames`, `policy.go::checkCreateVolumeNames`, `cmd/cleanup_sweep.go::sweepVolumesWithRunner` |
-| T25 | Cross-session data access: the agent attaches a volume that belongs to ANOTHER live session by naming it in a container-create mount | PARTIAL, on the four named channels of a create body. A named volume in `HostConfig.Binds`, in a `Type=volume` `HostConfig.Mounts` entry, in the top-level libpod `volumes` array, or in a colon-bearing key of the top-level docker-compat `volumes` map must start with this session's `VolumeNamePrefix`, or the create request returns 403. This row named three gaps over time, and all three are now closed. Issue #2958 closed the libpod `volumes` array, which forwarded a foreign name. Issue #2951 closed the other two, which were the same defect in two shapes. `VolumeNamePrefix` was built from the session NAME, so a NESTED sibling prefix was admitted: session `foo` was free to name `prism-foo-bar-data`, which belongs to live session `foo-bar`. A FOLDED prefix was admitted for the same reason, because `repo@feat/x` and `repo@feat-x` sanitise to one prefix. The prefix now carries the session incarnation's instance ID, so a name outside it is refused on all four channels, and the cleanup sweep decides ownership by parsing that ID back out. What stays OPEN is narrower and is about EXISTING resources, not about what this proxy admits: a volume created BEFORE instance-ID naming carries no identity, so cleanup falls back to the old name-prefix rule for it and cannot tell two folded sessions' pre-identity volumes apart. It leaves such a name in place rather than removing it. See §8.3. Do not read this row as a general isolation guarantee between sessions: `POST /volumes/prune` and `DELETE /volumes/{name}` are plain allows, so an agent can still remove any volume on the host by name. | `policy.go::checkMountedVolumeNames`, `policy.go::checkCreateVolumeNames`, `internal/container/resource_identity.go` |
+| T25 | Cross-session data access: the agent attaches a volume that belongs to ANOTHER live session by naming it in a container-create mount | PARTIAL, on the four named-volume channels a create body can carry (see the "Per-session naming" table in §3 for the canonical list of the four, and the config field, policy function, and deny reason for each). A name outside this session's `VolumeNamePrefix` on any of the four returns 403. This row named three gaps over time, and all three are now closed. Issue #2958 closed the libpod `volumes` array, which forwarded a foreign name. Issue #2951 closed the other two, which were the same defect in two shapes. `VolumeNamePrefix` was built from the session NAME, so a NESTED sibling prefix was admitted: session `foo` was free to name `prism-foo-bar-data`, which belongs to live session `foo-bar`. A FOLDED prefix was admitted for the same reason, because `repo@feat/x` and `repo@feat-x` sanitise to one prefix. The prefix now carries the session incarnation's instance ID, so a name outside it is refused on all four channels, and the cleanup sweep decides ownership by parsing that ID back out. What stays OPEN is narrower and is about EXISTING resources, not about what this proxy admits: a volume created BEFORE instance-ID naming carries no identity, so cleanup falls back to the old name-prefix rule for it and cannot tell two folded sessions' pre-identity volumes apart. It leaves such a name in place rather than removing it. See §8.3. Do not read this row as a general isolation guarantee between sessions: `POST /volumes/prune` and `DELETE /volumes/{name}` are plain allows, so an agent can still remove any volume on the host by name. | `policy.go::checkMountedVolumeNames`, `policy.go::checkCreateVolumeNames`, `internal/container/resource_identity.go` |
 
 **Network egress** is not restricted: containers get whatever network the
 host podman gives them (default: full internet). This is strictly broader
@@ -738,20 +738,15 @@ volume that does not yet exist when a container mounts it. That path
 never sends `POST /volumes/create`, so `applyVolumeNamePolicy` never
 runs on it.
 
-The prefix rule now applies to all four channels that name a volume in
-a create body. The first is the source half of a `Binds` entry
-(`["myvol:/data"]`). The second is the `Source` of a `Mounts` entry of
-`Type=volume`. `checkMountedVolumeNames` covers those two. The third
-is an entry of the top-level libpod `volumes` array. The fourth is a
-colon-bearing key of the top-level docker-compat `volumes` map, which
-podman reads as a `-v` spec. `checkCreateVolumeNames` covers those
-two — see the entry below. A name outside
-`Config.VolumeNamePrefix` returns 403. The reason is
-`bind_volume_name_prefix_mismatch`,
-`mount_volume_name_prefix_mismatch`, or
-`create_volumes_name_prefix_mismatch`. Every volume an admitted mount
-creates implicitly therefore carries the prefix, and
-`sweepVolumesWithRunner` reaches it.
+The prefix rule now applies to all four named-volume channels a
+create body can carry. See the "Per-session naming" table in §3 for
+the canonical list of the four, and the config field, policy
+function, and deny reason for each. `checkMountedVolumeNames` covers
+two of the four, the `Binds` and `Mounts` channels.
+`checkCreateVolumeNames` covers the other two, the top-level `volumes`
+key on both its libpod-array and docker-compat-map shapes. Every
+volume an admitted mount creates implicitly therefore carries the
+prefix, and `sweepVolumesWithRunner` reaches it.
 
 That also closed a second hole the leak hid. An out-of-prefix name was
 admitted, so one session had a path to another session's data: it
@@ -831,19 +826,13 @@ carries the audit. Three notes on the shape of that policy:
   library, and `injectNameIntoBody` already treats this class of
   ambiguity as a bypass to close. Every case-variant of the key is
   inspected.
-- One check of the four is gated. The NAME check is gated on
-  `VolumeNamePrefix`, like every other name policy here. The other
-  three hold whatever the prefix is set to: the SHAPE check, which
-  denies a `volumes` value that is neither a placeholder map nor a
-  named-volume array. The unknown-field check, which denies a
-  named-volume entry that carries an unaudited field. The HOST-BIND
-  check on a docker-compat map key, which sends a `/`- or
-  `.`-prefixed source to the bind allowlist. The first two are the
-  layer-2 and layer-3 half of the policy (§3), which is unconditional
-  everywhere else in the package. The third is the bind-source
-  allowlist, a different control with its own config field. An empty
-  `VolumeNamePrefix` must not return the host escape, so that check
-  carries no gate.
+- One check of the four is gated, three are not. The canonical
+  enumeration — which check is gated, and why the other three (the
+  SHAPE check, the unknown-field check, and the HOST-BIND check) are
+  not — lives in `policy.go`, in the "What is gated on the prefix, and
+  what is not" section of the doc comment above `checkCreateVolumeNames`.
+  Read it there rather than here. This bullet is not the source of
+  truth for that list.
 - It refuses. It never injects, for the reasons the mount channels
   give above.
 

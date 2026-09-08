@@ -81,15 +81,12 @@
 //     resource, and reject a create request that names one outside the
 //     prefix. The owner uses the prefix to find and remove the
 //     session's resources at teardown. VolumeNamePrefix covers five
-//     surfaces: volumes/create, and the four channels a containers/
-//     create body attaches a named volume through (HostConfig.Binds,
-//     a HostConfig.Mounts entry of Type=volume, and BOTH shapes of the
-//     top-level volumes key — a libpod array of NamedVolume, and a
-//     docker-compat map whose key podman appends to its -v list
-//     verbatim, which makes a colon-bearing key a mount spec rather
-//     than the container path docker documents). That last shape also
-//     reaches the bind-source allowlist, so it is checked against
-//     AllowedBindSources when its source is a host path.
+//     surfaces: volumes/create, and the four named-volume channels a
+//     containers/create body attaches a volume through. The canonical
+//     list of those four channels — and the config field, policy
+//     function, and deny reason for each — is the "Per-session
+//     naming" table in docs/podman-proxy.md, section 3. Do not
+//     restate the list here; extend that table instead.
 //     The four container-create channels REFUSE
 //     an out-of-prefix name rather than injecting one, because on two
 //     of them the name is embedded in a colon-delimited string that
