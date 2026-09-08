@@ -58,6 +58,13 @@ const (
 	// EventReviewVerdictFail is written when at least one review agent in
 	// the round did not pass.
 	EventReviewVerdictFail = "review.verdict_fail"
+	// EventReviewVerdictPassWithDisagreement is written when the round
+	// terminated as a pass AND at least one agent (review-goal) emitted
+	// PASS_WITH_DISAGREEMENT. It is distinct from EventReviewVerdictPass so the
+	// round counter records the marker distinctly, and so it agrees with the
+	// per-agent counter's pass_with_disagreement value about the same round
+	// (#2970).
+	EventReviewVerdictPassWithDisagreement = "review.verdict_pass_with_disagreement"
 )
 
 // Per-AGENT verdict event types, written by the same helper alongside the
@@ -87,32 +94,24 @@ const (
 	// EventReviewAgentVerdictError is written for a review agent whose round
 	// recorded no PASS and no FAIL. It is NOT limited to an agent that
 	// produced no output. The bucket holds: a no-start, a mid-run stall, an
-	// unclean exit, no output, a session absent from the group — AND an agent
-	// that ran to `finished` and emitted a marker this pipeline does not map
-	// to pass or fail. Never conflated with a FAIL.
+	// unclean exit, no output, and a session absent from the group. Never
+	// conflated with a FAIL.
 	//
-	// PASS_WITH_DISAGREEMENT is in that last group, and review-goal is the one
-	// agent that emits it (agents/review-goal.md), so its "error" count
-	// carries those rounds. This is deliberate and it is NOT a judgement that
-	// the marker is an infrastructure failure: it is what keeps the per-agent
-	// counter reconcilable with the round counter. AssessPassed maps
-	// verdict.PassWithDisagreement to VerdictNone (results.go), so the ROUND
-	// pipeline already classifies such a member as NoVerdictUnparseable
-	// (classifyMember, roundstatus.go) and the round is reported as "ran but
-	// produced no parseable verdict". A per-agent mapping to "pass" would put
-	// the two counters in disagreement about the same round.
-	//
-	// That the round pipeline treats the marker this way at all sits at odds
-	// with agents/review-goal.md, which says it "counts as PASS for
-	// review-cycle termination" (#2862 / #2867). That is a pre-existing
-	// question about AssessPassed and the round classification, not about this
-	// counter, and it is not settled here. It is tracked as #2970, whose
-	// recorded direction is to fix the pipeline rather than the agent file.
-	// TestAgentVerdictEventType_PassWithDisagreementRecordsError pins the
-	// current behaviour, so that change surfaces here loudly rather than
-	// silently moving a metric — update this comment and the metric HELP text
-	// alongside it.
+	// PASS_WITH_DISAGREEMENT is NOT in this bucket. Since #2970 the marker is a
+	// terminating pass: AssessPassed maps verdict.PassWithDisagreement to
+	// VerdictPassWithDisagreement (results.go), the round pipeline counts it as
+	// a verdict rather than NoVerdictUnparseable, and the per-agent counter
+	// records it under EventReviewAgentVerdictPassWithDisagreement below. That
+	// keeps the per-agent counter reconcilable with the round counter, which
+	// records the same round under EventReviewVerdictPassWithDisagreement.
 	EventReviewAgentVerdictError = "review.agent_verdict_error"
+	// EventReviewAgentVerdictPassWithDisagreement is written for a review agent
+	// (review-goal) whose output carried a parseable PASS_WITH_DISAGREEMENT
+	// marker. It is a terminating pass with an unresolved concern the
+	// coordinator decides (agents/review-goal.md, #2970), kept distinct from a
+	// plain PASS so the per-agent counter surfaces how often the marker is
+	// used, and so it agrees with the round counter about the same round.
+	EventReviewAgentVerdictPassWithDisagreement = "review.agent_verdict_pass_with_disagreement"
 )
 
 // MonitorOpts configures the group-completion monitor.
@@ -442,7 +441,9 @@ func MonitorFunc(opts MonitorOpts) error {
 // LastMessage carried a parseable `<verdict>PASS</verdict>` marker);
 // failCount = number of agents that did not pass (FAIL verdicts, error states,
 // no-start failures, finished-without-verdict). Verdict: "pass" when every
-// agent passed; "fail" when at least one did not. The lowercase casing
+// agent passed; "pass_with_disagreement" when every agent passed and at least
+// one (review-goal) emitted the PASS_WITH_DISAGREEMENT marker; "fail" when at
+// least one agent did not pass. The lowercase casing
 // matches the existing ComputeSpawnOutcome convention so the renderer's
 // existing pass-through display does not need a casing-aware code path.
 func persistReviewOutcome(d *db.DB, groupID, workerSession string, results []AgentResult, allPassed bool) {
@@ -469,6 +470,12 @@ func persistReviewOutcome(d *db.DB, groupID, workerSession string, results []Age
 	verdict := "fail"
 	if allPassed {
 		verdict = "pass"
+		if roundHasDisagreement(results) {
+			// A round that terminated on the PASS_WITH_DISAGREEMENT marker is a
+			// pass, recorded distinctly so `prism stats compare` and the
+			// spawn_outcome roll-up agree it was not a plain pass (#2970).
+			verdict = "pass_with_disagreement"
+		}
 	}
 	if err := d.UpdateSpawnOutcomeReviewResult(sess.InstanceID, verdict, passCount, failCount); err != nil {
 		proglog.Warnf("[prism monitor-review] warning: UpdateSpawnOutcomeReviewResult(iid=%s, verdict=%s): %v\n", sess.InstanceID, verdict, err)
@@ -519,17 +526,21 @@ func agentVerdictEventID(groupID, agentRole string) string {
 }
 
 // agentVerdictEventType maps one AgentResult onto its per-agent event type.
-// The three outcomes are disjoint and exhaustive:
+// The four outcomes are disjoint and exhaustive:
 //
-//	pass  if r.Passed
-//	fail  if !r.Passed && !r.IsError   (a parseable FAIL verdict)
-//	error if !r.Passed &&  r.IsError   (no verdict was produced at all)
+//	pass_with_disagreement if r.Disagreement          (a terminating pass + concern)
+//	pass                   if r.Passed                 (a plain parseable PASS)
+//	error                  if !r.Passed &&  r.IsError  (no verdict was produced)
+//	fail                   if !r.Passed && !r.IsError  (a parseable FAIL verdict)
 //
-// An IsError result therefore NEVER counts as a fail — an agent that failed
-// to start is not a code-quality verdict, and conflating the two is what the
-// round-level failCount does.
+// Disagreement is checked before Passed because it implies Passed. An IsError
+// result NEVER counts as a fail — an agent that failed to start is not a
+// code-quality verdict, and conflating the two is what the round-level
+// failCount does.
 func agentVerdictEventType(r AgentResult) string {
 	switch {
+	case r.Disagreement:
+		return EventReviewAgentVerdictPassWithDisagreement
 	case r.Passed:
 		return EventReviewAgentVerdictPass
 	case r.IsError:
@@ -570,7 +581,7 @@ func writeVerdictEvent(d *db.DB, groupID, workerSession string, results []AgentR
 		proglog.Infof("[prism review] verdict event: no sessions row for %q — skipping\n", workerSession)
 		return
 	}
-	writeRoundVerdictEvent(d, groupID, workerSession, sess, allPassed)
+	writeRoundVerdictEvent(d, groupID, workerSession, sess, allPassed, roundHasDisagreement(results))
 	// The per-agent events are written whether or not the round event was
 	// inserted. A round already counted at the round level can still be
 	// missing its per-agent rows — a round delivered before this counter
@@ -580,14 +591,34 @@ func writeVerdictEvent(d *db.DB, groupID, workerSession string, results []AgentR
 	writeAgentVerdictEvents(d, groupID, sess, results)
 }
 
+// roundHasDisagreement reports whether any agent in the round emitted the
+// PASS_WITH_DISAGREEMENT marker. It gates the round-level verdict event's
+// pass_with_disagreement value.
+func roundHasDisagreement(results []AgentResult) bool {
+	for _, r := range results {
+		if r.Disagreement {
+			return true
+		}
+	}
+	return false
+}
+
 // writeRoundVerdictEvent writes the round-level verdict event: one row per
 // completed round, carrying the WORKER's instance id so the exporter labels it
 // with the worker's repo, role, and profile.
-func writeRoundVerdictEvent(d *db.DB, groupID, workerSession string, sess *db.Session, allPassed bool) {
+//
+// A round that terminated as a pass AND carried a PASS_WITH_DISAGREEMENT
+// marker records EventReviewVerdictPassWithDisagreement, so the round counter
+// records the marker distinctly and agrees with the per-agent counter about
+// the same round (#2970).
+func writeRoundVerdictEvent(d *db.DB, groupID, workerSession string, sess *db.Session, allPassed, hasDisagreement bool) {
 	instanceID := sess.InstanceID
 	eventType := EventReviewVerdictFail
 	if allPassed {
 		eventType = EventReviewVerdictPass
+		if hasDisagreement {
+			eventType = EventReviewVerdictPassWithDisagreement
+		}
 	}
 	inserted, err := d.WriteEventIfAbsent(db.Event{
 		ID:          verdictEventID(groupID),
@@ -935,9 +966,10 @@ func monitorResultFor(ag Agent, agentSession string, groupData map[string]db.Gro
 			}
 		}
 		return AgentResult{
-			Agent:  ag,
-			Passed: passed,
-			Output: text,
+			Agent:        ag,
+			Passed:       passed,
+			Output:       text,
+			Disagreement: kind == VerdictPassWithDisagreement,
 		}
 	default:
 		// Non-terminal state after group says complete — treat as timed out / missing.
@@ -975,6 +1007,18 @@ func buildDeliveryMessage(prNumber string, round int, formattedResults string, a
 	stalled := status.MissingOfClass(NoVerdictStalled)
 
 	switch {
+	case allPassed && status.HasDisagreement():
+		// Every agent passed, but review-goal recorded a scope disagreement it
+		// escalated rather than blocking on. PASS_WITH_DISAGREEMENT is a
+		// TERMINATING pass (agents/review-goal.md, #2970): the round does not
+		// re-run. The decision belongs to the coordinator, so the worker must
+		// escalate rather than push more code.
+		sb.WriteString("**Review passed with an unresolved disagreement.** ")
+		sb.WriteString("Every review agent passed, but review-goal recorded a scope disagreement it escalated rather than blocking on. ")
+		sb.WriteString("PASS_WITH_DISAGREEMENT counts as PASS for review-cycle termination — the review is complete and does NOT re-run. ")
+		sb.WriteString("Do NOT push more code to resolve it. ")
+		sb.WriteString("Escalate to your coordinator with `prism escalate`, quoting the disagreement below; the coordinator decides whether to accept this PR as-is or respawn with clarified scope.\n\n")
+		sb.WriteString(buildDisagreementSection(status))
 	case allPassed && status.Complete():
 		sb.WriteString("**All 5 review agents passed.** You may proceed with announcing completion.\n\n")
 	case status.Complete():
@@ -1067,6 +1111,42 @@ func buildNoVerdictSection(status RoundStatus, prNumber string) string {
 	}
 	sb.WriteString(buildRerunAdvice(status, prNumber))
 	sb.WriteString("\nThis round does NOT count toward the 3-cycle limit.\n")
+	return sb.String()
+}
+
+// buildDisagreementSection renders the coordinator-facing roll-call of every
+// PASS_WITH_DISAGREEMENT the round carried. It names the agent and quotes the
+// verbatim <disagreement> block so the worker can copy it straight into a
+// `prism escalate` message, and the coordinator has the concern in hand. It
+// returns "" when the round carried no disagreement.
+func buildDisagreementSection(status RoundStatus) string {
+	if !status.HasDisagreement() {
+		return ""
+	}
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("### Unresolved disagreement for the coordinator (%d)\n\n", len(status.Disagreements)))
+	sb.WriteString("The decision on each item below belongs to the coordinator, not the worker. ")
+	sb.WriteString("Escalate with `prism escalate` and quote the concern verbatim.\n\n")
+	for _, d := range status.Disagreements {
+		name := d.Agent
+		if name == "" {
+			name = "(unnamed agent)"
+		}
+		if d.Session != "" {
+			sb.WriteString(fmt.Sprintf("- **%s** (`%s`)\n", name, d.Session))
+		} else {
+			sb.WriteString(fmt.Sprintf("- **%s**\n", name))
+		}
+		if d.Detail != "" {
+			sb.WriteString(d.Detail)
+			if !strings.HasSuffix(d.Detail, "\n") {
+				sb.WriteString("\n")
+			}
+		} else {
+			sb.WriteString("  (the agent emitted the marker with no `<disagreement>` block — read its full output with `prism checkin`)\n")
+		}
+	}
+	sb.WriteString("\n")
 	return sb.String()
 }
 

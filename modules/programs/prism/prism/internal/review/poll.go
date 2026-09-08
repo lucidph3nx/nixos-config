@@ -286,9 +286,10 @@ func buildResults(agents []Agent, agentSessions []string, d *db.DB, finished, ti
 		}
 
 		results[i] = AgentResult{
-			Agent:  ag,
-			Passed: passed,
-			Output: text,
+			Agent:        ag,
+			Passed:       passed,
+			Output:       text,
+			Disagreement: kind == VerdictPassWithDisagreement,
 		}
 	}
 	return results

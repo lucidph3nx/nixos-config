@@ -211,6 +211,8 @@ func assembleOneReviewCycle(d *db.DB, g db.GroupInfo) (ReviewCycle, error) {
 				a.Verdict = "PASS"
 			case VerdictFail:
 				a.Verdict = "FAIL"
+			case VerdictPassWithDisagreement:
+				a.Verdict = "PASS_WITH_DISAGREEMENT"
 			}
 		} else {
 			// Defensive: this cannot happen — every session in

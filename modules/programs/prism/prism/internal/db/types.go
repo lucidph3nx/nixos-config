@@ -233,7 +233,7 @@ type SpawnOutcome struct {
 	PRNumber        *int
 	PRMergedAt      *int64 // ms epoch
 	ReviewGroupID   *string
-	ReviewVerdict   *string // "pass" | "fail" | "mixed" | nil
+	ReviewVerdict   *string // "pass" | "pass_with_disagreement" | "fail" | "mixed" | nil
 	ReviewPassCount *int
 	ReviewFailCount *int
 	ReviewNoneCount *int

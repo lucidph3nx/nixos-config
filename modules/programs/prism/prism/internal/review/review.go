@@ -327,6 +327,14 @@ type AgentResult struct {
 	Passed  bool   // true = passed, false = failed / errored
 	Output  string // last assistant message text, or error description
 	IsError bool   // true = infrastructure/timeout failure
+	// Disagreement is true when the agent emitted
+	// <verdict>PASS_WITH_DISAGREEMENT</verdict> — a terminating pass that also
+	// carries an unresolved scope concern for the coordinator to decide
+	// (agents/review-goal.md, #2970). It implies Passed is true. review-goal is
+	// the only agent that emits the marker. The round still terminates as a
+	// pass, but the delivery message surfaces the disagreement to the
+	// coordinator rather than telling the worker to push more code.
+	Disagreement bool
 	// SessionName is the review agent's own session name
 	// (<worker>~review-<N>-<agent>), and InstanceID its own
 	// sessions.instance_id. buildMonitorResults populates both from the
