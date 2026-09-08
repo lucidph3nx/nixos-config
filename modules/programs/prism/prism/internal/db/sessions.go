@@ -743,8 +743,9 @@ ON CONFLICT(instance_id) DO UPDATE SET
 // round 2 (5 PASS, 0 FAIL) ends with review_pass_count=5, review_fail_count=0,
 // review_verdict="pass" — its actual ship state, not a historical sum.
 //
-// verdict is "pass" when all reviewers passed, "fail" when any reviewer failed.
-// passCount/failCount reflect the agents whose LastMessage carried a
+// verdict is "pass" when all reviewers passed, "pass_with_disagreement" when
+// all passed and at least one (review-goal) emitted the PASS_WITH_DISAGREEMENT
+// marker, and "fail" when any reviewer failed. passCount/failCount reflect the agents whose LastMessage carried a
 // parseable `<verdict>PASS</verdict>` / `<verdict>FAIL</verdict>` marker for
 // this round; agents without a parseable verdict (infrastructure failures,
 // truncated output) count toward failCount when verdict=="fail" and toward
