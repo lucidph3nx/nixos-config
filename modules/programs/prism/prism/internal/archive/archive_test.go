@@ -505,3 +505,97 @@ func TestRunAgentRunLogMissing(t *testing.T) {
 		t.Errorf("agent-run.log should not exist when source is missing, but stat returned: %v", statErr)
 	}
 }
+
+// TestRunPodmanProxyAuditLog verifies that when PodmanProxyAuditLogPath points
+// to an existing file, it is copied into the archive as podman-proxy.log,
+// byte-identical to the source.
+func TestRunPodmanProxyAuditLog(t *testing.T) {
+	tmpDir := t.TempDir()
+	archiveRoot := filepath.Join(tmpDir, "archive")
+
+	logContent := `{"ts":"2026-04-25T14:31:00Z","method":"POST","endpoint":"/containers/create","decision":"allow"}` + "\n"
+	logPath := filepath.Join(tmpDir, "podman-proxy.log")
+	if err := os.WriteFile(logPath, []byte(logContent), 0o600); err != nil {
+		t.Fatalf("write podman-proxy.log: %v", err)
+	}
+
+	p := baseParams(archiveRoot)
+	p.InstanceID = "11112222-3333-4444-5555-666677778888"
+	p.PodmanProxyAuditLogPath = logPath
+
+	archivePath, err := Run(p)
+	if err != nil {
+		t.Fatalf("Run() error: %v", err)
+	}
+
+	got := readFile(t, filepath.Join(archivePath, "podman-proxy.log"))
+	if got != logContent {
+		t.Errorf("podman-proxy.log = %q, want %q", got, logContent)
+	}
+}
+
+// TestRunPodmanProxyAuditLogMissing verifies that a missing
+// PodmanProxyAuditLogPath (a session that never enabled --containers) is
+// silently skipped, with no error and no empty placeholder file created.
+func TestRunPodmanProxyAuditLogMissing(t *testing.T) {
+	tmpDir := t.TempDir()
+	archiveRoot := filepath.Join(tmpDir, "archive")
+
+	p := baseParams(archiveRoot)
+	p.InstanceID = "22223333-4444-5555-6666-777788889999"
+	p.PodmanProxyAuditLogPath = filepath.Join(tmpDir, "nonexistent-podman-proxy.log")
+
+	archivePath, err := Run(p)
+	if err != nil {
+		t.Fatalf("Run() error: %v", err)
+	}
+
+	if _, statErr := os.Stat(filepath.Join(archivePath, "podman-proxy.log")); !os.IsNotExist(statErr) {
+		t.Errorf("podman-proxy.log should not exist when source is missing, but stat returned: %v", statErr)
+	}
+}
+
+// TestRunPodmanProxyAuditLogUnreadable verifies that an existing but
+// unreadable PodmanProxyAuditLogPath does not fail Run and does not block
+// the rest of the archive (manifest still written) — the failure is reported
+// via proglog, not swallowed, but it is not fatal to the archive step.
+func TestRunPodmanProxyAuditLogUnreadable(t *testing.T) {
+	if os.Geteuid() == 0 {
+		t.Skip("running as root: permission bits do not block reads")
+	}
+
+	tmpDir := t.TempDir()
+	archiveRoot := filepath.Join(tmpDir, "archive")
+
+	logPath := filepath.Join(tmpDir, "podman-proxy.log")
+	if err := os.WriteFile(logPath, []byte("unreadable\n"), 0o000); err != nil {
+		t.Fatalf("write podman-proxy.log: %v", err)
+	}
+	t.Cleanup(func() { _ = os.Chmod(logPath, 0o600) })
+
+	p := baseParams(archiveRoot)
+	p.InstanceID = "33334444-5555-6666-7777-888899990000"
+	p.PodmanProxyAuditLogPath = logPath
+
+	archivePath, err := Run(p)
+	if err != nil {
+		t.Fatalf("Run() should not fail when podman-proxy.log is unreadable, got: %v", err)
+	}
+
+	// manifest.json must still have been written — the rest of the archive
+	// completed despite the audit-log copy failure.
+	if _, statErr := os.Stat(filepath.Join(archivePath, "manifest.json")); statErr != nil {
+		t.Errorf("manifest.json should still be written: %v", statErr)
+	}
+
+	// The copy must not have silently "succeeded" with a truncated/empty
+	// file — it should be entirely absent since copyFile fails before
+	// writing any bytes it can't read (or leaves a partial file, either way
+	// this is not a claim we make byte-identical since the read failed).
+	if _, statErr := os.Stat(filepath.Join(archivePath, "podman-proxy.log")); statErr == nil {
+		data, _ := os.ReadFile(filepath.Join(archivePath, "podman-proxy.log"))
+		if len(data) > 0 {
+			t.Errorf("podman-proxy.log should not contain data copied from an unreadable source, got %q", data)
+		}
+	}
+}
