@@ -353,6 +353,23 @@ func TestPodmanEnumerations_StaleCountInDocIsReported(t *testing.T) {
 		"three named-volume channels", "prose says 3")
 }
 
+// TestPodmanEnumerations_ThreatRowCountIsGoverned pins the T24 threat row
+// of the podman-proxy doc. That row states the channel-derived count for
+// the volume-name prefix, one line away from the T25 row the rule already
+// governed, and a hand sweep left it out of the governed set.
+//
+// The anchor fails loudly if a future edit rewords the row out of a
+// governed phrase, which is the failure this test exists to catch.
+func TestPodmanEnumerations_ThreatRowCountIsGoverned(t *testing.T) {
+	root := podmanFixture(t, fixtureEdit{
+		rel: podmanDocRel,
+		old: "on the four named-volume channels of a create body",
+		new: "on the three named-volume channels of a create body",
+	})
+	wantFinding(t, enumerationFindings(root, ""), ruleChannelCount,
+		"three named-volume channels", "prose says 3")
+}
+
 // TestPodmanEnumerations_StaleCountInPackageCommentIsReported covers the
 // same drift inside the Go comments of the podman-proxy package, which is
 // where the stale count of PR #2961 round 4 lived.
