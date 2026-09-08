@@ -83,7 +83,7 @@
 //     session's resources at teardown. VolumeNamePrefix covers five
 //     surfaces: volumes/create, and the four named-volume channels a
 //     containers/create body attaches a volume through. The canonical
-//     list of those four channels — and the config field, policy
+//     list of those four named-volume channels — and the config field, policy
 //     function, and deny reason for each — is the "Per-session
 //     naming" table in docs/podman-proxy.md, section 3. Do not
 //     restate the list here; extend that table instead.

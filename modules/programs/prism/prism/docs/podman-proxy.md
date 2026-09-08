@@ -143,8 +143,10 @@ covers a class of escape that the other layers do not.
 ### Per-session naming
 
 Two config fields carry a per-session name policy, across six
-channels. They all exist so `prism cleanup` can find what the session
-created:
+name-policy channels. They all exist so `prism cleanup` can find what
+the session created:
+
+<!-- doclint-enumeration: name-policy-channels -->
 
 | Channel | Config field | Policy function | Deny reason | Absent name |
 |---|---|---|---|---|
@@ -152,8 +154,18 @@ created:
 | `POST /volumes/create` body `Name` | `VolumeNamePrefix` | `applyVolumeNamePolicy` | `volume_name_prefix_mismatch` | injected |
 | `POST /containers/create` `HostConfig.Binds` named volume | `VolumeNamePrefix` | `checkMountedVolumeNames` | `bind_volume_name_prefix_mismatch` | forwarded |
 | `POST /containers/create` `HostConfig.Mounts` `Type=volume` `Source` | `VolumeNamePrefix` | `checkMountedVolumeNames` | `mount_volume_name_prefix_mismatch` | forwarded |
-| `POST /containers/create` top-level libpod `volumes` array `Name` | `VolumeNamePrefix` | `checkCreateVolumeNames` | `create_volumes_name_prefix_mismatch` | forwarded |
+| `POST /containers/create` top-level libpod `volumes` array `Name` | `VolumeNamePrefix` | `checkLibpodVolumesArray` | `create_volumes_name_prefix_mismatch` | forwarded |
 | `POST /containers/create` top-level docker-compat `volumes` map key, source half | `VolumeNamePrefix` | `checkDockerCompatVolumeKey` | `create_volumes_name_prefix_mismatch` | forwarded |
+
+<!-- doclint-enumeration-end -->
+
+This table is the canonical enumeration of the channel set. The
+`namePolicyChannels` declaration in `internal/podmanproxy/policy.go` is
+the source it is checked against. The doclint rule
+`podman-channel-table` fails the build when a row and a declared
+channel disagree. The rule `podman-channel-count` fails it when a count
+in the prose around this table disagrees with the same declaration.
+`docs/doclint.md` records what the two rules cover.
 
 The sidecar sets both fields to
 `prism-<instance token>-<sanitised session name>-`, from
@@ -221,7 +233,7 @@ from inside the sandbox:
 - `POST /volumes/create` with no `Name`. The proxy injects one and the
   response carries it, prefix included.
 - Send the name you want and read the 403. Every deny message on these
-  six channels states the required prefix verbatim.
+  six name-policy channels states the required prefix verbatim.
 
 The four container-create channels REFUSE ONLY. They do not inject.
 There are two reasons. First, two of the four carry the name inside a
@@ -233,7 +245,8 @@ Second, an injected name redirects the caller's mount to a volume it
 did not name. A 403 states the required prefix instead, and the caller
 retries with a correct name.
 
-An absent name on these four channels is an anonymous volume. The
+An absent name on these four named-volume channels is an anonymous
+volume. The
 runtime names that volume itself. §8.3 records the residual.
 
 The last two rows are the two meanings of one key. On the podman side
@@ -314,6 +327,13 @@ this example) that takes an integer share-weight.
 
    Either pattern is acceptable. Pick whichever matches the shape of
    the policy decision the field needs.
+6. **Field that opens a new naming channel?** A field that carries a
+   container name or a volume name opens a new channel. Add a row to
+   `namePolicyChannels` in `policy.go`, take the audit reason from that
+   row, and add a row to the table in §3. The doclint rule
+   `podman-channel-table` fails the build until the two agree. The rule
+   `podman-channel-count` fails it while a count in the prose states the
+   old number. `docs/doclint.md` records the whole rule family.
 
 The single most important reviewer task on a change to `policy.go` is
 **to read the struct and confirm the rationale comments**. Do not guess
@@ -401,6 +421,11 @@ paired control asserts the same check flags the work-dir location.
 `cmd/cleanup_podman_audit_test.go` asserts `prism cleanup` removes the
 audit directory of the session it cleans. It also asserts cleanup leaves
 another session's log alone.
+
+The channel enumerations carry their own gate.
+`internal/doclint/podman_enumeration_test.go` mutates a copy of this doc
+and of `policy.go`, then asserts the lint reports each mutation. The
+unmutated tree reports nothing, which is the other half of the pair.
 
 ## 7. Troubleshooting — reading the audit log
 
@@ -901,7 +926,8 @@ It uses `Options` and `Label` (singular). Neither name case-matches
 docker's `DriverOpts` or `Labels`, so the libpod local-driver
 bind-volume escape is rejected at decode.
 
-The full podman CLI cannot reach any of the four create-body channels.
+The full podman CLI cannot reach any of the four create-body channels
+the table in §3 lists.
 Its create request carries `command` and `resource_limits`, so it is
 rejected at decode, per the first residual above. That is a statement about the
 CLI's body, not about the endpoint. A hand-written minimal libpod body

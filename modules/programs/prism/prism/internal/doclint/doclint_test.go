@@ -19,6 +19,10 @@ import (
 // walkthrough, a to-be-added constant, etc.), add a doclint-ignore
 // annotation to the doc — see ../../docs/doclint.md for the annotation
 // syntax.
+//
+// An `enumeration` finding is a different fix: the prose and the Go
+// declaration it renders disagree, so change one of the two. The finding
+// names both sites.
 func TestDocsResolve(t *testing.T) {
 	prismRoot, repoRoot, err := LocateRoots()
 	if err != nil {
@@ -32,7 +36,7 @@ func TestDocsResolve(t *testing.T) {
 		return
 	}
 	var b strings.Builder
-	b.WriteString("doclint: unresolved backticked identifiers in docs (fix the doc, rename the identifier, or add a doclint-ignore annotation — see docs/doclint.md):\n")
+	b.WriteString("doclint: findings in docs (fix the doc, rename the identifier, add a doclint-ignore annotation, or reconcile the enumeration with its declaration — see docs/doclint.md):\n")
 	for _, f := range findings {
 		b.WriteString("  ")
 		b.WriteString(f.String())

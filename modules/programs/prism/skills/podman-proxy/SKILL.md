@@ -162,11 +162,12 @@ docker volume create pgdata
 ```
 
 **A volume you name in a container mount obeys the same rule.** A
-`containers/create` body reaches a named volume through four channels
-(see the "Per-session naming" table in `docs/podman-proxy.md` §3 for
-the canonical list of the four, and the deny reason for each). All
-four must start with the session prefix, or the request gets 403.
-These four channels REFUSE only — they never inject — so learn the
+`containers/create` body reaches a named volume through four
+named-volume channels (see the "Per-session naming" table in
+`docs/podman-proxy.md` §3 for the canonical list of the four, and the
+deny reason for each). All four must start with the session prefix, or
+the request gets 403.
+These four named-volume channels REFUSE only — they never inject — so learn the
 prefix first (above) and name the volume correctly in the request:
 
 ```bash
@@ -188,7 +189,7 @@ source is checked against the bind allowlist
 uses. A key with NO colon is a bare destination, names nothing, and
 stays admitted — that is docker's own `{"/data":{}}` shape.
 
-The rule also blocks a cross-session attach on all four channels:
+The rule also blocks a cross-session attach on all four named-volume channels:
 another session's volume name on any of them is refused. It is not a
 general isolation guarantee — `volumes/prune` and `DELETE
 /volumes/{name}` are plain allows, so an agent can still remove any
@@ -351,6 +352,20 @@ workflow that surfaces a needed field sees a 403 with `"unknown field
 Do NOT loosen the policy in a worker PR without an audit — the struct
 is the security spec, and the cycle-6 history demonstrates that quiet
 field admissions are how CRITICALs ship.
+
+### A field that carries a name opens a channel
+
+If the field carries a container name or a volume name, the audit has a
+fourth step: add a row to `namePolicyChannels` in `policy.go`, take the
+audit reason from that row, and add a row to the "Per-session naming"
+table in `docs/podman-proxy.md` §3. The channel set is declared once, in
+that array, and the `podman-channel-table` doclint rule fails the build
+while the table disagrees with it. A stale count in prose (a phrase of
+the shape "the N named-volume channels") fails the
+`podman-channel-count` rule the same way, wherever it lives — this
+skill included. `docs/doclint.md` records
+the rules and the count phrases they recognise. Issue #2974 is the
+background.
 
 ## Platform prerequisites
 
