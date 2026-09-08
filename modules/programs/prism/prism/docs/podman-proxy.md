@@ -625,9 +625,10 @@ failed read of that table degrades to the current incarnation plus the
 legacy rule, with a warning.
 
 That set is not every incarnation that ever existed. `db.Prune` deletes a
-`sessions` row ninety days after the incarnation ended, and the sweep
-then skips that incarnation's resources in silence. §8.3 records the
-residual. Do not read this paragraph as a complete sweep.
+`sessions` row ninety days after the incarnation ended. The sweep then
+skips that incarnation's resources, with a warning naming the resource,
+but the resource itself still leaks. §8.3 records the residual. Do not
+read this paragraph as a complete sweep.
 
 **A restart makes the session's earlier volumes unreachable by name.**
 This is the cost of keying ownership on the incarnation, and it is
@@ -957,8 +958,8 @@ of the two wins depends on podman's own CPU-limit precedence. That
 precedence is unverified. Confirm it before
 `--containers` becomes the default.
 
-**A resource whose owning incarnation row was pruned is skipped in
-silence, and it leaks.** This is the cost of keying ownership on a
+**A resource whose owning incarnation row was pruned is skipped, with a
+warning, and it leaks.** This is the cost of keying ownership on a
 database row that has a retention window.
 
 `db.Prune` runs `DELETE FROM sessions WHERE ended_at IS NOT NULL AND
@@ -972,8 +973,9 @@ named `prism-<pruned token>-<session>-pgdata` therefore carries a token
 the set does not hold. `identityOwnership` resolves it to
 `ownershipOther` and `collectSweepable` skips it. The legacy rule does
 not catch it either, because `identityOwnership` already answered for the
-name. Nothing is logged, so the operator sees a clean cleanup and a
-volume that stays.
+name. `collectSweepable` warns for this shape. The warning names the
+volume and states that its owning incarnation is not in the database,
+but it removes nothing: the volume still stays.
 
 The reachable case is a long-lived session that restarts often and
 reaches hard cleanup rarely. A coordinator on `@main` across months of
@@ -982,11 +984,11 @@ reboots is the clearest one. Before instance-ID naming the plain
 so this leak path is new.
 
 Do NOT close it by falling back to the name when a token is unknown. That
-is the collision this whole section replaced. Two directions are open,
-and [#2972](https://github.com/prismatic-koi/nixos-config/issues/2972)
-carries both: a warning on the silent skip, and the retention question
-underneath it. Until one lands, remove such a volume by hand with
-`podman volume rm`.
+is the collision this whole section replaced. The warning above landed
+in [#2972](https://github.com/prismatic-koi/nixos-config/issues/2972)
+Part 1. Two directions remain open for the retention question
+underneath it (Part 2). Until one lands, remove such a volume by hand
+with `podman volume rm`.
 
 **The sibling guard in §8.2 is cleanup correctness, not a defence.** It
 stops one session's cleanup from destroying a live sibling's PRE-IDENTITY
