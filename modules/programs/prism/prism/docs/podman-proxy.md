@@ -431,10 +431,30 @@ write-granted subpath of the profile ever covers the path.
 Read the log from a host shell. No sandboxed session has read access to
 the `podman-audit` root, on either platform.
 
-The location costs an explicit cleanup step. `RemoveSessionWorkDir` does
-not reach the `podman-audit` root, so `prism cleanup` removes the
-session's audit directory itself. The removal is `removeSessionInstanceDirs` in
-`cmd/cleanup.go`.
+**The log is a retained record. It is not a live-debugging aid only.** A
+live session's log lives at the `podman-audit` path above. `prism
+cleanup` removes that live directory the same way it always has.
+`removeSessionInstanceDirs` in `cmd/cleanup.go` calls
+`RemovePodmanProxyAuditDir` beside `RemoveSessionWorkDir`, because
+`RemoveSessionWorkDir` does not reach the `podman-audit` root.
+
+Before that removal runs, the archive step copies the log into the
+session's archive directory. The step is in `internal/archive`, called
+from `runSessionArchive` in `cmd/cleanup.go`. It writes the copy as
+`podman-proxy.log`, next to `agent-run.log`. The archived copy is what
+survives `prism cleanup` and `prism close`. It follows the same
+retention as the rest of the session archive, under
+`~/.local/share/prism/archive/<repo>/<startedAtISO>_<instanceID>/`.
+
+A session that never ran with `--containers` has no log to archive. The
+archive step skips it and writes no empty placeholder file.
+
+A session that restarted has one audit directory per incarnation on
+disk. Each directory is keyed by instance ID, not session name. The
+archive step captures the final incarnation's log only — the one named
+by the `sessions` row being archived. This is the same scope
+`sess.InstanceID` already has for every other per-incarnation archive
+field.
 
 Each line has the shape:
 

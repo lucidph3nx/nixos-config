@@ -56,8 +56,11 @@ the runtime gate on startup and conditionally:
   (one JSON line per request: timestamp, method, endpoint, decision,
   reason). The log sits outside the session work dir because the Darwin
   sandbox grants the agent write access over that whole subpath, and the
-  agent is the subject of the record. `prism cleanup` removes the audit
-  directory for the session it cleans.
+  agent is the subject of the record. `prism cleanup` removes the live
+  audit directory for the session it cleans, but not before the archive
+  step copies the log into the session's archive directory as
+  `podman-proxy.log`, next to `agent-run.log` — the log is a retained
+  record, not a live-debugging aid only. See `docs/podman-proxy.md` §7.
 
 The `--containers` flag is independent of `--isolation`. Combining
 `--containers --isolation host` produces a warning (host mode has direct
