@@ -319,6 +319,15 @@ func MonitorFunc(opts MonitorOpts) error {
 	// the existing — placeholder.
 	persistReviewOutcome(d, opts.GroupID, opts.WorkerSession, results, allPassed)
 
+	// Persist the round's disagreement content, if any, so a worker that
+	// finishes without running `prism escalate` still surfaces it: the
+	// sidecar's finish-notification path (ConsumePendingDisagreement) reads
+	// this column and appends it to the coordinator notification (#2977).
+	// buildDisagreementSection is the single renderer -- this write stores its
+	// exact output, so the escalate-quoted text and the finish-notification
+	// text can never drift apart.
+	persistPendingDisagreement(d, opts.WorkerSession, allPassed, status)
+
 	// LOOP-LIMIT footer. Append the footer to the prompt body when
 	//   (a) the cycle has not converged (¬allPassed),
 	//   (b) THIS cycle is itself a verdict-producing cycle — i.e. every
@@ -1112,6 +1121,27 @@ func buildNoVerdictSection(status RoundStatus, prNumber string) string {
 	sb.WriteString(buildRerunAdvice(status, prNumber))
 	sb.WriteString("\nThis round does NOT count toward the 3-cycle limit.\n")
 	return sb.String()
+}
+
+// persistPendingDisagreement writes the round's rendered disagreement
+// section to the worker's agent_status row, or clears it, so a finish
+// notification reaching the sidecar long after this call still has
+// something to surface (#2977). Non-marker rounds (no disagreement, or a
+// FAIL alongside the marker) clear any stale value left over from an
+// earlier round on the same worker, so a later plain finish never
+// resurfaces an old, already-superseded disagreement.
+//
+// Failure is non-fatal and only logged: this is a best-effort side channel
+// to a later notification, not the delivery-message path itself, which
+// already carries the disagreement to the worker via buildDeliveryMessage.
+func persistPendingDisagreement(d *db.DB, workerSession string, allPassed bool, status RoundStatus) {
+	text := ""
+	if allPassed && status.HasDisagreement() {
+		text = buildDisagreementSection(status)
+	}
+	if err := d.SetPendingDisagreement(workerSession, text); err != nil {
+		proglog.Warnf("[prism monitor-review] warning: SetPendingDisagreement(%s): %v\n", workerSession, err)
+	}
 }
 
 // buildDisagreementSection renders the coordinator-facing roll-call of every

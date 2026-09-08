@@ -445,6 +445,28 @@ func (s *Sidecar) notifyCoordinatorWithText(notifyText string) {
 		return
 	}
 
+	// Unresolved-disagreement backstop (#2977): if the worker's latest review
+	// round terminated on PASS_WITH_DISAGREEMENT and the worker reaches this
+	// finish notification without having escalated (prism escalate would have
+	// cleared this column and suppressed this notification entirely — the two
+	// paths are mutually exclusive), surface the disagreement here so the
+	// coordinator sees it whether or not the worker complied with the
+	// escalation instruction. Deferred until now — after every early-return
+	// guard above, including "no coordinator found" — so a disagreement is
+	// only consumed when this notification is actually about to be
+	// delivered; consuming it earlier and then hitting a silent skip below
+	// would drop it. ConsumePendingDisagreement reads and clears in one step,
+	// so a later finish for the same session never re-delivers it, and the
+	// content is buildDisagreementSection's verbatim output — this path never
+	// re-renders it.
+	if disagreement, ok, dErr := s.cfg.DB.ConsumePendingDisagreement(s.cfg.SessionName); dErr != nil {
+		s.logger().Printf("sidecar: notifyCoordinator: ConsumePendingDisagreement: %v", dErr)
+	} else if ok {
+		notifyText += "\n\n**This worker finished without escalating an unresolved review disagreement.** " +
+			"The round below was PASS_WITH_DISAGREEMENT-terminated; the worker did not run `prism escalate` before finishing.\n\n" +
+			disagreement
+	}
+
 	coordinatorName := coordStatus.SessionName
 
 	// Capture the coordinator's current instance_id so the message is scoped

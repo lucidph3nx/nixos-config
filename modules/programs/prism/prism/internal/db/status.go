@@ -698,6 +698,87 @@ func (d *DB) IsMuted(sessionName string) (bool, bool, error) {
 	return m != 0, true, nil
 }
 
+// SetPendingDisagreement persists the rendered disagreement section for
+// sessionName so a later finish notification can surface it (#2977). text is
+// expected to be the exact output of review.buildDisagreementSection — this
+// method only stores it, it never renders disagreement content itself, so
+// the finish-notification path and the delivery-message path can never
+// drift into two different renderings of the same round.
+//
+// Passing "" clears the column, mirroring ClearPendingDisagreement. A
+// missing agent_status row is a silent no-op (RowsAffected == 0): the
+// caller is a best-effort side channel to a later notification, not a
+// user-facing command, so there is no "session not found" case to surface.
+func (d *DB) SetPendingDisagreement(sessionName, text string) error {
+	var val interface{}
+	if text != "" {
+		val = text
+	}
+	if _, err := d.conn.Exec(
+		`UPDATE agent_status SET pending_disagreement = ? WHERE session_name = ?`,
+		val, sessionName,
+	); err != nil {
+		return fmt.Errorf("db: set pending disagreement: %w", err)
+	}
+	return nil
+}
+
+// ClearPendingDisagreement clears sessionName's pending disagreement without
+// reading it. Called from `prism escalate` when the worker escalates a
+// marker-terminated round: the coordinator has already received the
+// disagreement verbatim via the escalation message, so a later finish
+// notification (once the escalated state clears) must not re-deliver it.
+func (d *DB) ClearPendingDisagreement(sessionName string) error {
+	if _, err := d.conn.Exec(
+		`UPDATE agent_status SET pending_disagreement = NULL WHERE session_name = ?`,
+		sessionName,
+	); err != nil {
+		return fmt.Errorf("db: clear pending disagreement: %w", err)
+	}
+	return nil
+}
+
+// ConsumePendingDisagreement atomically reads and clears sessionName's
+// pending disagreement. Returns ("", false, nil) when no disagreement is
+// pending (column NULL/empty or no row). Called from the sidecar's finish
+// notification path immediately before use, so a disagreement is delivered
+// at most once: the read and the clearing UPDATE run inside one
+// transaction, so a concurrent reader cannot observe the same pending text
+// twice.
+func (d *DB) ConsumePendingDisagreement(sessionName string) (string, bool, error) {
+	tx, err := d.conn.Begin()
+	if err != nil {
+		return "", false, fmt.Errorf("db: consume pending disagreement: begin: %w", err)
+	}
+	defer tx.Rollback() //nolint:errcheck // no-op after a successful Commit
+
+	var text sql.NullString
+	err = tx.QueryRow(
+		`SELECT pending_disagreement FROM agent_status WHERE session_name = ?`,
+		sessionName,
+	).Scan(&text)
+	if errors.Is(err, sql.ErrNoRows) {
+		return "", false, nil
+	}
+	if err != nil {
+		return "", false, fmt.Errorf("db: consume pending disagreement: select: %w", err)
+	}
+	if !text.Valid || text.String == "" {
+		return "", false, nil
+	}
+
+	if _, err := tx.Exec(
+		`UPDATE agent_status SET pending_disagreement = NULL WHERE session_name = ?`,
+		sessionName,
+	); err != nil {
+		return "", false, fmt.Errorf("db: consume pending disagreement: clear: %w", err)
+	}
+	if err := tx.Commit(); err != nil {
+		return "", false, fmt.Errorf("db: consume pending disagreement: commit: %w", err)
+	}
+	return text.String, true, nil
+}
+
 // ClearEnded clears the ended_at timestamp for sessionName, making the session
 // visible again to AllActiveStatus and the dashboard (which both filter
 // WHERE ended_at IS NULL). Called when a session resumes from a terminal state

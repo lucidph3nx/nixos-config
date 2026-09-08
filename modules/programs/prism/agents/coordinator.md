@@ -228,6 +228,27 @@ Key behavioural rules:
 - **An escalation does not imply task completion.** Treat it as a request for
   a directive; the worker resumes once you respond.
 
+### Unresolved review disagreements in a plain finish notification
+
+`PASS_WITH_DISAGREEMENT` (see `review-goal.md`) is a terminating pass: the
+round does not re-run, and the worker's instructions tell it to run
+`prism escalate` rather than push more code. Escalation is still the primary
+route, and it pauses the worker for your reply — prefer it whenever it
+happens.
+
+But a worker can reach a plain "has finished" notification without having
+escalated. When that happens on a round that carried the marker, the finish
+notification itself carries an **"unresolved review disagreement"** section
+naming the agent that raised it and quoting its `<disagreement>` block
+verbatim — the same content the worker would have quoted had it escalated.
+Treat that section exactly as you would an escalation: do not sense-check
+the PR as a clean pass and merge it without reading the disagreement first.
+The worker did not obey the escalation instruction, but the concern is still
+unresolved and still yours to decide. This section only ever appears once per
+disagreement — a worker that does escalate does not also get this section on
+a later finish, and a worker that already surfaced it once via a plain finish
+does not get it again.
+
 ---
 
 ## Review gate

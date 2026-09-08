@@ -314,6 +314,16 @@ func runEscalateForSessionOpts(database *db.DB, fromSession, explicitTo, promptT
 		return fmt.Errorf("prism escalate: transition to escalated: %w", err)
 	}
 
+	// Clear any pending disagreement recorded for this session (#2977). The
+	// worker escalates BECAUSE it read a marker-terminated round's delivery
+	// message, so the coordinator is about to receive the disagreement
+	// verbatim in this escalation's prompt text. Once the escalated state
+	// later clears back to active, a subsequent ordinary finish notification
+	// must not re-deliver a disagreement the coordinator already has.
+	if err := database.ClearPendingDisagreement(fromSession); err != nil {
+		fmt.Fprintf(os.Stderr, "prism escalate: warning: clear pending disagreement: %v\n", err)
+	}
+
 	// Echo the escalation context into the calling session's own log so
 	// reviewers and humans see it inline via `prism checkin <self>`.
 	echoEscalationToSelf(database, fromSession, selfStatus, payload)
