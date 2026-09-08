@@ -31,12 +31,15 @@ package cmd
 // The rest are positive controls and back-compat pins.
 
 import (
+	"io"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/prismatic-koi/prism/internal/container"
 	"github.com/prismatic-koi/prism/internal/db"
+	"github.com/prismatic-koi/prism/internal/proglog"
 )
 
 // Two canonical UUIDs standing in for two session incarnations, and a
@@ -442,7 +445,7 @@ func TestResourceOwner_OwnershipVerdicts(t *testing.T) {
 		{prefixFor("foo", swIIDA) + "bar-data", ownershipMine, "own identity, nested-looking suffix"},
 		{prefixFor("foo", swIIDA), ownershipMine, "the bare prefix, which the create policy admits"},
 		{prefixFor("foo-bar", swIIDB) + "data", ownershipOther, "live sibling's identity"},
-		{prefixFor("foo", swIIDB) + "data", ownershipOther, "same session name, another incarnation"},
+		{prefixFor("foo", swIIDB) + "data", ownershipOtherPrunedIncarnation, "same session name, another incarnation not in our token set — the pruned-incarnation shape (issue #2972)"},
 		{legacyPrefix + "pgdata", ownershipMine, "pre-identity name under our legacy prefix"},
 		{legacyPrefix + "bar-data", ownershipLegacySiblingClaim, "pre-identity name a live sibling also claims"},
 		{"user-" + legacyPrefix + "pgdata", ownershipUnclaimed, "substring trap"},
@@ -454,5 +457,141 @@ func TestResourceOwner_OwnershipVerdicts(t *testing.T) {
 				t.Errorf("volumeOwnership(%q) = %d, want %d — %s", tc.name, got, tc.wantVolume, tc.why)
 			}
 		})
+	}
+}
+
+// ── Pruned-incarnation skip warning (issue #2972, Part 1) ─────────────────
+//
+// A resource created by an incarnation whose `sessions` row has since been
+// pruned (db.Prune, 90-day window) carries a token this session's owner
+// does not hold, even though the name's decorative half reads as this
+// session's own name. collectSweepable must warn on that specific shape,
+// and on no other, and the warning must never change the removal decision.
+
+// captureStderrDuringFn redirects os.Stderr for the duration of fn and
+// returns whatever was written, draining concurrently per the same
+// kernel-pipe-buffer defence as captureStdoutDuringFn in
+// cleanup_lifecycle_test.go. It also pins proglog's effective level to warn
+// for the duration, since collectSweepable's diagnostics go through
+// proglog.Warnf, which the package's default level (error) would otherwise
+// suppress.
+func captureStderrDuringFn(t *testing.T, fn func()) string {
+	t.Helper()
+	restore := proglog.SetLevelForTest(proglog.LevelWarn)
+	defer restore()
+
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("os.Pipe: %v", err)
+	}
+	orig := os.Stderr
+	os.Stderr = w
+
+	done := make(chan []byte, 1)
+	go func() {
+		buf, _ := io.ReadAll(r)
+		done <- buf
+	}()
+
+	defer func() {
+		os.Stderr = orig
+	}()
+	fn()
+	_ = w.Close()
+	return string(<-done)
+}
+
+// TestVolumeSweep_PrunedIncarnationSkipIsWarned pins the positive case:
+// the owning session ("foo") is cleaning up, another incarnation of the
+// very same session name created a volume, and that incarnation's token
+// is NOT in the owner's set — the shape a pruned `sessions` row produces.
+// The volume must still be skipped (never removed under a stale identity
+// guess), but the operator must be told: named, and told the owning
+// incarnation is not in the database.
+func TestVolumeSweep_PrunedIncarnationSkipIsWarned(t *testing.T) {
+	r := installFakeRunner(t)
+	mine := prefixFor("foo", swIIDA) + "pgdata"
+	pruned := prefixFor("foo", swIIDC) + "pgdata"
+	r.script(
+		scriptedResponse{stdout: lines(mine, pruned)},
+		scriptedResponse{stdout: []byte("")},
+	)
+
+	owner := ownerFor("foo", swIIDA)
+	var got int
+	stderr := captureStderrDuringFn(t, func() {
+		got = sweepVolumesWithRunner(r, owner)
+	})
+
+	if got != 1 {
+		t.Fatalf("count: got %d, want 1 (the pruned incarnation's volume must not be removed)", got)
+	}
+	rm := rmArgsFrom(t, r.calls(), 2)
+	if len(rm) != 1 || rm[0] != mine {
+		t.Fatalf("rm args: got %v, want [%s] — the warning must not change the removal decision", rm, mine)
+	}
+	if !strings.Contains(stderr, pruned) {
+		t.Errorf("warning does not name the skipped resource %q; got %q", pruned, stderr)
+	}
+	if !strings.Contains(stderr, "not in the database") {
+		t.Errorf("warning does not state the owning incarnation is missing from the database; got %q", stderr)
+	}
+}
+
+// TestVolumeSweep_NoPrunedIncarnation_NoWarning is the negative control:
+// a sweep that skips no pruned-incarnation-shaped resource must emit no
+// warning at all. Ordinary ownershipOther (a live sibling's identity) and
+// ownershipUnclaimed names must not trip this path.
+func TestVolumeSweep_NoPrunedIncarnation_NoWarning(t *testing.T) {
+	r := installFakeRunner(t)
+	mine := prefixFor("foo", swIIDA) + "pgdata"
+	siblings := prefixFor("bar", swIIDB) + "data"
+	r.script(
+		scriptedResponse{stdout: lines(mine, siblings)},
+		scriptedResponse{stdout: []byte("")},
+	)
+
+	owner := ownerFor("foo", swIIDA)
+	var got int
+	stderr := captureStderrDuringFn(t, func() {
+		got = sweepVolumesWithRunner(r, owner)
+	})
+
+	if got != 1 {
+		t.Fatalf("count: got %d, want 1", got)
+	}
+	if stderr != "" {
+		t.Errorf("expected no warning when no resource skips as a pruned incarnation; got %q", stderr)
+	}
+}
+
+// TestResourceOwner_DifferentSessionSameShape_NoWarningVerdict pins the
+// last edge case directly against the ownership decision: a live
+// DIFFERENT session's identity-scoped name must resolve to plain
+// ownershipOther, never ownershipOtherPrunedIncarnation, even when it
+// happens to sit right next to this session's own resources in a listing.
+// Only a decorative half that equals THIS session's sanitised name trips
+// the pruned-incarnation verdict.
+func TestResourceOwner_DifferentSessionSameShape_NoWarningVerdict(t *testing.T) {
+	owner := ownerFor("foo", swIIDA)
+	foreign := prefixFor("bar", swIIDB) + "data"
+	if got := owner.volumeOwnership(foreign); got != ownershipOther {
+		t.Fatalf("volumeOwnership(%q) = %d, want ownershipOther (%d) — a different session's identity is the ordinary not-mine case", foreign, got, ownershipOther)
+	}
+}
+
+// TestResourceOwner_NestedSiblingIdentityNotMisattributed is the nesting
+// variant of the same edge case: a live NESTED sibling ("foo-bar") whose
+// suffix happens to make its full name start with this session's
+// ("foo") decorative half plus a dash must still resolve to plain
+// ownershipOther, not the pruned-incarnation verdict — decoratesAsSelf
+// stands down whenever legacySiblingPrefixes already flags the candidate
+// as indistinguishable from a live sibling.
+func TestResourceOwner_NestedSiblingIdentityNotMisattributed(t *testing.T) {
+	owner := newResourceOwner("foo", []string{swIIDA},
+		[]string{container.ResourceNamePrefixForSession("foo-bar")})
+	foreign := prefixFor("foo-bar", swIIDB) + "data"
+	if got := owner.volumeOwnership(foreign); got != ownershipOther {
+		t.Fatalf("volumeOwnership(%q) = %d, want ownershipOther (%d) — a live nested sibling's identity must not be misread as this session's pruned incarnation", foreign, got, ownershipOther)
 	}
 }

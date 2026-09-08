@@ -254,6 +254,23 @@ const (
 	// the teardown output.
 	ownershipOther
 
+	// ownershipOtherPrunedIncarnation — the name carries an instance
+	// token that is not this session's, AND its decorative half equals
+	// this session's sanitised name. That combination is the shape a
+	// PRUNED incarnation of THIS SAME session produces: the resource was
+	// created by an earlier incarnation whose `sessions` row aged out of
+	// the 90-day retention window (db.Prune), so its token no longer
+	// appears in this session's token set even though the name reads as
+	// this session's. See resourceOwnerForSession and issue #2972.
+	//
+	// Leave it, exactly as ownershipOther would — the decision to skip
+	// does not change, only the visibility of the skip does. Warn,
+	// because unlike the ordinary ownershipOther case (another live
+	// session, expected and silent) this shape means the resource is
+	// now UNREACHABLE to every future sweep: no session can ever own
+	// that token again.
+	ownershipOtherPrunedIncarnation
+
 	// ownershipUnclaimed — the name carries no identity and does not
 	// match this session's legacy rule. Leave it.
 	ownershipUnclaimed
@@ -287,6 +304,16 @@ type resourceOwner struct {
 	// no instance token.
 	legacyPrefix string
 
+	// decorativeName is the sanitised session name alone, with neither
+	// the `prism-` root nor the trailing `-` that legacyPrefix carries.
+	// It is the DECORATIVE half of an identity-scoped name
+	// (`prism-<token>-<decorativeName>-<suffix>`) — see
+	// resource_identity.go for why that half carries no ownership
+	// meaning on its own. It exists here only to detect the pruned-
+	// incarnation shape in identityOwnership: a name whose token is not
+	// ours but whose decorative half IS ours.
+	decorativeName string
+
 	// legacyContainerShape is the strict auto-name shape the proxy used
 	// to inject, `^<legacyPrefix>[a-f0-9]{8}$`. Compiled once here
 	// rather than per name.
@@ -307,9 +334,11 @@ type resourceOwner struct {
 // half of the decision already covers.
 func newResourceOwner(sessionName string, instanceIDs, legacySiblings []string) resourceOwner {
 	legacyPrefix := container.ResourceNamePrefixForSession(sessionName)
+	decorativeName := strings.TrimSuffix(strings.TrimPrefix(legacyPrefix, container.ResourceNamePrefixRoot), "-")
 	o := resourceOwner{
-		sessionName:  sessionName,
-		legacyPrefix: legacyPrefix,
+		sessionName:    sessionName,
+		legacyPrefix:   legacyPrefix,
+		decorativeName: decorativeName,
 		// QuoteMeta because a future relaxation of the session-name
 		// character set must not become a regex injection. Today's set
 		// carries no metacharacter that survives sanitisation.
@@ -409,7 +438,52 @@ func (o resourceOwner) identityOwnership(name string) (ownership, bool) {
 	if o.ownsToken(token) {
 		return ownershipMine, true
 	}
+	if o.decoratesAsSelf(name, token) {
+		return ownershipOtherPrunedIncarnation, true
+	}
 	return ownershipOther, true
+}
+
+// decoratesAsSelf reports whether name's decorative half — the segment
+// between the instance token and the free-form suffix — equals this
+// session's own sanitised name. token must already be the value
+// identityOwnership parsed out of name via container.ResourceOwnerToken.
+//
+// The decorative half is free-form after the sanitised name (the volume
+// policy admits any user-chosen suffix), so this cannot be a fixed-width
+// segment parse the way the token is. It is instead an exact-or-prefix
+// test against the ONE string this session would have written there:
+// either the decorative half IS the sanitised name with nothing after it
+// (the bare prefix is a valid volume name), or it continues with the
+// `-` that separates it from a suffix.
+//
+// This shares the NESTING ambiguity that legacySiblingPrefixes guards
+// against for the legacy rule: a free-form suffix that itself starts
+// with a session-name-shaped fragment ("bar-data" appended after decor
+// "foo") reads identically to a longer decorative half ("foo-bar" with
+// suffix "data"). Unlike the legacy rule, this function cannot just err
+// toward "leave it" on ambiguity — the resource is already left, since
+// identityOwnership has resolved to ownershipOther by the time this runs.
+// What it must not do is MISATTRIBUTE the skip to this session when a
+// live sibling's identity is the more likely explanation. So it reuses
+// legacySiblingPrefixes — the same DB-backed set that already answers
+// "which other live session's name is this one indistinguishable from" —
+// and stands down whenever the candidate falls inside a sibling's prefix.
+func (o resourceOwner) decoratesAsSelf(name, token string) bool {
+	rest, ok := strings.CutPrefix(name, container.ResourceNamePrefixRoot+token+"-")
+	if !ok {
+		return false
+	}
+	if !(rest == o.decorativeName || strings.HasPrefix(rest, o.decorativeName+"-")) {
+		return false
+	}
+	candidate := container.ResourceNamePrefixRoot + rest
+	for _, sibPrefix := range o.legacySiblingPrefixes {
+		if strings.HasPrefix(candidate, sibPrefix) {
+			return false
+		}
+	}
+	return true
 }
 
 // legacyOwnership answers for a name that carries no instance token,
@@ -473,6 +547,13 @@ func collectSweepable(out []byte, class, sessionName string, decide func(string)
 			names = append(names, name)
 		case ownershipLegacySiblingClaim:
 			proglog.Warnf("[prism] warning: cleanup: %s sweep for %q: leaving %q — it predates instance-ID naming and a live sibling session claims the same name prefix\n", class, sessionName, name)
+		case ownershipOtherPrunedIncarnation:
+			// Same disposition as ownershipOther — this is still a skip,
+			// never a removal — but this shape means the owning
+			// incarnation's `sessions` row is gone (pruned), so the
+			// resource can never be reached by identity again. Warn so
+			// the operator can find it; see issue #2972.
+			proglog.Warnf("[prism] warning: cleanup: %s sweep for %q: skipping %q — it looks like an earlier incarnation of this session, but that incarnation is not in the database (likely pruned) and its resources can no longer be reached by identity\n", class, sessionName, name)
 		case ownershipOther, ownershipUnclaimed:
 			// Not ours. Nothing to say.
 		}
