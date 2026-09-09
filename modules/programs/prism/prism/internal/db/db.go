@@ -31,7 +31,7 @@ const (
 	// It must be bumped whenever a new migrateVNtoVN+1 function is added.
 	// A meta-test in db_test.go asserts that this constant equals the count of
 	// migration functions, so forgetting to bump it will fail CI.
-	currentSchemaVersion = 43
+	currentSchemaVersion = 45
 )
 
 // DB wraps a SQLite connection.
@@ -59,6 +59,11 @@ type DB struct {
 	// across goroutines and a test may install its own.
 	profileResolverMu sync.RWMutex
 	profileResolver   *ProfileResolver
+
+	// sessionProfiles caches each session's spawn-time profile, keyed by
+	// instance_id, so the event-write path issues no per-event query for it —
+	// see profile_name.go. The zero value is usable; it carries its own mutex.
+	sessionProfiles sessionProfileCache
 }
 
 // Path returns the filesystem path of the database file.
@@ -86,12 +91,13 @@ CREATE TABLE IF NOT EXISTS agent_events (
   -- ("unknown" when the account store cannot be resolved). Records the NAME
   -- only — never any accounts/*.json token content.
   account_name       TEXT,
-  -- Active prism profile at the moment this row was written, recorded by
-  -- WriteEvent from the mtime-cached resolver. NULLABLE for
+  -- Profile the session that wrote this row was running at, recorded by
+  -- WriteEvent: the session's own spawn_inputs.profile_name, or the
+  -- machine-active profile when the session was never spawned. NULLABLE for
   -- back-compat with pre-migration rows; new rows always carry a value
   -- ("unknown" when no profile can be resolved). This is the tier the cost
-  -- counter attributes spend along. It exists BECAUSE a coordinator session
-  -- has no spawn_inputs row to join to — see profile_name.go and
+  -- counter attributes spend along. The column exists BECAUSE a coordinator
+  -- session has no spawn_inputs row to join to — see profile_name.go and
   -- exporter/sql.go CostEventsTailSQL.
   profile_name       TEXT
 );
@@ -190,7 +196,13 @@ CREATE TABLE IF NOT EXISTS agent_status (
   -- 0 = proxy not started (default); 1 = proxy is started and the agent
   -- CONTAINER_HOST / DOCKER_HOST env vars point at the filtered socket.
   -- Flipped by prism spawn --containers.
-  containers_enabled INTEGER NOT NULL DEFAULT 0
+  containers_enabled INTEGER NOT NULL DEFAULT 0,
+  -- pending_disagreement holds the verbatim rendered output of
+  -- review.buildDisagreementSection for a worker whose latest review round
+  -- terminated on the PASS_WITH_DISAGREEMENT marker (#2977). NULL means no
+  -- disagreement is pending -- either the round carried none, or it was
+  -- already consumed by a finish notification or cleared by prism escalate.
+  pending_disagreement TEXT
 );
 
 CREATE TABLE IF NOT EXISTS bus_messages (
@@ -268,7 +280,13 @@ CREATE TABLE IF NOT EXISTS spawn_outcome (
     time_to_finished_ms      INTEGER,
     -- Audit
     computed_at            INTEGER NOT NULL,
-    schema_version         INTEGER NOT NULL DEFAULT 1
+    schema_version         INTEGER NOT NULL DEFAULT 1,
+    -- Set by WriteSpawnOutcome when it fills the event-derived aggregate
+    -- block. NULL means only a partial writer (pr_number, pr_merged_at,
+    -- review result) has touched the row, so its aggregate columns are
+    -- defaults, not measurements. Read paths key recompute-or-persisted off
+    -- this column rather than inferring it from the aggregate values.
+    aggregated_at          INTEGER
 );
 CREATE INDEX IF NOT EXISTS idx_spawn_outcome_end_state    ON spawn_outcome(end_state);
 CREATE INDEX IF NOT EXISTS idx_spawn_outcome_pr_number    ON spawn_outcome(pr_number);
@@ -1030,6 +1048,12 @@ func runMigrations(conn sqlExecutor) error {
 	if err := migrateV42ToV43(conn, &version); err != nil {
 		return err
 	}
+	if err := migrateV43ToV44(conn, &version); err != nil {
+		return err
+	}
+	if err := migrateV44ToV45(conn, &version); err != nil {
+		return err
+	}
 	if version > currentSchemaVersion {
 		return fmt.Errorf(
 			"db schema version %d is newer than this prism binary (max %d); "+
@@ -1476,9 +1500,10 @@ func migrateV40ToV41(conn sqlExecutor, version *int) error {
 // no spawn_inputs row to join to. Without this column, CostEventsTailSQL
 // LEFT JOINs spawn_inputs for the profile; that join misses for every
 // coordinator and folds all of their spend to "default". It is written by
-// WriteEvent / WriteEventReturningRowID
-// from the mtime-cached resolver in profile_name.go. See that file for why
-// capture happens at write time rather than at scrape time.
+// WriteEvent / WriteEventReturningRowID from the two-source resolver in
+// profile_name.go: the session's own spawn tier, then the machine-active
+// profile. See that file for why capture happens at write time rather than at
+// scrape time.
 //
 // No backfill — the same policy as migrateV40ToV41's account_name, and the
 // same answer used for the repo label. These are tail-cursor
@@ -1557,6 +1582,74 @@ func migrateV42ToV43(conn sqlExecutor, version *int) error {
 	return nil
 }
 
+// migrateV43ToV44 adds a nullable aggregated_at column to spawn_outcome and
+// backfills it for every pre-existing row that carries the event-derived
+// aggregate block.
+//
+// The column separates a row that WriteSpawnOutcome has filled from a row that
+// only a partial writer (UpdateSpawnOutcomePR, UpdateSpawnOutcomePRMergedAt,
+// UpdateSpawnOutcomeReviewResult) has created. Those writers insert a stub
+// row before cleanup, and every aggregate column on that stub is a default
+// (0 or NULL), not a measurement. The read paths (CompareRunOutcome,
+// --group-by, --abtest) key recompute-or-persisted off aggregated_at rather
+// than inferring it from the aggregate values.
+//
+// The backfill is the reason this migration exists rather than the no-backfill
+// column that PR #2934 proposed. agent_events is pruned at 90 days
+// (internal/db/maintenance.go) while spawn_outcome is not. A pre-migration row
+// whose events have passed the prune is the only surviving record of what the
+// run cost; treating it as un-aggregated would recompute it from an empty
+// event set and return zeros, discarding the real historical totals. The
+// backfill sets aggregated_at for exactly the rows HasComputedAggregates()
+// reports true for — the SQL predicate below mirrors that Go predicate
+// column-for-column — and leaves every stub row NULL. computed_at is the
+// backfill stamp: it is the time the aggregates were computed.
+//
+// The ALTER TABLE is guarded by a pragma_table_info check so the migration is
+// idempotent: on a fresh database the declarative schema block above already
+// created the column, and a second run matches the guard and does nothing. The
+// column is nullable, so the ALTER TABLE adds it with an implicit NULL default
+// and does not rewrite existing rows or lose data on a populated database. The
+// backfill UPDATE is itself idempotent (WHERE aggregated_at IS NULL).
+func migrateV43ToV44(conn sqlExecutor, version *int) error {
+	if *version >= 44 {
+		return nil
+	}
+	var exists int
+	if err := conn.QueryRow(
+		`SELECT COUNT(*) FROM pragma_table_info('spawn_outcome') WHERE name = 'aggregated_at'`,
+	).Scan(&exists); err != nil {
+		return fmt.Errorf("db: migration v43\u2192v44: check spawn_outcome.aggregated_at column: %w", err)
+	}
+	if exists == 0 {
+		if _, err := conn.Exec(`ALTER TABLE spawn_outcome ADD COLUMN aggregated_at INTEGER`); err != nil {
+			return fmt.Errorf("db: migration v43\u2192v44: add spawn_outcome.aggregated_at: %w", err)
+		}
+	}
+	// Backfill: mark every row that HasComputedAggregates() reports true for.
+	// This predicate mirrors SpawnOutcome.HasComputedAggregates in types.go —
+	// keep the two in sync. exit_code is deliberately excluded (a partial
+	// writer never sets it, and it is not part of the aggregate block).
+	if _, err := conn.Exec(`
+UPDATE spawn_outcome SET aggregated_at = computed_at
+ WHERE aggregated_at IS NULL AND (
+     msg_assistant_count > 0 OR tool_call_count > 0 OR tool_error_count > 0 OR
+     interrupted_count > 0 OR compaction_count > 0 OR error_event_count > 0 OR
+     permission_ask_count > 0 OR permission_denied_count > 0 OR doom_loop_count > 0 OR
+     tokens_input_total > 0 OR tokens_output_total > 0 OR
+     tokens_cache_read_total > 0 OR tokens_cache_write_total > 0 OR
+     cost_usd_total > 0 OR
+     duration_ms IS NOT NULL OR time_to_first_event_ms IS NOT NULL OR time_to_finished_ms IS NOT NULL
+ )`); err != nil {
+		return fmt.Errorf("db: migration v43\u2192v44: backfill spawn_outcome.aggregated_at: %w", err)
+	}
+	if _, err := conn.Exec(`UPDATE schema_version SET version = 44`); err != nil {
+		return fmt.Errorf("db: migration v43\u2192v44: bump version: %w", err)
+	}
+	*version = 44
+	return nil
+}
+
 func migrateV35ToV36(conn sqlExecutor, version *int) error {
 	if *version >= 36 {
 		return nil
@@ -1616,6 +1709,39 @@ func migrateV34ToV35(conn sqlExecutor, version *int) error {
 		return fmt.Errorf("db: migration v34\u2192v35: %w", err)
 	}
 	*version = 35
+	return nil
+}
+
+// migrateV44ToV45 adds the `pending_disagreement` column to agent_status.
+// It holds the verbatim rendered output of review.buildDisagreementSection
+// for a worker whose latest review round terminated on the
+// PASS_WITH_DISAGREEMENT marker (#2977). NULL means no disagreement is
+// pending — either the round carried none, or it was already consumed by a
+// finish notification or cleared by `prism escalate`. The ALTER TABLE is
+// guarded by a pragma_table_info check so the migration is idempotent on
+// fresh databases where the declarative schema block above already includes
+// the column.
+func migrateV44ToV45(conn sqlExecutor, version *int) error {
+	if *version >= 45 {
+		return nil
+	}
+	var exists int
+	if err := conn.QueryRow(
+		`SELECT COUNT(*) FROM pragma_table_info('agent_status') WHERE name = 'pending_disagreement'`,
+	).Scan(&exists); err != nil {
+		return fmt.Errorf("db: migration v44\u2192v45: check pending_disagreement column: %w", err)
+	}
+	if exists == 0 {
+		if _, err := conn.Exec(
+			`ALTER TABLE agent_status ADD COLUMN pending_disagreement TEXT`,
+		); err != nil {
+			return fmt.Errorf("db: migration v44\u2192v45: add pending_disagreement: %w", err)
+		}
+	}
+	if _, err := conn.Exec(`UPDATE schema_version SET version = 45`); err != nil {
+		return fmt.Errorf("db: migration v44\u2192v45: %w", err)
+	}
+	*version = 45
 	return nil
 }
 

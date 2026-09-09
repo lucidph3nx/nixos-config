@@ -322,11 +322,14 @@ func (m cleanupModel) doCleanup() tea.Cmd {
 			if isolationModeFromDB(d, m.session) != "host" {
 				removeContainerIfExists(m.session)
 			}
-			// Orphan-container sweep. The interactive TUI path does not
+			// Orphan-resource sweep. The interactive TUI path does not
 			// surface a JSON envelope — the count goes into the warning log
 			// only. Passing result=nil keeps the helper safe even though
 			// there is nothing to record.
-			applyOrphanContainerSweep(m.session, nil)
+			//
+			// HARD cleanup: this path removes the worktree and deletes the
+			// branch, so the session's volumes go with them.
+			applySessionResourceSweep(m.session, nil, sweepContainersAndVolumes)
 			if releaseErr := d.ReleasePort(m.session); releaseErr != nil {
 				proglog.Errorf("[prism] doCleanup: release port: %v\n", releaseErr)
 			}
@@ -359,10 +362,7 @@ func (m cleanupModel) doCleanup() tea.Cmd {
 			}
 			// Other archive errors are non-fatal — cleanup continues.
 			if instanceIDForSessions != "" {
-				// Remove the per-session work dir for this session instance.
-				// Also covers staging-HOME remnants that legacy sessions left
-				// nested at <sessionDir>/home/.
-				container.RemoveSessionWorkDir(instanceIDForSessions)
+				removeSessionInstanceDirs(instanceIDForSessions)
 			}
 			_ = d.PurgeBusMessages(m.session)
 			d.Close()
@@ -627,6 +627,15 @@ type cleanupResult struct {
 	// containers_swept key. *int (not int + omitempty) is used so a
 	// run that produces zero matches still emits "containers_swept": 0.
 	ContainersSwept *int `json:"containers_swept,omitempty"`
+	// VolumesSwept reports the number of volumes (matching the
+	// prism-<session>- name prefix) removed by the sweep. It follows
+	// ContainersSwept's nil-means-omitted convention, but NOT its
+	// condition: the volume sweep runs on the hard-cleanup paths only.
+	// A soft close preserves the worktree, the branch, and the
+	// transcript, so it must not destroy the session's data volumes
+	// either. On a soft close this field stays nil while
+	// ContainersSwept is set. See sweepScope in cleanup_sweep.go.
+	VolumesSwept *int `json:"volumes_swept,omitempty"`
 }
 
 // applyDBLifecycleClears performs the agent_status lifecycle updates for
@@ -875,15 +884,18 @@ func headlessCleanupWithJSONTo(session, worktreeName, worktreePath, bareRoot str
 		if isolationModeFromDB(d, session) != "host" {
 			removeContainerIfExists(session)
 		}
-		// Orphan-container sweep. Gated on the session's
+		// Orphan-resource sweep. Gated on the session's
 		// agent_status.containers_enabled column inside
-		// sweepOrphanContainersForSession. When the flag is 0 this
+		// sweepSessionResourcesForSession. When the flag is 0 this
 		// is a fast DB read and no podman commands are issued. Runs
 		// after removeContainerIfExists so the session's own
 		// runtime container has already been torn down — the sweep
 		// only deals with DERIVATIVE containers the agent created
 		// via the proxy.
-		applyOrphanContainerSweep(session, &result)
+		//
+		// HARD cleanup: this path removes the worktree and deletes
+		// the branch, so the session's volumes go with them.
+		applySessionResourceSweep(session, &result, sweepContainersAndVolumes)
 		// Capture instance_id and isolation_mode before SetEnded clears the
 		// row's lifecycle fields. Done before applyDBLifecycleClears so the
 		// CurrentStatus reads inside instanceIDFromStatus still observe the
@@ -923,11 +935,7 @@ func headlessCleanupWithJSONTo(session, worktreeName, worktreePath, bareRoot str
 		}
 		// Other archive errors are non-fatal — cleanup continues.
 		if instanceIDForSessions != "" {
-			// Remove the per-session work dir for this session instance.
-			// Also covers staging-HOME remnants that legacy sessions left.
-			// Non-fatal and idempotent — silently skips when the directory
-			// does not exist (e.g. non-sandbox-exec sessions).
-			container.RemoveSessionWorkDir(instanceIDForSessions)
+			removeSessionInstanceDirs(instanceIDForSessions)
 		}
 		_ = d.PurgeBusMessages(session)
 		d.Close()
@@ -956,22 +964,35 @@ func headlessCleanupWithJSONTo(session, worktreeName, worktreePath, bareRoot str
 	return nil
 }
 
-// applyOrphanContainerSweep runs the orphan-container sweep for
-// session and, when the sweep actually ran (containers_enabled=1),
-// records the count on result.ContainersSwept so it surfaces in the
-// --json envelope. When containers_enabled=0 the field stays nil and
-// the JSON encoder omits it entirely (json:"containers_swept,omitempty").
+// applySessionResourceSweep runs the orphan-resource sweep for session
+// and, when the sweep actually ran (containers_enabled=1), records the
+// counts on result so they surface in the --json envelope. When
+// containers_enabled=0 the fields stay nil and the JSON encoder omits
+// them entirely.
+//
+// scope MUST match the caller's teardown contract. Pass
+// sweepContainersAndVolumes from a hard-cleanup path, and
+// sweepContainersOnly from a soft close — a soft close keeps the
+// worktree and the branch, so it must keep the data volumes too. Under
+// sweepContainersOnly, VolumesSwept stays nil and the envelope omits
+// the key, so "this path did not consider volumes" and "this path found
+// no volumes" stay distinguishable.
 //
 // Errors inside the sweep are non-fatal and logged at warning level by
 // the sweep itself. The helper has no error path of its own.
-func applyOrphanContainerSweep(session string, result *cleanupResult) {
-	count, ran := sweepOrphanContainersForSession(session)
+func applySessionResourceSweep(session string, result *cleanupResult, scope sweepScope) {
+	counts, ran := sweepSessionResourcesForSession(session, scope)
 	if !ran {
 		return
 	}
-	if result != nil {
-		c := count
-		result.ContainersSwept = &c
+	if result == nil {
+		return
+	}
+	containers := counts.containers
+	result.ContainersSwept = &containers
+	if scope.sweepsVolumes() {
+		volumes := counts.volumes
+		result.VolumesSwept = &volumes
 	}
 }
 
@@ -1003,10 +1024,15 @@ func closeSession(session string) error {
 		if isolationModeFromDB(d, session) != "host" {
 			removeContainerIfExists(session)
 		}
-		// Orphan-container sweep. closeSession is the interactive @main /
+		// Orphan-resource sweep. closeSession is the interactive @main /
 		// non-worktree path and does not surface a JSON envelope — the helper
 		// records the count into the log only.
-		applyOrphanContainerSweep(session, nil)
+		//
+		// SOFT close: containers only. This function's own contract is that
+		// the worktree and the branch stay intact so the checkout survives,
+		// so it must not destroy the session's data volumes either. They are
+		// swept later, when this session reaches hard cleanup.
+		applySessionResourceSweep(session, nil, sweepContainersOnly)
 		if releaseErr := d.ReleasePort(session); releaseErr != nil {
 			proglog.Errorf("[prism] closeSession: release port: %v\n", releaseErr)
 		}
@@ -1039,9 +1065,7 @@ func closeSession(session string) error {
 		}
 		// Other archive errors are non-fatal — cleanup continues.
 		if instanceIDForSessions != "" {
-			// Remove the per-session work dir for this session instance.
-			// Also covers staging-HOME remnants that legacy sessions left.
-			container.RemoveSessionWorkDir(instanceIDForSessions)
+			removeSessionInstanceDirs(instanceIDForSessions)
 		}
 		_ = d.PurgeBusMessages(session)
 		d.Close()
@@ -1127,11 +1151,16 @@ func headlessCloseSessionWithJSONTo(session string, jsonMode bool, stdout io.Wri
 		if isolationModeFromDB(d, session) != "host" {
 			removeContainerIfExists(session)
 		}
-		// Orphan-container sweep. See headlessCleanupWithJSONTo for the
-		// placement rationale — the gate is in sweepOrphanContainersForSession,
+		// Orphan-resource sweep. See headlessCleanupWithJSONTo for the
+		// placement rationale — the gate is in sweepSessionResourcesForSession,
 		// so calling it on a non-container session (containers_enabled=0) is a
 		// fast DB read with no podman commands issued.
-		applyOrphanContainerSweep(session, &result)
+		//
+		// SOFT close: containers only. This path keeps the worktree, the
+		// branch, and the transcript so the session can be reopened, so it
+		// must keep the data volumes too. They are swept later, when this
+		// session reaches hard cleanup.
+		applySessionResourceSweep(session, &result, sweepContainersOnly)
 		instanceIDForSessions := instanceIDFromStatus(d, session)
 		isolationMode := isolationModeFromDB(d, session)
 		// Apply the lifecycle clears — release harness_port and stamp
@@ -1163,9 +1192,7 @@ func headlessCloseSessionWithJSONTo(session string, jsonMode bool, stdout io.Wri
 		}
 		// Other archive errors are non-fatal — cleanup continues.
 		if instanceIDForSessions != "" {
-			// Remove the per-session work dir for this session instance.
-			// Also covers staging-HOME remnants that legacy sessions left.
-			container.RemoveSessionWorkDir(instanceIDForSessions)
+			removeSessionInstanceDirs(instanceIDForSessions)
 		}
 		_ = d.PurgeBusMessages(session)
 		d.Close()
@@ -1480,6 +1507,17 @@ func runSessionArchive(d *db.DB, sessionName, instanceID, statusIsolationMode st
 		}
 	}
 
+	// Resolve the podman-proxy audit log for this session's final
+	// incarnation (instanceID here is the incarnation being archived — a
+	// session that restarted has an earlier incarnation's audit dir left on
+	// disk under its own instance ID, which this archive step does not
+	// reach; see internal/container/podman_proxy_audit.go). A resolution
+	// error just means no audit log to attach (e.g. instanceID somehow
+	// empty here) and is non-fatal.
+	if auditLogPath, auditErr := container.PodmanProxyAuditLogPath(instanceID); auditErr == nil {
+		params.PodmanProxyAuditLogPath = auditLogPath
+	}
+
 	archivePath, archiveErr := archive.Run(params)
 	if archiveErr != nil {
 		proglog.Warnf("[prism] archive: copy failed for session %q: %v\n", sessionName, archiveErr)
@@ -1738,6 +1776,27 @@ func archiveThenSeverPiResume(d *db.DB, sessionName, instanceID, isolationMode s
 // call frames deep and is not reachable from tests without either a knob or
 // substantial refactoring.
 var severGateForceAlwaysSever bool
+
+// removeSessionInstanceDirs removes the two on-disk directory trees keyed
+// by a session's instance ID:
+//
+//   - the per-session work dir, which also covers staging-HOME remnants
+//     that legacy sessions left nested at <sessionDir>/home/, and
+//   - the per-session podman-proxy audit dir, which sits outside the work
+//     dir so the agent has no write path to its own audit trail (see
+//     internal/container/podman_proxy_audit.go) and therefore needs its
+//     own removal here.
+//
+// Both removals are non-fatal and idempotent. A directory that does not
+// exist is silently skipped: a bwrap or host session has no work dir, and
+// a session that never enabled containers has no audit dir.
+//
+// Every cleanup path that ends a session calls this. A new per-session
+// directory keyed by instance ID belongs here, not at the call sites.
+func removeSessionInstanceDirs(instanceID string) {
+	container.RemoveSessionWorkDir(instanceID)
+	container.RemovePodmanProxyAuditDir(instanceID)
+}
 
 // instanceIDFromStatus returns the instance_id from the agent_status row for
 // sessionName, or an empty string when the row is missing, instance_id is

@@ -909,13 +909,14 @@ The workflow is:
    prism stats compare <instance-id-A> <instance-id-B> --json | jq .
    ```
 
-   The output carries the `Spawn Inputs` block (profile, harness, isolation, agent role, branch, abtest_pair_id) plus per-axis aggregates (tokens, cost, tool calls, durations, end_state). The aggregates are available *between* terminal-state transition and `prism cleanup` — they no longer require cleanup to materialise (issue #2102). Use the cost / duration / msg_assistant axes alongside the quality of the produced PRs to pick a winner.
+   The output carries the `Spawn Inputs` block (profile, harness, isolation, agent role, branch, abtest_pair_id) plus per-axis aggregates (tokens, cost, tool calls, durations, end_state). The aggregates are available *between* terminal-state transition and `prism cleanup` — they no longer require cleanup to materialise (issue #2102, corrected in #2932: a partial `spawn_outcome` row written at PR-create or review-complete time used to suppress them). Use the cost / duration / msg_assistant axes alongside the quality of the produced PRs to pick a winner.
 4. **Merge the winner, close the loser.** Standard merge / close flow on the two PRs.
 5. **Cleanup both sessions.** `prism cleanup --yes --session <winner>` and `prism cleanup --yes --session <loser>`. Cleanup persists the `spawn_outcome` row for long-term querying via `prism stats --group-by profile|model|...`; until then the row is computed on the fly from `agent_events` whenever `prism stats compare` is run.
 
 Notes:
 
 - `prism stats compare` shows `—` for aggregate axes while a session is still in progress (state `active`, `idle`, or `reviewing`). The aggregates only stabilise at terminal transition.
+- `duration_ms` and `time_to_finished` measure from session start to the session's terminal-state transition. The value does not move when you run `prism cleanup`, so two legs are comparable whether you clean them up together or days apart (issue #2932).
 - The `Spawn Inputs` block surfaces whatever the writer captured at spawn time. Pre-#2087 sessions can have a partial row — missing columns render as `—` rather than collapsing the whole block.
 - Use `--json` (preferred) or the equivalent `--format json` for machine-readable output (e.g. when scripting the winner decision); the `spawn_inputs` object carries the same fields shown in the table. On error, both surfaces emit a single-line `{"error":"..."}` JSON envelope to stderr (no cobra usage dump) — script the failure path against the JSON contract too, not by parsing human-readable text (issue #2099).
 
@@ -1350,6 +1351,7 @@ The wording is fixed so coordinators can pattern-match on either string.
 - **Exactly-once with replay marker (issue #1695).** Each notification carries a `delivery_id` (UUID minted by the sender). The receiving sidecar dedups repeats by ID before they reach the harness pipe. Retried deliveries with the same ID see `{"replayed":true}` in the response so retries are observable, not silent.
 - **Delivery mode is `followUp`.** The notification queues behind any in-flight turn on the coordinator side so it doesn't interleave with an active assistant turn.
 - **Suppressed while escalated.** A worker in the `escalated` state has already informed the coordinator via `session.escalated`; a subsequent "has finished" notification is a false signal (the worker is paused awaiting guidance, not done). The state clears on any incoming turn_start, after which a normal finish notifies as usual.
+- **Unresolved-review-disagreement backstop (#2977).** A `PASS_WITH_DISAGREEMENT` round (see `review-goal.md`) is a terminating pass whose delivery message tells the worker to run `prism escalate` rather than push more code. If the worker instead reaches a plain finish without escalating, the "has finished" notification appends the verbatim `<disagreement>` block and names the agent that raised it, so the coordinator still sees it. This is a backstop, not a replacement for escalation: escalation is still the primary route (it also pauses the worker), and the two never both fire for the same disagreement — `prism escalate` clears the pending record before it can be attached to a later finish, and a finish that does attach it clears the record in the same step.
 
 ## Debugging a running or stuck session
 

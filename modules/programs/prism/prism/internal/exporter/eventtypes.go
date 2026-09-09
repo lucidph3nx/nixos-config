@@ -87,12 +87,25 @@ var knownEventTypes = map[string]struct{}{
 	"permission_denied":  {},
 	"provider_error":     {},
 	"session.escalated":  {},
-	// review.verdict_pass / review.verdict_fail are written by
-	// internal/review/monitor.go persistReviewOutcome: one durable
+	// review.verdict_pass / review.verdict_fail /
+	// review.verdict_pass_with_disagreement are written by
+	// internal/review/monitor.go writeVerdictEvent: one durable
 	// event per verdict-producing review round, feeding
-	// prism_review_verdicts_total.
-	"review.verdict_pass": {},
-	"review.verdict_fail": {},
+	// prism_review_verdicts_total. pass_with_disagreement is a round that
+	// passed while carrying review-goal's PASS_WITH_DISAGREEMENT marker (#2970).
+	"review.verdict_pass":                   {},
+	"review.verdict_fail":                   {},
+	"review.verdict_pass_with_disagreement": {},
+	// The review.agent_verdict_* set is written by the same helper, one
+	// event per review AGENT per round, feeding
+	// prism_review_agent_verdicts_total. "error" is a separate type from
+	// "fail" because an agent that produced no verdict is not a
+	// code-quality FAIL; pass_with_disagreement is review-goal's terminating
+	// PASS_WITH_DISAGREEMENT marker (#2970).
+	"review.agent_verdict_pass":                   {},
+	"review.agent_verdict_fail":                   {},
+	"review.agent_verdict_error":                  {},
+	"review.agent_verdict_pass_with_disagreement": {},
 	// session.spawn_intent is written at the SpawnSession chokepoint, so it
 	// occurs on EVERY spawn through every front door. Leaving it out put the
 	// highest-frequency in-tree event type into the "other" bucket, which

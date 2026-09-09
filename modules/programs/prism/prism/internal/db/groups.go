@@ -495,9 +495,13 @@ func (d *DB) GroupResultsAll(groupID string) (map[string]GroupMemberResult, erro
 // GroupResultsAll. includeEnded controls whether rows with a non-NULL
 // ended_at are included.
 func (d *DB) groupResults(groupID string, includeEnded bool) (map[string]GroupMemberResult, error) {
-	// Fetch each member's session_name, state, and root_agent_name.
+	// Fetch each member's session_name, state, root_agent_name, and
+	// instance_id. instance_id is the member's own instance, which a per-member
+	// telemetry write needs to attribute an event to the member rather than to
+	// the parent worker (issue #2963). NULL folds to "" here, and the callers
+	// treat "" as "not resolvable".
 	statusQ := `
-SELECT session_name, state, COALESCE(root_agent_name, '')
+SELECT session_name, state, COALESCE(root_agent_name, ''), COALESCE(instance_id, '')
 FROM agent_status
 WHERE group_id = ?`
 	if !includeEnded {
@@ -513,7 +517,7 @@ WHERE group_id = ?`
 	results := make(map[string]GroupMemberResult)
 	for rows.Next() {
 		var r GroupMemberResult
-		if err := rows.Scan(&r.SessionName, &r.State, &r.RootAgent); err != nil {
+		if err := rows.Scan(&r.SessionName, &r.State, &r.RootAgent, &r.InstanceID); err != nil {
 			return nil, fmt.Errorf("db: group results: scan status: %w", err)
 		}
 		results[r.SessionName] = r

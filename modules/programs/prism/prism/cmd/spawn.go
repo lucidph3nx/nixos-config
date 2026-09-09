@@ -54,10 +54,16 @@ import (
 // inside a container (PRISM_HOST_API is set). It reads the same flags as
 // runSpawn and POSTs them to /spawn, then prints the returned session name.
 //
-// The "repo" field is intentionally omitted from the request: the sidecar
-// derives the repo from its own session name, so a client running inside a
-// container where PRISM_BARE_ROOT is a mount-path name (e.g. "/prism-git")
-// does not need to supply the correct repo name.
+// The "repo" field is forwarded only when the user explicitly set --repo
+// (cmd.Flags().Changed("repo")), mirroring the isolationChanged /
+// containersChanged pattern below. When unset, the field is omitted entirely
+// and the sidecar derives the repo from its own session name, so a client
+// running inside a container where PRISM_BARE_ROOT is a mount-path name
+// (e.g. "/prism-git") does not need to supply the correct repo name. When
+// set, the host-side prism spawn resolves the forwarded value through the
+// same resolveRepo path the direct (host-shell) CLI uses, so an
+// unresolvable value errors instead of silently falling back to the
+// caller's own repo.
 //
 // The "isolation" field forwards the --isolation flag value when explicitly
 // set. Validation of unknown values happens client-side here so the error
@@ -69,6 +75,7 @@ import (
 func proxySpawn(apiURL string, cmd *cobra.Command) error {
 	branchFlag, _ := cmd.Flags().GetString("branch")
 	prFlag, _ := cmd.Flags().GetString("pr")
+	repoFlag, _ := cmd.Flags().GetString("repo")
 	agentFlag, _ := cmd.Flags().GetString("agent")
 	profileFlag, _ := cmd.Flags().GetString("profile")
 	abtestFlag, _ := cmd.Flags().GetStringArray("abtest")
@@ -82,6 +89,7 @@ func proxySpawn(apiURL string, cmd *cobra.Command) error {
 	modelOverrideFlag, _ := cmd.Flags().GetStringArray("model-override")
 	reuseFlag, _ := cmd.Flags().GetBool("reuse")
 
+	repoChanged := cmd.Flags().Changed("repo")
 	isolationChanged := cmd.Flags().Changed("isolation")
 	// Only forward "containers" when explicitly set so an unset child does
 	// not accidentally inherit a parent's enabled state. Mirrors
@@ -215,6 +223,12 @@ func proxySpawn(apiURL string, cmd *cobra.Command) error {
 		if containersChanged {
 			body["containers"] = containersFlag
 		}
+		// Only forward "repo" when explicitly set. See the doc comment above
+		// proxySpawn for why an unresolvable forwarded value must error rather
+		// than fall back to the sidecar's own repo.
+		if repoChanged {
+			body["repo"] = repoFlag
+		}
 		if len(modelOverrideFlag) > 0 {
 			modelsByRole, parseErr := parseModelOverrides(modelOverrideFlag)
 			if parseErr != nil {
@@ -309,6 +323,12 @@ func proxySpawn(apiURL string, cmd *cobra.Command) error {
 	// parent's enabled state by accident.
 	if containersChanged {
 		body["containers"] = containersFlag
+	}
+	// Only forward "repo" when explicitly set. See the doc comment above
+	// proxySpawn for why an unresolvable forwarded value must error rather
+	// than fall back to the sidecar's own repo.
+	if repoChanged {
+		body["repo"] = repoFlag
 	}
 	if err := proxyToHostAPI(apiURL, "/spawn", body, &resp); err != nil {
 		return err
@@ -695,6 +715,22 @@ func runSpawn(cmd *cobra.Command, args []string) (retErr error) {
 			// finished / interrupted) back to idle. That is why both
 			// recovery messages below truthfully point at `prism cleanup`.
 			if lookupErr == nil && existing != nil {
+				// Self-delivery guard: refuse when the resolved target session
+				// is the calling session itself. This is the reuse-path safety
+				// net for the failure mode where a dropped/mis-resolved --repo
+				// (or an ordinary --branch main) causes the target to resolve
+				// back to the caller — the caller would otherwise be told the
+				// spawn succeeded while its own prompt is delivered to itself.
+				// PRISM_SESSION_NAME identifies the caller: on the proxy path
+				// the host-API /spawn handler sets it to the requesting
+				// sidecar's own session (see host_api.go); on a direct
+				// host-shell invocation it is set only when the caller is
+				// itself running inside a named prism session, so this guard
+				// holds with or without --repo. Fires before any prompt
+				// delivery or success output below.
+				if invoker := os.Getenv("PRISM_SESSION_NAME"); invoker != "" && invoker == existing.SessionName {
+					return selfDeliveryError(existing.SessionName, invoker)
+				}
 				// There is an active session for this branch.
 				// Healthy = state not "error" and not "deleted".
 				broken := existing.State == "error" || existing.State == "deleted"
@@ -1131,6 +1167,20 @@ func resolveBareRoot(repoFlag string) (string, error) {
 	return bareRoot, nil
 }
 
+// selfDeliveryError builds the error returned when a spawn resolves to the
+// calling session itself (the reuse-path safety net — see the call site in
+// runSpawn). The wording is load-bearing: a caller told only "delivery
+// failed" tends to reconstruct the prompt from memory, and a reconstruction
+// is lossy (issue #2982's field evidence: a four-item request lost one item
+// on reconstruction). Naming the recovery action — re-send the original
+// text, don't rewrite it — is the fix for that half of the failure.
+func selfDeliveryError(targetSession, invoker string) error {
+	return fmt.Errorf(
+		"prism spawn: refusing to deliver to %q — that is the calling session (%q); no prompt was delivered\n"+
+			"once the intended target is reachable, re-send the original prompt text — do not rewrite it from memory",
+		targetSession, invoker)
+}
+
 // resolveRepo resolves a repo shorthand (e.g. "nixos-config") to a full path
 // under ~/code, or accepts an absolute path directly.
 func resolveRepo(nameOrPath string) (string, error) {
@@ -1152,7 +1202,7 @@ func resolveRepo(nameOrPath string) (string, error) {
 	}
 
 	return "", fmt.Errorf(
-		"repo %q not found under ~/code\nhint: run `prism clone <url>` to add it",
+		"repo %q not found under ~/code — no session was created, so nothing was delivered anywhere\nhint: run `prism clone <url>` to add it",
 		nameOrPath,
 	)
 }

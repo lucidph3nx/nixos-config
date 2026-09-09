@@ -698,6 +698,87 @@ func (d *DB) IsMuted(sessionName string) (bool, bool, error) {
 	return m != 0, true, nil
 }
 
+// SetPendingDisagreement persists the rendered disagreement section for
+// sessionName so a later finish notification can surface it (#2977). text is
+// expected to be the exact output of review.buildDisagreementSection — this
+// method only stores it, it never renders disagreement content itself, so
+// the finish-notification path and the delivery-message path can never
+// drift into two different renderings of the same round.
+//
+// Passing "" clears the column, mirroring ClearPendingDisagreement. A
+// missing agent_status row is a silent no-op (RowsAffected == 0): the
+// caller is a best-effort side channel to a later notification, not a
+// user-facing command, so there is no "session not found" case to surface.
+func (d *DB) SetPendingDisagreement(sessionName, text string) error {
+	var val interface{}
+	if text != "" {
+		val = text
+	}
+	if _, err := d.conn.Exec(
+		`UPDATE agent_status SET pending_disagreement = ? WHERE session_name = ?`,
+		val, sessionName,
+	); err != nil {
+		return fmt.Errorf("db: set pending disagreement: %w", err)
+	}
+	return nil
+}
+
+// ClearPendingDisagreement clears sessionName's pending disagreement without
+// reading it. Called from `prism escalate` when the worker escalates a
+// marker-terminated round: the coordinator has already received the
+// disagreement verbatim via the escalation message, so a later finish
+// notification (once the escalated state clears) must not re-deliver it.
+func (d *DB) ClearPendingDisagreement(sessionName string) error {
+	if _, err := d.conn.Exec(
+		`UPDATE agent_status SET pending_disagreement = NULL WHERE session_name = ?`,
+		sessionName,
+	); err != nil {
+		return fmt.Errorf("db: clear pending disagreement: %w", err)
+	}
+	return nil
+}
+
+// ConsumePendingDisagreement atomically reads and clears sessionName's
+// pending disagreement. Returns ("", false, nil) when no disagreement is
+// pending (column NULL/empty or no row). Called from the sidecar's finish
+// notification path immediately before use, so a disagreement is delivered
+// at most once: the read and the clearing UPDATE run inside one
+// transaction, so a concurrent reader cannot observe the same pending text
+// twice.
+func (d *DB) ConsumePendingDisagreement(sessionName string) (string, bool, error) {
+	tx, err := d.conn.Begin()
+	if err != nil {
+		return "", false, fmt.Errorf("db: consume pending disagreement: begin: %w", err)
+	}
+	defer tx.Rollback() //nolint:errcheck // no-op after a successful Commit
+
+	var text sql.NullString
+	err = tx.QueryRow(
+		`SELECT pending_disagreement FROM agent_status WHERE session_name = ?`,
+		sessionName,
+	).Scan(&text)
+	if errors.Is(err, sql.ErrNoRows) {
+		return "", false, nil
+	}
+	if err != nil {
+		return "", false, fmt.Errorf("db: consume pending disagreement: select: %w", err)
+	}
+	if !text.Valid || text.String == "" {
+		return "", false, nil
+	}
+
+	if _, err := tx.Exec(
+		`UPDATE agent_status SET pending_disagreement = NULL WHERE session_name = ?`,
+		sessionName,
+	); err != nil {
+		return "", false, fmt.Errorf("db: consume pending disagreement: clear: %w", err)
+	}
+	if err := tx.Commit(); err != nil {
+		return "", false, fmt.Errorf("db: consume pending disagreement: commit: %w", err)
+	}
+	return text.String, true, nil
+}
+
 // ClearEnded clears the ended_at timestamp for sessionName, making the session
 // visible again to AllActiveStatus and the dashboard (which both filter
 // WHERE ended_at IS NULL). Called when a session resumes from a terminal state
@@ -1648,10 +1729,37 @@ type AbtestPairRow struct {
 	EndStateB     *string
 }
 
+// abtestRawRow is one session's row from the AbtestPairsAll query, before the
+// rows are grouped into pairs.
+type abtestRawRow struct {
+	pairID      string
+	instanceID  string
+	sessionName string
+	startedAt   int64
+	endedAt     sql.NullInt64
+	profile     string
+	turns       int
+	tokensIn    int64
+	tokensOut   int64
+	durationMs  sql.NullInt64
+	endState    sql.NullString
+}
+
 // AbtestPairsAll returns one AbtestPairRow per distinct abtest_pair_id.
 // Pairs are ordered by the started_at of their first session (oldest first).
-// Sessions that lack spawn_inputs or spawn_outcome rows are included but with
-// nil metric fields.
+// Sessions that lack spawn_inputs are included but with nil metric fields.
+//
+// The metric columns come from the spawn_outcome join when that row carries
+// the computed aggregates, and from CompareRunOutcome when it does not. The
+// join alone is not enough: this backs `prism stats --abtest`, whose entire
+// purpose is to compare two legs BEFORE either is merged, which is exactly
+// the window in which the row is absent or is a stub written by a partial
+// writer. Reading the join alone reported zero turns, zero tokens, and no
+// duration for both legs (issue #2932).
+//
+// The join stays as the fast path so a long history of cleaned-up pairs
+// still costs one query. Only a pair still inside that pre-cleanup window
+// pays for an aggregation, and only for its own two sessions.
 func (d *DB) AbtestPairsAll() ([]AbtestPairRow, error) {
 	// Fetch all (instance_id, session_name, started_at, ended_at, abtest_pair_id, profile_name)
 	// tuples ordered by pair_id, started_at. We then group by pair_id in Go.
@@ -1670,7 +1778,12 @@ SELECT
     so.end_state
 FROM spawn_inputs si
 INNER JOIN sessions s ON s.instance_id = si.instance_id
-LEFT  JOIN spawn_outcome so ON so.instance_id = si.instance_id
+-- Only join a row WriteSpawnOutcome has filled (aggregated_at set). A
+-- partial-writer stub is excluded from the join, so its zero-token defaults
+-- never enter the sums; resolveAbtestRowMetrics then recomputes from
+-- agent_events for a terminal session, or leaves it live (#2936).
+LEFT  JOIN spawn_outcome so
+       ON so.instance_id = si.instance_id AND so.aggregated_at IS NOT NULL
 WHERE si.abtest_pair_id IS NOT NULL
 ORDER BY si.abtest_pair_id ASC, s.started_at ASC`
 
@@ -1682,20 +1795,6 @@ ORDER BY si.abtest_pair_id ASC, s.started_at ASC`
 
 	// Accumulate into a map pair_id → AbtestPairRow (filling A slot first,
 	// then B). Order of insertion is preserved via pairOrder slice.
-	type abtestRawRow struct {
-		pairID      string
-		instanceID  string
-		sessionName string
-		startedAt   int64
-		endedAt     sql.NullInt64
-		profile     string
-		turns       int
-		tokensIn    int64
-		tokensOut   int64
-		durationMs  sql.NullInt64
-		endState    sql.NullString
-	}
-
 	var rawRows []abtestRawRow
 	for rows.Next() {
 		var r abtestRawRow
@@ -1709,6 +1808,14 @@ ORDER BY si.abtest_pair_id ASC, s.started_at ASC`
 	}
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("db: abtest_pairs_all: iterate: %w", err)
+	}
+	// rows must be closed before the per-row fallback issues its own queries:
+	// resolveAbtestRowMetrics reads while this cursor would otherwise still be
+	// open on the same connection.
+	rows.Close()
+
+	for i := range rawRows {
+		d.resolveAbtestRowMetrics(&rawRows[i])
 	}
 
 	// Group into pairs by pairID.
@@ -1778,6 +1885,43 @@ ORDER BY si.abtest_pair_id ASC, s.started_at ASC`
 		result = append(result, *pairMap[pid])
 	}
 	return result, nil
+}
+
+// resolveAbtestRowMetrics fills in one raw A/B row's metric fields from
+// CompareRunOutcome when the spawn_outcome join produced no computed
+// aggregates for it. It is a no-op for a row the join already answered, and
+// for a session that is still live (CompareRunOutcome returns nil).
+func (d *DB) resolveAbtestRowMetrics(r *abtestRawRow) {
+	joined := SpawnOutcome{
+		MsgAssistantCount: r.turns,
+		TokensInputTotal:  r.tokensIn,
+		TokensOutputTotal: r.tokensOut,
+	}
+	if r.durationMs.Valid {
+		v := r.durationMs.Int64
+		joined.DurationMs = &v
+	}
+	if joined.HasComputedAggregates() {
+		return
+	}
+
+	sess, err := d.SessionByInstanceID(r.instanceID)
+	if err != nil || sess == nil {
+		return
+	}
+	out := d.CompareRunOutcome(sess)
+	if out == nil {
+		return
+	}
+	r.turns = out.MsgAssistantCount
+	r.tokensIn = out.TokensInputTotal
+	r.tokensOut = out.TokensOutputTotal
+	if out.DurationMs != nil {
+		r.durationMs = sql.NullInt64{Int64: *out.DurationMs, Valid: true}
+	}
+	if out.EndState != nil {
+		r.endState = sql.NullString{String: *out.EndState, Valid: true}
+	}
 }
 
 // AbtestPairsForSessions returns a map of session_name → abtest_pair_id for

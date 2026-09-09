@@ -9,6 +9,7 @@
 //	      session.jsonl  (when the harness wrote conversation data)
 //	      manifest.json
 //	      agent-run.log  (when present)
+//	      podman-proxy.log  (when present)
 //
 // The pre-fix layout placed `session.jsonl` under a `raw/` subdirectory and
 // ran a separate Export step that byte-copied it next to `manifest.json`.
@@ -39,6 +40,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/prismatic-koi/prism/internal/proglog"
 )
 
 // ErrAlreadyExists is returned by Run when the final archive directory already
@@ -101,6 +104,18 @@ type Params struct {
 	// are silently skipped — sessions that never reached agent-run will not
 	// have this file.
 	AgentRunLogPath string
+	// PodmanProxyAuditLogPath is the absolute path to the podman-proxy audit
+	// log for the session's final incarnation
+	// (~/.local/state/prism/podman-audit/<instanceID>/podman-proxy.log). When
+	// non-empty and the file exists, it is copied into the archive as
+	// podman-proxy.log. A session that never ran with --containers has no
+	// such file, and a missing file is silently skipped the same way
+	// AgentRunLogPath is. Unlike AgentRunLogPath, a copy failure on an
+	// existing-but-unreadable file is reported via proglog.Warnf rather than
+	// failing Run — the audit log is a supplementary record, not load-bearing
+	// for the archive the way the harness transcript is, and a permissions
+	// glitch on it must not block session teardown.
+	PodmanProxyAuditLogPath string
 	// ArchiveRoot overrides the archive root (~/.local/share/prism/archive).
 	// When empty the XDG-derived default is used. Tests inject this.
 	ArchiveRoot string
@@ -208,6 +223,21 @@ func Run(p Params) (archivePath string, err error) {
 			dst := filepath.Join(tmpDir, "agent-run.log")
 			if copyErr := copyFile(p.AgentRunLogPath, dst); copyErr != nil {
 				return "", fmt.Errorf("archive: copy agent-run log: %w", copyErr)
+			}
+		}
+	}
+
+	// Copy the podman-proxy audit log when it exists. Missing files are
+	// silently skipped — a session that never ran with --containers will
+	// not have this file. A copy failure on an existing file is reported via
+	// proglog.Warnf rather than failing the whole archive: the audit log is
+	// a supplementary record, and a permissions glitch on it must not block
+	// session teardown.
+	if p.PodmanProxyAuditLogPath != "" {
+		if _, statErr := os.Stat(p.PodmanProxyAuditLogPath); statErr == nil {
+			dst := filepath.Join(tmpDir, "podman-proxy.log")
+			if copyErr := copyFile(p.PodmanProxyAuditLogPath, dst); copyErr != nil {
+				proglog.Warnf("[prism] archive: copy podman-proxy audit log: %v — continuing without it\n", copyErr)
 			}
 		}
 	}

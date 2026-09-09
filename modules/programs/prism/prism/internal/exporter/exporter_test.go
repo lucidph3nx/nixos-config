@@ -193,10 +193,10 @@ func TestExporter_ServesParseablePrometheusText(t *testing.T) {
 	}
 }
 
-// Two base metrics (build_info, agent_events_total); six lifecycle and
+// Two base metrics (build_info, agent_events_total); seven lifecycle and
 // outcome counters; three cost/token counters and the prism_account_info
 // gauge; four state gauges; two sidecar-liveness gauges.
-func TestExporter_ShipsExactlyTheSixteenSpecifiedMetrics(t *testing.T) {
+func TestExporter_ShipsExactlyTheSpecifiedMetrics(t *testing.T) {
 	h := newHarness(t)
 	h.start(h.exp)
 	h.writeEvent("tool_call", 0)
@@ -214,6 +214,7 @@ func TestExporter_ShipsExactlyTheSixteenSpecifiedMetrics(t *testing.T) {
 		exporter.MetricModelCostUSDTotal,
 		exporter.MetricModelTokensTotal,
 		exporter.MetricPermissionDeniedTotal,
+		exporter.MetricReviewAgentVerdictsTotal,
 		exporter.MetricReviewVerdictsTotal,
 		exporter.MetricSessionsActive,
 		exporter.MetricSessionsEndedTotal,
@@ -543,18 +544,19 @@ func TestExporter_ExposesNoUnboundedLabel(t *testing.T) {
 	bounds := map[string]int{
 		exporter.MetricAgentEventsTotal: exporter.MaxAgentEventsSeries,
 		exporter.MetricBuildInfo:        1,
-		// The six lifecycle counters have no closed-set enforcement of their
+		// The seven lifecycle counters have no closed-set enforcement of their
 		// own: repo, agent_role, isolation_mode, end_state, profile, and
 		// verdict are all pre-sanctioned safe labels, so there is
 		// no fold to bound them against a hostile value the way
 		// agent_events.type needs one. A large-but-finite bound here still
 		// catches an accidental unbounded label creeping in later.
-		exporter.MetricSpawnsTotal:           1000,
-		exporter.MetricSessionsEndedTotal:    1000,
-		exporter.MetricReviewVerdictsTotal:   2,
-		exporter.MetricEscalationsTotal:      1000,
-		exporter.MetricDoomLoopsTotal:        1000,
-		exporter.MetricPermissionDeniedTotal: 1000,
+		exporter.MetricSpawnsTotal:              1000,
+		exporter.MetricSessionsEndedTotal:       1000,
+		exporter.MetricReviewVerdictsTotal:      1000,
+		exporter.MetricReviewAgentVerdictsTotal: 1000,
+		exporter.MetricEscalationsTotal:         1000,
+		exporter.MetricDoomLoopsTotal:           1000,
+		exporter.MetricPermissionDeniedTotal:    1000,
 		// The cost metrics. account_org_id, provider, model_id, kind, and
 		// profile are all bounded at low tens; account and
 		// workspace_id on prism_account_info are operator-controlled and

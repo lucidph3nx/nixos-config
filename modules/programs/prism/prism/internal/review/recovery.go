@@ -136,6 +136,19 @@ func DeliverGroupResults(d *db.DB, groupID, deliveryID string) (*RecoveryDeliver
 		}
 	}
 
+	// Emit the round's durable verdict event, mirroring the monitor path's
+	// call at the equivalent point (persistReviewOutcome, before the state
+	// flip). writeVerdictEvent derives the event id deterministically from
+	// group_id and writes INSERT OR IGNORE, so a round whose monitor already
+	// wrote the event (then died before delivery) is not counted a second
+	// time here. This is the fix for the recovery-path under-count (#2965).
+	writeVerdictEvent(d, groupID, info.ParentSession, results, allPassed)
+
+	// Persist the round's disagreement content, if any, mirroring the
+	// happy-path monitor's call at the equivalent point (#2977). See
+	// MonitorFunc's call site for the full rationale.
+	persistPendingDisagreement(d, info.ParentSession, allPassed, status)
+
 	// Flip the worker from `reviewing` to `active` before delivery so the
 	// busy event triggered by the prompt arriving lifts the suppression
 	// guard cleanly (see the analogous block in MonitorFunc).

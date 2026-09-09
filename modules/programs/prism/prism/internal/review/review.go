@@ -327,6 +327,28 @@ type AgentResult struct {
 	Passed  bool   // true = passed, false = failed / errored
 	Output  string // last assistant message text, or error description
 	IsError bool   // true = infrastructure/timeout failure
+	// Disagreement is true when the agent emitted
+	// <verdict>PASS_WITH_DISAGREEMENT</verdict> — a terminating pass that also
+	// carries an unresolved scope concern for the coordinator to decide
+	// (agents/review-goal.md, #2970). It implies Passed is true. review-goal is
+	// the only agent that emits the marker. The round still terminates as a
+	// pass, but the delivery message surfaces the disagreement to the
+	// coordinator rather than telling the worker to push more code.
+	Disagreement bool
+	// SessionName is the review agent's own session name
+	// (<worker>~review-<N>-<agent>), and InstanceID its own
+	// sessions.instance_id. buildMonitorResults populates both from the
+	// group's agent_status rows; every other producer of an AgentResult
+	// leaves them empty.
+	//
+	// They exist for the per-agent verdict event (issue #2963): the exporter
+	// resolves the agent_role label by joining sessions on the event's
+	// instance_id, so an event that carried the WORKER's instance would label
+	// every review dimension with the worker's role. An empty InstanceID means
+	// the role is not resolvable, and the writer skips that agent rather than
+	// emitting an unlabelled verdict.
+	SessionName string
+	InstanceID  string
 }
 
 // AsyncResult is returned immediately by RunAsync. It contains the group_id

@@ -28,10 +28,12 @@ func (d *DB) WriteEvent(e Event) error {
 	// account_name.go for why. Never NULL on a new row.
 	accountName := d.resolveAccountName()
 
-	// Resolve the active profile the same way. See profile_name.go for why
-	// capture happens here rather than at scrape time, and why a coordinator —
-	// which has no spawn_inputs row — needs it. Never NULL on a new row.
-	profileName := d.resolveProfileName()
+	// Resolve the session's profile the same way: its own spawn tier, or the
+	// machine-active profile when it was never spawned. See profile_name.go for
+	// why capture happens here rather than at scrape time, and why a
+	// coordinator — which has no spawn_inputs row — needs the fallback. Never
+	// NULL on a new row.
+	profileName := d.resolveProfileName(e.InstanceID)
 
 	tx, err := d.conn.Begin()
 	if err != nil {
@@ -61,6 +63,68 @@ UPDATE agent_status
 		return fmt.Errorf("db: write event: commit: %w", err)
 	}
 	return nil
+}
+
+// WriteEventIfAbsent is WriteEvent with an INSERT OR IGNORE: a second write of
+// a row whose primary-key id already exists is a no-op rather than an error.
+// It reports whether the row was inserted (true) or was already present
+// (false), and it bumps last_seen only when it actually inserts.
+//
+// It exists for the review-verdict event, whose id is derived deterministically
+// from the round's group_id so the monitor path and the recovery path collapse
+// to a single agent_events row. See internal/review/monitor.go
+// (writeVerdictEvent) for the double-count guard this backs.
+func (d *DB) WriteEventIfAbsent(e Event) (bool, error) {
+	if e.CreatedAt.IsZero() {
+		e.CreatedAt = time.Now()
+	}
+	createdAt := e.CreatedAt.UnixMilli()
+
+	// Second redaction control — see WriteEvent.
+	e.Payload = d.redactPayload(e.Payload)
+
+	// Write-time account and profile resolution — see WriteEvent,
+	// account_name.go, and profile_name.go.
+	accountName := d.resolveAccountName()
+	profileName := d.resolveProfileName(e.InstanceID)
+
+	tx, err := d.conn.Begin()
+	if err != nil {
+		return false, fmt.Errorf("db: write event if absent: begin tx: %w", err)
+	}
+	defer tx.Rollback() //nolint:errcheck
+
+	const insertQ = `
+INSERT OR IGNORE INTO agent_events (id, session_name, repo, worktree, harness_session_id, type, payload, created_at, instance_id, account_name, profile_name)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	result, err := tx.Exec(insertQ, e.ID, e.SessionName, e.Repo, e.Worktree, e.HarnessSessionID, e.Type, e.Payload, createdAt, e.InstanceID, accountName, profileName)
+	if err != nil {
+		return false, fmt.Errorf("db: write event if absent: insert: %w", err)
+	}
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return false, fmt.Errorf("db: write event if absent: rows affected: %w", err)
+	}
+	if affected == 0 {
+		// Row already present: nothing inserted, so leave last_seen untouched
+		// and let the deferred rollback discard the empty transaction.
+		return false, nil
+	}
+
+	// Bump last_seen only when a matching agent_status row exists — see
+	// WriteEvent for the MAX guard rationale.
+	const updateQ = `
+UPDATE agent_status
+   SET last_seen = MAX(last_seen, ?)
+ WHERE session_name = ?`
+	if _, err := tx.Exec(updateQ, createdAt, e.SessionName); err != nil {
+		return false, fmt.Errorf("db: write event if absent: update last_seen: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return false, fmt.Errorf("db: write event if absent: commit: %w", err)
+	}
+	return true, nil
 }
 
 // QueryEvents returns up to limit events for the given session, ordered by
@@ -597,7 +661,7 @@ func (d *DB) WriteEventReturningRowID(e Event) (int64, error) {
 	// Write-time account and profile resolution — see WriteEvent,
 	// account_name.go, and profile_name.go.
 	accountName := d.resolveAccountName()
-	profileName := d.resolveProfileName()
+	profileName := d.resolveProfileName(e.InstanceID)
 
 	tx, err := d.conn.Begin()
 	if err != nil {

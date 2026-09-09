@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/prismatic-koi/prism/internal/container"
 	"github.com/prismatic-koi/prism/internal/db"
 	"github.com/prismatic-koi/prism/internal/proglog"
 	"github.com/prismatic-koi/prism/internal/tmux"
@@ -199,6 +200,17 @@ func cleanupAgentSession(d *db.DB, agentSession string, cause db.SessionReapCaus
 	_ = d.ReleasePort(agentSession)
 	_ = d.SetEnded(agentSession)
 	_ = d.PurgeBusMessages(agentSession)
+	// Remove the child's own instance-ID-keyed directory trees (work dir and
+	// podman-proxy audit dir). Every parent-cleanup path routes through this
+	// function for each review-agent child, so this is the single place that
+	// closes the gap where a child session's directories otherwise outlive
+	// its parent's cleanup (issue #2960). Both removals are non-fatal and
+	// idempotent — a host-isolation child has no work dir, and a child that
+	// never enabled containers has no audit dir.
+	if lookupErr == nil && st != nil && st.InstanceID != nil && *st.InstanceID != "" {
+		container.RemoveSessionWorkDir(*st.InstanceID)
+		container.RemovePodmanProxyAuditDir(*st.InstanceID)
+	}
 }
 
 // IsPerAgentSession returns true if the given session name matches the new

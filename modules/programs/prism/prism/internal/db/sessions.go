@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/prismatic-koi/prism/internal/agent"
 	"github.com/prismatic-koi/prism/internal/verdict"
 )
 
@@ -307,12 +308,31 @@ func (d *DB) ComputeSpawnOutcome(instanceID string) (*SpawnOutcome, error) {
 
 	// --- Process-level ---
 
+	// The terminal-state transition is the end of the run. sessions.ended_at
+	// is not: no path stamps it when the agent reaches its terminal state, so
+	// it holds the time `prism cleanup` ran and carries the whole idle gap in
+	// between (issue #2932).
+	terminalAtMs, terminalState, haveTerminal := d.terminalTransition(instanceID)
+
 	out.EndState = sess.EndState
-	if sess.EndedAt != nil && sess.StartedAt.UnixMilli() > 0 {
-		dur := sess.EndedAt.Sub(sess.StartedAt).Milliseconds()
-		out.DurationMs = &dur
-		if sess.EndState != nil && *sess.EndState == "finished" {
-			out.TimeToFinishedMs = &dur
+	if out.EndState == nil && haveTerminal {
+		st := terminalState
+		out.EndState = &st
+	}
+
+	var endedAtMs int64
+	switch {
+	case haveTerminal:
+		endedAtMs = terminalAtMs
+	case sess.EndedAt != nil:
+		endedAtMs = sess.EndedAt.UnixMilli()
+	}
+	if endedAtMs > 0 && sess.StartedAt.UnixMilli() > 0 {
+		if dur := endedAtMs - sess.StartedAt.UnixMilli(); dur >= 0 {
+			out.DurationMs = &dur
+			if out.EndState != nil && *out.EndState == "finished" {
+				out.TimeToFinishedMs = &dur
+			}
 		}
 	}
 
@@ -398,16 +418,20 @@ SELECT group_id FROM session_groups
 		// never fired.
 		members, revErr := d.GroupResultsAll(reviewGroupID)
 		if revErr == nil && len(members) > 0 {
-			var passCount, failCount, noneCount int
+			var passCount, failCount, noneCount, disagreementCount int
 			for _, m := range members {
 				// The verdict-marker rule lives in internal/verdict, the one
 				// stdlib-only leaf both this package and the dashboard share.
-				// PASS_WITH_DISAGREEMENT falls to noneCount.
+				// PASS_WITH_DISAGREEMENT is counted distinctly from a missing
+				// verdict (noneCount): it is a terminating pass, not an absent
+				// verdict (#2970).
 				switch verdict.Parse(m.LastMessage) {
 				case verdict.Pass:
 					passCount++
 				case verdict.Fail:
 					failCount++
+				case verdict.PassWithDisagreement:
+					disagreementCount++
 				default:
 					noneCount++
 				}
@@ -416,14 +440,17 @@ SELECT group_id FROM session_groups
 			out.ReviewFailCount = &failCount
 			out.ReviewNoneCount = &noneCount
 
+			// A round that terminates on the marker (every member passed, at
+			// least one with disagreement, none missing) rolls up to the
+			// distinct "pass_with_disagreement" verdict rather than "mixed".
 			var verdict string
 			switch {
+			case failCount == 0 && noneCount == 0 && disagreementCount > 0:
+				verdict = "pass_with_disagreement"
 			case failCount == 0 && noneCount == 0 && passCount > 0:
 				verdict = "pass"
-			case passCount == 0 && noneCount == 0 && failCount > 0:
+			case passCount == 0 && disagreementCount == 0 && noneCount == 0 && failCount > 0:
 				verdict = "fail"
-			case passCount > 0 && failCount > 0:
-				verdict = "mixed"
 			default:
 				verdict = "mixed"
 			}
@@ -458,6 +485,36 @@ SELECT group_id FROM session_groups
 	}
 
 	return &out, nil
+}
+
+// terminalTransition returns the timestamp (Unix ms) and state of the most
+// recent state_change event for instanceID, when that transition moved the
+// session into a terminal state.
+//
+// ok is false in three cases, and every one of them means "this session has
+// no terminal transition to measure against": the session has written no
+// state_change events; its latest state_change is non-terminal (it resumed
+// after finishing, or it was killed while active); or the read failed.
+// Callers fall back to sessions.ended_at.
+//
+// The read is covered by idx_events_instance (instance_id, type, created_at),
+// so it costs one index seek plus one row fetch for the payload.
+func (d *DB) terminalTransition(instanceID string) (atMs int64, state string, ok bool) {
+	const q = `
+SELECT COALESCE(JSON_EXTRACT(payload,'$.state'), ''), created_at
+FROM agent_events
+WHERE instance_id = ? AND type = 'state_change'
+ORDER BY created_at DESC, rowid DESC
+LIMIT 1`
+	var st string
+	var createdAt int64
+	if err := d.conn.QueryRow(q, instanceID).Scan(&st, &createdAt); err != nil {
+		return 0, "", false
+	}
+	if !agent.IsTerminal(agent.AgentState(st)) {
+		return 0, "", false
+	}
+	return createdAt, st, true
 }
 
 // WriteSpawnOutcome computes all aggregated columns for the given instanceID
@@ -501,7 +558,7 @@ INSERT OR REPLACE INTO spawn_outcome (
     tokens_cache_read_total, tokens_cache_write_total,
     cost_usd_total, tool_call_count, tool_error_count,
     msg_assistant_count, time_to_first_event_ms, time_to_finished_ms,
-    computed_at, schema_version
+    computed_at, schema_version, aggregated_at
 ) VALUES (
     ?,
     ?, ?, ?,
@@ -515,7 +572,7 @@ INSERT OR REPLACE INTO spawn_outcome (
     ?, ?,
     ?, ?, ?,
     ?, ?, ?,
-    ?, ?
+    ?, ?, ?
 )`
 	_, err = d.conn.Exec(insertQ,
 		out.InstanceID,
@@ -530,7 +587,10 @@ INSERT OR REPLACE INTO spawn_outcome (
 		out.TokensCacheReadTotal, out.TokensCacheWriteTotal,
 		out.CostUSDTotal, out.ToolCallCount, out.ToolErrorCount,
 		out.MsgAssistantCount, out.TimeToFirstEventMs, out.TimeToFinishedMs,
-		out.ComputedAt, out.SchemaVersion,
+		// aggregated_at is stamped with computed_at: this write is the moment
+		// the event-derived aggregate block is filled, which is what the read
+		// paths gate on.
+		out.ComputedAt, out.SchemaVersion, out.ComputedAt,
 	)
 	if err != nil {
 		return fmt.Errorf("db: write spawn outcome: insert: %w", err)
@@ -683,8 +743,9 @@ ON CONFLICT(instance_id) DO UPDATE SET
 // round 2 (5 PASS, 0 FAIL) ends with review_pass_count=5, review_fail_count=0,
 // review_verdict="pass" — its actual ship state, not a historical sum.
 //
-// verdict is "pass" when all reviewers passed, "fail" when any reviewer failed.
-// passCount/failCount reflect the agents whose LastMessage carried a
+// verdict is "pass" when all reviewers passed, "pass_with_disagreement" when
+// all passed and at least one (review-goal) emitted the PASS_WITH_DISAGREEMENT
+// marker, and "fail" when any reviewer failed. passCount/failCount reflect the agents whose LastMessage carried a
 // parseable `<verdict>PASS</verdict>` / `<verdict>FAIL</verdict>` marker for
 // this round; agents without a parseable verdict (infrastructure failures,
 // truncated output) count toward failCount when verdict=="fail" and toward
@@ -764,7 +825,7 @@ SELECT
     tokens_cache_read_total, tokens_cache_write_total,
     cost_usd_total, tool_call_count, tool_error_count,
     msg_assistant_count, time_to_first_event_ms, time_to_finished_ms,
-    computed_at, schema_version
+    computed_at, schema_version, aggregated_at
 FROM spawn_outcome
 WHERE instance_id = ?`
 	row := d.conn.QueryRow(q, instanceID)
@@ -832,6 +893,11 @@ func (d *DB) SpawnOutcomeGroupBy(axis string, sinceMs int64) ([]GroupByRow, erro
 		whereParts = append(whereParts, "s.started_at >= ?")
 		args = append(args, sinceMs)
 	}
+	// Exclude partial-writer stub rows: only rows WriteSpawnOutcome has
+	// filled carry a non-NULL aggregated_at. --group-by reads persisted rows
+	// only (no recompute), so a stub would otherwise fold its zero-token,
+	// zero-cost defaults into the sums and count as a real session (#2936).
+	whereParts = append(whereParts, "so.aggregated_at IS NOT NULL")
 
 	whereClause := ""
 	if len(whereParts) > 0 {
@@ -910,7 +976,7 @@ func scanSpawnOutcome(row *sql.Row) (*SpawnOutcome, error) {
 		&out.TokensCacheReadTotal, &out.TokensCacheWriteTotal,
 		&out.CostUSDTotal, &out.ToolCallCount, &out.ToolErrorCount,
 		&out.MsgAssistantCount, &out.TimeToFirstEventMs, &out.TimeToFinishedMs,
-		&out.ComputedAt, &out.SchemaVersion,
+		&out.ComputedAt, &out.SchemaVersion, &out.AggregatedAt,
 	)
 	if err != nil {
 		return nil, err

@@ -165,8 +165,14 @@ type Session struct {
 // GroupMemberResult holds the terminal state and last assistant message for a
 // single member of a session group. Used by GroupResults to aggregate outcomes.
 type GroupMemberResult struct {
-	SessionName  string
-	RootAgent    string // from root_agent_name; empty when not set
+	SessionName string
+	RootAgent   string // from root_agent_name; empty when not set
+	// InstanceID is agent_status.instance_id for this member, or "" when the
+	// column is NULL (a row whose instance was never minted host-side). It is
+	// projected so a per-member telemetry write can attribute an event to the
+	// MEMBER's instance rather than the parent's — the exporter resolves
+	// sessions.agent_role through that instance_id (issue #2963).
+	InstanceID   string
 	State        string // terminal state: finished / interrupted / error / deleted
 	LastMessage  string // last assistant turn from agent_events; empty when none
 	StartupError string // reason from startup_error event; empty when not a no-start failure
@@ -227,7 +233,7 @@ type SpawnOutcome struct {
 	PRNumber        *int
 	PRMergedAt      *int64 // ms epoch
 	ReviewGroupID   *string
-	ReviewVerdict   *string // "pass" | "fail" | "mixed" | nil
+	ReviewVerdict   *string // "pass" | "pass_with_disagreement" | "fail" | "mixed" | nil
 	ReviewPassCount *int
 	ReviewFailCount *int
 	ReviewNoneCount *int
@@ -253,4 +259,47 @@ type SpawnOutcome struct {
 	// Audit
 	ComputedAt    int64
 	SchemaVersion int
+	// AggregatedAt is the time WriteSpawnOutcome filled the event-derived
+	// aggregate block of this row (ms epoch). nil means only a partial writer
+	// (pr_number, pr_merged_at, review result) has touched the row: the
+	// aggregate columns are defaults, not measurements. The read paths key
+	// recompute-or-persisted off this field, not off HasComputedAggregates.
+	AggregatedAt *int64
+}
+
+// HasComputedAggregates reports whether this row carries the event-derived
+// aggregate block — the columns only WriteSpawnOutcome ever writes.
+//
+// Since the v43→v44 migration the primary read paths (CompareRunOutcome,
+// --group-by, --abtest) gate on aggregated_at, not on this predicate. Its
+// main remaining role is the backfill predicate for that migration: the
+// migration marks every pre-existing row this returns true for, and the SQL
+// predicate in migrateV43ToV44 mirrors this method column-for-column — keep
+// the two in sync. One live read call also remains: resolveAbtestRowMetrics
+// (status.go) uses it on a struct rebuilt from the --abtest join output to
+// decide whether that join already answered or a recompute is needed.
+//
+// Three other writers touch spawn_outcome: UpdateSpawnOutcomePR,
+// UpdateSpawnOutcomePRMergedAt, and UpdateSpawnOutcomeReviewResult. Each is a
+// partial UPSERT that sets its own columns and leaves the aggregate block at
+// zero, so any of them can create the row long before `prism cleanup`
+// computes it. A reader that treats "a row exists" as "the aggregates exist"
+// therefore reports zero tokens, zero cost, and no duration for a session
+// whose events carry all three — issue #2932, where a review-verdict write
+// created the stub.
+//
+// A cleanup-written row for a session that produced no events at all also
+// reports false. That is harmless: the recomputation it triggers reads the
+// same empty event set and returns the same zeros.
+func (o *SpawnOutcome) HasComputedAggregates() bool {
+	if o == nil {
+		return false
+	}
+	return o.MsgAssistantCount > 0 || o.ToolCallCount > 0 || o.ToolErrorCount > 0 ||
+		o.InterruptedCount > 0 || o.CompactionCount > 0 || o.ErrorEventCount > 0 ||
+		o.PermissionAskCount > 0 || o.PermissionDeniedCount > 0 || o.DoomLoopCount > 0 ||
+		o.TokensInputTotal > 0 || o.TokensOutputTotal > 0 ||
+		o.TokensCacheReadTotal > 0 || o.TokensCacheWriteTotal > 0 ||
+		o.CostUSDTotal > 0 ||
+		o.DurationMs != nil || o.TimeToFirstEventMs != nil || o.TimeToFinishedMs != nil
 }

@@ -40,6 +40,40 @@ import (
 // override arrives through the same Config.PodmanMachineName field.
 const defaultPodmanMachineName = "podman-machine-default"
 
+// Per-container resource caps applied to every container the agent
+// creates through the proxy.
+//
+// A container started through the proxy is a HOST process. It runs
+// outside the agent's bwrap / sandbox-exec sandbox, so no sandbox limit
+// applies to it and nothing else in prism bounds what it consumes.
+// Without these caps, threat T14 (resource exhaustion) in
+// docs/podman-proxy.md has a mitigation in the proxy that never runs:
+// checkOneResourceCap short-circuits while the cap is 0.
+//
+// The values are sized against a 12-CPU / 31 GiB reference host. They
+// are PER CONTAINER, so a 2-CPU / 4-GiB ceiling still leaves the agent,
+// the editor, and a parallel session room to work.
+//
+// The cost of a configured cap is that the matching field becomes
+// MANDATORY on create: every `podman run` through the proxy must pass
+// --memory and --cpus or it gets a 403. That is recorded in
+// docs/podman-proxy.md and in the podman-proxy skill.
+const (
+	// podmanProxyMaxMemoryBytes caps HostConfig.Memory at 4 GiB.
+	podmanProxyMaxMemoryBytes int64 = 4 << 30
+
+	// podmanProxyMaxNanoCpus caps HostConfig.NanoCpus at 2 CPUs
+	// (cores * 1e9). This is the `--cpus` expression.
+	//
+	// MaxCPUQuota is deliberately NOT set alongside it. NanoCpus and
+	// CpuQuota are two ways to say the same thing, and docker/podman
+	// clients refuse to send both. Because a configured cap makes its
+	// field mandatory, setting both caps would make EVERY create
+	// request fail: whichever field the client sends, the other one is
+	// absent and returns 403 <field>_required. Enforce one CPU cap only.
+	podmanProxyMaxNanoCpus int64 = 2_000_000_000
+)
+
 // runPodmanProxyIfEnabled starts the per-session filtering podman API socket
 // proxy when the session's agent_status.containers_enabled gate is set. It
 // is called from (*Sidecar).Run after instance_id and the FK-guard row have
@@ -56,8 +90,10 @@ const defaultPodmanMachineName = "podman-machine-default"
 //     upstream path, and the proxy package's friendly 503 envelope handles
 //     every request until the upstream becomes reachable.
 //   - The audit log is opened in append-only mode under
-//     <XDG_STATE_HOME>/prism/sessions/<instanceID>/podman-proxy.log so log
-//     entries survive sidecar restarts within a single session incarnation.
+//     <XDG_STATE_HOME>/prism/podman-audit/<instanceID>/podman-proxy.log so
+//     log entries survive sidecar restarts within a single session
+//     incarnation. That directory sits outside every sandbox grant — see
+//     internal/container/podman_proxy_audit.go.
 //   - The proxy's Serve goroutine is launched via goNotify so notifyWG tracks
 //     it; ctx cancellation -- triggered by Shutdown() -- drains the accept
 //     loop within the proxy's own shutdown budget.
@@ -96,11 +132,8 @@ func (s *Sidecar) runPodmanProxyIfEnabled(ctx context.Context) {
 	// At this point containers_enabled=1. Build the proxy config.
 	upstream := s.resolvePodmanUpstreamPath()
 
-	// Open the audit log. The directory is the per-session work dir, which
-	// production code prepares via PrepareSessionWorkDir. We create it here
-	// defensively so tests -- and the rare case where the proxy starts
-	// before agent-run has prepared the directory -- do not lose audit
-	// lines.
+	// Open the audit log. The sidecar creates the audit directory. No
+	// other code path prepares it.
 	auditFile, auditPath, auditErr := s.openPodmanProxyAuditFile()
 	if auditErr != nil {
 		// Audit-file open failure must not prevent the proxy from
@@ -112,19 +145,41 @@ func (s *Sidecar) runPodmanProxyIfEnabled(ctx context.Context) {
 	}
 
 	allowed := s.allowedPodmanBindSources()
+	// Per-session resource name prefix. The proxy auto-injects this
+	// prefix into containers/create and volumes/create requests with no
+	// Name field, and rejects any explicit Name that does not start
+	// with it. Cleanup (`cmd/cleanup_sweep.go`) sweeps any orphan
+	// container and volume matching the same prefix at session
+	// teardown.
+	//
+	// The prefix carries this incarnation's INSTANCE ID, not just the
+	// session name: `prism-<instance token>-<sanitised session>-`. A
+	// name-only prefix cannot express identity, because two distinct
+	// live sessions collide under it by folding (`repo@feat/x` and
+	// `repo@feat-x` sanitise the same) and by nesting (`foo` is a strict
+	// prefix of `foo-bar`), so each could claim the other's containers
+	// and volumes — issue #2951. internal/container/resource_identity.go
+	// carries the full rationale and the containment invariant that
+	// makes the proxy's one prefix comparison sound.
+	//
+	// The session name is still folded into the prefix, because podman
+	// rejects `@` and `~` in a resource name, but it is DECORATION now:
+	// ownership is decided by the token, and cmd/cleanup_sweep.go parses
+	// that token back out exactly.
+	namePrefix := container.ResourceNamePrefixForOwner(s.cfg.InstanceID, s.cfg.SessionName)
 	cfg := podmanproxy.Config{
-		ListenerPath:       listenerPath,
-		UpstreamPath:       upstream,
-		AllowedBindSources: allowed,
-		// Per-session container name prefix. The proxy auto-injects this
-		// prefix into containers/create requests with no Name field, and
-		// rejects any explicit Name that does not start with it. Cleanup
-		// (`cmd/cleanup.go`) sweeps any orphan container matching the
-		// same prefix at session teardown.
-		ContainerNamePrefix: "prism-" + s.cfg.SessionName + "-",
-		// The default-deny policy applies: no AllowedCaps, no
-		// AllowedSecurityOpts, no MaxMemoryBytes. Every escape vector is
-		// rejected by default.
+		ListenerPath:        listenerPath,
+		UpstreamPath:        upstream,
+		AllowedBindSources:  allowed,
+		ContainerNamePrefix: namePrefix,
+		VolumeNamePrefix:    namePrefix,
+		// Resource caps. See the podmanProxyMax* constants above for the
+		// sizing rationale and for why MaxCPUQuota stays unset.
+		MaxMemoryBytes: podmanProxyMaxMemoryBytes,
+		MaxNanoCpus:    podmanProxyMaxNanoCpus,
+		// The default-deny policy applies to the escape vectors: no
+		// AllowedCaps and no AllowedSecurityOpts, so every capability
+		// and every security-opt is rejected by default.
 	}
 	if auditFile != nil {
 		cfg.AuditWriter = auditFile
@@ -302,24 +357,28 @@ func (s *Sidecar) allowedPodmanBindSources() []string {
 }
 
 // openPodmanProxyAuditFile opens the per-session audit log file in
-// append-only mode and returns the file handle plus the absolute path. The
-// audit log lives under the per-session work dir so RemoveSessionWorkDir
-// wipes it on cleanup, alongside the rest of the session's transient state.
+// append-only mode and returns the file handle plus the absolute path.
+//
+// The log lives OUTSIDE the per-session work dir, at
+// <XDG_STATE_HOME>/prism/podman-audit/<instanceID>/podman-proxy.log. The
+// Darwin sandbox profile grants the agent write access over the whole work
+// dir subpath, and the agent is the subject of this record.
+// internal/container/podman_proxy_audit.go holds the rationale, the path
+// helpers, and the matching cleanup call.
 //
 // The directory is created with 0o700 to match the rest of the per-session
-// state; the file is opened 0o600 so only the sidecar owner can read it.
+// state. The file is opened 0o600 so only the sidecar owner can read it.
 func (s *Sidecar) openPodmanProxyAuditFile() (*os.File, string, error) {
 	if s.cfg.InstanceID == "" {
 		return nil, "", fmt.Errorf("instance ID is empty")
 	}
-	sessionDir, err := container.SessionWorkDirPath(s.cfg.InstanceID)
+	auditPath, err := container.PodmanProxyAuditLogPath(s.cfg.InstanceID)
 	if err != nil {
-		return nil, "", fmt.Errorf("session work dir: %w", err)
+		return nil, "", fmt.Errorf("audit log path: %w", err)
 	}
-	if err := os.MkdirAll(sessionDir, 0o700); err != nil {
-		return nil, "", fmt.Errorf("mkdir session dir: %w", err)
+	if err := os.MkdirAll(filepath.Dir(auditPath), 0o700); err != nil {
+		return nil, "", fmt.Errorf("mkdir audit dir: %w", err)
 	}
-	auditPath := filepath.Join(sessionDir, "podman-proxy.log")
 	f, err := os.OpenFile(auditPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o600)
 	if err != nil {
 		return nil, "", fmt.Errorf("open audit log: %w", err)

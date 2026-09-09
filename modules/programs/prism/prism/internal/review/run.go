@@ -295,6 +295,17 @@ func Run(ctx context.Context, opts Opts, onSessionsCreated func(sessionNames []s
 		}
 	}
 
+	// NOTE for a future caller: this path writes NO verdict event, so neither
+	// prism_review_verdicts_total nor prism_review_agent_verdicts_total counts
+	// a round that ends here. The two live delivery paths — the detached
+	// monitor (persistReviewOutcome) and the sidecar recovery watcher
+	// (DeliverGroupResults) — both call review.writeVerdictEvent at the point
+	// they deliver the round, and this synchronous path (with pollAgents in
+	// poll.go) does not. No production caller reaches it today, so there is no
+	// live under-count. Wiring Run into a live CLI path must carry that
+	// verdict-event write across with it, or the rounds it delivers become
+	// invisible to both counters. The AgentResult values built here also leave
+	// SessionName and InstanceID empty, which the per-agent writer needs.
 	return results, pollErr
 }
 

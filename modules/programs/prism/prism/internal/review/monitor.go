@@ -30,14 +30,27 @@ import (
 	"github.com/prismatic-koi/prism/internal/promptdelivery"
 )
 
-// Event types written by persistReviewOutcome. Each round that
-// reaches a real pass/fail verdict writes exactly one of these as a durable
-// agent_events row, so the exporter's tail cursor can count
-// prism_review_verdicts_total{verdict} without ever reading the free-form
-// review report text. The verdict lives in the TYPE, not the payload — the
+// ROUND-level event types written by writeVerdictEvent, the single helper that
+// emits a round's verdict telemetry. Both delivery paths call it: the monitor
+// path (persistReviewOutcome, this file) and the recovery path
+// (DeliverGroupResults, recovery.go). Each completed round that reaches a real
+// pass/fail verdict writes exactly one of these as a durable agent_events row,
+// so the exporter's tail cursor can count
+// prism_review_verdicts_total{verdict,repo,agent_role,profile} without ever
+// reading the free-form review report text. The verdict lives in the TYPE, not the payload — the
 // exporter must never read agent_events.payload — and folding the verdict
 // into the type is the same trick eventtypes.go already uses for the closed
 // label set.
+//
+// Exactly-once across both paths: the event's primary-key id is derived
+// deterministically from the round's group_id (verdictEventID), and the write
+// is INSERT OR IGNORE (db.WriteEventIfAbsent). A round whose monitor wrote the
+// event and then died before delivery is re-delivered by the recovery watcher,
+// which computes the same id and writes nothing new — so the round counts once.
+//
+// The same helper writes the PER-AGENT event types declared below it. Both
+// counters are therefore emitted at one site, and the per-agent sum reconciles
+// with the round count on either delivery path.
 const (
 	// EventReviewVerdictPass is written when every review agent in the round
 	// passed.
@@ -45,6 +58,60 @@ const (
 	// EventReviewVerdictFail is written when at least one review agent in
 	// the round did not pass.
 	EventReviewVerdictFail = "review.verdict_fail"
+	// EventReviewVerdictPassWithDisagreement is written when the round
+	// terminated as a pass AND at least one agent (review-goal) emitted
+	// PASS_WITH_DISAGREEMENT. It is distinct from EventReviewVerdictPass so the
+	// round counter records the marker distinctly, and so it agrees with the
+	// per-agent counter's pass_with_disagreement value about the same round
+	// (#2970).
+	EventReviewVerdictPassWithDisagreement = "review.verdict_pass_with_disagreement"
+)
+
+// Per-AGENT verdict event types, written by the same helper alongside the
+// round pair above, one for each review agent of the round. They feed
+// prism_review_agent_verdicts_total{verdict,agent_role,repo}, which answers
+// the question the round counter cannot: which review dimension fails most
+// often (issue #2963).
+//
+// The verdict lives in the TYPE for the same reason the round pair does: the
+// exporter must never read agent_events.payload. The agent_role label is NOT
+// in the type. It comes from sessions.agent_role, which the exporter's
+// existing LEFT JOIN resolves from the event's instance_id — so each event
+// carries the REVIEW AGENT's instance id, not the worker's. Folding the role
+// into the type instead would need five roles times three verdicts, or 15
+// event types.
+//
+// Three values, not two: a parseable FAIL verdict and an infrastructure
+// failure are different facts, and the round-level failCount lumps them
+// together. AgentResult.IsError separates them.
+const (
+	// EventReviewAgentVerdictPass is written for a review agent whose output
+	// carried a parseable PASS verdict — verdict.Pass, and only that.
+	EventReviewAgentVerdictPass = "review.agent_verdict_pass"
+	// EventReviewAgentVerdictFail is written for a review agent whose output
+	// carried a parseable FAIL verdict — a real code-quality verdict.
+	EventReviewAgentVerdictFail = "review.agent_verdict_fail"
+	// EventReviewAgentVerdictError is written for a review agent whose round
+	// recorded no PASS and no FAIL. It is NOT limited to an agent that
+	// produced no output. The bucket holds: a no-start, a mid-run stall, an
+	// unclean exit, no output, and a session absent from the group. Never
+	// conflated with a FAIL.
+	//
+	// PASS_WITH_DISAGREEMENT is NOT in this bucket. Since #2970 the marker is a
+	// terminating pass: AssessPassed maps verdict.PassWithDisagreement to
+	// VerdictPassWithDisagreement (results.go), the round pipeline counts it as
+	// a verdict rather than NoVerdictUnparseable, and the per-agent counter
+	// records it under EventReviewAgentVerdictPassWithDisagreement below. That
+	// keeps the per-agent counter reconcilable with the round counter, which
+	// records the same round under EventReviewVerdictPassWithDisagreement.
+	EventReviewAgentVerdictError = "review.agent_verdict_error"
+	// EventReviewAgentVerdictPassWithDisagreement is written for a review agent
+	// (review-goal) whose output carried a parseable PASS_WITH_DISAGREEMENT
+	// marker. It is a terminating pass with an unresolved concern the
+	// coordinator decides (agents/review-goal.md, #2970), kept distinct from a
+	// plain PASS so the per-agent counter surfaces how often the marker is
+	// used, and so it agrees with the round counter about the same round.
+	EventReviewAgentVerdictPassWithDisagreement = "review.agent_verdict_pass_with_disagreement"
 )
 
 // MonitorOpts configures the group-completion monitor.
@@ -250,7 +317,16 @@ func MonitorFunc(opts MonitorOpts) error {
 	// delivery is the user-facing path; the column persistence is purely
 	// for `prism stats compare` reporting, and a missing column renders as
 	// the existing — placeholder.
-	persistReviewOutcome(d, opts.WorkerSession, results, allPassed)
+	persistReviewOutcome(d, opts.GroupID, opts.WorkerSession, results, allPassed)
+
+	// Persist the round's disagreement content, if any, so a worker that
+	// finishes without running `prism escalate` still surfaces it: the
+	// sidecar's finish-notification path (ConsumePendingDisagreement) reads
+	// this column and appends it to the coordinator notification (#2977).
+	// buildDisagreementSection is the single renderer -- this write stores its
+	// exact output, so the escalate-quoted text and the finish-notification
+	// text can never drift apart.
+	persistPendingDisagreement(d, opts.WorkerSession, allPassed, status)
 
 	// LOOP-LIMIT footer. Append the footer to the prompt body when
 	//   (a) the cycle has not converged (¬allPassed),
@@ -374,10 +450,12 @@ func MonitorFunc(opts MonitorOpts) error {
 // LastMessage carried a parseable `<verdict>PASS</verdict>` marker);
 // failCount = number of agents that did not pass (FAIL verdicts, error states,
 // no-start failures, finished-without-verdict). Verdict: "pass" when every
-// agent passed; "fail" when at least one did not. The lowercase casing
+// agent passed; "pass_with_disagreement" when every agent passed and at least
+// one (review-goal) emitted the PASS_WITH_DISAGREEMENT marker; "fail" when at
+// least one agent did not pass. The lowercase casing
 // matches the existing ComputeSpawnOutcome convention so the renderer's
 // existing pass-through display does not need a casing-aware code path.
-func persistReviewOutcome(d *db.DB, workerSession string, results []AgentResult, allPassed bool) {
+func persistReviewOutcome(d *db.DB, groupID, workerSession string, results []AgentResult, allPassed bool) {
 	if d == nil || workerSession == "" {
 		return
 	}
@@ -401,6 +479,12 @@ func persistReviewOutcome(d *db.DB, workerSession string, results []AgentResult,
 	verdict := "fail"
 	if allPassed {
 		verdict = "pass"
+		if roundHasDisagreement(results) {
+			// A round that terminated on the PASS_WITH_DISAGREEMENT marker is a
+			// pass, recorded distinctly so `prism stats compare` and the
+			// spawn_outcome roll-up agree it was not a plain pass (#2970).
+			verdict = "pass_with_disagreement"
+		}
 	}
 	if err := d.UpdateSpawnOutcomeReviewResult(sess.InstanceID, verdict, passCount, failCount); err != nil {
 		proglog.Warnf("[prism monitor-review] warning: UpdateSpawnOutcomeReviewResult(iid=%s, verdict=%s): %v\n", sess.InstanceID, verdict, err)
@@ -408,15 +492,145 @@ func persistReviewOutcome(d *db.DB, workerSession string, results []AgentResult,
 	}
 	proglog.Infof("[prism monitor-review] persisted review verdict=%s pass=%d fail=%d on worker spawn_outcome (iid=%s)\n", verdict, passCount, failCount, sess.InstanceID)
 
-	// Durable event for the exporter's tail cursor. Best-effort:
-	// telemetry must never break the review-outcome path it rides alongside.
+	// Durable verdict event for the exporter, via the shared single-writer
+	// helper so the monitor and recovery paths stay in lockstep.
+	writeVerdictEvent(d, groupID, workerSession, results, allPassed)
+}
+
+// verdictEventNamespace is a fixed namespace UUID used to derive a round's
+// verdict-event id from its group_id. It never changes: both delivery paths
+// must compute the same id for the same round, so the second write is a no-op.
+var verdictEventNamespace = uuid.MustParse("a4f2c9d1-6b3e-4f7a-9c2d-1e5b8a0f3d6c")
+
+// verdictEventID returns the deterministic agent_events.id for the verdict
+// event of the round identified by groupID. Deriving the primary key from the
+// group is the double-count guard: the monitor path and the recovery path
+// compute the same id, so an INSERT OR IGNORE from the second caller inserts
+// nothing. It stays a valid UUID (UUIDv5) so the exporter's assumption that
+// agent_events.id is a TEXT uuid holds.
+func verdictEventID(groupID string) string {
+	return uuid.NewSHA1(verdictEventNamespace, []byte(groupID)).String()
+}
+
+// agentVerdictEventNamespace is the namespace UUID for the PER-AGENT verdict
+// events. It is deliberately a different namespace from
+// verdictEventNamespace: the two key spaces stay disjoint by construction, so
+// no per-agent id can ever collide with the round id of any group. Like the
+// round namespace, it never changes.
+var agentVerdictEventNamespace = uuid.MustParse("8d1e7b64-2c05-4a9f-b3d7-5e0a6c48f291")
+
+// agentVerdictEventID returns the deterministic agent_events.id for ONE review
+// agent's verdict event in the round identified by groupID.
+//
+// The key is derived from the group AND the agent role, never from the group
+// alone. The round event's id is group-derived, and reusing that shape here
+// would collapse a round's five per-agent rows into one under the INSERT OR
+// IGNORE write: four verdicts would be lost silently. The role is separated
+// from the group id by a NUL, which cannot occur in either value, so no pair
+// of (group, role) values can produce the same input string as another pair.
+// The roles within one round are distinct by construction (Agents()), so five
+// agents give five distinct ids.
+func agentVerdictEventID(groupID, agentRole string) string {
+	return uuid.NewSHA1(agentVerdictEventNamespace, []byte(groupID+"\x00"+agentRole)).String()
+}
+
+// agentVerdictEventType maps one AgentResult onto its per-agent event type.
+// The four outcomes are disjoint and exhaustive:
+//
+//	pass_with_disagreement if r.Disagreement          (a terminating pass + concern)
+//	pass                   if r.Passed                 (a plain parseable PASS)
+//	error                  if !r.Passed &&  r.IsError  (no verdict was produced)
+//	fail                   if !r.Passed && !r.IsError  (a parseable FAIL verdict)
+//
+// Disagreement is checked before Passed because it implies Passed. An IsError
+// result NEVER counts as a fail — an agent that failed to start is not a
+// code-quality verdict, and conflating the two is what the round-level
+// failCount does.
+func agentVerdictEventType(r AgentResult) string {
+	switch {
+	case r.Disagreement:
+		return EventReviewAgentVerdictPassWithDisagreement
+	case r.Passed:
+		return EventReviewAgentVerdictPass
+	case r.IsError:
+		return EventReviewAgentVerdictError
+	default:
+		return EventReviewAgentVerdictFail
+	}
+}
+
+// writeVerdictEvent writes the durable verdict telemetry for a completed
+// review round to agent_events: ONE round event, plus one per-agent event for
+// each review agent of the round. It is the SINGLE site that emits either.
+// Both persistReviewOutcome (monitor path) and DeliverGroupResults (recovery
+// path) call it, so prism_review_verdicts_total counts a round exactly once no
+// matter which path delivered it, and the per-agent sum reconciles with the
+// round count on both paths.
+//
+// Double-count guard: every event id is derived deterministically — the round
+// event from the group (verdictEventID), each per-agent event from the group
+// AND the agent role (agentVerdictEventID) — and every write is
+// db.WriteEventIfAbsent (INSERT OR IGNORE). When the monitor wrote the events
+// and then died before delivery, the recovery watcher re-delivers the same
+// round; this helper recomputes the same ids and inserts nothing.
+//
+// Best-effort: telemetry must never break the review-outcome path it rides
+// alongside. A missing sessions row (worker reaped or never recorded) is not an
+// error — no event is written and the caller continues.
+func writeVerdictEvent(d *db.DB, groupID, workerSession string, results []AgentResult, allPassed bool) {
+	if d == nil || workerSession == "" || groupID == "" {
+		return
+	}
+	sess, err := d.MostRecentSessionForName(workerSession)
+	if err != nil {
+		proglog.Warnf("[prism review] warning: verdict event: lookup session %q: %v\n", workerSession, err)
+		return
+	}
+	if sess == nil || sess.InstanceID == "" {
+		proglog.Infof("[prism review] verdict event: no sessions row for %q — skipping\n", workerSession)
+		return
+	}
+	writeRoundVerdictEvent(d, groupID, workerSession, sess, allPassed, roundHasDisagreement(results))
+	// The per-agent events are written whether or not the round event was
+	// inserted. A round already counted at the round level can still be
+	// missing its per-agent rows — a round delivered before this counter
+	// existed is exactly that shape — and each per-agent write carries its own
+	// INSERT OR IGNORE guard, so a genuine re-delivery inserts nothing here
+	// either.
+	writeAgentVerdictEvents(d, groupID, sess, results)
+}
+
+// roundHasDisagreement reports whether any agent in the round emitted the
+// PASS_WITH_DISAGREEMENT marker. It gates the round-level verdict event's
+// pass_with_disagreement value.
+func roundHasDisagreement(results []AgentResult) bool {
+	for _, r := range results {
+		if r.Disagreement {
+			return true
+		}
+	}
+	return false
+}
+
+// writeRoundVerdictEvent writes the round-level verdict event: one row per
+// completed round, carrying the WORKER's instance id so the exporter labels it
+// with the worker's repo, role, and profile.
+//
+// A round that terminated as a pass AND carried a PASS_WITH_DISAGREEMENT
+// marker records EventReviewVerdictPassWithDisagreement, so the round counter
+// records the marker distinctly and agrees with the per-agent counter about
+// the same round (#2970).
+func writeRoundVerdictEvent(d *db.DB, groupID, workerSession string, sess *db.Session, allPassed, hasDisagreement bool) {
 	instanceID := sess.InstanceID
 	eventType := EventReviewVerdictFail
 	if allPassed {
 		eventType = EventReviewVerdictPass
+		if hasDisagreement {
+			eventType = EventReviewVerdictPassWithDisagreement
+		}
 	}
-	if err := d.WriteEvent(db.Event{
-		ID:          uuid.New().String(),
+	inserted, err := d.WriteEventIfAbsent(db.Event{
+		ID:          verdictEventID(groupID),
 		SessionName: workerSession,
 		Repo:        sess.Repo,
 		Worktree:    sess.Worktree,
@@ -424,8 +638,70 @@ func persistReviewOutcome(d *db.DB, workerSession string, results []AgentResult,
 		Type:        eventType,
 		Payload:     "{}",
 		CreatedAt:   time.Now(),
-	}); err != nil {
-		proglog.Warnf("[prism monitor-review] warning: write %s event (iid=%s): %v\n", eventType, sess.InstanceID, err)
+	})
+	if err != nil {
+		proglog.Warnf("[prism review] warning: write %s event (group=%s iid=%s): %v\n", eventType, groupID, instanceID, err)
+		return
+	}
+	if !inserted {
+		proglog.Infof("[prism review] verdict event already present for group %s — skipping duplicate\n", groupID)
+		return
+	}
+	proglog.Infof("[prism review] wrote %s event for group %s (iid=%s)\n", eventType, groupID, instanceID)
+}
+
+// writeAgentVerdictEvents writes one verdict event per review agent of the
+// round — the per-agent half of the telemetry (issue #2963).
+//
+// Each event carries the REVIEW AGENT's own instance id, which is what makes
+// prism_review_agent_verdicts_total's agent_role label name the review
+// dimension (review-security, review-qa, …) rather than the worker's role:
+// the exporter resolves that label by joining sessions on the event's
+// instance_id.
+//
+// repo and worktree are the WORKER's. A review agent is spawned into the
+// worker's repo and worktree (newReviewerSpawnOpts passes both straight
+// through), so the values are the same and reading them from the row already
+// in hand avoids five more lookups.
+//
+// An agent with no resolvable instance id is skipped alone: its role cannot be
+// resolved, so the event would carry an empty agent_role. The other agents of
+// the round still record their verdicts.
+func writeAgentVerdictEvents(d *db.DB, groupID string, sess *db.Session, results []AgentResult) {
+	for _, r := range results {
+		if r.InstanceID == "" {
+			proglog.Infof("[prism review] agent verdict event: no instance id for %s in group %s — skipping this agent\n", r.Agent.Name, groupID)
+			continue
+		}
+		instanceID := r.InstanceID
+		sessionName := r.SessionName
+		if sessionName == "" {
+			// An instance id with no session name should not occur —
+			// buildMonitorResults stamps both from the same group member row.
+			// Skip rather than write a row whose session_name is empty.
+			proglog.Infof("[prism review] agent verdict event: no session name for %s in group %s — skipping this agent\n", r.Agent.Name, groupID)
+			continue
+		}
+		eventType := agentVerdictEventType(r)
+		inserted, err := d.WriteEventIfAbsent(db.Event{
+			ID:          agentVerdictEventID(groupID, r.Agent.Name),
+			SessionName: sessionName,
+			Repo:        sess.Repo,
+			Worktree:    sess.Worktree,
+			InstanceID:  &instanceID,
+			Type:        eventType,
+			Payload:     "{}",
+			CreatedAt:   time.Now(),
+		})
+		if err != nil {
+			proglog.Warnf("[prism review] warning: write %s event (group=%s agent=%s iid=%s): %v\n", eventType, groupID, r.Agent.Name, instanceID, err)
+			continue
+		}
+		if !inserted {
+			proglog.Infof("[prism review] agent verdict event already present for %s in group %s — skipping duplicate\n", r.Agent.Name, groupID)
+			continue
+		}
+		proglog.Infof("[prism review] wrote %s event for %s in group %s (iid=%s)\n", eventType, r.Agent.Name, groupID, instanceID)
 	}
 }
 
@@ -571,108 +847,148 @@ func buildMonitorResults(agents []Agent, agentSessions []string, groupData map[s
 			agentSession = agentSessions[i]
 		}
 
-		mr, ok := groupData[agentSession]
-		if !ok || agentSession == "" {
-			// Session was reaped mid-review (ended_at set), deleted, or never
-			// registered — count as missing and name the recorded cause.
-			class, reason := classifyAbsentMember(agentSession, endedRows, endedCauses)
-			results[i] = AgentResult{
-				Agent:   ag,
-				Passed:  false,
-				Output:  fmt.Sprintf("ERROR: agent produced no verdict — %s: %s", class, reason),
-				IsError: true,
-			}
-			continue
-		}
-
-		switch mr.State {
-		case "error":
-			// Distinguish the failure classes within state "error":
-			//
-			//   - no-start: a startup_error event was written (by the
-			//     sidecar's writeStartupError, or by the inactivity watchdog
-			//     when it fired with zero inbound frames) — the agent never
-			//     ran. StartupError is non-empty.
-			//   - mid-run stall: a stall_error event was written by the
-			//     inactivity watchdog after one or more inbound frames were
-			//     received — the agent ran, then went silent. StallError is
-			//     non-empty and includes elapsed time, frame count, and the
-			//     last-frame timestamp.
-			//   - anything else: a mid-run crash.
-			//
-			// Label each clearly so the coordinator treats the first two as
-			// infrastructure failures rather than code-quality verdicts.
-			//
-			// Note: "interrupted" is intentionally NOT bucketed with "error" here.
-			// An interrupted agent that was redirected via `prism prompt`
-			// and subsequently crashes still lands here with state="error" — the
-			// genuine-error path is unchanged. "interrupted" only reaches this
-			// switch via the default branch below, which would only fire if the
-			// MonitorFunc poll loop hit its overall safety timeout while an agent
-			// was still in the interrupted state (i.e. the user neither redirected
-			// nor cleaned up). Without that safety timeout, GroupCompleted keeps
-			// returning false and the monitor keeps waiting.
-			if mr.StartupError != "" {
-				results[i] = AgentResult{
-					Agent:   ag,
-					Passed:  false,
-					Output:  fmt.Sprintf("ERROR: agent failed to start (no-start): %s", mr.StartupError),
-					IsError: true,
-				}
-			} else if mr.StallError != "" {
-				// The StallError reason already begins with "stalled mid-run
-				// after <elapsed> (<n> frame(s) received, last at <t>)".
-				results[i] = AgentResult{
-					Agent:   ag,
-					Passed:  false,
-					Output:  fmt.Sprintf("ERROR: agent %s", mr.StallError),
-					IsError: true,
-				}
-			} else {
-				results[i] = AgentResult{
-					Agent:   ag,
-					Passed:  false,
-					Output:  fmt.Sprintf("ERROR: agent did not complete cleanly (state: %s)", mr.State),
-					IsError: true,
-				}
-			}
-		case "finished":
-			if mr.LastMessage == "" {
-				results[i] = AgentResult{
-					Agent:   ag,
-					Passed:  false,
-					Output:  "ERROR: no output produced",
-					IsError: true,
-				}
-				continue
-			}
-			text := extractAssistantText(mr.LastMessage)
-			passed, kind := AssessPassed(text)
-			if !passed && kind == VerdictNone {
-				results[i] = AgentResult{
-					Agent:   ag,
-					Passed:  false,
-					Output:  "ERROR: no verdict found in agent output — review output:\n" + text,
-					IsError: true,
-				}
-				continue
-			}
-			results[i] = AgentResult{
-				Agent:  ag,
-				Passed: passed,
-				Output: text,
-			}
-		default:
-			// Non-terminal state after group says complete — treat as timed out / missing.
-			results[i] = AgentResult{
-				Agent:   ag,
-				Passed:  false,
-				Output:  fmt.Sprintf("ERROR: agent in unexpected state %q (may have timed out)", mr.State),
-				IsError: true,
-			}
-		}
+		results[i] = monitorResultFor(ag, agentSession, groupData, endedRows, endedCauses)
+		// Stamp WHICH agent produced this result, on every branch above.
+		// writeVerdictEvent needs the instance id to resolve the agent's role,
+		// and skips any agent it cannot resolve one for (issue #2963).
+		results[i].SessionName = agentSession
+		results[i].InstanceID = memberInstanceID(agentSession, groupData, endedRows)
 	}
 	return results
+}
+
+// memberInstanceID resolves one group member's own instance id from the two
+// reads buildMonitorResults already has in hand.
+//
+// groupData (db.GroupResults) is the live read and drops every row whose
+// ended_at is set — by design, and the reason the cleanup escape hatch works.
+// A member reaped mid-round is therefore absent from it, and those members are
+// exactly the ones the per-agent counter's "error" value exists to expose:
+// monitor_timeout, spawn_failure, parent_cleanup, auto_release (#2613, #2649).
+// Reading the instance id from groupData alone would skip every one of them
+// and under-count "error".
+//
+// endedRows carries precisely the rows groupData drops, with the same
+// instance_id column on them, so it is the correct fallback and it costs no
+// extra read.
+//
+// It can still resolve to "": the tmux session-closed hook calls
+// ClearInstanceID, which NULLs agent_status.instance_id. When that has already
+// run, the id is genuinely unresolvable and the caller skips the agent — which
+// is the edge case the ACs sanction.
+func memberInstanceID(agentSession string, groupData map[string]db.GroupMemberResult, endedRows map[string]db.Status) string {
+	if mr, ok := groupData[agentSession]; ok && mr.InstanceID != "" {
+		return mr.InstanceID
+	}
+	if st, ok := endedRows[agentSession]; ok && st.InstanceID != nil {
+		return *st.InstanceID
+	}
+	return ""
+}
+
+// monitorResultFor classifies ONE group member into its AgentResult. It is the
+// per-agent half of buildMonitorResults, split out so the caller can stamp the
+// agent's identity (session name, instance id) onto every branch's result in
+// one place rather than in each of the eight struct literals below.
+func monitorResultFor(ag Agent, agentSession string, groupData map[string]db.GroupMemberResult, endedRows map[string]db.Status, endedCauses map[string]db.SessionEndCause) AgentResult {
+	mr, ok := groupData[agentSession]
+	if !ok || agentSession == "" {
+		// Session was reaped mid-review (ended_at set), deleted, or never
+		// registered — count as missing and name the recorded cause.
+		class, reason := classifyAbsentMember(agentSession, endedRows, endedCauses)
+		return AgentResult{
+			Agent:   ag,
+			Passed:  false,
+			Output:  fmt.Sprintf("ERROR: agent produced no verdict — %s: %s", class, reason),
+			IsError: true,
+		}
+	}
+
+	switch mr.State {
+	case "error":
+		// Distinguish the failure classes within state "error":
+		//
+		//   - no-start: a startup_error event was written (by the
+		//     sidecar's writeStartupError, or by the inactivity watchdog
+		//     when it fired with zero inbound frames) — the agent never
+		//     ran. StartupError is non-empty.
+		//   - mid-run stall: a stall_error event was written by the
+		//     inactivity watchdog after one or more inbound frames were
+		//     received — the agent ran, then went silent. StallError is
+		//     non-empty and includes elapsed time, frame count, and the
+		//     last-frame timestamp.
+		//   - anything else: a mid-run crash.
+		//
+		// Label each clearly so the coordinator treats the first two as
+		// infrastructure failures rather than code-quality verdicts.
+		//
+		// Note: "interrupted" is intentionally NOT bucketed with "error" here.
+		// An interrupted agent that was redirected via `prism prompt`
+		// and subsequently crashes still lands here with state="error" — the
+		// genuine-error path is unchanged. "interrupted" only reaches this
+		// switch via the default branch below, which would only fire if the
+		// MonitorFunc poll loop hit its overall safety timeout while an agent
+		// was still in the interrupted state (i.e. the user neither redirected
+		// nor cleaned up). Without that safety timeout, GroupCompleted keeps
+		// returning false and the monitor keeps waiting.
+		if mr.StartupError != "" {
+			return AgentResult{
+				Agent:   ag,
+				Passed:  false,
+				Output:  fmt.Sprintf("ERROR: agent failed to start (no-start): %s", mr.StartupError),
+				IsError: true,
+			}
+		}
+		if mr.StallError != "" {
+			// The StallError reason already begins with "stalled mid-run
+			// after <elapsed> (<n> frame(s) received, last at <t>)".
+			return AgentResult{
+				Agent:   ag,
+				Passed:  false,
+				Output:  fmt.Sprintf("ERROR: agent %s", mr.StallError),
+				IsError: true,
+			}
+		}
+		return AgentResult{
+			Agent:   ag,
+			Passed:  false,
+			Output:  fmt.Sprintf("ERROR: agent did not complete cleanly (state: %s)", mr.State),
+			IsError: true,
+		}
+	case "finished":
+		if mr.LastMessage == "" {
+			return AgentResult{
+				Agent:   ag,
+				Passed:  false,
+				Output:  "ERROR: no output produced",
+				IsError: true,
+			}
+		}
+		text := extractAssistantText(mr.LastMessage)
+		passed, kind := AssessPassed(text)
+		if !passed && kind == VerdictNone {
+			return AgentResult{
+				Agent:   ag,
+				Passed:  false,
+				Output:  "ERROR: no verdict found in agent output — review output:\n" + text,
+				IsError: true,
+			}
+		}
+		return AgentResult{
+			Agent:        ag,
+			Passed:       passed,
+			Output:       text,
+			Disagreement: kind == VerdictPassWithDisagreement,
+		}
+	default:
+		// Non-terminal state after group says complete — treat as timed out / missing.
+		return AgentResult{
+			Agent:   ag,
+			Passed:  false,
+			Output:  fmt.Sprintf("ERROR: agent in unexpected state %q (may have timed out)", mr.State),
+			IsError: true,
+		}
+	}
 }
 
 // buildDeliveryMessage constructs the prompt text delivered to the worker when
@@ -700,6 +1016,18 @@ func buildDeliveryMessage(prNumber string, round int, formattedResults string, a
 	stalled := status.MissingOfClass(NoVerdictStalled)
 
 	switch {
+	case allPassed && status.HasDisagreement():
+		// Every agent passed, but review-goal recorded a scope disagreement it
+		// escalated rather than blocking on. PASS_WITH_DISAGREEMENT is a
+		// TERMINATING pass (agents/review-goal.md, #2970): the round does not
+		// re-run. The decision belongs to the coordinator, so the worker must
+		// escalate rather than push more code.
+		sb.WriteString("**Review passed with an unresolved disagreement.** ")
+		sb.WriteString("Every review agent passed, but review-goal recorded a scope disagreement it escalated rather than blocking on. ")
+		sb.WriteString("PASS_WITH_DISAGREEMENT counts as PASS for review-cycle termination — the review is complete and does NOT re-run. ")
+		sb.WriteString("Do NOT push more code to resolve it. ")
+		sb.WriteString("Escalate to your coordinator with `prism escalate`, quoting the disagreement below; the coordinator decides whether to accept this PR as-is or respawn with clarified scope.\n\n")
+		sb.WriteString(buildDisagreementSection(status))
 	case allPassed && status.Complete():
 		sb.WriteString("**All 5 review agents passed.** You may proceed with announcing completion.\n\n")
 	case status.Complete():
@@ -792,6 +1120,63 @@ func buildNoVerdictSection(status RoundStatus, prNumber string) string {
 	}
 	sb.WriteString(buildRerunAdvice(status, prNumber))
 	sb.WriteString("\nThis round does NOT count toward the 3-cycle limit.\n")
+	return sb.String()
+}
+
+// persistPendingDisagreement writes the round's rendered disagreement
+// section to the worker's agent_status row, or clears it, so a finish
+// notification reaching the sidecar long after this call still has
+// something to surface (#2977). Non-marker rounds (no disagreement, or a
+// FAIL alongside the marker) clear any stale value left over from an
+// earlier round on the same worker, so a later plain finish never
+// resurfaces an old, already-superseded disagreement.
+//
+// Failure is non-fatal and only logged: this is a best-effort side channel
+// to a later notification, not the delivery-message path itself, which
+// already carries the disagreement to the worker via buildDeliveryMessage.
+func persistPendingDisagreement(d *db.DB, workerSession string, allPassed bool, status RoundStatus) {
+	text := ""
+	if allPassed && status.HasDisagreement() {
+		text = buildDisagreementSection(status)
+	}
+	if err := d.SetPendingDisagreement(workerSession, text); err != nil {
+		proglog.Warnf("[prism monitor-review] warning: SetPendingDisagreement(%s): %v\n", workerSession, err)
+	}
+}
+
+// buildDisagreementSection renders the coordinator-facing roll-call of every
+// PASS_WITH_DISAGREEMENT the round carried. It names the agent and quotes the
+// verbatim <disagreement> block so the worker can copy it straight into a
+// `prism escalate` message, and the coordinator has the concern in hand. It
+// returns "" when the round carried no disagreement.
+func buildDisagreementSection(status RoundStatus) string {
+	if !status.HasDisagreement() {
+		return ""
+	}
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("### Unresolved disagreement for the coordinator (%d)\n\n", len(status.Disagreements)))
+	sb.WriteString("The decision on each item below belongs to the coordinator, not the worker. ")
+	sb.WriteString("Escalate with `prism escalate` and quote the concern verbatim.\n\n")
+	for _, d := range status.Disagreements {
+		name := d.Agent
+		if name == "" {
+			name = "(unnamed agent)"
+		}
+		if d.Session != "" {
+			sb.WriteString(fmt.Sprintf("- **%s** (`%s`)\n", name, d.Session))
+		} else {
+			sb.WriteString(fmt.Sprintf("- **%s**\n", name))
+		}
+		if d.Detail != "" {
+			sb.WriteString(d.Detail)
+			if !strings.HasSuffix(d.Detail, "\n") {
+				sb.WriteString("\n")
+			}
+		} else {
+			sb.WriteString("  (the agent emitted the marker with no `<disagreement>` block — read its full output with `prism checkin`)\n")
+		}
+	}
+	sb.WriteString("\n")
 	return sb.String()
 }
 

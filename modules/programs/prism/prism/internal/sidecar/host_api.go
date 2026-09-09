@@ -361,7 +361,11 @@ func (s *Sidecar) hostAPIHandler() http.Handler {
 	//   group    — session_groups.group_id (abtest only)
 	//
 	// Response shapes (all roles permitted — read-only):
-	//   view=summary → {"sessions":[...db.Session...]} with token/cost totals per-session
+	//   view=summary → {"rows":[...db.IncarnationSummaryRow...]}, one row per
+	//     session with state, duration_ms, total_tokens, and total_cost already
+	//     resolved on the host (db.AssembleIncarnationSummary) — the sandbox
+	//     proxy renderer and the host-direct renderer consume the same shape
+	//     (issue #2935)
 	//     when session is set: {"type":"detail","session":{...db.Session...}} (same as view=detail)
 	//   view=doomloops → {"events":[...db.Event...]}
 	//   view=denials   → {"events":[...db.Event...]}
@@ -369,7 +373,7 @@ func (s *Sidecar) hostAPIHandler() http.Handler {
 	//   view=detail    → {"session":{...db.Session...},"outcome":{...db.SpawnOutcome...}|null}
 	//                    (single-session incarnation detail; outcome is the
 	//                    persisted-or-computed spawn_outcome row, nil for a
-	//                    still-live session with no row yet)
+	//                    still-live session)
 	//   view=compare   → {"runs":[...db.CompareRunData...]} one per id, in request order;
 	//                    404 if any id fails to resolve (atomic, mirrors the host CLI path)
 	//   view=abtest    → {"runs":[...db.CompareRunData...]} group members sorted by session_name
@@ -478,10 +482,12 @@ func (s *Sidecar) hostAPIHandler() http.Handler {
 				writeError(w, http.StatusInternalServerError, "db error: "+err.Error())
 				return
 			}
-			if sessions == nil {
-				sessions = []db.Session{}
+			rows := make([]db.IncarnationSummaryRow, 0, len(sessions))
+			for _, sess := range sessions {
+				sess := sess
+				rows = append(rows, s.cfg.DB.AssembleIncarnationSummary(&sess))
 			}
-			writeJSON(w, http.StatusOK, map[string]any{"sessions": sessions})
+			writeJSON(w, http.StatusOK, map[string]any{"rows": rows})
 
 		case "detail":
 			if sessionFilter == "" {
@@ -510,10 +516,11 @@ func (s *Sidecar) hostAPIHandler() http.Handler {
 			}
 			// Include the spawn_outcome token/cost data alongside the session so
 			// the sandbox proxy path can render identical output to the
-			// host-direct path. CompareRunOutcome returns the
-			// persisted row, an on-the-fly computation for a terminal session
-			// with no row yet, or nil for a still-live session — the renderer
-			// treats nil as "not yet available", never as zero.
+			// host-direct path. CompareRunOutcome returns the persisted row when
+			// it carries the computed aggregates, an on-the-fly computation for a
+			// terminal session whose row does not, or nil for a still-live
+			// session — the renderer treats nil as "not yet available", never as
+			// zero.
 			outcome := s.cfg.DB.CompareRunOutcome(sess)
 			writeJSON(w, http.StatusOK, map[string]any{"session": sess, "outcome": outcome})
 
@@ -1329,10 +1336,15 @@ func (s *Sidecar) hostAPIHandler() http.Handler {
 
 	// POST /spawn
 	// Request:  {"branch":"my-feature","prompt":"...","agent":"worker","profile":"gemini-hybrid","harness":"pi"}
-	// The "repo" field is accepted but ignored — the sidecar always substitutes
-	// its own repo (derived from its session name) so that a client sending a
-	// mount-path name (e.g. "prism-git") still spawns into the correct repo
-	// (e.g. "nixos-config").
+	//
+	// Optional field "repo" carries the --repo CLI flag value, forwarded as
+	// --repo to the host-side prism spawn only when the client explicitly set
+	// it. When present, the host-side prism spawn resolves it through the same
+	// resolveRepo path the direct (host-shell) CLI uses, so an unresolvable
+	// value fails loudly rather than silently falling back. When absent (the
+	// client did not pass --repo, e.g. a container mount-path name like
+	// "prism-git" that is not a real repo name), the sidecar derives the repo
+	// from its own session name, exactly as before.
 	//
 	// Optional field "model_variant_overrides" accepts a JSON-encoded
 	// map[string]string produced by proxySpawn (cmd/spawn.go). Each entry is
@@ -1364,7 +1376,10 @@ func (s *Sidecar) hostAPIHandler() http.Handler {
 			return
 		}
 		var req struct {
-			Repo   string `json:"repo"` // accepted but ignored — ownRepo is always used
+			// Repo carries the --repo CLI flag value. Forwarded as --repo to the
+			// host-side prism spawn only when non-empty; see the /spawn doc
+			// comment above for the resolution rule.
+			Repo   string `json:"repo"`
 			Branch string `json:"branch"`
 			// PR is a PR number to check out, forwarded as --pr to the host-side
 			// prism spawn instead of a client-resolved --branch. This preserves
@@ -1523,15 +1538,33 @@ func (s *Sidecar) hostAPIHandler() http.Handler {
 			return
 		}
 
-		// Always derive the repo from the sidecar's own session name.
-		// This means a client that sends the wrong repo (e.g. a container
-		// mount-path name instead of the actual repo name) is silently
-		// corrected. The own-repo restriction is enforced implicitly: the
-		// sidecar can only spawn into its own repo.
+		// Derive the repo from the sidecar's own session name. Used as the
+		// --repo value whenever the client did not explicitly pass --repo.
 		ownRepo, repoErr := repoFromSession(s.cfg.SessionName, s.cfg.DB)
 		if repoErr != nil {
 			writeError(w, http.StatusInternalServerError, "cannot derive repo from session name: "+repoErr.Error())
 			return
+		}
+
+		// Validate req.Repo server-side as defence-in-depth: it is forwarded
+		// as a literal --repo argv value to the host-side prism spawn
+		// subprocess, so a value starting with "-" could otherwise be
+		// misread as a CLI flag rather than a value. resolveRepo (invoked by
+		// the host-side prism spawn) rejects anything that fails to resolve
+		// to a bare repo, but that check happens after argv construction, so
+		// this guards the injection shape specifically.
+		if req.Repo != "" && strings.HasPrefix(req.Repo, "-") {
+			writeError(w, http.StatusBadRequest, fmt.Sprintf("invalid repo %q: must not start with '-'", req.Repo))
+			return
+		}
+
+		// targetRepo is the --repo value actually forwarded: the client's
+		// explicit choice when set, otherwise the sidecar's own repo. Used
+		// below both to build the host-side argv and to pre-compute the
+		// self-delivery guard.
+		targetRepo := ownRepo
+		if req.Repo != "" {
+			targetRepo = req.Repo
 		}
 
 		var args []string
@@ -1586,7 +1619,7 @@ func (s *Sidecar) hostAPIHandler() http.Handler {
 		if req.Harness != "" {
 			args = append(args, "--harness", req.Harness)
 		}
-		args = append(args, "--repo", ownRepo)
+		args = append(args, "--repo", targetRepo)
 
 		// Log without the prompt value — it may contain sensitive context.
 		var logArgs []string
@@ -1630,7 +1663,7 @@ func (s *Sidecar) hostAPIHandler() http.Handler {
 		if req.Harness != "" {
 			logArgs = append(logArgs, "--harness", req.Harness)
 		}
-		logArgs = append(logArgs, "--repo", ownRepo)
+		logArgs = append(logArgs, "--repo", targetRepo)
 		s.logger().Printf("sidecar: host-API /spawn: prism %s", strings.Join(logArgs, " "))
 
 		// Staleness check. config.Load() memoises its result for
@@ -1751,9 +1784,9 @@ func (s *Sidecar) hostAPIHandler() http.Handler {
 		if len(req.Abtest) == 2 {
 			sessionNames := parseAllSpawnSessionNames(outStr)
 			if len(sessionNames) == 0 {
-				// Fallback: derive from ownRepo@branch-profile (best effort).
+				// Fallback: derive from targetRepo@branch-profile (best effort).
 				for _, p := range req.Abtest {
-					sessionNames = append(sessionNames, ownRepo+"@"+req.Branch+"-"+p)
+					sessionNames = append(sessionNames, targetRepo+"@"+req.Branch+"-"+p)
 				}
 			}
 			resp := map[string]any{"session_names": sessionNames}
@@ -1768,8 +1801,8 @@ func (s *Sidecar) hostAPIHandler() http.Handler {
 		// Parse the session name from the output.
 		sessionName := parseSpawnSessionName(outStr)
 		if sessionName == "" {
-			// Fallback: derive from ownRepo@branch (branch already sanitised by spawn).
-			sessionName = ownRepo + "@" + req.Branch
+			// Fallback: derive from targetRepo@branch (branch already sanitised by spawn).
+			sessionName = targetRepo + "@" + req.Branch
 		}
 		respFields := map[string]string{"session_name": sessionName}
 		if staleWarning != "" {

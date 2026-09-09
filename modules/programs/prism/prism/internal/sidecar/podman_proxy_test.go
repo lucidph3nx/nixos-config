@@ -46,7 +46,19 @@ import (
 //
 // Returns the constructed Sidecar plus the resolved proxy listener path so
 // tests can probe / assert on the listener directly.
+// The instance ID it sets is deliberately NOT a canonical UUID, so
+// container.ResourceNamePrefixForOwner takes its documented fallback and
+// the proxy is wired with the LEGACY prefix. Use
+// newPodmanProxyTestSidecarWithInstanceID for the identity-bearing path.
 func newPodmanProxyTestSidecar(t *testing.T, bus *sidecartest.Bus, session, upstream string) (*Sidecar, string) {
+	return newPodmanProxyTestSidecarWithInstanceID(t, bus, session, upstream, "test-instance-"+t.Name())
+}
+
+// newPodmanProxyTestSidecarWithInstanceID is newPodmanProxyTestSidecar
+// with the session incarnation's instance ID under the caller's control.
+// The instance ID decides the resource-name prefix the proxy enforces
+// (issue #2951), so a test about that prefix has to set it.
+func newPodmanProxyTestSidecarWithInstanceID(t *testing.T, bus *sidecartest.Bus, session, upstream, instanceID string) (*Sidecar, string) {
 	t.Helper()
 	listenerPath, err := prismsession.SidecarPodmanProxyPath(session)
 	if err != nil {
@@ -76,7 +88,7 @@ func newPodmanProxyTestSidecar(t *testing.T, bus *sidecartest.Bus, session, upst
 		DB:                      bus.DB,
 		Clock:                   newTestClock(),
 		AgentRole:               "worker",
-		InstanceID:              "test-instance-" + t.Name(),
+		InstanceID:              instanceID,
 		HarnessURL:              "http://127.0.0.1:1", // unreachable; not used with overridden SubscribeFn
 		Harness:                 h,
 		PodmanProxyListenerPath: listenerPath,
@@ -234,12 +246,12 @@ func TestPodmanProxy_ContainersEnabled_ProxyListensAndReturns503(t *testing.T) {
 		t.Fatalf("podman.sock listener did not appear at %s", listenerPath)
 	}
 
-	// The audit file path is deterministic: <sessionDir>/podman-proxy.log.
-	sessionDir, err := container.SessionWorkDirPath(sc.cfg.InstanceID)
+	// The audit file path is deterministic, and outside the session work
+	// dir so the agent cannot write it (internal/container/podman_proxy_audit.go).
+	auditPath, err := container.PodmanProxyAuditLogPath(sc.cfg.InstanceID)
 	if err != nil {
-		t.Fatalf("SessionWorkDirPath: %v", err)
+		t.Fatalf("PodmanProxyAuditLogPath: %v", err)
 	}
-	auditPath := filepath.Join(sessionDir, "podman-proxy.log")
 
 	// Fire a probe request at the proxy's ListenerPath. Expect 503 + the
 	// friendly envelope shape locked by the parent issue's AC.
@@ -267,6 +279,19 @@ func TestPodmanProxy_ContainersEnabled_ProxyListensAndReturns503(t *testing.T) {
 	if st.Size() == 0 {
 		t.Errorf("audit log %s is empty after probe; want at least one line", auditPath)
 	}
+	// The log holds the record of what the session asked the container
+	// runtime to do, so only the owner may read or write it.
+	if perm := st.Mode().Perm(); perm != 0o600 {
+		t.Errorf("audit log %s mode: got %04o, want 0600", auditPath, perm)
+	}
+	auditDir := filepath.Dir(auditPath)
+	dirSt, err := os.Stat(auditDir)
+	if err != nil {
+		t.Fatalf("stat audit dir %s: %v", auditDir, err)
+	}
+	if perm := dirSt.Mode().Perm(); perm != 0o700 {
+		t.Errorf("audit dir %s mode: got %04o, want 0700", auditDir, perm)
+	}
 	// Spot-check the audit line shape: it must parse as JSON with the
 	// expected fields. Use the first line only; trailing bytes (if any) may
 	// belong to an in-flight request.
@@ -283,6 +308,74 @@ func TestPodmanProxy_ContainersEnabled_ProxyListensAndReturns503(t *testing.T) {
 		if _, ok := rec[field]; !ok {
 			t.Errorf("audit line missing field %q: %v", field, rec)
 		}
+	}
+
+	cancel()
+	<-done
+}
+
+// ── "audit open failure does not stop the proxy" ──────────────────────
+
+// TestPodmanProxy_AuditOpenFailure_ProxyServesWithoutAudit pins the
+// audit-open failure path: the proxy still binds its listener and still
+// answers requests, with no audit file and no audit handle held on the
+// Sidecar. The agent's container access does not depend on the audit log,
+// so an unopenable log degrades audit only.
+//
+// The failure is forced by planting a regular file where the audit tree's
+// parent directory belongs, which makes MkdirAll fail with ENOTDIR.
+func TestPodmanProxy_AuditOpenFailure_ProxyServesWithoutAudit(t *testing.T) {
+	session := "prism-test@" + t.Name()
+	bus := sidecartest.NewIsolated(t, session)
+
+	upstream := filepath.Join(bus.XDGStateHome, "fake-podman.sock")
+	sc, listenerPath := newPodmanProxyTestSidecar(t, bus, session, upstream)
+	setContainersEnabled(t, bus, session, true)
+
+	auditPath, err := container.PodmanProxyAuditLogPath(sc.cfg.InstanceID)
+	if err != nil {
+		t.Fatalf("PodmanProxyAuditLogPath: %v", err)
+	}
+	auditRoot := filepath.Dir(filepath.Dir(auditPath))
+	if err := os.MkdirAll(filepath.Dir(auditRoot), 0o700); err != nil {
+		t.Fatalf("mkdir audit root parent: %v", err)
+	}
+	if err := os.WriteFile(auditRoot, []byte("not a directory\n"), 0o600); err != nil {
+		t.Fatalf("plant blocking file at %s: %v", auditRoot, err)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
+	done := runSidecarBackground(t, sc, ctx)
+
+	if !waitForPath(listenerPath, 3*time.Second) {
+		t.Fatalf("podman.sock listener did not appear at %s despite the audit log being unopenable", listenerPath)
+	}
+
+	client := proxyClientFor(listenerPath)
+	resp, err := client.Get("http://podman.sock/v1.41/_ping")
+	if err != nil {
+		t.Fatalf("GET /_ping via proxy: %v", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusServiceUnavailable {
+		t.Errorf("status: got %d, want %d", resp.StatusCode, http.StatusServiceUnavailable)
+	}
+
+	// Stat reports ENOTDIR rather than ENOENT here, because the planted
+	// file is an ancestor of the audit path. Either way no audit log exists.
+	if _, err := os.Stat(auditPath); err == nil {
+		t.Errorf("audit log exists at %s although the open failed", auditPath)
+	}
+
+	sc.mu.Lock()
+	gotFile, gotPath := sc.podmanProxyAuditFile, sc.podmanProxyAuditPath
+	sc.mu.Unlock()
+	if gotFile != nil {
+		t.Errorf("podmanProxyAuditFile: got %v, want nil", gotFile)
+	}
+	if gotPath != "" {
+		t.Errorf("podmanProxyAuditPath: got %q, want empty", gotPath)
 	}
 
 	cancel()
@@ -406,12 +499,15 @@ func TestPodmanProxy_UpstreamDiscovery_Darwin_MissingPodmanReturnsPlaceholder(t 
 
 // TestPodmanProxy_ContainerNamePrefix_WiredFromSession verifies the
 // container-name-prefix wiring: when the sidecar starts the proxy, the
-// proxy's Config.ContainerNamePrefix is set to
-// "prism-<sessionName>-" so the cleanup sweep can locate every
-// container belonging to this session. We probe the live behaviour
-// by POSTing a containers/create request with an explicit Name that
-// does NOT start with the session prefix — the proxy must reject
-// with 403 and audit reason name_prefix_mismatch.
+// proxy's Config.ContainerNamePrefix is set so the cleanup sweep can
+// locate every container belonging to this session. We probe the live
+// behaviour by POSTing a containers/create request with an explicit
+// Name that does NOT start with the session prefix — the proxy must
+// reject with 403 and audit reason name_prefix_mismatch.
+//
+// This test covers the FALLBACK prefix, because the helper's instance ID
+// is not a canonical UUID. TestPodmanProxy_NamePrefix_CarriesInstanceID
+// covers the identity-bearing prefix a real session gets.
 //
 // The test uses a real (test) upstream socket so the proxy's policy
 // path runs end-to-end rather than short-circuiting on dial failure.
@@ -436,7 +532,13 @@ func TestPodmanProxy_ContainerNamePrefix_WiredFromSession(t *testing.T) {
 	}
 
 	client := proxyClientFor(listenerPath)
-	body := strings.NewReader(`{"Image":"alpine","Name":"not-our-prefix"}`)
+	// The HostConfig carries in-cap Memory and NanoCpus on purpose. The
+	// resource-cap check runs before the name policy (worst violation
+	// wins), so a body with no HostConfig now denies with
+	// memory_required and never reaches the check this test is about.
+	body := strings.NewReader(
+		`{"Image":"alpine","Name":"not-our-prefix",` +
+			`"HostConfig":{"Memory":1073741824,"NanoCpus":1000000000}}`)
 	resp, err := client.Post("http://podman.sock/v1.41/containers/create",
 		"application/json", body)
 	if err != nil {
@@ -455,7 +557,7 @@ func TestPodmanProxy_ContainerNamePrefix_WiredFromSession(t *testing.T) {
 	if err := json.Unmarshal(respBody, &env); err != nil {
 		t.Fatalf("unmarshal envelope: %v (raw=%q)", err, respBody)
 	}
-	wantPrefix := "prism-" + session + "-"
+	wantPrefix := container.ResourceNamePrefixForSession(session)
 	if !strings.Contains(env.Message, wantPrefix) {
 		t.Errorf("envelope message does not name the wired prefix %q; got %q",
 			wantPrefix, env.Message)

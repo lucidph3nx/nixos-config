@@ -425,16 +425,58 @@ type Config struct {
 // structured as "<parent>~review-<N>~<agentName>" — it keeps the name within
 // the conservative charset [a-zA-Z0-9][a-zA-Z0-9_.-]*.
 func NameForSession(sessionName string) string {
+	return ResourceNamePrefixRoot + sanitiseSessionName(sessionName)
+}
+
+// sanitiseSessionName folds the characters podman rejects in a resource
+// name (`@`, `/`, `.`, `~`) to `-` and returns the result WITHOUT the
+// `prism-` marker.
+//
+// The fold is deliberately lossy and therefore NOT injective:
+// `repo@feat/x` and `repo@feat-x` both come back as `repo-feat-x`. That
+// is the collision issue #2951 records. Nothing here fixes it, and
+// nothing should try to: a session is identified by its instance ID
+// (see resource_identity.go), and this output is decoration on top of
+// that identity.
+func sanitiseSessionName(sessionName string) string {
 	safe := strings.ReplaceAll(sessionName, "@", "-")
 	safe = strings.ReplaceAll(safe, "/", "-")
 	safe = strings.ReplaceAll(safe, ".", "-")
 	safe = strings.ReplaceAll(safe, "~", "-")
-	return "prism-" + safe
+	return safe
 }
 
 // containerName is the unexported alias kept for internal use.
 func containerName(sessionName string) string {
 	return NameForSession(sessionName)
+}
+
+// ResourceNamePrefixForSession returns the LEGACY per-session name
+// prefix for podman-proxy resources: `prism-<sanitised session>-`.
+//
+// It is no longer what the proxy injects. `ResourceNamePrefixForOwner`
+// is (see resource_identity.go), because this prefix cannot express
+// identity — two distinct live sessions collide under it by folding and
+// by nesting (issue #2951).
+//
+// It is retained for two reasons, both of them about resources that
+// already exist:
+//
+//  1. `prism cleanup` still sweeps resources created before the identity
+//     prefix landed. Those names carry this prefix and no token, so this
+//     is the only rule that can reach them.
+//  2. A session whose instance ID is not a canonical UUID has no usable
+//     identity, and ResourceNamePrefixForOwner falls back to this.
+//
+// It MUST be built on NameForSession, not on the raw session name. A
+// session name is `<repo>@<branch>` and can also carry `~` for a review
+// child, while podman validates a container or volume name against
+// `^[a-zA-Z0-9][a-zA-Z0-9_.-]*$` and rejects `@`, `/`, and `~`. A prefix
+// built from the raw name produces resource names podman refuses to
+// create, which makes the create endpoint unusable and the matching
+// sweep dead code.
+func ResourceNamePrefixForSession(sessionName string) string {
+	return NameForSession(sessionName) + "-"
 }
 
 // Manager manages the lifecycle of a single agent session sandbox.

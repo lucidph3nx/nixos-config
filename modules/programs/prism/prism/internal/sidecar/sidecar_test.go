@@ -5493,14 +5493,16 @@ func TestHostAPI_Checkin_LastParamParsed(t *testing.T) {
 
 // ── Bug fix tests: /spawn repo substitution ────────────────────
 
-// TestHostAPI_Spawn_ClientRepoIsIgnoredServerUsesOwnRepo verifies the fix for
-// When a client sends an arbitrary "repo" value (for example, a container
-// mount-path name like "prism-git"), the server ignores it and substitutes its
-// own repo derived from its session name ("test-repo").
+// TestHostAPI_Spawn_ExplicitRepoIsForwarded verifies the fix for issue #2982:
+// when a client explicitly sets "repo" (mirroring --repo), the server
+// forwards that value to the host-side prism spawn instead of silently
+// substituting its own (derived-from-session-name) repo. Before #2982 this
+// field was unconditionally ignored, which silently dropped a sandboxed
+// coordinator's cross-repo `prism spawn --repo <other>` request.
 //
 // The test uses a stub binary that echoes a spawn success line containing the
 // repo argument passed to it, so we can verify which repo was used.
-func TestHostAPI_Spawn_ClientRepoIsIgnoredServerUsesOwnRepo(t *testing.T) {
+func TestHostAPI_Spawn_ExplicitRepoIsForwarded(t *testing.T) {
 	d := openTestDB(t)
 
 	// Write a stub that prints a success line with the last argument (the repo).
@@ -5529,19 +5531,19 @@ echo "session \"${last}@test-branch\" created"
 	}
 	sc := New(cfg)
 
-	// Client sends "repo":"prism-git" (a container mount-path name).
-	// Server must ignore this and use "test-repo" (from session name).
+	// Client explicitly sends "repo":"other-repo". Server must forward it,
+	// not silently substitute "test-repo" (from session name).
 	rr := doHostAPI(t, sc, http.MethodPost, "/spawn",
-		`{"repo":"prism-git","branch":"test-branch","prompt":"hi"}`)
+		`{"repo":"other-repo","branch":"test-branch","prompt":"hi"}`)
 	if rr.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200; body = %s", rr.Code, rr.Body.String())
 	}
 	var respBody map[string]string
 	decodeJSONBody(t, rr, &respBody)
-	// Session name must reflect the actual repo, not the mount-path name.
-	if respBody["session_name"] != "test-repo@test-branch" {
-		t.Errorf("session_name = %q, want %q (server must use ownRepo, not client-supplied repo)",
-			respBody["session_name"], "test-repo@test-branch")
+	// Session name must reflect the client-supplied repo, not the sidecar's own.
+	if respBody["session_name"] != "other-repo@test-branch" {
+		t.Errorf("session_name = %q, want %q (server must forward the explicit --repo value, issue #2982)",
+			respBody["session_name"], "other-repo@test-branch")
 	}
 }
 
@@ -6000,11 +6002,14 @@ func TestHostAPI_Spawn_SidecarNoAtSign_Returns500(t *testing.T) {
 	}
 }
 
-// TestHostAPI_Spawn_CoordinatorCrossRepoClientFieldIgnored verifies the
-// security property: a client sending "repo":"otherrepo" does NOT get a 403
-// (the field is ignored). The spawn runs against ownRepo instead, making the
-// own-repo restriction implicit and unforgeable.
-func TestHostAPI_Spawn_CoordinatorCrossRepoClientFieldIgnored(t *testing.T) {
+// TestHostAPI_Spawn_CoordinatorCrossRepoExplicitFieldForwarded verifies the
+// issue #2982 behaviour: a coordinator sending an explicit "repo":"otherrepo"
+// does NOT get a 403, and the spawn runs against the requested repo rather
+// than the sidecar's own. requireCoordinator is the only gate on this
+// endpoint (unchanged by #2982) — forwarding repo adds no capability beyond
+// what any coordinator already had via a direct host-shell `prism spawn
+// --repo`.
+func TestHostAPI_Spawn_CoordinatorCrossRepoExplicitFieldForwarded(t *testing.T) {
 	d := openTestDB(t)
 
 	// Stub that echoes the repo argument used by the server.
@@ -6031,22 +6036,22 @@ echo "session \"${last}@cross-branch\" created"
 	}
 	sc := New(cfg)
 
-	// Client sends "repo":"otherrepo" — this should be ignored, not rejected.
-	// The spawn runs with ownRepo ("myrepo"), so session_name must reflect myrepo.
+	// Client sends "repo":"otherrepo" — this must be forwarded, not rejected,
+	// and not silently swapped for the sidecar's own repo.
 	rr := doHostAPI(t, sc, http.MethodPost, "/spawn",
 		`{"repo":"otherrepo","branch":"cross-branch","prompt":"hi"}`)
 	if rr.Code == http.StatusForbidden {
-		t.Fatalf("status = 403 (Forbidden), but client-supplied repo must be ignored, not rejected")
+		t.Fatalf("status = 403 (Forbidden), but requireCoordinator is the only gate on /spawn; an explicit --repo must not be rejected here")
 	}
 	if rr.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200; body = %s", rr.Code, rr.Body.String())
 	}
 	var respBody map[string]string
 	decodeJSONBody(t, rr, &respBody)
-	// Must use ownRepo ("myrepo"), not the client-supplied "otherrepo".
-	if respBody["session_name"] != "myrepo@cross-branch" {
-		t.Errorf("session_name = %q, want %q (server must use ownRepo, not client-supplied repo)",
-			respBody["session_name"], "myrepo@cross-branch")
+	// Must use the client-supplied "otherrepo", not the sidecar's own "myrepo".
+	if respBody["session_name"] != "otherrepo@cross-branch" {
+		t.Errorf("session_name = %q, want %q (server must forward the explicit --repo value, issue #2982)",
+			respBody["session_name"], "otherrepo@cross-branch")
 	}
 }
 

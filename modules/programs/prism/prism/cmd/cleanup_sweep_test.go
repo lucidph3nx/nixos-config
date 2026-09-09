@@ -1,12 +1,17 @@
 package cmd
 
-// Tests for the orphan-container sweep.
+// Tests for the orphan-resource sweep (containers and volumes).
 //
 // The sweep is wired into the four cleanup paths via
-// applyOrphanContainerSweep; this file exercises the sweep in
-// isolation through sweepWithRunner (the test-injectable inner
-// function) and end-to-end through headlessCleanupWithJSON with a
-// stub podmanRunner.
+// applySessionResourceSweep; this file exercises each class in
+// isolation through its test-injectable inner function
+// (sweepWithRunner / sweepVolumesWithRunner) and end-to-end through
+// headlessCleanupWithJSON with a stub podmanRunner.
+//
+// End-to-end invocation counts in this file are exact on purpose. The
+// "a session that never enabled containers issues no podman command"
+// property is only observable as a count, so a loose assertion would
+// stop testing it.
 //
 // The discipline mirrors the existing cmd/cleanup_lifecycle_test.go:
 // SetTestDBPath to redirect openDB at a temp DB, withNoopTmux to
@@ -20,12 +25,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"testing"
 
+	"github.com/prismatic-koi/prism/internal/container"
 	"github.com/prismatic-koi/prism/internal/db"
 )
 
@@ -116,16 +122,20 @@ func installFakeRunner(t *testing.T) *fakePodmanRunner {
 
 // TestSweep_FilterUsesAnchoredRegex verifies that the podman ps
 // invocation passes an anchored regex through --filter name=<regex>,
-// not a plain substring. This is the security requirement's first line of
-// defence: podman libpod's filter is regex-matched, so anchoring on
-// the podman side already excludes most non-matching containers
-// before the Go-side re-filter sees them.
+// not a plain substring.
+//
+// The anchor is `^prism-`, not the per-session prefix. The filter
+// narrows the listing and decides nothing: ownership is decided in Go by
+// resourceOwner, whose parse is exact and total, and one listing has to
+// serve both the identity half and the legacy half of that decision.
+// TestSweep_ForeignInstanceContainerNotSwept is what pins the security
+// property the old per-session filter used to share responsibility for.
 func TestSweep_FilterUsesAnchoredRegex(t *testing.T) {
 	r := installFakeRunner(t)
 	r.script(scriptedResponse{stdout: []byte("")}) // ps returns nothing
 
 	session := "prism-test@filter-shape"
-	_ = sweepWithRunner(r, session)
+	_ = sweepWithRunner(r, newResourceOwner(session, nil, nil))
 
 	calls := r.calls()
 	if len(calls) != 1 {
@@ -135,8 +145,9 @@ func TestSweep_FilterUsesAnchoredRegex(t *testing.T) {
 	if len(args) < 1 || args[0] != "ps" {
 		t.Fatalf("first arg should be \"ps\"; got %v", args)
 	}
-	if !containsArgValue(args, "--filter", "name=^prism-prism-test@filter-shape-[a-f0-9]{8}$") {
-		t.Errorf("--filter not anchored to the strict per-session shape; args=%v", args)
+	wantFilter := "name=^" + regexp.QuoteMeta(container.ResourceNamePrefixRoot)
+	if !containsArgValue(args, "--filter", wantFilter) {
+		t.Errorf("--filter not anchored at the prism resource-name root; args=%v", args)
 	}
 	if !containsArg(args, "--format") {
 		t.Errorf("--format flag missing; args=%v", args)
@@ -152,7 +163,7 @@ func TestSweep_ZeroMatches_NoRmInvocation(t *testing.T) {
 	r := installFakeRunner(t)
 	r.script(scriptedResponse{stdout: []byte("\n")}) // ps returns just newlines
 
-	got := sweepWithRunner(r, "prism-test@empty")
+	got := sweepWithRunner(r, newResourceOwner("prism-test@empty", nil, nil))
 
 	if got != 0 {
 		t.Errorf("count: got %d, want 0", got)
@@ -178,16 +189,16 @@ func TestSweep_MatchedContainersRemoved(t *testing.T) {
 	r := installFakeRunner(t)
 	// ps returns three valid names matching the strict shape.
 	psOut := strings.Join([]string{
-		"prism-prism-test@happy-aaaaaaaa",
-		"prism-prism-test@happy-bbbbbbbb",
-		"prism-prism-test@happy-cccccccc",
+		"prism-prism-test-happy-aaaaaaaa",
+		"prism-prism-test-happy-bbbbbbbb",
+		"prism-prism-test-happy-cccccccc",
 	}, "\n") + "\n"
 	r.script(
 		scriptedResponse{stdout: []byte(psOut)},
 		scriptedResponse{stdout: []byte("")}, // rm returns empty
 	)
 
-	got := sweepWithRunner(r, session)
+	got := sweepWithRunner(r, newResourceOwner(session, nil, nil))
 	if got != 3 {
 		t.Errorf("count: got %d, want 3", got)
 	}
@@ -200,9 +211,9 @@ func TestSweep_MatchedContainersRemoved(t *testing.T) {
 		t.Fatalf("second invocation must start with \"rm -f\"; got %v", rm)
 	}
 	wantNames := []string{
-		"prism-prism-test@happy-aaaaaaaa",
-		"prism-prism-test@happy-bbbbbbbb",
-		"prism-prism-test@happy-cccccccc",
+		"prism-prism-test-happy-aaaaaaaa",
+		"prism-prism-test-happy-bbbbbbbb",
+		"prism-prism-test-happy-cccccccc",
 	}
 	got2 := rm[2:]
 	if len(got2) != len(wantNames) {
@@ -245,7 +256,7 @@ func TestSweep_SiblingPrefixSessionNotSwept(t *testing.T) {
 		scriptedResponse{stdout: []byte("")},
 	)
 
-	got := sweepWithRunner(r, "foo")
+	got := sweepWithRunner(r, newResourceOwner("foo", nil, nil))
 	if got != 1 {
 		t.Errorf("count: got %d, want 1 (only foo's container should be swept)", got)
 	}
@@ -279,7 +290,7 @@ func TestSweep_SubstringTrapNotSwept(t *testing.T) {
 		scriptedResponse{stdout: []byte("")},
 	)
 
-	got := sweepWithRunner(r, "foo")
+	got := sweepWithRunner(r, newResourceOwner("foo", nil, nil))
 	if got != 1 {
 		t.Errorf("count: got %d, want 1", got)
 	}
@@ -303,7 +314,7 @@ func TestSweep_PsFailureIsNonFatal(t *testing.T) {
 		err:    errors.New("exit status 125"),
 	})
 
-	got := sweepWithRunner(r, "prism-test@ps-fails")
+	got := sweepWithRunner(r, newResourceOwner("prism-test@ps-fails", nil, nil))
 	if got != 0 {
 		t.Errorf("count on ps failure: got %d, want 0", got)
 	}
@@ -323,7 +334,7 @@ func TestSweep_RmFailureIsNonFatal(t *testing.T) {
 		scriptedResponse{stdout: []byte(""), err: errors.New("exit status 1")},
 	)
 
-	got := sweepWithRunner(r, "foo")
+	got := sweepWithRunner(r, newResourceOwner("foo", nil, nil))
 	if got != 0 {
 		t.Errorf("count on rm failure: got %d, want 0 (we don't know how many were removed)", got)
 	}
@@ -397,32 +408,39 @@ func TestHeadlessCleanup_ContainersEnabled_EmptySweepReportsZero(t *testing.T) {
 		}
 	})
 
-	// containers_swept=0 present in envelope.
+	// Both sweep counts present and zero in the envelope. The two
+	// fields are written from one containers_enabled read, so an
+	// envelope carries both or neither.
 	var env map[string]any
 	if err := json.Unmarshal([]byte(out), &env); err != nil {
 		t.Fatalf("unmarshal envelope: %v\nraw: %q", err, out)
 	}
-	got, present := env["containers_swept"]
-	if !present {
-		t.Fatalf("containers_swept key must be present (containers_enabled=1) in envelope=%v", env)
-	}
-	// JSON numbers decode as float64 in map[string]any.
-	f, isNum := got.(float64)
-	if !isNum {
-		t.Fatalf("containers_swept must be a number; got %v (%T)", got, got)
-	}
-	if int(f) != 0 {
-		t.Errorf("containers_swept: got %v, want 0", f)
+	for _, key := range []string{"containers_swept", "volumes_swept"} {
+		got, present := env[key]
+		if !present {
+			t.Fatalf("%s key must be present (containers_enabled=1) in envelope=%v", key, env)
+		}
+		// JSON numbers decode as float64 in map[string]any.
+		f, isNum := got.(float64)
+		if !isNum {
+			t.Fatalf("%s must be a number; got %v (%T)", key, got, got)
+		}
+		if int(f) != 0 {
+			t.Errorf("%s: got %v, want 0", key, f)
+		}
 	}
 
-	// only ps invoked, no rm.
+	// Two list invocations (container ps + volume ls), no removals.
 	calls := r.calls()
-	if len(calls) != 1 {
-		t.Errorf("expected one podman invocation (ps); got %d: %v", len(calls), calls)
+	if len(calls) != 2 {
+		t.Errorf("expected two podman invocations (ps + volume ls); got %d: %v", len(calls), calls)
 	}
 	for _, args := range calls {
 		if len(args) >= 1 && args[0] == "rm" {
-			t.Errorf("zero matches must not trigger podman rm; got: %v", args)
+			t.Errorf("zero matches must not trigger a removal; got: %v", args)
+		}
+		if len(args) >= 2 && args[0] == "volume" && args[1] == "rm" {
+			t.Errorf("zero matches must not trigger podman volume rm; got: %v", args)
 		}
 	}
 }
@@ -435,8 +453,8 @@ func TestHeadlessCleanup_ContainersEnabled_SweepReportsCount(t *testing.T) {
 	withNoopTmux(t)
 	r := installFakeRunner(t)
 	psOut := strings.Join([]string{
-		"prism-prism-test@swept-11111111",
-		"prism-prism-test@swept-22222222",
+		"prism-prism-test-swept-11111111",
+		"prism-prism-test-swept-22222222",
 	}, "\n") + "\n"
 	r.script(
 		scriptedResponse{stdout: []byte(psOut)},
@@ -469,9 +487,11 @@ func TestHeadlessCleanup_ContainersEnabled_SweepReportsCount(t *testing.T) {
 		t.Errorf("containers_swept: got %v, want 2", f)
 	}
 
+	// ps + rm for the containers, then volume ls (which the stub
+	// answers empty, so no volume rm follows).
 	calls := r.calls()
-	if len(calls) != 2 {
-		t.Fatalf("expected ps + rm invocations; got %d: %v", len(calls), calls)
+	if len(calls) != 3 {
+		t.Fatalf("expected ps + rm + volume ls invocations; got %d: %v", len(calls), calls)
 	}
 }
 
@@ -498,5 +518,467 @@ func containsArg(args []string, want string) bool {
 	return false
 }
 
-// Compile-time guard: keep fmt imported for ad-hoc debugging.
-var _ = fmt.Sprintf
+// ── sweepVolumesWithRunner ────────────────────────────────────────────────
+
+// TestVolumeSweep_FilterAnchoredAtPrefix pins the podman-side filter
+// shape. The volume filter is anchored at the START of the name but not
+// at the end, because the volume policy admits user-chosen suffixes as
+// well as the 8-hex auto-name.
+//
+// As with the container filter, the anchor is the `prism-` root rather
+// than the per-session prefix. See TestSweep_FilterUsesAnchoredRegex.
+func TestVolumeSweep_FilterAnchoredAtPrefix(t *testing.T) {
+	r := installFakeRunner(t)
+	r.script(scriptedResponse{stdout: []byte("")})
+
+	session := "prism-test@vol-filter"
+	_ = sweepVolumesWithRunner(r, newResourceOwner(session, nil, nil))
+
+	calls := r.calls()
+	if len(calls) != 1 {
+		t.Fatalf("expected exactly one podman invocation (volume ls); got %d: %v", len(calls), calls)
+	}
+	args := calls[0]
+	if len(args) < 2 || args[0] != "volume" || args[1] != "ls" {
+		t.Fatalf("first invocation must be \"volume ls\"; got %v", args)
+	}
+	wantFilter := "name=^" + regexp.QuoteMeta(container.ResourceNamePrefixRoot)
+	if !containsArgValue(args, "--filter", wantFilter) {
+		t.Errorf("--filter not anchored at the prism resource-name root; args=%v", args)
+	}
+	if !containsArgValue(args, "--format", "{{.Name}}") {
+		t.Errorf("--format missing or wrong; args=%v", args)
+	}
+}
+
+// TestVolumeSweep_PrefixedVolumesRemoved is the AC: cleanup removes
+// every volume whose name starts with the session's prefix. Both the
+// auto-injected 8-hex shape and a user-chosen suffix must go — a
+// user-named volume holds data that outlives the session otherwise.
+func TestVolumeSweep_PrefixedVolumesRemoved(t *testing.T) {
+	r := installFakeRunner(t)
+	lsOut := strings.Join([]string{
+		"prism-foo-aaaaaaaa",    // auto-injected shape
+		"prism-foo-my-postgres", // user-chosen suffix
+		"prism-foo-cache.v2",    // dots are legal in volume names
+	}, "\n") + "\n"
+	r.script(
+		scriptedResponse{stdout: []byte(lsOut)},
+		scriptedResponse{stdout: []byte("")},
+	)
+
+	got := sweepVolumesWithRunner(r, newResourceOwner("foo", nil, nil))
+	if got != 3 {
+		t.Errorf("count: got %d, want 3", got)
+	}
+	calls := r.calls()
+	if len(calls) != 2 {
+		t.Fatalf("expected volume ls + volume rm; got %d: %v", len(calls), calls)
+	}
+	rm := calls[1]
+	if len(rm) < 2 || rm[0] != "volume" || rm[1] != "rm" {
+		t.Fatalf("second invocation must be \"volume rm\"; got %v", rm)
+	}
+	want := []string{"prism-foo-aaaaaaaa", "prism-foo-my-postgres", "prism-foo-cache.v2"}
+	gotNames := rm[2:]
+	if len(gotNames) != len(want) {
+		t.Fatalf("volume rm args: got %v, want %v", gotNames, want)
+	}
+	for i, w := range want {
+		if gotNames[i] != w {
+			t.Errorf("volume rm arg %d: got %q, want %q", i, gotNames[i], w)
+		}
+	}
+}
+
+// TestVolumeSweep_SubstringTrapNotSwept is the security counterpart of
+// TestSweep_SubstringTrapNotSwept: a volume whose name CONTAINS the
+// prefix but does not START with it must survive. The stub returns it
+// regardless of the filter, which simulates a podman version that reads
+// the filter as a substring match.
+func TestVolumeSweep_SubstringTrapNotSwept(t *testing.T) {
+	r := installFakeRunner(t)
+	lsOut := strings.Join([]string{
+		"prism-foo-aaaaaaaa",      // legit
+		"user-prism-foo-bbbbbbbb", // substring trap — must NOT be swept
+	}, "\n") + "\n"
+	r.script(
+		scriptedResponse{stdout: []byte(lsOut)},
+		scriptedResponse{stdout: []byte("")},
+	)
+
+	got := sweepVolumesWithRunner(r, newResourceOwner("foo", nil, nil))
+	if got != 1 {
+		t.Errorf("count: got %d, want 1", got)
+	}
+	rmArgs := r.calls()[1][2:]
+	for _, name := range rmArgs {
+		if !strings.HasPrefix(name, "prism-foo-") {
+			t.Errorf("SECURITY: volume sweep removed %q, which the session cannot own", name)
+		}
+	}
+}
+
+// TestVolumeSweep_BarePrefixNameIsSwept pins the agreement between the
+// create-side policy and the sweep.
+//
+// `applyVolumeNamePolicy` admits an explicit Name that equals the prefix
+// exactly — `strings.HasPrefix(prefix, prefix)` is true — and podman
+// accepts the resulting trailing dash, so `podman volume create
+// prism-<session>-` succeeds. The sweep must therefore reach it. An
+// earlier version excluded it, on the false premise that the policy
+// could not produce that name, and the volume leaked permanently.
+//
+// The general invariant this defends: every name the volume policy
+// admits must be reachable by the sweep.
+func TestVolumeSweep_BarePrefixNameIsSwept(t *testing.T) {
+	r := installFakeRunner(t)
+	lsOut := strings.Join([]string{
+		"prism-foo-",         // exactly the prefix — create admits it
+		"prism-foo-aaaaaaaa", // auto-injected shape
+	}, "\n") + "\n"
+	r.script(
+		scriptedResponse{stdout: []byte(lsOut)},
+		scriptedResponse{stdout: []byte("")},
+	)
+
+	got := sweepVolumesWithRunner(r, newResourceOwner("foo", nil, nil))
+	if got != 2 {
+		t.Fatalf("count: got %d, want 2 (the bare-prefix volume must be swept, not leaked)", got)
+	}
+	rmArgs := r.calls()[1][2:]
+	var sawBare bool
+	for _, name := range rmArgs {
+		if name == "prism-foo-" {
+			sawBare = true
+		}
+	}
+	if !sawBare {
+		t.Errorf("the bare-prefix volume was not passed to podman volume rm; args=%v", rmArgs)
+	}
+}
+
+// TestVolumeSweep_ImplicitMountVolumeIsSwept closes the loop on issue
+// #2954. A container-create mount that names a volume which does not
+// yet exist makes the runtime create it implicitly, without ever
+// sending POST /volumes/create. The proxy now refuses such a mount
+// unless the name starts with `prism-<session>-`
+// (policy.go::checkMountedVolumeNames), so every volume an admitted
+// mount can create carries the prefix — and the sweep matches on that
+// prefix, so it reaches them.
+//
+// The names below are the two shapes an admitted mount produces: a
+// Binds entry ("prism-foo-data:/data") and a Type=volume Mounts entry
+// (Source="prism-foo-pgdata"). Neither is the `<prefix><8 hex>`
+// auto-name shape, because no injection happens on that path — which
+// is exactly why the volume rule is a prefix match and not the strict
+// shape the container rule uses.
+func TestVolumeSweep_ImplicitMountVolumeIsSwept(t *testing.T) {
+	r := installFakeRunner(t)
+	lsOut := strings.Join([]string{
+		"prism-foo-data",   // implicitly created by Binds "prism-foo-data:/data"
+		"prism-foo-pgdata", // implicitly created by a Type=volume Mounts entry
+	}, "\n") + "\n"
+	r.script(
+		scriptedResponse{stdout: []byte(lsOut)},
+		scriptedResponse{stdout: []byte("")},
+	)
+
+	got := sweepVolumesWithRunner(r, newResourceOwner("foo", nil, nil))
+	if got != 2 {
+		t.Fatalf("count: got %d, want 2 (an implicitly-created volume must not outlive the session)", got)
+	}
+	rmArgs := r.calls()[1][2:]
+	for _, want := range []string{"prism-foo-data", "prism-foo-pgdata"} {
+		var saw bool
+		for _, name := range rmArgs {
+			if name == want {
+				saw = true
+			}
+		}
+		if !saw {
+			t.Errorf("volume %q was not passed to podman volume rm; args=%v", want, rmArgs)
+		}
+	}
+}
+
+// TestVolumeSweep_SiblingSessionVolumeNotSwept is the load-bearing
+// sibling-prefix test. Session "foo" and session "foo-bar" have prefixes
+// where one contains the other, so a plain prefix match on "prism-foo-"
+// would destroy the live sibling's data volume.
+//
+// Volume names cannot resolve the ambiguity on their own — session
+// "foo" is allowed to name a volume "prism-foo-bar-data" too — so the
+// guard errs toward leaving it in place. This test fails if the guard is
+// removed.
+func TestVolumeSweep_SiblingSessionVolumeNotSwept(t *testing.T) {
+	r := installFakeRunner(t)
+	lsOut := strings.Join([]string{
+		"prism-foo-aaaaaaaa",     // session "foo" — sweep it
+		"prism-foo-bar-bbbbbbbb", // live session "foo-bar" — leave it
+		"prism-foo-bar-pgdata",   // ditto
+	}, "\n") + "\n"
+	r.script(
+		scriptedResponse{stdout: []byte(lsOut)},
+		scriptedResponse{stdout: []byte("")},
+	)
+
+	siblings := []string{"prism-foo-bar-"}
+	got := sweepVolumesWithRunner(r, newResourceOwner("foo", nil, siblings))
+	if got != 1 {
+		t.Fatalf("count: got %d, want 1 (only foo's own volume should be swept)", got)
+	}
+	rmArgs := r.calls()[1][2:]
+	if len(rmArgs) != 1 || rmArgs[0] != "prism-foo-aaaaaaaa" {
+		t.Fatalf("volume rm args: got %v, want [prism-foo-aaaaaaaa]", rmArgs)
+	}
+	for _, name := range rmArgs {
+		if strings.HasPrefix(name, "prism-foo-bar-") {
+			t.Errorf("SECURITY: sweep removed live sibling session's volume %q", name)
+		}
+	}
+}
+
+// TestVolumeSweep_LsFailureIsNonFatal pins the best-effort contract:
+// podman being unavailable logs a warning and returns 0 without
+// attempting a removal.
+func TestVolumeSweep_LsFailureIsNonFatal(t *testing.T) {
+	r := installFakeRunner(t)
+	r.script(scriptedResponse{stdout: []byte(""), err: errors.New("exit status 125")})
+
+	if got := sweepVolumesWithRunner(r, newResourceOwner("foo", nil, nil)); got != 0 {
+		t.Errorf("count on ls failure: got %d, want 0", got)
+	}
+	if len(r.calls()) != 1 {
+		t.Errorf("expected only the ls invocation on failure; got %v", r.calls())
+	}
+}
+
+// TestVolumeSweep_ZeroMatchesIssuesNoRemoval covers the case where the
+// session enabled containers but created no volume.
+func TestVolumeSweep_ZeroMatchesIssuesNoRemoval(t *testing.T) {
+	r := installFakeRunner(t)
+	r.script(scriptedResponse{stdout: []byte("\n\n")})
+
+	if got := sweepVolumesWithRunner(r, newResourceOwner("foo", nil, nil)); got != 0 {
+		t.Errorf("count: got %d, want 0", got)
+	}
+	if len(r.calls()) != 1 {
+		t.Errorf("expected only the ls invocation; got %v", r.calls())
+	}
+}
+
+// TestLegacySiblingPrefixes_SelectsOnlyNestedLiveSessions covers the
+// guard's CALL SITE, which the sweepVolumesWithRunner tests do not
+// reach: they pass the sibling list in directly, so nothing pins how
+// that list is actually derived from the database.
+//
+// The comparison must run in SANITISED space. Sanitisation folds `@`,
+// `/`, `.`, and `~` all to `-`, so a raw-session-name comparison finds
+// different neighbours than the volume names actually carry.
+//
+// The guard applies to PRE-IDENTITY names only. Every session seeded
+// here folds to a distinct prefix, so no folding collision is in play —
+// TestLegacySiblingPrefixes_FoldingCollisionSuppressesLegacySweep covers
+// that shape.
+func TestLegacySiblingPrefixes_SelectsOnlyNestedLiveSessions(t *testing.T) {
+	dbFile := filepath.Join(t.TempDir(), "prism.db")
+	for _, s := range []string{
+		"repo@foo",         // the session being cleaned
+		"repo@foo-bar",     // nested: its prefix extends foo's
+		"repo@foo-bar-baz", // nested deeper, also a sibling
+		"repo@foobar",      // NOT nested: prefix is prism-repo-foobar-
+		"repo@other",       // unrelated
+	} {
+		seedContainerSession(t, dbFile, s, true)
+	}
+
+	d, err := db.Open(dbFile)
+	if err != nil {
+		t.Fatalf("open db: %v", err)
+	}
+	defer d.Close()
+
+	got := legacySiblingPrefixes(d, "repo@foo")
+	want := map[string]bool{
+		"prism-repo-foo-bar-":     true,
+		"prism-repo-foo-bar-baz-": true,
+	}
+	if len(got) != len(want) {
+		t.Fatalf("sibling prefixes: got %v, want the two nested ones %v", got, want)
+	}
+	for _, p := range got {
+		if !want[p] {
+			t.Errorf("unexpected sibling prefix %q: a non-nested session must not suppress the sweep", p)
+		}
+		// The session being cleaned must never appear in its own
+		// sibling list, or the guard suppresses the entire sweep.
+		if p == "prism-repo-foo-" {
+			t.Error("the cleaned session's own prefix is in the sibling list; the sweep would remove nothing")
+		}
+	}
+}
+
+// TestLegacySiblingPrefixes_NilDBIsSafe pins the documented
+// degradation: without a database the guard contributes nothing and the
+// sweep falls back to the plain prefix match.
+func TestLegacySiblingPrefixes_NilDBIsSafe(t *testing.T) {
+	if got := legacySiblingPrefixes(nil, "repo@foo"); got != nil {
+		t.Errorf("got %v, want nil", got)
+	}
+}
+
+// ── soft close must not destroy data volumes ──────────────────────────────
+
+// A soft close preserves the worktree, the branch, and the transcript so
+// the session can be reopened and resumed. A container is stateless
+// runtime and is swept there (pre-existing, harmless). A VOLUME is not:
+// the volume sweep matches on a plain name prefix precisely so it reaches
+// user-named data volumes, so running it on a soft close destroys data on
+// a path whose whole contract is preservation.
+//
+// These two tests are the guard. They matter more than the fix, because
+// the defect they pin was introduced by replacing four call sites
+// mechanically without asking whether a stateful sweep belongs on a
+// preservative path. Both assert the podman commands issued, not just the
+// envelope, so a future refactor that reintroduces the volume sweep here
+// fails loudly.
+
+// assertNoVolumeCommand fails the test if any recorded podman invocation
+// touched a volume.
+func assertNoVolumeCommand(t *testing.T, calls [][]string) {
+	t.Helper()
+	for _, args := range calls {
+		if len(args) >= 1 && args[0] == "volume" {
+			t.Errorf("DATA-LOSS GUARD: soft close issued a podman volume command: %v", args)
+		}
+	}
+}
+
+// TestSoftClose_HeadlessCloseSession_SweepsNoVolume covers the
+// `prism close` / coordinator / non-worktree / --keep-worktree path
+// (headlessCloseSessionWithJSONTo).
+func TestSoftClose_HeadlessCloseSession_SweepsNoVolume(t *testing.T) {
+	t.Setenv("PRISM_HOST_API", "")
+	withNoopTmux(t)
+	r := installFakeRunner(t)
+	// Script a container ps hit so the container sweep genuinely runs.
+	// If the volume sweep also ran it would consume the next scripted
+	// response and issue a `volume ls`, which the assertions below catch.
+	r.script(
+		scriptedResponse{stdout: []byte("prism-prism-test-soft-close-aaaaaaaa\n")},
+		scriptedResponse{stdout: []byte("")},
+	)
+
+	dbFile := filepath.Join(t.TempDir(), "prism.db")
+	session := "prism-test@soft-close"
+	seedContainerSession(t, dbFile, session, true)
+
+	SetTestDBPath(dbFile)
+	t.Cleanup(func() { SetTestDBPath("") })
+
+	out := captureStdoutDuringFn(t, func() {
+		if err := headlessCloseSessionWithJSON(session, true); err != nil {
+			t.Fatalf("headlessCloseSessionWithJSON: %v", err)
+		}
+	})
+
+	calls := r.calls()
+	assertNoVolumeCommand(t, calls)
+
+	// The container sweep still runs on this path.
+	var sawPs bool
+	for _, args := range calls {
+		if len(args) >= 1 && args[0] == "ps" {
+			sawPs = true
+		}
+	}
+	if !sawPs {
+		t.Errorf("expected the container sweep to still run on a soft close; got %v", calls)
+	}
+
+	var env map[string]any
+	if err := json.Unmarshal([]byte(out), &env); err != nil {
+		t.Fatalf("unmarshal envelope: %v\nraw: %q", err, out)
+	}
+	// volumes_swept must be ABSENT, not zero: "this path did not consider
+	// volumes" and "this path found no volumes" must stay distinguishable.
+	if _, present := env["volumes_swept"]; present {
+		t.Errorf("volumes_swept must be omitted on a soft close; envelope=%v", env)
+	}
+	if _, present := env["containers_swept"]; !present {
+		t.Errorf("containers_swept must still be present on a soft close; envelope=%v", env)
+	}
+}
+
+// TestSoftClose_CloseSession_SweepsNoVolume covers the interactive
+// closeSession path, which surfaces no JSON envelope, so the podman
+// invocations are the only observable.
+func TestSoftClose_CloseSession_SweepsNoVolume(t *testing.T) {
+	t.Setenv("PRISM_HOST_API", "")
+	withNoopTmux(t)
+	r := installFakeRunner(t)
+	r.script(
+		scriptedResponse{stdout: []byte("prism-prism-test-close-session-aaaaaaaa\n")},
+		scriptedResponse{stdout: []byte("")},
+	)
+
+	dbFile := filepath.Join(t.TempDir(), "prism.db")
+	session := "prism-test@close-session"
+	seedContainerSession(t, dbFile, session, true)
+
+	SetTestDBPath(dbFile)
+	t.Cleanup(func() { SetTestDBPath("") })
+
+	if err := closeSession(session); err != nil {
+		t.Fatalf("closeSession: %v", err)
+	}
+
+	assertNoVolumeCommand(t, r.calls())
+}
+
+// TestHardCleanup_SweepsVolumes is the positive control for the two
+// tests above. Without it, deleting the volume sweep outright would make
+// them pass, so it is what proves they pin a SCOPE rather than an
+// absence.
+func TestHardCleanup_SweepsVolumes(t *testing.T) {
+	t.Setenv("PRISM_HOST_API", "")
+	withNoopTmux(t)
+	r := installFakeRunner(t)
+	r.script(
+		scriptedResponse{stdout: []byte("")},                          // container ps: nothing
+		scriptedResponse{stdout: []byte("prism-prism-test-hard-x\n")}, // volume ls
+		scriptedResponse{stdout: []byte("")},                          // volume rm
+	)
+
+	dbFile := filepath.Join(t.TempDir(), "prism.db")
+	session := "prism-test@hard"
+	seedContainerSession(t, dbFile, session, true)
+
+	SetTestDBPath(dbFile)
+	t.Cleanup(func() { SetTestDBPath("") })
+
+	out := captureStdoutDuringFn(t, func() {
+		if err := headlessCleanupWithJSON(session, "hard", "", "", true); err != nil {
+			t.Fatalf("headlessCleanupWithJSON: %v", err)
+		}
+	})
+
+	var sawVolume bool
+	for _, args := range r.calls() {
+		if len(args) >= 1 && args[0] == "volume" {
+			sawVolume = true
+		}
+	}
+	if !sawVolume {
+		t.Fatalf("hard cleanup must sweep volumes; got %v", r.calls())
+	}
+
+	var env map[string]any
+	if err := json.Unmarshal([]byte(out), &env); err != nil {
+		t.Fatalf("unmarshal envelope: %v\nraw: %q", err, out)
+	}
+	if _, present := env["volumes_swept"]; !present {
+		t.Errorf("volumes_swept must be present on a hard cleanup; envelope=%v", env)
+	}
+}
