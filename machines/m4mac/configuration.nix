@@ -93,6 +93,7 @@ in
       _1password-cli
       arping
       gnutar
+      harlequin
       mariadb
       podman # darwin doesn't use virtualisation.podman
       postgresql
