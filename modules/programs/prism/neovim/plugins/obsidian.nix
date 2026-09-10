@@ -191,7 +191,7 @@
           			"Current buffer filename is not a YYYY-MM-DD daily note. Cannot calculate relative day.",
           			vim.log.levels.WARN
           		)
-          		return
+          		return false
           	end
 
           	-- Convert captured strings to numbers
@@ -228,6 +228,7 @@
 
           	-- Call ObsidianToday with the calculated offset from today
           	vim.cmd("Obsidian today " .. total_offset_from_today)
+          	return true
           end
 
           vim.api.nvim_create_user_command("ObsidianPrevDay", function(_)
@@ -309,11 +310,29 @@
           vim.keymap.set("n", "<leader>odr", function()
           	vim.cmd("Obsidian dailies -30 7")
           end, { desc = "[O]bsidian [D]aily [R]ecent" })
+          -- <Plug> mappings so ObsidianNextDay/ObsidianPrevDay are dot-repeatable via vim-repeat
+          vim.keymap.set("n", "<Plug>(ObsidianNextDay)", function()
+          	if offset_daily(1) then
+          		pcall(
+          			vim.fn["repeat#set"],
+          			vim.api.nvim_replace_termcodes("<Plug>(ObsidianNextDay)", true, true, true)
+          		)
+          	end
+          end, { silent = true, desc = "Obsidian next daily note (repeatable)" })
+          vim.keymap.set("n", "<Plug>(ObsidianPrevDay)", function()
+          	if offset_daily(-1) then
+          		pcall(
+          			vim.fn["repeat#set"],
+          			vim.api.nvim_replace_termcodes("<Plug>(ObsidianPrevDay)", true, true, true)
+          		)
+          	end
+          end, { silent = true, desc = "Obsidian previous daily note (repeatable)" })
+
           -- keybindings for custom commands
-          vim.keymap.set("n", "<leader>on", vim.cmd.ObsidianNextDay, { desc = "[O]bsidian [N]ext Daily Note" })
-          vim.keymap.set("n", "<leader>odn", vim.cmd.ObsidianNextDay, { desc = "[O]bsidian [D]aily [N]ext Note" })
-          vim.keymap.set("n", "<leader>op", vim.cmd.ObsidianPrevDay, { desc = "[O]bsidian [P]revious Daily Note" })
-          vim.keymap.set("n", "<leader>odp", vim.cmd.ObsidianPrevDay, { desc = "[O]bsidian [D]aily [P]revious Note" })
+          vim.keymap.set("n", "<leader>on", "<Plug>(ObsidianNextDay)", { remap = true, desc = "[O]bsidian [N]ext Daily Note" })
+          vim.keymap.set("n", "<leader>odn", "<Plug>(ObsidianNextDay)", { remap = true, desc = "[O]bsidian [D]aily [N]ext Note" })
+          vim.keymap.set("n", "<leader>op", "<Plug>(ObsidianPrevDay)", { remap = true, desc = "[O]bsidian [P]revious Daily Note" })
+          vim.keymap.set("n", "<leader>odp", "<Plug>(ObsidianPrevDay)", { remap = true, desc = "[O]bsidian [D]aily [P]revious Note" })
           vim.keymap.set("n", "<leader>or", vim.cmd.ObsidianRandomNote, { desc = "[O]bsidian [R]andom Note" })
 
           vim.keymap.set("n", "<leader>ob", "<cmd>Obsidian backlinks<cr>", { desc = "[O]bsidian [B]acklinks" })
